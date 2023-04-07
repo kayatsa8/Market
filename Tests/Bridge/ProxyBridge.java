@@ -18,6 +18,26 @@ public class ProxyBridge implements Bridge{
         return 1;
     }
 
+    @Override
+    public boolean loginUser(int id, String password) {
+        if(real != null){
+            return real.loginUser(id, password);
+        }
+        return true;
+    }
 
+    @Override
+    public void exitSystem(int id) {
+        if(real != null){
+            real.exitSystem(id);
+        }
+    }
+
+    @Override
+    public void loadSystem(){
+        if(real != null){
+            real.loadSystem();
+        }
+    }
 
 }

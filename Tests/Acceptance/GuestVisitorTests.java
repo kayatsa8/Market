@@ -5,25 +5,20 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 public class GuestVisitorTests extends ProjectTest{
 
 
 
-    //Don't sure I need this for this class
-    /*
     @Before
     public void setUp() {
         super.setUp();
-        //this.goodShow0 = createShow0();
-        //this.goodShow1 = createShow1();
     }
-     */
 
     @After
     public void tearDown() {
-        //this.goodShow0 = null;
-        //this.goodShow1 = null;
+        //delete stores and delete users from DB
     }
 
 
@@ -31,9 +26,10 @@ public class GuestVisitorTests extends ProjectTest{
      * Register User #9
      */
     @Test
-    public void registerUser(){
+    public void registerUserValid(){
         int id = this.registerUser("unusedUserName", "unusedPassword!23");
         assertTrue(id > 0);
+
     }
 
     @Test
@@ -59,6 +55,73 @@ public class GuestVisitorTests extends ProjectTest{
 
 
 
+    /**
+     * Login User #10
+     */
+    @Test
+    public void loginUserValid(){
+        int id = this.registerYonatan();
+        boolean loggedIn = this.loginUser(id, "YonatanPass123!");
+        assertTrue(loggedIn);
+    }
+
+    @Test
+    public void loginUserWrongPassword(){
+        int id = this.registerYonatan();
+        boolean loggedIn = this.loginUser(id, "Y!");
+        assertFalse(loggedIn);
+    }
+
+    @Test
+    public void loginUserNotRegistered(){
+        boolean loggedIn = this.loginUser(999, "Yona123!");
+        assertFalse(loggedIn);
+
+        loggedIn = this.loginUser(789, "Yona123!");
+        assertFalse(loggedIn);
+    }
+
+
+    /**
+     * Exit System #8
+     */
+    @Test
+    public void exitSystemGuestValid(){
+        //in the setup the guest has carts and items
+        this.exitSystem(user3Id);
+        //TODO Yona
+        //assertTrue(cart of guest is null);
+    }
+
+    @Test
+    public void exitSystemRegisteredUserValid(){
+        //in the setup the registered user has carts and items
+        this.exitSystem(user1Id);
+        //TODO Yona
+        //assertTrue(cart of user1 is null)
+    }
+
+    @Test
+    public void exitSystemDBConnectionLost(){
+
+    }
+
+
+    /**
+     * Load System #7
+     */
+    @Test
+    public void loadSystemValid(){
+        this.loadSystem();
+        //TODO Yona
+        //what to check here?
+    }
+
+    @Test
+    public void loadSystemDBConnectionLost(){
+        //TODO Yona
+        //what to check here?
+    }
 
 
 }
