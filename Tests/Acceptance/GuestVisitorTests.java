@@ -74,10 +74,10 @@ public class GuestVisitorTests extends ProjectTest{
 
     @Test
     public void loginUserNotRegistered(){
-        boolean loggedIn = this.loginUser(999, "Yona123!");
+        boolean loggedIn = this.loginUser(userNotExistId, "Yona123!");
         assertFalse(loggedIn);
 
-        loggedIn = this.loginUser(789, "Yona123!");
+        loggedIn = this.loginUser(userNotExistId, "Yona123!");
         assertFalse(loggedIn);
     }
 
@@ -88,7 +88,7 @@ public class GuestVisitorTests extends ProjectTest{
     @Test
     public void exitSystemGuestValid(){
         //in the setup the guest has carts and items
-        this.exitSystem(user3Id);
+        this.exitSystem(user1GuestId);
         //TODO Yona
         //assertTrue(cart of guest is null);
     }
@@ -96,7 +96,7 @@ public class GuestVisitorTests extends ProjectTest{
     @Test
     public void exitSystemRegisteredUserValid(){
         //in the setup the registered user has carts and items
-        this.exitSystem(user1Id);
+        this.exitSystem(user2LoggedInId);
         //TODO Yona
         //assertTrue(cart of user1 is null)
     }
