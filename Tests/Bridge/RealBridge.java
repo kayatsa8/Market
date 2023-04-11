@@ -58,7 +58,7 @@ public class RealBridge implements Bridge{
 
 
     @Override
-    public Boolean addItemToBasket(int userId, int storeId, int itemId, int amount) {
+    public boolean addItemToBasket(int userId, int storeId, int itemId, int amount) {
         //return facade.addItemToBasket(userId, storeId, itemId, amount);
         return true;
     }
@@ -70,7 +70,7 @@ public class RealBridge implements Bridge{
     }
 
     @Override
-    public Boolean buyCart(int userId, String paymentDetails) {
+    public boolean buyCart(int userId, String paymentDetails) {
         //return facade.buyCart(userId, paymentDetails);
         return true;
     }
@@ -82,13 +82,13 @@ public class RealBridge implements Bridge{
     }
 
     @Override
-    public Boolean removeItemFromStore(int storeId, int itemId) {
+    public boolean removeItemFromStore(int storeId, int itemId) {
         //return this.facade.removeItemFromStore(storeId, itemId);
         return false;
     }
 
     @Override
-    public Boolean changeItemName(int storeId, int itemId, String newName) {
+    public boolean changeItemName(int storeId, int itemId, String newName) {
         //return this.facade.updateItemName(storeId, itemId, newName);
         return false;
     }
@@ -109,6 +109,37 @@ public class RealBridge implements Bridge{
     public TestStoreInfo getStoreInfoAsStoreManager(int storeId, int userId) {
         //return this.facade.getStoreInfoAsStoreManager(storeId, userId);
         return null;
+    }
+
+    @Override
+    public boolean logOut(int userId) {
+        //return this.facade.logOut(userId);
+        return true;
+    }
+
+    @Override
+    public int createStore(int userId) {
+        //return this.facade.createStore(userId);
+        return -1;
+    }
+
+
+    @Override
+    public boolean closeStore(int userId, int storeId) {
+        //return this.facade.closeStore(userId, storeId);
+        return true;
+    }
+
+    @Override
+    public boolean defineStoreManager(int storeId, int storeOwner, int newStoreManager){
+        //return this.facade.defineStoreManager(storeId, storeOwner, newStoreManager);
+        return true;
+    }
+
+    @Override
+    public boolean removeStoreManager(int storeId, int storeOwnerId, int removeUserId) {
+        //return this.facade.removeStoreManager(storeId, storeOwnerId, removeUserId);
+        return false;
     }
 
 

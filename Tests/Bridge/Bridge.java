@@ -60,7 +60,7 @@ public interface Bridge {
      * @param amount
      * @return
      */
-    Boolean addItemToBasket(int userId, int storeId, int itemId, int amount);
+    boolean addItemToBasket(int userId, int storeId, int itemId, int amount);
 
     /**
      * show cart of user with userId
@@ -75,7 +75,7 @@ public interface Bridge {
      * @param paymentDetails
      * @return
      */
-    Boolean buyCart(int userId, String paymentDetails);
+    boolean buyCart(int userId, String paymentDetails);
 
     /**
      * adds item to and existing store
@@ -93,7 +93,7 @@ public interface Bridge {
      * @param itemId
      * @return true if successful
      */
-    Boolean removeItemFromStore(int storeId, int itemId);
+    boolean removeItemFromStore(int storeId, int itemId);
 
     /**
      *
@@ -102,7 +102,7 @@ public interface Bridge {
      * @param newName
      * @return true if successful
      */
-    Boolean changeItemName(int storeId, int itemId, String newName);
+    boolean changeItemName(int storeId, int itemId, String newName);
 
     /**
      * return the staff info if the user is manager/owner
@@ -127,4 +127,44 @@ public interface Bridge {
      * @return
      */
     TestStoreInfo getStoreInfoAsStoreManager(int storeId, int userId);
+
+    /**
+     * logout from system, save cart for this user
+     * @param userId
+     * @return true if logged out successful
+     */
+    boolean logOut(int userId);
+
+    /**
+     * creates a store and puts userId as store founder
+     * @param userId
+     * @return id of the new store
+     */
+    int createStore(int userId);
+
+    /**
+     * closes store only if user is the founder of the store
+     * @param userId
+     * @param storeId
+     * @return true if successful
+     */
+    boolean closeStore(int userId, int storeId);
+
+    /**
+     * The storeOwner defines the newStoreManager as the new Store Manager
+     * @param storeId
+     * @param storeOwner
+     * @param newStoreManager
+     * @return true if successful
+     */
+    boolean defineStoreManager(int storeId, int storeOwner, int newStoreManager);
+
+    /**
+     * Store Owner removes the removeUserId from the management job
+     * @param storeId
+     * @param storeOwnerId
+     * @param removeUserId
+     * @return true if successful
+     */
+    boolean removeStoreManager(int storeId, int storeOwnerId, int removeUserId);
 }

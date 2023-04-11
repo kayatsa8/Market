@@ -10,6 +10,7 @@ public class GuestPurchaseTestBuyCart extends ProjectTest{
     @Override
     public void setUp() {
         super.setUp();
+        setUpAllMarket();
     }
 
 
@@ -24,19 +25,19 @@ public class GuestPurchaseTestBuyCart extends ProjectTest{
      */
     @Test
     public void buyCartValid(){
-        Boolean added = this.buyCart(user1GuestId, "PaymentDetails");
+        boolean added = this.buyCart(user1GuestId, "PaymentDetails");
         assertTrue(added);
     }
 
     @Test
     public void buyCartWrongPaymentDetails(){
-        Boolean added = this.buyCart(user1GuestId, "WrongPaymentDetails");
+        boolean added = this.buyCart(user1GuestId, "WrongPaymentDetails");
         assertFalse(added);
     }
 
     @Test
     public void buyCartUserNotLoggedIn(){
-        Boolean added = this.buyCart(user3NotLoggedInId, "PaymentDetails");
+        boolean added = this.buyCart(user3NotLoggedInId, "PaymentDetails");
         assertFalse(added);
     }
 

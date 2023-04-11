@@ -6,58 +6,103 @@ import Tests.Objects.*;
 
 import java.util.List;
 
+
+
 public abstract class ProjectTest {
 
+    final int GUEST = 1;
+    final int MEMBER = 2;
+    final int LOGGED = 1;
+    final int NOT_LOGGED = 2;
+
     private Bridge bridge;
-    //All the 1'st items in the 1'set store
-    protected int user1GuestId;         //guest - active
-    protected int user2LoggedInId;      //registered, logged in, Store Owner and Manager
-    protected int user3NotLoggedInId;   // registered, not logged in
-    protected int userNotExistId;
-    protected int store1Id;             //open store
-    protected int store2Id;
-    protected int storeClosedId;
-    protected int item1Id;              //item1 in user1 basket
-    protected int item11Id;             //item11 in store1 but not in basket
-    protected int item2Id;              //item2 in store2
-    protected int item12ToBeRemovedId;
+    protected int user1GuestId = -1;         //guest - active
+    protected int user2LoggedInId = -1;
+    protected int user3NotLoggedInId = -1;   // registered, not logged in
+    protected int user4LoggedInId = -1;      //logged in, have items in carts
+    protected int user5ManagerOfStore2ToBeRemoved = -1; //Owner/Manager of store2, to be removed positioned  by user2
+    protected int user6ManagerOfStore2 = -1;            //Owner/Manager of store2, positioned by user2
+    protected int userNotExistId = -1;
+    protected int store2Id = -1;             //store is open
+    protected int store2ClosedId = -1;
+    protected int store4Id = -1;
+    protected int item1Id = -1;              //item1 in user1 basket
+    protected int item11Id = -1;             //item11 in store1 but not in basket
+    protected int item2Id = -1;              //item2 in store2
+    protected int item2ToBeRemovedId = -1;
 
 
     public void setUp() {
         this.bridge = Driver.getBridge();
-        setUpUsers();
-        setUpStores();
-        setUpExternalSystems();
-        setUpCarts();
-    }
-
-    private void setUpExternalSystems() {
-        //add supplier and payment services to store
-    }
-
-    private void setUpCarts() {
-        //add carts to users and add items to carts
+        //setUpExternalSystems();
     }
 
 
-    private void setUpStores() {
-        //add stores to the system, at least 2
-        //TODO
-        //store1Id = addStore();
-        //store2id = addStore();
-        //storeClosedId = addStore(); //close this store!
+    /**
+     * User1: Guest, Not logged In
+     */
+    protected void setUpUser1(){
+        user1GuestId = setUser("User1","User1!", GUEST, NOT_LOGGED);
+    }
+
+    /**
+     * User2: Member, logged in, Store Owner and Manager of store2
+     */
+    protected void setUpUser2(){
+        user2LoggedInId = setUser("User2","User2!", MEMBER, LOGGED);
+        user5ManagerOfStore2ToBeRemoved = setUser("User5", "User5!", MEMBER, NOT_LOGGED);
+        user6ManagerOfStore2 = setUser("User6", "User6!", MEMBER, LOGGED);
+        store2Id = createStore(user2LoggedInId); //store is open
+        store2ClosedId = createStore(user2LoggedInId); //store is close
+        //Make user5 as manager and owner of store2
+        //add items
+        item2Id = addItemToStore(store2Id, "Name1", 10);
+        item2ToBeRemovedId = addItemToStore(store2Id, "Name2", 10);
+    }
+
+    /**
+     * User3: Member, Not logged in, Has a cart with items
+     */
+    protected void setUpUser3() {
+        user3NotLoggedInId = setUser("User3","User3!", MEMBER, NOT_LOGGED);
+    }
+
+    /**
+     * User4: Member, logged in, Store Owner and founder of store4
+     */
+    protected void setUpUser4(){
+        user4LoggedInId = setUser("User4","User4!", MEMBER, LOGGED);
+        if(user2LoggedInId == -1)
+            user2LoggedInId = setUser("User2","User2!", MEMBER, LOGGED);   //created for the ownership of the store
+        store4Id = createStore(user4LoggedInId);  //user4 is founder, user2 is owner
+        //add items
     }
 
 
-    private void setUpUsers() {
-        user1GuestId = registerUser("YonatanUser123", "YonatanPass123!");
-        loginUser(user1GuestId, "YonatanPass123!");
+    protected int setUser(String userName, String password, int GuestOrMember, int logged) {
+        //if its a guest don't register
+        //register user to system and return the ID
+        return -1;
+    }
 
-        user2LoggedInId = registerUser("YonatanUser12345", "YonatanPass123!");
-        loginUser(user2LoggedInId, "YonatanPass123!");
 
-        //add user guest
-        //user3Id = loginAsGuest()
+    /**
+     * Set up all Users and Stores. user1 and user2 have carts with items in them
+     */
+    protected void setUpAllMarket() {
+        setUpUser1();
+        setUpUser2();
+        setUpUser3();
+        setUpUser4();
+        addItemsToUser(user1GuestId, store2Id, item1Id);
+    }
+
+    /**
+     * add items to cart of user from store
+     * @param userId
+     * @param storeId
+     */
+    private void addItemsToUser(int userId, int storeId, int itemId) {
     }
 
 
@@ -81,7 +126,6 @@ public abstract class ProjectTest {
         return this.bridge.registerUser(userName, password);
     }
 
-
     protected boolean loginUser(int id, String password) {
         return this.bridge.loginUser(id, password);
     }
@@ -102,7 +146,7 @@ public abstract class ProjectTest {
         return this.bridge.searchItems(itemName, filters);
     }
 
-    protected Boolean addItemToBasket(int userId, int storeId, int itemId, int amount) {
+    protected boolean addItemToBasket(int userId, int storeId, int itemId, int amount) {
         return this.bridge.addItemToBasket(userId, storeId, itemId, amount);
     }
 
@@ -110,7 +154,7 @@ public abstract class ProjectTest {
         return this.bridge.showCart(userId);
     }
 
-    protected Boolean buyCart(int userId, String paymentDetails) {
+    protected boolean buyCart(int userId, String paymentDetails) {
         return this.bridge.buyCart(userId, paymentDetails);
     }
 
@@ -118,12 +162,11 @@ public abstract class ProjectTest {
         return this.bridge.addItemToStore(storeId, itemName, price);
     }
 
-    protected Boolean removeItemFromStore(int storeId, int itemId) {
+    protected boolean removeItemFromStore(int storeId, int itemId) {
         return this.bridge.removeItemFromStore(storeId, itemId);
     }
 
-
-    protected Boolean changeItemName(int storeId, int itemId, String newName) {
+    protected boolean changeItemName(int storeId, int itemId, String newName) {
         return this.bridge.changeItemName(storeId, itemId, newName);
     }
 
@@ -137,5 +180,25 @@ public abstract class ProjectTest {
 
     protected TestStoreInfo getStoreInformationAsStoreManager(int storeId, int userId) {
         return this.bridge.getStoreInfoAsStoreManager(storeId, userId);
+    }
+
+    protected boolean logOut(int userId) {
+        return this.bridge.logOut(userId);
+    }
+
+    protected int createStore(int userId) {
+        return this.bridge.createStore(userId);
+    }
+
+    protected boolean closeStore(int userId, int storeId) {
+        return bridge.closeStore(userId, storeId);
+    }
+
+    protected boolean defineStoreManager(int storeId, int storeOwner, int newStoreManager) {
+        return this.bridge.defineStoreManager(storeId, storeOwner, newStoreManager);
+    }
+
+    protected boolean removeStoreManager(int storeId, int storeOwnerId, int removeUserId) {
+        return this.bridge.removeStoreManager(storeId, storeOwnerId, removeUserId);
     }
 }

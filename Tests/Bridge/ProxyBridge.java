@@ -65,7 +65,7 @@ public class ProxyBridge implements Bridge{
 
 
     @Override
-    public Boolean addItemToBasket(int userId, int storeId, int itemId, int amount) {
+    public boolean addItemToBasket(int userId, int storeId, int itemId, int amount) {
         if(real != null){
             return real.addItemToBasket(userId, storeId, itemId, amount);
         }
@@ -81,7 +81,7 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public Boolean buyCart(int userId, String paymentDetails) {
+    public boolean buyCart(int userId, String paymentDetails) {
         if(real != null){
             return real.buyCart(userId, paymentDetails);
         }
@@ -97,7 +97,7 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public Boolean removeItemFromStore(int storeId, int itemId) {
+    public boolean removeItemFromStore(int storeId, int itemId) {
         if(real != null){
             return real.removeItemFromStore(storeId, itemId);
         }
@@ -105,7 +105,7 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public Boolean changeItemName(int storeId, int itemId, String newName) {
+    public boolean changeItemName(int storeId, int itemId, String newName) {
         if(real != null){
             return real.changeItemName(storeId, itemId, newName);
         }
@@ -134,6 +134,47 @@ public class ProxyBridge implements Bridge{
             return real.getStoreInfoAsStoreManager(storeId, userId);
         }
         return null;
+    }
+
+    @Override
+    public boolean logOut(int userId) {
+        if(real != null){
+            return real.logOut(userId);
+        }
+        return true;
+    }
+
+    @Override
+    public int createStore(int userId) {
+        if(real != null){
+            return real.createStore(userId);
+        }
+        return -1;
+    }
+
+
+    @Override
+    public boolean closeStore(int userId, int storeId) {
+        if(real != null){
+            return real.closeStore(userId, storeId);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean defineStoreManager(int storeId, int storeOwner, int newStoreManager){
+        if(real != null){
+            return real.defineStoreManager(storeId, storeOwner, newStoreManager);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean removeStoreManager(int storeId, int storeOwnerId, int removeUserId) {
+        if(real != null){
+            return real.removeStoreManager(storeId, storeOwnerId, removeUserId);
+        }
+        return true;
     }
 
 

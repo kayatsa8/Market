@@ -14,6 +14,8 @@ public class GuestVisitorTests extends ProjectTest{
     @Before
     public void setUp() {
         super.setUp();
+        setUpUser2();
+        setUpUser3();
     }
 
     @After
@@ -23,62 +25,19 @@ public class GuestVisitorTests extends ProjectTest{
 
 
     /**
-     * Register User #9
+     * Load System #7
      */
     @Test
-    public void registerUserValid(){
-        int id = this.registerUser("unusedUserName", "unusedPassword!23");
-        assertTrue(id > 0);
-
+    public void loadSystemValid(){
+        this.loadSystem();
+        //TODO Yona
+        //what to check here?
     }
 
     @Test
-    public void registerUsedUser(){
-        this.registerUser("used", "123U!");
-
-        int id = this.registerUser("used", "12345U!");
-        assertTrue(id < 0);
-    }
-
-    @Test
-    public void registerFaultyUser(){
-        int id1 = this.registerUser("aa", "!");
-        assertTrue(id1 < 0);
-
-        int id2 = this.registerUser("aaaaa", "Y");
-        assertTrue(id2 < 0);
-
-        int id3 = this.registerUser("aaaaa", "a");
-        assertTrue(id3 < 0);
-
-    }
-
-
-
-    /**
-     * Login User #10
-     */
-    @Test
-    public void loginUserValid(){
-        int id = this.registerYonatan();
-        boolean loggedIn = this.loginUser(id, "YonatanPass123!");
-        assertTrue(loggedIn);
-    }
-
-    @Test
-    public void loginUserWrongPassword(){
-        int id = this.registerYonatan();
-        boolean loggedIn = this.loginUser(id, "Y!");
-        assertFalse(loggedIn);
-    }
-
-    @Test
-    public void loginUserNotRegistered(){
-        boolean loggedIn = this.loginUser(userNotExistId, "Yona123!");
-        assertFalse(loggedIn);
-
-        loggedIn = this.loginUser(userNotExistId, "Yona123!");
-        assertFalse(loggedIn);
+    public void loadSystemDBConnectionLost(){
+        //TODO Yona
+        //what to check here?
     }
 
 
@@ -108,20 +67,61 @@ public class GuestVisitorTests extends ProjectTest{
 
 
     /**
-     * Load System #7
+     * Register User #9
      */
     @Test
-    public void loadSystemValid(){
-        this.loadSystem();
-        //TODO Yona
-        //what to check here?
+    public void registerUserValid(){
+        int id = this.registerUser("unusedUserName", "unusedPassword!23");
+        assertTrue(id > 0);
+
     }
 
     @Test
-    public void loadSystemDBConnectionLost(){
-        //TODO Yona
-        //what to check here?
+    public void registerUsedUser(){
+        int id = registerUser("User2", "User2!");
+        assertTrue(id < 0);
     }
+
+    @Test
+    public void registerFaultyUser(){
+        int id1 = this.registerUser("aa", "!");
+        assertTrue(id1 < 0);
+
+        int id2 = this.registerUser("aaaaa", "Y");
+        assertTrue(id2 < 0);
+
+        int id3 = this.registerUser("aaaaa", "a");
+        assertTrue(id3 < 0);
+
+    }
+
+
+
+    /**
+     * Login User #10
+     */
+    @Test
+    public void loginUserValid(){
+        boolean loggedIn = this.loginUser(user3NotLoggedInId, "User3!");
+        assertTrue(loggedIn);
+    }
+
+    @Test
+    public void loginUserWrongPassword(){
+        boolean loggedIn = this.loginUser(user3NotLoggedInId, "Y!");
+        assertFalse(loggedIn);
+    }
+
+    @Test
+    public void loginUserNotRegistered(){
+        boolean loggedIn = this.loginUser(user1GuestId, "Yona123!");
+        assertFalse(loggedIn);
+
+        loggedIn = this.loginUser(userNotExistId, "Yona123!");
+        assertFalse(loggedIn);
+    }
+
+
 
 
 }
