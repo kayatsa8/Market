@@ -1,4 +1,4 @@
-package Tests.Acceptance;
+package Acceptance;
 
 import org.junit.After;
 import org.junit.Test;
@@ -57,7 +57,6 @@ public class RegisteredUserTests extends ProjectTest{
         int storeId = this.createStore(user3NotLoggedInId);
         assertFalse(storeId > 0);
     }
-
 
 
 }

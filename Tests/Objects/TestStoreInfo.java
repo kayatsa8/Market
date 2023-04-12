@@ -1,4 +1,4 @@
-package Tests.Objects;
+package Objects;
 
 public class TestStoreInfo {
 }

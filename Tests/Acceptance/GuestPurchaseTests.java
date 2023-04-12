@@ -1,7 +1,7 @@
-package Tests.Acceptance;
+package Acceptance;
 
-import Tests.Objects.TestCartInfo;
-import Tests.Objects.TestItemInfo;
+import Objects.TestCartInfo;
+import Objects.TestItemInfo;
 import org.junit.After;
 import org.junit.Test;
 
@@ -29,6 +29,7 @@ public class GuestPurchaseTests extends ProjectTest{
 
     /**
      * Get Store info #11
+     * #18 is the same
      */
     @Test
     public void getStoreInfoValid(){

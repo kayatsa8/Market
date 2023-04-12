@@ -1,8 +1,8 @@
-package Tests.Acceptance;
+package Acceptance;
 
-import Tests.Objects.TestReceipt;
-import Tests.Objects.TestStaffInfo;
-import Tests.Objects.TestStoreInfo;
+import Objects.TestReceipt;
+import Objects.TestStaffInfo;
+import Objects.TestStoreInfo;
 import org.junit.After;
 import org.junit.Test;
 
@@ -108,6 +108,27 @@ public class StoreOwnerManagerTests extends ProjectTest{
         //add negative tests
     }
 
+    /**
+     * Define Store Owner #32
+     */
+    @Test
+    public void defineStoreOwner_Valid(){
+        boolean defined = this.defineStoreOwner(store2Id, user2LoggedInId, user3NotLoggedInId);
+        assertTrue(defined);
+    }
+
+    @Test
+    public void defineStoreOwner_AlreadyStoreOwner(){
+        boolean defined = this.defineStoreOwner(store2Id, user2LoggedInId, user6ManagerOwnerOfStore2);
+        assertFalse(defined);
+    }
+
+    @Test
+    public void defineStoreOwner_UserNotStoreOwner(){
+        boolean defined = this.defineStoreOwner(store4Id, user2LoggedInId, user6ManagerOwnerOfStore2);
+        assertFalse(defined);
+    }
+
 
     /**
      * Define Store Manager #33
@@ -120,14 +141,14 @@ public class StoreOwnerManagerTests extends ProjectTest{
 
     @Test
     public void defineStoreManager_AlreadyStoreManager(){
-        boolean changed = this.defineStoreManager(store2Id, user2LoggedInId, user4LoggedInId);
+        boolean changed = this.defineStoreManager(store2Id, user2LoggedInId, user6ManagerOwnerOfStore2);
         //If its failing, check if the user4 is owner or manager of store2!!
         assertFalse(changed);
     }
 
     @Test
     public void defineStoreManager_UserNotThisStoreManager(){
-        boolean changed = this.defineStoreManager(store4Id, user2LoggedInId, user4LoggedInId);
+        boolean changed = this.defineStoreManager(store4Id, user2LoggedInId, user6ManagerOwnerOfStore2);
         assertFalse(changed);
     }
 
@@ -137,20 +158,43 @@ public class StoreOwnerManagerTests extends ProjectTest{
      */
     @Test
     public void removeStoreManager_Valid(){
-        boolean removed = this.removeStoreManager(store2Id, user2LoggedInId, user5ManagerOfStore2ToBeRemoved);
+        boolean removed = this.removeStoreManager(store2Id, user2LoggedInId, user5ManagerOwnerOfStore2ToBeRemoved);
         assertTrue(removed);
     }
 
     @Test
     public void removeStoreManager_NotByTheRightManager(){
-        //User5 was positioned by user2 and he is removed by user6, error!
-        boolean removed = this.removeStoreManager(store2Id, user6ManagerOfStore2, user5ManagerOfStore2ToBeRemoved);
+        //User5 was positioned by User2 and he is removed by User6, error!
+        boolean removed = this.removeStoreManager(store2Id, user6ManagerOwnerOfStore2, user5ManagerOwnerOfStore2ToBeRemoved);
         assertFalse(removed);
     }
 
     @Test
     public void removeStoreManager_NotByTheStoreManager(){
-        boolean removed = this.removeStoreManager(store2Id, user1GuestId, user6ManagerOfStore2);
+        boolean removed = this.removeStoreManager(store2Id, user1GuestId, user6ManagerOwnerOfStore2);
+        assertFalse(removed);
+    }
+
+
+    /**
+     * Remove Store Owner #34
+     */
+    @Test
+    public void removeStoreOwner_Valid(){
+        boolean removed = this.removeStoreOwner(store2Id, user2LoggedInId, user5ManagerOwnerOfStore2ToBeRemoved);
+        assertTrue(removed);
+    }
+
+    @Test
+    public void removeStoreOwner_NotByTheRightManager(){
+        //User5 was positioned by User2 and he is removed by User6, error!
+        boolean removed = this.removeStoreOwner(store2Id, user6ManagerOwnerOfStore2, user5ManagerOwnerOfStore2ToBeRemoved);
+        assertFalse(removed);
+    }
+
+    @Test
+    public void removeStoreOwner_NotByStoreOwner(){
+        boolean removed = this.removeStoreOwner(store2Id, user1GuestId, user6ManagerOwnerOfStore2);
         assertFalse(removed);
     }
 

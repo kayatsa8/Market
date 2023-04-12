@@ -1,4 +1,4 @@
-package Tests.Bridge;
+package Bridge;
 
 public abstract class Driver {
 
