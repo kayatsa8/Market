@@ -17,7 +17,6 @@ public class RealBridge implements Bridge{
 
     @Override
     public int registerUser(String userName, String password) {
-        //TODO real
         //facade.registerUser(userName, password);
         return 1;
     }
@@ -25,19 +24,16 @@ public class RealBridge implements Bridge{
 
     @Override
     public boolean loginUser(int id, String password) {
-        //TODO real
         //facade.loginUser(id, password);
         return false;
     }
 
     @Override
     public void exitSystem(int id) {
-        //TODO real
         //facade.exitSystem(id);
     }
 
     public void loadSystem(){
-        //TODO real
         //facade.loadSystem();
 
     }
@@ -139,6 +135,30 @@ public class RealBridge implements Bridge{
     @Override
     public boolean removeStoreManager(int storeId, int storeOwnerId, int removeUserId) {
         //return this.facade.removeStoreManager(storeId, storeOwnerId, removeUserId);
+        return false;
+    }
+
+    @Override
+    public boolean defineStoreOwner(int storeId, int ownerId, int newCoOwnerId) {
+        //return this.facade.defineStoreOwner(storeId, ownerId, newCoOwnerId);
+        return false;
+    }
+
+    @Override
+    public boolean removeStoreOwner(int storeId, int storeOwnerId, int newStoreOwnerId) {
+        //return this.facade.removeStoreOwner(storeId, storeOwnerId, newStoreOwnerId);
+        return false;
+    }
+
+    @Override
+    public boolean payCart(int userId, String paymentDetails, String paymentService) {
+        //return this.facade.payCart(userId, paymentDetails, paymentService);
+        return false;
+    }
+
+    @Override
+    public boolean askForSupply(int userId, List<TestItemInfo> items, String supplyService) {
+        //return this.facade.askForSupply(userId, items, supplyService);
         return false;
     }
 

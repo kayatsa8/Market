@@ -21,6 +21,7 @@ public class GuestVisitorTests extends ProjectTest{
     @After
     public void tearDown() {
         //delete stores and delete users from DB
+        //delete info from registerUserValid()
     }
 
 
@@ -68,6 +69,7 @@ public class GuestVisitorTests extends ProjectTest{
 
     /**
      * Register User #9
+     * same as #24
      */
     @Test
     public void registerUserValid(){

@@ -177,5 +177,37 @@ public class ProxyBridge implements Bridge{
         return true;
     }
 
+    @Override
+    public boolean defineStoreOwner(int storeId, int ownerId, int newCoOwnerId) {
+        if(real != null){
+            return real.defineStoreOwner(storeId, ownerId, newCoOwnerId);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean removeStoreOwner(int storeId, int storeOwnerId, int newStoreOwnerId) {
+        if(real != null){
+            return real.removeStoreOwner(storeId, storeOwnerId, newStoreOwnerId);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean payCart(int userId, String paymentDetails, String paymentService) {
+        if(real != null){
+            return real.payCart(userId, paymentDetails, paymentService);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean askForSupply(int userId, List<TestItemInfo> items, String supplyService) {
+        if(real != null){
+            return real.askForSupply(userId, items, supplyService);
+        }
+        return true;
+    }
+
 
 }

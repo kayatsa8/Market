@@ -20,8 +20,8 @@ public abstract class ProjectTest {
     protected int user2LoggedInId = -1;
     protected int user3NotLoggedInId = -1;   // registered, not logged in
     protected int user4LoggedInId = -1;      //logged in, have items in carts
-    protected int user5ManagerOfStore2ToBeRemoved = -1; //Owner/Manager of store2, to be removed positioned  by user2
-    protected int user6ManagerOfStore2 = -1;            //Owner/Manager of store2, positioned by user2
+    protected int user5ManagerOwnerOfStore2ToBeRemoved = -1; //Owner/Manager of store2, to be removed positioned  by user2
+    protected int user6ManagerOwnerOfStore2 = -1;            //Owner/Manager of store2, positioned by user2
     protected int userNotExistId = -1;
     protected int store2Id = -1;             //store is open
     protected int store2ClosedId = -1;
@@ -50,8 +50,9 @@ public abstract class ProjectTest {
      */
     protected void setUpUser2(){
         user2LoggedInId = setUser("User2","User2!", MEMBER, LOGGED);
-        user5ManagerOfStore2ToBeRemoved = setUser("User5", "User5!", MEMBER, NOT_LOGGED);
-        user6ManagerOfStore2 = setUser("User6", "User6!", MEMBER, LOGGED);
+        user5ManagerOwnerOfStore2ToBeRemoved = setUser("User5", "User5!", MEMBER, NOT_LOGGED);
+        user6ManagerOwnerOfStore2 = setUser("User6", "User6!", MEMBER, LOGGED);
+        //Make user6 and user5 manager Owner
         store2Id = createStore(user2LoggedInId); //store is open
         store2ClosedId = createStore(user2LoggedInId); //store is close
         //Make user5 as manager and owner of store2
@@ -194,11 +195,27 @@ public abstract class ProjectTest {
         return bridge.closeStore(userId, storeId);
     }
 
-    protected boolean defineStoreManager(int storeId, int storeOwner, int newStoreManager) {
-        return this.bridge.defineStoreManager(storeId, storeOwner, newStoreManager);
+    protected boolean defineStoreManager(int storeId, int storeManager, int newStoreManager) {
+        return this.bridge.defineStoreManager(storeId, storeManager, newStoreManager);
     }
 
-    protected boolean removeStoreManager(int storeId, int storeOwnerId, int removeUserId) {
-        return this.bridge.removeStoreManager(storeId, storeOwnerId, removeUserId);
+    protected boolean removeStoreManager(int storeId, int storeManagerId, int removeUserId) {
+        return this.bridge.removeStoreManager(storeId, storeManagerId, removeUserId);
+    }
+
+    protected boolean defineStoreOwner(int storeId, int ownerId, int newCoOwnerId) {
+        return this.bridge.defineStoreOwner(storeId, ownerId, newCoOwnerId);
+    }
+
+    protected boolean removeStoreOwner(int storeId, int storeOwnerId, int newStoreOwnerId) {
+        return this.bridge.removeStoreOwner(storeId, storeOwnerId, newStoreOwnerId);
+    }
+
+    protected boolean payCart(int userId, String paymentDetails, String paymentService) {
+        return this.bridge.payCart(userId, paymentDetails, paymentService);
+    }
+
+    protected boolean askForSupply(int userId, List<TestItemInfo> items, String supplyService) {
+        return this.bridge.askForSupply(userId, items, supplyService);
     }
 }

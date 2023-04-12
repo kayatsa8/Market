@@ -29,6 +29,7 @@ public class GuestPurchaseTests extends ProjectTest{
 
     /**
      * Get Store info #11
+     * #18 is the same
      */
     @Test
     public void getStoreInfoValid(){

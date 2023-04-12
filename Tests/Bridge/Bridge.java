@@ -167,4 +167,39 @@ public interface Bridge {
      * @return true if successful
      */
     boolean removeStoreManager(int storeId, int storeOwnerId, int removeUserId);
+
+    /**
+     * defines a store owner for the store
+     * @param storeId
+     * @param ownerId
+     * @param newCoOwnerId
+     * @return true if successful
+     */
+    boolean defineStoreOwner(int storeId, int ownerId, int newCoOwnerId);
+
+    /**
+     * Removes a co-StoreOwner
+     * @param storeId
+     * @param storeOwnerId
+     * @param newStoreOwnerId
+     * @return true if successful
+     */
+    boolean removeStoreOwner(int storeId, int storeOwnerId, int newStoreOwnerId);
+
+    /**
+     * this function goes to the external system to pay, after the cart has been checked
+     * @param userId
+     * @param paymentDetails
+     * @param paymentService
+     * @return true if external service accepted the payment
+     */
+    boolean payCart(int userId, String paymentDetails, String paymentService);
+
+    /**
+     * this function sets a delivery for user with items he bought.
+     * @param userId
+     * @param items
+     * @param supplyService
+     */
+    boolean askForSupply(int userId, List<TestItemInfo> items, String supplyService);
 }
