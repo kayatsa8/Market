@@ -3,6 +3,7 @@ package Bridge;
 import Objects.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class ProxyBridge implements Bridge{
@@ -121,9 +122,9 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public List<TestReceipt> getSellingHistory(int storeId, int userId) {
+    public HashMap<Integer, List<TestReceipt>> getSellingHistoryOfStoreForManager(int storeId, int userId) {
         if(real != null){
-            return real.getSellingHistory(storeId, userId);
+            return real.getSellingHistoryOfStoreForManager(storeId, userId);
         }
         return null;
     }
@@ -207,6 +208,117 @@ public class ProxyBridge implements Bridge{
             return real.askForSupply(userId, items, supplyService);
         }
         return true;
+    }
+
+    @Override
+    public boolean closeStorePermanently(int storeManagerId, int storeId) {
+        if(real != null){
+            return real.closeStorePermanently(storeManagerId, storeId);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean checkIfStoreOwner(int userId, int storeId) {
+        if(real != null){
+            return real.checkIfStoreOwner(userId, storeId);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean removeRegisterdUser(int systemManagerId, int userToRemoveId) {
+        if(real != null){
+            return real.removeRegisterdUser(systemManagerId, userToRemoveId);
+        }
+        return false;
+    }
+
+    @Override
+    public HashMap<Integer, String> getComplaints(int managerId) {
+        if(real != null){
+            return real.getComplaints(managerId);
+        }
+        return null;
+    }
+
+    @Override
+    public boolean answerComplaint(int userId, HashMap<Integer, String> complaintsAnswers) {
+        if(real != null){
+            return real.answerComplaint(userId, complaintsAnswers);
+        }
+        return false;
+    }
+
+    @Override
+    public void postComplaint(int userId, String msg) {
+        if(real != null){
+            real.postComplaint(userId, msg);
+        }
+    }
+
+    @Override
+    public boolean sendMsg(int senderId, int receiverId, String msg) {
+        if(real != null){
+            return real.sendMsg(senderId, receiverId, msg);
+        }
+        return false;
+    }
+
+    @Override
+    public HashMap<Integer, List<String>> getMsgs(int userId) {
+        if(real != null){
+            return real.getMsgs(userId);
+        }
+        return null;
+    }
+
+    @Override
+    public HashMap<Integer, List<TestReceipt>> getSellingHistoryOfUserForManager(int managerId, int userId) {
+        if(real != null){
+            return real.getSellingHistoryOfUserForManager(managerId, userId);
+        }
+        return null;
+    }
+
+    @Override
+    public HashMap<Integer, String> getUsersTraffic(int managerId) {
+        if(real != null){
+            return real.getUsersTraffic(managerId);
+        }
+        return null;
+    }
+
+    @Override
+    public HashMap<Integer, Integer> getPurchaseTraffic(int managerId) {
+        if(real != null){
+            return real.getPurchaseTraffic(managerId);
+        }
+        return null;
+    }
+
+    @Override
+    public int getNumberOfRegistrationForToady(int managerId) {
+        if(real != null){
+            return real.getNumberOfRegistrationForToady(managerId);
+        }
+        return 0;
+    }
+
+    @Override
+    public boolean reopenStore(int userId, int storeId) {
+        if(real != null){
+            return real.reopenStore(userId, storeId);
+        }
+        return false;
+    }
+
+    @Override
+    public List<String> getNotifications(int userId) {
+        if(real != null){
+            return real.getNotifications(userId);
+        }
+        return null;
     }
 
 

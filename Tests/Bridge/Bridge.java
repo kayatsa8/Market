@@ -2,6 +2,7 @@ package Bridge;
 
 import Objects.*;
 
+import java.util.HashMap;
 import java.util.List;
 
 public interface Bridge {
@@ -114,11 +115,12 @@ public interface Bridge {
 
     /**
      * returns all the receipts for this store
+     *
      * @param storeId
      * @param userId
      * @return list of receipts if user is store manager/owner
      */
-    List<TestReceipt> getSellingHistory(int storeId, int userId);
+    HashMap<Integer, List<TestReceipt>> getSellingHistoryOfStoreForManager(int storeId, int userId);
 
     /**
      * gets the store information the store manager asked for and checks if her has access
@@ -202,4 +204,109 @@ public interface Bridge {
      * @param supplyService
      */
     boolean askForSupply(int userId, List<TestItemInfo> items, String supplyService);
+
+    /**
+     * closes store permanently only if user is store manager
+     * @param storeManagerId
+     * @param storeId
+     * @return true if successful
+     */
+    boolean closeStorePermanently(int storeManagerId, int storeId);
+
+    /**
+     * checks if user is owner of store
+     * @param userId
+     * @param storeId
+     * @return
+     */
+    boolean checkIfStoreOwner(int userId, int storeId);
+
+    /**
+     * removes user from system only by system manager
+     * @param systemManagerId
+     * @param userToRemoveId
+     * @return
+     */
+    boolean removeRegisterdUser(int systemManagerId, int userToRemoveId);
+
+    /**
+     * System Manager gets complaints
+     * @param managerId
+     * @return list of complaints
+     */
+    HashMap<Integer, String> getComplaints(int managerId);
+
+    /**
+     * @param userId    systemManagerId
+     * @param complaintsAnswers Map of userId and answer
+     * @return true if successful
+     */
+    boolean answerComplaint(int userId, HashMap<Integer, String> complaintsAnswers);
+
+    /**
+     * User can post a complaint to system manager
+     * @param userId the sender
+     * @param msg
+     */
+    void postComplaint(int userId, String msg);
+
+    /**
+     * send msg from senderId to receiverId
+     * @param senderId
+     * @param receiverId
+     * @param msg
+     * @return
+     */
+    boolean sendMsg(int senderId, int receiverId, String msg);
+
+    /**
+     * get messages sent to user
+     * @param userId the user who receives the msgs
+     * @return Map of senderId : messages sent by him to
+     */
+    HashMap<Integer, List<String>> getMsgs(int userId);
+
+    /**
+     * get Receipts of his user
+     * @param managerId the one who want the receipts
+     * @param userId  the receipts of this user
+     * @return the receipts of user with userId
+     */
+    HashMap<Integer, List<TestReceipt>> getSellingHistoryOfUserForManager(int managerId, int userId);
+
+    /**
+     * get information on traffic of shoppers
+     * @param managerId
+     * @return Map of userId to his traffic log
+     */
+    HashMap<Integer, String> getUsersTraffic(int managerId);
+
+    /**
+     * gets purchase rate of items
+     * @param managerId
+     * @return Map of id of items : how many bought it today
+     */
+    HashMap<Integer, Integer> getPurchaseTraffic(int managerId);
+
+    /**
+     * get how many users registered today
+     * @param managerId
+     * @return number of users registered today
+     */
+    int getNumberOfRegistrationForToady(int managerId);
+
+    /**
+     * reopens a closed store, only by store owner
+     * @param userId
+     * @param storeId
+     * @return true if successful
+     */
+    boolean reopenStore(int userId, int storeId);
+
+    /**
+     * gets the list of notifications for his user
+     * @param userId
+     * @return
+     */
+    List<String> getNotifications(int userId);
 }

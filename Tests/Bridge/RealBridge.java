@@ -4,6 +4,7 @@ package Bridge;
 import Objects.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class RealBridge implements Bridge{
@@ -96,7 +97,7 @@ public class RealBridge implements Bridge{
     }
 
     @Override
-    public List<TestReceipt> getSellingHistory(int storeId, int userId) {
+    public HashMap<Integer, List<TestReceipt>> getSellingHistoryOfStoreForManager(int storeId, int userId) {
         //return this.facade.getSellingHistory(storeId, userId);
         return null;
     }
@@ -160,6 +161,89 @@ public class RealBridge implements Bridge{
     public boolean askForSupply(int userId, List<TestItemInfo> items, String supplyService) {
         //return this.facade.askForSupply(userId, items, supplyService);
         return false;
+    }
+
+    @Override
+    public boolean closeStorePermanently(int storeManagerId, int storeId) {
+        //return this.facade.closeStorePermanently(storeManagerId, storeId);
+        return false;
+    }
+
+    @Override
+    public boolean checkIfStoreOwner(int userId, int storeId) {
+        //return this.facade.checkIfStoreOwner(userId, storeId);
+        return false;
+    }
+
+    @Override
+    public boolean removeRegisterdUser(int systemManagerId, int userToRemoveId) {
+        //return this.facade.removeRegisterdUser(systemManagerId, userToRemoveId);
+        return false;
+    }
+
+    @Override
+    public HashMap<Integer, String> getComplaints(int managerId) {
+        //return this.facade.getComplaints(managerId);
+        return null;
+    }
+
+    @Override
+    public boolean answerComplaint(int userId, HashMap<Integer, String> complaintsAnswers) {
+        //return this.facade.answerComplaint(userId, complaintsAnswers);
+        return false;
+    }
+
+    @Override
+    public void postComplaint(int userId, String msg) {
+        //this.facade.sendComplaint(userId, msg);
+    }
+
+    @Override
+    public boolean sendMsg(int senderId, int receiverId, String msg) {
+        //return this.facade.sendMsg(senderId, receiverId, msg);
+        return false;
+    }
+
+    @Override
+    public HashMap<Integer, List<String>> getMsgs(int userId) {
+        //return this.facade.getMsgs(userId);
+        return null;
+    }
+
+    @Override
+    public HashMap<Integer, List<TestReceipt>> getSellingHistoryOfUserForManager(int managerId, int userId) {
+        //return this.facade.getSellingHistoryOfUserForManager(managerId, userId);
+        return null;
+    }
+
+    @Override
+    public HashMap<Integer, String> getUsersTraffic(int managerId) {
+        //return this.facade.getUsersTraffic(managerId);
+        return null;
+    }
+
+    @Override
+    public HashMap<Integer, Integer> getPurchaseTraffic(int managerId) {
+        //return this.facade.getPurchaseTraffic(managerId);
+        return null;
+    }
+
+    @Override
+    public int getNumberOfRegistrationForToady(int managerId) {
+        //return this.facade.getNumberOfRegistrationForToady(managerId);
+        return 0;
+    }
+
+    @Override
+    public boolean reopenStore(int userId, int storeId) {
+        //return this.facade.reopenStore(userId, storeId);
+        return false;
+    }
+
+    @Override
+    public List<String> getNotifications(int userId) {
+        //return this.facade.getNotifications(userId)
+        return null;
     }
 
 
