@@ -10,7 +10,7 @@ public abstract class Screen implements Runnable{
     protected final static Scanner scanner = new Scanner(System.in);
     protected final Market market;
     private final String[] menuOptions;
-    private final Screen caller;
+    protected final Screen caller;
 
 
     public Screen(Market market, String[] menuOptions){

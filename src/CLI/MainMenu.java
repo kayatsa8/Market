@@ -5,8 +5,8 @@ import BusinessLayer.Market;
 public class MainMenu extends Screen{
 
     private static final String[] menuOptions = {
-            "Option 1",     //1
-            "Option 2",     //2
+            "Register",     //1
+            "Log in",     //2
     };
 
     public MainMenu(Market market) {
@@ -22,12 +22,10 @@ public class MainMenu extends Screen{
         System.out.println("\nWelcome to the Main Menu!");
         switch (runMenu()) {
             case 1:
-                System.out.println("You chose 1");
-                new MainMenu(this.market).run();
+                new RegistrationScreen(this).run();
                 break;
             case 2:
-                System.out.println("You chose 2");
-                new MainMenu(this.market).run();
+                new LoginScreen(this).run();
                 break;
 //            case 1:
 //                new Thread(new EmployeesMenu(this)).start();
