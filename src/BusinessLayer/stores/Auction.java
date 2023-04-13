@@ -1,9 +1,10 @@
-package BusinessLayer.Items;
+package BusinessLayer.stores;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class Auction {
+    private int itemID;
     private double initialPrice;
     private double currentPrice;
     private int currentWinningUserID;
@@ -11,8 +12,9 @@ public class Auction {
     private Calendar endOfSale;
     private Timer auctionTimer;
 
-    public Auction(double initialPrice, int auctionPeriodInDays)
+    public Auction(int itemID, double initialPrice, int auctionPeriodInDays)
     {
+        this.itemID = itemID;
         endOfSale = Calendar.getInstance();
         endOfSale.add(Calendar.DAY_OF_MONTH, auctionPeriodInDays);
         endOfSale.set(Calendar.SECOND, 0);

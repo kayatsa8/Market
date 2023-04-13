@@ -1,9 +1,10 @@
-package BusinessLayer.Items;
+package BusinessLayer.stores;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class Lottery {
+    private int itemID;
     private double price;
     private double priceLeft;
     private Calendar endOfSale;
@@ -11,8 +12,9 @@ public class Lottery {
     private Map<Integer, Double> winningOdds;
     private Timer lotteryTimer;
 
-    public Lottery(double price, int lotteryPeriodInDays)
+    public Lottery(int itemID, double price, int lotteryPeriodInDays)
     {
+        this.itemID = itemID;
         this.price = price;
         this.priceLeft = price;
         this.lotteryFinished = false;

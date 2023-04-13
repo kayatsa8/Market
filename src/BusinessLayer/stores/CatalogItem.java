@@ -1,4 +1,4 @@
-package BusinessLayer.Items;
+package BusinessLayer.stores;
 
 public class CatalogItem {
     private String itemName;

@@ -1,18 +1,19 @@
-package BusinessLayer.Items;
-
+package BusinessLayer.stores;
 import java.util.HashMap;
 import java.util.Map;
 
-import static BusinessLayer.Items.BidReplies.*;
+import static BusinessLayer.stores.BidReplies.*;
 
 public class Bid {
+    private int itemID;
     private double offeredPrice;
     private int userID;
     private boolean bidRejected;
     private double highestCounterOffer;
     private Map<Integer, BidReplies> repliers;
-    public Bid(int userID, double offeredPrice)
+    public Bid(int itemID, int userID, double offeredPrice)
     {
+        this.itemID = itemID;
         this.offeredPrice = offeredPrice;
         this.userID = userID;
         this.highestCounterOffer = -1;
