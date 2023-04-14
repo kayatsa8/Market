@@ -1,0 +1,71 @@
+package BusinessLayer.NotificationSystem;
+
+import BusinessLayer.stores.Store;
+import BusinessLayer.users.User;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class StoreMailbox extends Mailbox{
+
+    private final Store owner;
+    private boolean available;
+
+    public StoreMailbox(Store _owner){
+        owner = _owner;
+        available = true;
+        ownerID = -1; // TODO: get the id from owner
+        notReadMessages = new ArrayList<>();
+        readMessages = new ArrayList<>();
+        sentMessages = new ArrayList<>();
+    }
+
+    @Override
+    protected void notifyOwner() {
+        List<User> storeStaff = new ArrayList<>(); // TODO: get from store
+        List<Integer> IDs = storeStaffIDs(storeStaff);
+        NotificationHub hub = NotificationHub.getInstance();
+        Message notificationMessage;
+
+        for(Integer id : IDs){
+            notificationMessage = makeNotificationMessage(id);
+            hub.passMessage(notificationMessage);
+        }
+    }
+
+    private List<Integer> storeStaffIDs(List<User> storeStaff){
+        return new ArrayList<>();
+    }
+
+    private Message makeNotificationMessage(int id){
+        String storeName = "NAME"; // TODO: take name from store
+        String title = "A new message is waiting in " + storeName + "'s mailbox";
+        String content = "You can view the message in the store's mailbox";
+
+        return new Message(ownerID, id, title, content);
+    }
+
+    private void setMailboxAsUnavailable(){
+        available = false;
+    }
+
+    private void setMailboxAsAvailable(){
+        available = true;
+    }
+
+    public boolean isAvailable(){
+        return available;
+    }
+
+    public void sendMessage(int receiverID, String title, String content){
+        if(isAvailable()){
+            super.sendMessage(receiverID, title, content);
+        }
+    }
+
+    public void receiveMessage(Message message) throws Exception {
+        if(isAvailable()){
+            super.receiveMessage(message);
+        }
+    }
+}
