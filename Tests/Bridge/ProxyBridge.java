@@ -1,8 +1,8 @@
 package Bridge;
 
 import Objects.*;
+import ServiceLayer.Objects.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -48,20 +48,20 @@ public class ProxyBridge implements Bridge{
 
 
     @Override
-    public String getStoreInfo(int storeId) {
+    public StoreService getStoreInfo(int storeId) {
         if(real != null){
             return real.getStoreInfo(storeId);
         }
-        return "Temp";
+        return null;
     }
 
 
     @Override
-    public List<TestItemInfo> searchItems(String itemName, List<String> filters) {
+    public List<CatalogItemService> searchItems(String itemName, List<String> filters) {
         if(real != null){
             return real.searchItems(itemName, filters);
         }
-        return new ArrayList<TestItemInfo>();
+        return null;
     }
 
 
@@ -74,11 +74,11 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public TestCartInfo showCart(int userId) {
+    public CartService getCart(int userId) {
         if(real != null){
-            return real.showCart(userId);
+            return real.getCart(userId);
         }
-        return new TestCartInfo();
+        return null;
     }
 
     @Override
@@ -114,7 +114,7 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public List<TestStaffInfo> showStaffInfo(int storeId, int userId) {
+    public List<UserStaffInfoService> showStaffInfo(int storeId, int userId) {
         if(real != null){
             return real.showStaffInfo(storeId, userId);
         }
@@ -122,7 +122,7 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public HashMap<Integer, List<TestReceipt>> getSellingHistoryOfStoreForManager(int storeId, int userId) {
+    public HashMap<Integer, List<ReceiptService>> getSellingHistoryOfStoreForManager(int storeId, int userId) {
         if(real != null){
             return real.getSellingHistoryOfStoreForManager(storeId, userId);
         }
@@ -130,7 +130,7 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public TestStoreInfo getStoreInfoAsStoreManager(int storeId, int userId) {
+    public StoreService getStoreInfoAsStoreManager(int storeId, int userId) {
         if(real != null){
             return real.getStoreInfoAsStoreManager(storeId, userId);
         }
@@ -222,6 +222,14 @@ public class ProxyBridge implements Bridge{
     public boolean checkIfStoreOwner(int userId, int storeId) {
         if(real != null){
             return real.checkIfStoreOwner(userId, storeId);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean checkIfStoreManager(int userId, int storeId) {
+        if(real != null){
+            return real.checkIfStoreManager(userId, storeId);
         }
         return false;
     }
@@ -321,5 +329,92 @@ public class ProxyBridge implements Bridge{
         return null;
     }
 
+    @Override
+    public boolean makeAComplaint(int userId, String complaint) {
+        if(real != null){
+            return real.makeAComplaint(userId, complaint);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean rankAStore(int userId, int storeId, int rank) {
+        if(real != null){
+            return real.rankAStore(userId, storeId, rank);
+        }
+        return false;
+    }
+
+    @Override
+    public double getStoreRank(int userId, int storeId) {
+        if(real != null){
+            return real.getStoreRank(userId, storeId);
+        }
+        return 0;
+    }
+
+    @Override
+    public double getItemRank(int userId, int storeId, int itemId) {
+        if(real != null){
+            return real.getItemRank(userId, storeId, itemId);
+        }
+        return 0;
+    }
+
+    @Override
+    public boolean rankAnItemInStore(int userId, int storeId, int itemId, int rank) {
+        if(real != null){
+            return real.rankAnItemInStore(userId, storeId, itemId, rank);
+        }
+        return false;
+    }
+
+    @Override
+    public HashMap<Integer, List<ReceiptService>> getPersonalHistory(int userId) {
+        if(real != null){
+            return real.getPersonalHistory(userId);
+        }
+        return null;
+    }
+
+    @Override
+    public List<String> getPersonalInformation(int userId) {
+        if(real != null){
+            return real.getPersonalInformation(userId);
+        }
+        return null;
+    }
+
+    @Override
+    public boolean changePassword(int userId, String oldPassword, String newPassword) {
+        if(real != null){
+            return real.changePassword(userId, oldPassword, newPassword);
+        }
+        return false;
+    }
+
+    @Override
+    public List<String> getRequestsOfStore(int ownerManagerId, int storeId) {
+        if(real != null){
+            return real.getRequestsOfStore(ownerManagerId, storeId);
+        }
+        return null;
+    }
+
+    @Override
+    public boolean checkIfVisitor(int userId) {
+        if(real != null){
+            return real.checkIfVisitor(userId);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean checkIfLoggedIn(int userId) {
+        if(real != null){
+            return real.checkIfLoggedIn(userId);
+        }
+        return false;
+    }
 
 }

@@ -1,6 +1,7 @@
 package Bridge;
 
 import Objects.*;
+import ServiceLayer.Objects.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +34,23 @@ public interface Bridge {
 
 
     /**
-     * load system, at least 2 stores exists
+     * checks if userId is an active guest
+     * @param userId
+     * @return true if user is an active guest, false if he is not active right now
+     */
+    boolean checkIfVisitor(int userId);
+
+
+    /**
+     * check if user is an active member (logged in)
+     * @param userId
+     * @return true if logged in
+     */
+    boolean checkIfLoggedIn(int userId);
+
+
+    /**
+     * load system from DB, at least 2 stores exists
      */
     void loadSystem();
 
@@ -41,9 +58,10 @@ public interface Bridge {
     /**
      * gets the store information
      * @param storeId
-     * @return
+     * @return null if store permanently closed (what if store is just closed? return null or not?)
+     * if store is open: Service Object of store, in it a list of catalogItemsService objects
      */
-    String getStoreInfo(int storeId);
+    StoreService getStoreInfo(int storeId);
 
     /**
      * searches for items in the store with itemName and with filters to use
@@ -51,7 +69,7 @@ public interface Bridge {
      * @param filters
      * @return
      */
-    List<TestItemInfo> searchItems(String itemName, List<String> filters);
+    List<CatalogItemService> searchItems(String itemName, List<String> filters);
 
     /**
      * adds item to basket if store open and item in store
@@ -64,11 +82,11 @@ public interface Bridge {
     boolean addItemToBasket(int userId, int storeId, int itemId, int amount);
 
     /**
-     * show cart of user with userId
+     * gets the cart of this user
      * @param userId
-     * @return
+     * @return service object of this user cart
      */
-    TestCartInfo showCart(int userId);
+    CartService getCart(int userId);
 
     /**
      * buy the cart and
@@ -111,7 +129,7 @@ public interface Bridge {
      * @param userId
      * @return Information about the staff
      */
-    List<TestStaffInfo> showStaffInfo(int storeId, int userId);
+    List<UserStaffInfoService> showStaffInfo(int storeId, int userId);
 
     /**
      * returns all the receipts for this store
@@ -120,7 +138,7 @@ public interface Bridge {
      * @param userId
      * @return list of receipts if user is store manager/owner
      */
-    HashMap<Integer, List<TestReceipt>> getSellingHistoryOfStoreForManager(int storeId, int userId);
+    HashMap<Integer, List<ReceiptService>> getSellingHistoryOfStoreForManager(int storeId, int userId);
 
     /**
      * gets the store information the store manager asked for and checks if her has access
@@ -128,7 +146,7 @@ public interface Bridge {
      * @param userId
      * @return
      */
-    TestStoreInfo getStoreInfoAsStoreManager(int storeId, int userId);
+    StoreService getStoreInfoAsStoreManager(int storeId, int userId);
 
     /**
      * logout from system, save cart for this user
@@ -221,6 +239,16 @@ public interface Bridge {
      */
     boolean checkIfStoreOwner(int userId, int storeId);
 
+
+    /**
+     *
+     * @param userId
+     * @param storeId
+     * @return true if user is manager of store
+     */
+    boolean checkIfStoreManager(int userId, int storeId);
+
+
     /**
      * removes user from system only by system manager
      * @param systemManagerId
@@ -260,14 +288,14 @@ public interface Bridge {
     boolean sendMsg(int senderId, int receiverId, String msg);
 
     /**
-     * get messages sent to user
-     * @param userId the user who receives the msgs
-     * @return Map of senderId : messages sent by him to
+     * get messages sent to User/Store
+     * @param id the user/store who receives the messages
+     * @return Map of senderId : messages sent by him
      */
-    HashMap<Integer, List<String>> getMsgs(int userId);
+    HashMap<Integer, List<String>> getMsgs(int id);
 
     /**
-     * get Receipts of his user
+     * get Receipts of this user
      * @param managerId the one who want the receipts
      * @param userId  the receipts of this user
      * @return the receipts of user with userId
@@ -309,4 +337,80 @@ public interface Bridge {
      * @return
      */
     List<String> getNotifications(int userId);
+
+    /**
+     * submit a complaint
+     * @param userId
+     * @param complaint
+     * @return
+     */
+    boolean makeAComplaint(int userId, String complaint);
+
+    /**
+     * User can rank a store
+     * @param userId the user ranking
+     * @param storeId the store we want to rank
+     * @param rank number between 1-5
+     * @return true if successful
+     */
+    boolean rankAStore(int userId, int storeId, int rank);
+
+    /**
+     * gets a store rank
+     * @param userId store owner/manager or a system manager
+     * @param storeId
+     * @return number between 1-5
+     */
+    double getStoreRank(int userId, int storeId);
+
+    /**
+     * gets an item rank in a store
+     * @param userId store owner/manager or a system manager
+     * @param storeId
+     * @param itemId
+     * @return number between 1-5
+     */
+    double getItemRank(int userId, int storeId, int itemId);
+
+    /**
+     * rank an item in a store
+     * @param userId logged in to system
+     * @param storeId store exists
+     * @param itemId item in store
+     * @param rank number between 1-5
+     * @return true if successful
+     */
+    boolean rankAnItemInStore(int userId, int storeId, int itemId, int rank);
+
+    /**
+     * User gets his personal purchases
+     * @param userId
+     * @return Map of store Id to Receipt
+     */
+    HashMap<Integer, List<ReceiptService>> getPersonalHistory(int userId);
+
+    /**
+     * gets username and password
+     * @param userId
+     * @return list : list[0] = userName, list[1] = password
+     */
+    List<String> getPersonalInformation(int userId);
+
+    /**
+     * changes password for user
+     * @param userId
+     * @param oldPassword
+     * @param newPassword
+     * @return true if successful
+     */
+    boolean changePassword(int userId, String oldPassword, String newPassword);
+
+
+    /**
+     * store owner/manager can get the requests been sent to the store
+     * @param ownerManagerId check if its manager\owner of store
+     * @param storeId
+     * @return list of requests
+     */
+    List<String> getRequestsOfStore(int ownerManagerId, int storeId);
 }

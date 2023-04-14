@@ -3,6 +3,7 @@ package Acceptance;
 import Bridge.Bridge;
 import Bridge.Driver;
 import Objects.*;
+import ServiceLayer.Objects.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -148,11 +149,11 @@ public abstract class ProjectTest {
         this.bridge.loadSystem();
     }
 
-    protected String getStoreInfo(int storeId) {
+    protected StoreService getStoreInfo(int storeId) {
         return this.bridge.getStoreInfo(storeId);
     }
 
-    protected List<TestItemInfo> searchItems(String itemName, List<String> filters) {
+    protected List<CatalogItemService> searchItems(String itemName, List<String> filters) {
         return this.bridge.searchItems(itemName, filters);
     }
 
@@ -160,8 +161,8 @@ public abstract class ProjectTest {
         return this.bridge.addItemToBasket(userId, storeId, itemId, amount);
     }
 
-    protected TestCartInfo showCart(int userId) {
-        return this.bridge.showCart(userId);
+    protected CartService getCart(int userId) {
+        return this.bridge.getCart(userId);
     }
 
     protected boolean buyCart(int userId, String paymentDetails) {
@@ -180,15 +181,15 @@ public abstract class ProjectTest {
         return this.bridge.changeItemName(storeId, itemId, newName);
     }
 
-    protected List<TestStaffInfo> showStaffInfo(int storeId, int userId) {
+    protected List<UserStaffInfoService> showStaffInfo(int storeId, int userId) {
         return this.bridge.showStaffInfo(storeId, userId);
     }
 
-    protected HashMap<Integer,List<TestReceipt>> getSellingHistory(int storeId, int userId) {
+    protected HashMap<Integer,List<ReceiptService>> getSellingHistory(int storeId, int userId) {
         return this.bridge.getSellingHistoryOfStoreForManager(storeId, userId);
     }
 
-    protected TestStoreInfo getStoreInformationAsStoreManager(int storeId, int userId) {
+    protected StoreService getStoreInformationAsStoreManager(int storeId, int userId) {
         return this.bridge.getStoreInfoAsStoreManager(storeId, userId);
     }
 
@@ -261,7 +262,7 @@ public abstract class ProjectTest {
     }
 
 
-    protected HashMap<Integer,List<TestReceipt>> getSellingHistoryOfStore(int userId, int storeId) {
+    protected HashMap<Integer,List<ReceiptService>> getSellingHistoryOfStore(int userId, int storeId) {
         return this.bridge.getSellingHistoryOfStoreForManager(storeId, userId);
     }
 
@@ -287,5 +288,53 @@ public abstract class ProjectTest {
 
     protected List<String> getNotifications(int userId) {
         return this.bridge.getNotifications(userId);
+    }
+
+    protected boolean makeAComplaint(int userId, String complaint) {
+        return this.bridge.makeAComplaint(userId, complaint);
+    }
+
+    protected boolean rankAStore(int userId, int storeId, int rank) {
+        return this.bridge.rankAStore(userId, storeId, rank);
+    }
+
+    protected double getStoreRank(int userId, int storeId) {
+        return this.bridge.getStoreRank(userId, storeId);
+    }
+
+    protected double getItemRank(int userId, int storeId, int itemId) {
+        return this.bridge.getItemRank(userId, storeId, itemId);
+    }
+
+    protected boolean rankAnItemInStore(int userId, int storeId, int itemId, int rank) {
+        return this.bridge.rankAnItemInStore(userId, storeId, itemId, rank);
+    }
+
+    protected HashMap<Integer, List<ReceiptService>> getPersonalHistory(int userId) {
+        return this.bridge.getPersonalHistory(userId);
+    }
+
+    protected List<String> showPersonalInformation(int userId) {
+        return this.bridge.getPersonalInformation(userId);
+    }
+
+    protected boolean changePassword(int userId, String oldPassword, String newPassword) {
+        return this.bridge.changePassword(userId, oldPassword, newPassword);
+    }
+
+    protected boolean checkIfVisitor(int userId) {
+        return this.bridge.checkIfVisitor(userId);
+    }
+
+    protected boolean checkIfLoggedIn(int userId) {
+        return this.bridge.checkIfLoggedIn(userId);
+    }
+
+    protected boolean checkIfStoreManager(int userId, int storeId) {
+        return this.bridge.checkIfStoreManager(userId, storeId);
+    }
+
+    protected List<String> getRequestsOfStore_AsStoreOwnerManager(int ownerManagerId, int storeId) {
+        return this.bridge.getRequestsOfStore(ownerManagerId, storeId);
     }
 }

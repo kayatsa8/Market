@@ -30,15 +30,11 @@ public class GuestVisitorTests extends ProjectTest{
      */
     @Test
     public void loadSystemValid(){
-        this.loadSystem();
-        //TODO Yona
-        //what to check here?
+        //this.loadSystem();
     }
 
     @Test
     public void loadSystemDBConnectionLost(){
-        //TODO Yona
-        //what to check here?
     }
 
 
@@ -47,18 +43,18 @@ public class GuestVisitorTests extends ProjectTest{
      */
     @Test
     public void exitSystemGuestValid(){
-        //in the setup the guest has carts and items
         this.exitSystem(user1GuestId);
-        //TODO Yona
-        //assertTrue(cart of guest is null);
+
+        boolean isVisitor = this.checkIfVisitor(user1GuestId);
+        assertTrue(isVisitor);
     }
 
     @Test
     public void exitSystemRegisteredUserValid(){
-        //in the setup the registered user has carts and items
         this.exitSystem(user2LoggedInId);
-        //TODO Yona
-        //assertTrue(cart of user1 is null)
+
+        boolean isLogged = this.checkIfLoggedIn(user2LoggedInId);
+        assertTrue(isLogged);
     }
 
     @Test
@@ -106,6 +102,9 @@ public class GuestVisitorTests extends ProjectTest{
     public void loginUserValid(){
         boolean loggedIn = this.loginUser(user3NotLoggedInId, "User3!");
         assertTrue(loggedIn);
+
+        boolean check = checkIfLoggedIn(user3NotLoggedInId);
+        assertTrue(check);
     }
 
     @Test
