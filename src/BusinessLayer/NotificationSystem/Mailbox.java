@@ -1,5 +1,6 @@
 package BusinessLayer.NotificationSystem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Mailbox {
@@ -14,7 +15,7 @@ public abstract class Mailbox {
         try{
             NotificationHub.getInstance().passMessage(message);
         }
-        catch (IllegalArgumentException e){
+        catch (Exception e){
             System.out.println(e.getMessage());
             e.printStackTrace();
             return;
@@ -34,13 +35,14 @@ public abstract class Mailbox {
         }
 
         notReadMessages.add(message);
+        notifyOwner();
     }
 
     /**
      * notify the owner of the mailbox about a new message,
      * using observer pattern
      */
-    abstract protected void notifyOwner();
+    abstract protected void notifyOwner() throws Exception;
 
     public void markMessageAsRead(Message message) throws Exception {
 
@@ -62,6 +64,18 @@ public abstract class Mailbox {
         readMessages.remove(message);
         notReadMessages.add(message);
 
+    }
+
+    public List<Message> watchNotReadMessages(){
+        return new ArrayList<>(notReadMessages);
+    }
+
+    public List<Message> watchReadMessages(){
+        return new ArrayList<>(readMessages);
+    }
+
+    public List<Message> watchSentMessages(){
+        return new ArrayList<>(sentMessages);
     }
 
 }

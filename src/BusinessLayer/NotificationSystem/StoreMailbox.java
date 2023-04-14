@@ -21,7 +21,7 @@ public class StoreMailbox extends Mailbox{
     }
 
     @Override
-    protected void notifyOwner() {
+    protected void notifyOwner() throws Exception {
         List<Integer> IDs = new ArrayList<>(); // TODO: get from store
         NotificationHub hub = NotificationHub.getInstance();
         Message notificationMessage;
