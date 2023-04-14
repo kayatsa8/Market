@@ -22,8 +22,7 @@ public class StoreMailbox extends Mailbox{
 
     @Override
     protected void notifyOwner() {
-        List<User> storeStaff = new ArrayList<>(); // TODO: get from store
-        List<Integer> IDs = storeStaffIDs(storeStaff);
+        List<Integer> IDs = new ArrayList<>(); // TODO: get from store
         NotificationHub hub = NotificationHub.getInstance();
         Message notificationMessage;
 
@@ -32,10 +31,6 @@ public class StoreMailbox extends Mailbox{
             hub.passMessage(notificationMessage);
             sentMessages.add(notificationMessage);
         }
-    }
-
-    private List<Integer> storeStaffIDs(List<User> storeStaff){
-        return new ArrayList<>();
     }
 
     private Message makeNotificationMessage(int id){
