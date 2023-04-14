@@ -1,11 +1,9 @@
-package BusinessLayer.users;
+package ServiceLayer;
 
-import BusinessLayer.Cart;
-
-public class RegisteredUser extends User{
+public class UserSO {
     private String username;
     private String password;
-    public RegisteredUser(String username, String pass) {
+    public UserSO(String username, String pass) {
         this.username = username;
         this.password = pass;
     }

@@ -17,11 +17,11 @@ public class RegistrationScreen extends Screen{
         System.out.println("\nWelcome to the Registration Menu!");
         String username = getUserName();
         String pass = getPass();
-        int output = this.market.register(username, pass);
-        if (output==0) {
+        try {
+            this.market.register(username, pass);
             System.out.println("Registration Successful. You may now Log in");
             endRun();
-        } else if (output==-1) {
+        } catch (Exception e) {
             System.out.println("Problem Registering. Retry please");
             new RegistrationScreen(this.caller).run();
         }
