@@ -7,6 +7,11 @@ import BusinessLayer.users.RegisteredUser;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+
+/**
+ * In order to register to the notification system:
+ * NotificationHub.getInstance().registerToMailService(this);
+ */
 public class NotificationHub {
 
     // class attributes
