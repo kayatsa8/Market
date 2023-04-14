@@ -1,5 +1,6 @@
 package BusinessLayer.stores;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static BusinessLayer.stores.BidReplies.*;
@@ -19,6 +20,13 @@ public class Bid {
         this.highestCounterOffer = -1;
         this.bidRejected = false;
         this.repliers = new HashMap<>();
+    }
+    public void setRepliers(List<Integer> repliersIDs)
+    {
+        for (Integer replierID : repliersIDs)
+        {
+            repliers.put(replierID, null);
+        }
     }
 
     public boolean approve(int replierUserID)

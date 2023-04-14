@@ -43,15 +43,15 @@ public class Auction {
         auctionTimer.schedule(endOfAuctionTask, endOfSale.getTime());
     }
 
-    public boolean offer(int userId, double offerPrice)
+    public boolean offer(int userID, double offerPrice)
     {
         if (Calendar.getInstance().before(endOfSale))
         {
             if (offerPrice > currentPrice)
             {
                 currentPrice = offerPrice;
-                currentWinningUserID = userId;
-                offers.put(userId, offerPrice);
+                currentWinningUserID = userID;
+                offers.put(userID, offerPrice);
                 return true;
             }
         }

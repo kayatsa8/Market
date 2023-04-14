@@ -38,14 +38,14 @@ public class Lottery {
         lotteryTimer.schedule(endOfLotteryTask, endOfSale.getTime());
     }
 
-    public boolean participateInLottery(int userId, double offerPrice)
+    public boolean participateInLottery(int userID, double offerPrice)
     {
         if (Calendar.getInstance().before(endOfSale))
         {
             if (offerPrice <= priceLeft && offerPrice>0)
             {
                 priceLeft -= offerPrice;
-                winningOdds.put(userId, offerPrice);
+                winningOdds.put(userID, offerPrice);
                 if (priceLeft == 0)
                 {
                     lotteryFinished = true;
