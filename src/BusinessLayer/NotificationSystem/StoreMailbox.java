@@ -30,6 +30,7 @@ public class StoreMailbox extends Mailbox{
         for(Integer id : IDs){
             notificationMessage = makeNotificationMessage(id);
             hub.passMessage(notificationMessage);
+            sentMessages.add(notificationMessage);
         }
     }
 
@@ -66,6 +67,12 @@ public class StoreMailbox extends Mailbox{
     public void receiveMessage(Message message) throws Exception {
         if(isAvailable()){
             super.receiveMessage(message);
+        }
+    }
+
+    public void sendMessageToList(List<Integer> staffIDs, String title, String content){
+        for(Integer id : staffIDs){
+            sendMessage(id, title, content);
         }
     }
 }
