@@ -17,8 +17,9 @@ public class UserFacade {
     }
 
     public void registerUser(String username, String password) throws Exception {
+        checkUserName(username);
         if (users.get(username)!=null) {
-            throw new RuntimeException(String.format("Username %s is already in use. Please use another user name", username));
+            throw new Exception(String.format("Username %s is already in use. Please use another user name", username));
         }
         else {
             if (checkPassword(password)){
@@ -32,9 +33,16 @@ public class UserFacade {
         }
     }
 
-    private boolean checkPassword(String password) {
+    private boolean checkPassword(String password) throws Exception {
+        if (password==null)
+            throw new Exception("Password cant be null");
         return password.length()>=6;
 
+    }
+    private void checkUserName(String userName) throws Exception {
+        if (userName==null) {
+            throw new Exception("Password cant be null");
+        }
     }
 
     public void logIn(String username, String password) throws Exception {
