@@ -18,6 +18,7 @@ public abstract class Mailbox {
         catch (Exception e){
             System.out.println(e.getMessage());
             e.printStackTrace();
+            // LOG: ERROR: Mailbox::sendMessage:e.getMessage()
             return;
         }
 
@@ -26,10 +27,13 @@ public abstract class Mailbox {
 
     public void receiveMessage(Message message) throws Exception{
         if(message == null){
+            // LOG: ERROR: Mailbox::receiveMessage: the given message is null
             throw new Exception("Mailbox::receiveMessage: the given message is null");
         }
 
         if(ownerID != message.getReceiverID()){
+            // LOG: ERROR: Mailbox::receiveMessage: A message for " + message.getReceiverID() +
+            //                    "was sent to " + ownerID
             throw new Exception("Mailbox::receiveMessage: A message for " + message.getReceiverID() +
                     "was sent to " + ownerID);
         }
@@ -47,6 +51,7 @@ public abstract class Mailbox {
     public void markMessageAsRead(Message message) throws Exception {
 
         if(message == null || !notReadMessages.contains(message)){
+            // LOG: ERROR: Mailbox::markMessageAsRead: given message is invalid
             throw new Exception("Mailbox::markMessageAsRead: given message is invalid");
         }
 
@@ -58,6 +63,7 @@ public abstract class Mailbox {
     public void markMessageAsNotRead(Message message) throws Exception {
 
         if(message == null || !readMessages.contains(message)){
+            // LOG: ERROR: Mailbox::markMessageAsNotRead: given message is invalid
             throw new Exception("Mailbox::markMessageAsNotRead: given message is invalid");
         }
 
