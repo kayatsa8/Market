@@ -1,4 +1,4 @@
-package BusinessLayer.stores;
+package BusinessLayer.Stores;
 
 public enum StoreStatus {
     OPEN,

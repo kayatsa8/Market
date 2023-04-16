@@ -1,6 +1,5 @@
-package BusinessLayer.stores;
+package BusinessLayer.Stores;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,9 +14,9 @@ public class StoreFacade {
         this.storesIDs = 0;
         this.itemsIDs = 0;
     }
-    public void addStore(int founderID)
+    public void addStore(int founderID, String name)//TODO sync with users
     {
-        Store newStore = new Store(storesIDs, founderID);
+        Store newStore = new Store(storesIDs, founderID, name);
         stores.put(storesIDs++, newStore);
     }
     public void addCatalogItem(int storeID, String itemName, double itemPrice, Category itemCategory)

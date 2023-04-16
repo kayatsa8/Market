@@ -1,6 +1,6 @@
 package BusinessLayer.NotificationSystem;
 
-import BusinessLayer.users.RegisteredUser;
+import BusinessLayer.Users.RegisteredUser;
 
 import java.util.ArrayList;
 

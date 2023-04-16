@@ -1,10 +1,9 @@
 package BusinessLayer.NotificationSystem;
 
 
-import BusinessLayer.stores.Store;
-import BusinessLayer.users.RegisteredUser;
+import BusinessLayer.Stores.Store;
+import BusinessLayer.Users.RegisteredUser;
 
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 

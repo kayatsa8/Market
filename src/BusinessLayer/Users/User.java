@@ -1,4 +1,4 @@
-package BusinessLayer.users;
+package BusinessLayer.Users;
 
 import BusinessLayer.Cart;
 

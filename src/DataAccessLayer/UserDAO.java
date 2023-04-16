@@ -1,9 +1,8 @@
 package DataAccessLayer;
 
-import BusinessLayer.users.RegisteredUser;
+import BusinessLayer.Users.RegisteredUser;
 
 import java.util.HashMap;
-import java.util.List;
 
 //DB mock
 public class UserDAO {
@@ -19,5 +18,9 @@ public class UserDAO {
     public void AddUser(RegisteredUser user) throws Exception {
         if(userMap.put(user.getUsername(),user)==null)
             throw new Exception("aa");
+    }
+
+    public int getMaxID() {
+        return 0;
     }
 }
