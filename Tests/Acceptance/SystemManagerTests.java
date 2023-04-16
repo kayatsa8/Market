@@ -1,6 +1,5 @@
 package Acceptance;
 
-import Objects.TestReceipt;
 import ServiceLayer.Objects.ReceiptService;
 import org.junit.After;
 import org.junit.Test;
@@ -143,7 +142,7 @@ public class SystemManagerTests extends ProjectTest{
     @Test
     public void getSellingHistoryOfUser_Valid(){
         //Change to receipt
-        HashMap<Integer,List<TestReceipt>> receipts = this.getSellingHistoryOfUser(user7SystemManagerId, user2LoggedInId);
+        HashMap<Integer,List<ReceiptService>> receipts = this.getSellingHistoryOfUser(user7SystemManagerId, user2LoggedInId);
         assertNotNull(receipts);
         //assertEquals(receipts.get(0).getItems().get(0).getName(), "Tomato");
     }

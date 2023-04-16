@@ -1,8 +1,9 @@
 package Acceptance;
 
+import ServiceLayer.Objects.CatalogItemService;
 import org.junit.After;
 import org.junit.Test;
-import Objects.TestItemInfo;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,21 +70,21 @@ public class ExternalSystemTests extends ProjectTest{
      */
     @Test
     public void turnToSupplyService_Valid(){
-        List<TestItemInfo> items = new ArrayList<>();
+        List<CatalogItemService> items = new ArrayList<>();
         boolean received = this.askForSupply(user1GuestId, items, "SupplyService1");
         assertTrue(received);
     }
 
     @Test
     public void turnToSupplyService_ItemsWrongDetails(){
-        List<TestItemInfo> wrongItems = new ArrayList<>();
+        List<CatalogItemService> wrongItems = new ArrayList<>();
         boolean received = this.askForSupply(user1GuestId, wrongItems, "SupplyService1");
         assertFalse(received);
     }
 
     @Test
     public void turnToSupplyService_CustomerWrongDetails(){
-        List<TestItemInfo> items = new ArrayList<>();
+        List<CatalogItemService> items = new ArrayList<>();
         //Maybe if I need here an address put a wrong address? currently putting wrong userID
         boolean received = this.askForSupply(-1, items, "SupplyService1");
         assertFalse(received);
@@ -91,7 +92,7 @@ public class ExternalSystemTests extends ProjectTest{
 
     @Test
     public void turnToSupplyService_ServiceNotExisting(){
-        List<TestItemInfo> items = new ArrayList<>();
+        List<CatalogItemService> items = new ArrayList<>();
         boolean received = this.askForSupply(user1GuestId, items, "SupplyServiceNotExisting");
         assertFalse(received);
     }

@@ -1,7 +1,5 @@
 package Acceptance;
 
-import Objects.TestReceipt;
-import Objects.TestStoreInfo;
 import ServiceLayer.Objects.ReceiptService;
 import ServiceLayer.Objects.StoreService;
 import ServiceLayer.Objects.UserStaffInfoService;

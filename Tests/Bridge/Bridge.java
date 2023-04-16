@@ -221,7 +221,7 @@ public interface Bridge {
      * @param items
      * @param supplyService
      */
-    boolean askForSupply(int userId, List<TestItemInfo> items, String supplyService);
+    boolean askForSupply(int userId, List<CatalogItemService> items, String supplyService);
 
     /**
      * closes store permanently only if user is store manager
@@ -300,7 +300,7 @@ public interface Bridge {
      * @param userId  the receipts of this user
      * @return the receipts of user with userId
      */
-    HashMap<Integer, List<TestReceipt>> getSellingHistoryOfUserForManager(int managerId, int userId);
+    HashMap<Integer, List<ReceiptService>> getSellingHistoryOfUserForManager(int managerId, int userId);
 
     /**
      * get information on traffic of shoppers

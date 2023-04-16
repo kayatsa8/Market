@@ -203,7 +203,7 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public boolean askForSupply(int userId, List<TestItemInfo> items, String supplyService) {
+    public boolean askForSupply(int userId, List<CatalogItemService> items, String supplyService) {
         if(real != null){
             return real.askForSupply(userId, items, supplyService);
         }
@@ -282,7 +282,7 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public HashMap<Integer, List<TestReceipt>> getSellingHistoryOfUserForManager(int managerId, int userId) {
+    public HashMap<Integer, List<ReceiptService>> getSellingHistoryOfUserForManager(int managerId, int userId) {
         if(real != null){
             return real.getSellingHistoryOfUserForManager(managerId, userId);
         }

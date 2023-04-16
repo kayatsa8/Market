@@ -225,7 +225,7 @@ public abstract class ProjectTest {
         return this.bridge.payCart(userId, paymentDetails, paymentService);
     }
 
-    protected boolean askForSupply(int userId, List<TestItemInfo> items, String supplyService) {
+    protected boolean askForSupply(int userId, List<CatalogItemService> items, String supplyService) {
         return this.bridge.askForSupply(userId, items, supplyService);
     }
 
@@ -266,7 +266,7 @@ public abstract class ProjectTest {
         return this.bridge.getSellingHistoryOfStoreForManager(storeId, userId);
     }
 
-    protected HashMap<Integer, List<TestReceipt>> getSellingHistoryOfUser(int managerId, int userId) {
+    protected HashMap<Integer, List<ReceiptService>> getSellingHistoryOfUser(int managerId, int userId) {
         return this.bridge.getSellingHistoryOfUserForManager(managerId, userId);
     }
 
