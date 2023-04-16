@@ -23,9 +23,13 @@ public class Market {
     public void logIn(String username, String pass) throws Exception {
         userFacade.logIn(username, pass);
     }
-    public void SystemStart(){
+    public void systemStart(){
         userFacade.SystemStart();
 
+    }
+
+    public void logout(String userName, String pass) {
+        userFacade.logout(userName, pass);
     }
 
     public void addOwner(String userName, String userToAdd, int storeID) {

@@ -71,6 +71,9 @@ public class UserFacade {
     }
 
 
+    public void logout(String userName, String pass) {
+        //TODO sessions and all
+    }
     public void addOwner(String userName, String userToAdd, int storeID) {
         RegisteredUser currUser = users.get(userName);
         RegisteredUser newOwner = users.get(userToAdd);
