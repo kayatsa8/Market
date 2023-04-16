@@ -11,7 +11,7 @@ public class System_InitiationTests extends ProjectTest{
      */
     @Test
     public void systemInit_Valid(){
-        //system start successfully with one admin, connection to all required services
+        //setUpAllMarket(); //this should be the test??
     }
 
     @Test
