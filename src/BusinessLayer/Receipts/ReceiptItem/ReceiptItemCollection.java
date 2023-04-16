@@ -8,6 +8,8 @@ import java.util.Map;
 
 public class ReceiptItemCollection implements CollectionI<ReceiptItem> {
 
+    //each receipt composed of Id of user/store to the items bought.
+    //for example: For user receipt the key is all the storeIds he bought from and the value are the items
     private HashMap<Integer,ArrayList<ReceiptItem>> items;
 
     public ReceiptItemCollection(){

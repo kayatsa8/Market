@@ -11,13 +11,13 @@ public class Receipt {
 
     private ReceiptItemCollection collection;
     private int receiptId;
-    private int userId;
+    private int ownerId;
     private Date date;
 
-    public Receipt(int id, int userId, Calendar instance){
+    public Receipt(int id, int ownerId, Calendar instance){
         collection = new ReceiptItemCollection();
         this.receiptId = id;
-        this.userId = userId;
+        this.ownerId = ownerId;
         this.date = instance.getTime();
     }
 

@@ -16,8 +16,9 @@ public class UserFacade {
             throw new RuntimeException(String.format("Username %s is already in use. Please use another user name", username));
         }
         else {
-            checkPassword(password);
-            users.put(username, new R)
+//            checkPassword(password);
+//            users.put(username, new R)
+            return -1;
         }
     }
 
