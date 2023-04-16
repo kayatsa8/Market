@@ -17,7 +17,11 @@ public class UserDAO {
 
     public void AddUser(RegisteredUser user) throws Exception {
         if(userMap.put(user.getUsername(),user)==null)
-            throw new Exception("aa");
+            throw new Exception("Fail to add user in UserDAO");
+    }
+    public void RemoveUser(RegisteredUser user) throws Exception {
+        if(userMap.remove(user.getUsername(),user)==false)
+            throw new Exception("Fail to remove user in UserDAO");
     }
 
     public int getMaxID() {

@@ -21,7 +21,7 @@ public class UserService {
         try {
             market.logIn(userName,pass);
             log.info("logIn succeeded");
-            return new Result<>(false,true);//login == true
+            return new Result<>(false,null);//login == true
         } catch (Exception e) {
             log.info("logIn failed");
             return new Result<>(true,e.getMessage());//login==false
@@ -32,9 +32,19 @@ public class UserService {
         try {
             market.register(userName,pass);
             log.info("logIn succeeded");
-            return new Result<>(false,true);//login == true,isErr==false
+            return new Result<>(false,null);//login == true,isErr==false
         } catch (Exception e) {
             log.info("logIn failed");
+            return new Result<>(true,e.getMessage());//login==false
+        }
+    }
+    public Result<Boolean> Logout(String userName,String pass){
+        try {
+            market.Logout(userName,pass);
+            log.info("Logout succeeded");
+            return new Result<>(false,null);//login == true,isErr==false
+        } catch (Exception e) {
+            log.info("Logout failed");
             return new Result<>(true,e.getMessage());//login==false
         }
     }
