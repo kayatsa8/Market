@@ -1,10 +1,8 @@
 package Acceptance;
 
-import Objects.TestReceipt;
 import ServiceLayer.Objects.ReceiptService;
 import org.junit.After;
 import org.junit.Test;
-import org.junit.runner.notification.RunListener;
 
 import java.util.HashMap;
 import java.util.List;

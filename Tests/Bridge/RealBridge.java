@@ -1,6 +1,7 @@
 package Bridge;
 
 
+import BusinessLayer.stores.Category;
 import Objects.*;
 import ServiceLayer.Objects.*;
 
@@ -73,9 +74,14 @@ public class RealBridge implements Bridge{
     }
 
     @Override
-    public int addItemToStore(int storeId, String itemName, int price) {
-        //return facade.addItemToStore(storeId, itemName, price);
+    public int addCatalogItem(int storeId, String itemName, int price, Category category) {
+        //return facade.addCatalogItem(storeId, itemName, price, category);
         return -1;
+    }
+
+    @Override
+    public void addItemAmount(int storeId, int itemId, int amount) {
+        //this.facade.addItemAmount(storeId, itemId, amount);
     }
 
     @Override
@@ -158,7 +164,7 @@ public class RealBridge implements Bridge{
     }
 
     @Override
-    public boolean askForSupply(int userId, List<TestItemInfo> items, String supplyService) {
+    public boolean askForSupply(int userId, List<CatalogItemService> items, String supplyService) {
         //return this.facade.askForSupply(userId, items, supplyService);
         return false;
     }
@@ -217,7 +223,7 @@ public class RealBridge implements Bridge{
     }
 
     @Override
-    public HashMap<Integer, List<TestReceipt>> getSellingHistoryOfUserForManager(int managerId, int userId) {
+    public HashMap<Integer, List<ReceiptService>> getSellingHistoryOfUserForManager(int managerId, int userId) {
         //return this.facade.getSellingHistoryOfUserForManager(managerId, userId);
         return null;
     }

@@ -2,7 +2,7 @@ package Acceptance;
 
 import Bridge.Bridge;
 import Bridge.Driver;
-import Objects.*;
+import BusinessLayer.stores.Category;
 import ServiceLayer.Objects.*;
 
 import java.util.HashMap;
@@ -67,8 +67,10 @@ public abstract class ProjectTest {
         store2ClosedId = createStore(user2LoggedInId); //store is close
         //Make user5 as manager and owner of store2
         //add items
-        item2Id = addItemToStore(store2Id, "Name1", 10);
-        item2ToBeRemovedId = addItemToStore(store2Id, "Name2", 10);
+        item2Id = addCatalogItem(store2Id, "Name1", 10, Category.Kitchen);
+        addItemAmount(store2Id, item2Id, 10);
+        item2ToBeRemovedId = addCatalogItem(store2Id, "Name2", 10, Category.Kitchen);
+        addItemAmount(store2Id, item2ToBeRemovedId, 10);
     }
 
     /**
@@ -169,8 +171,8 @@ public abstract class ProjectTest {
         return this.bridge.buyCart(userId, paymentDetails);
     }
 
-    protected int addItemToStore(int storeId, String itemName, int price) {
-        return this.bridge.addItemToStore(storeId, itemName, price);
+    protected int addCatalogItem(int storeId, String itemName, int price, Category category) {
+        return this.bridge.addCatalogItem(storeId, itemName, price, category);
     }
 
     protected boolean removeItemFromStore(int storeId, int itemId) {
@@ -225,7 +227,7 @@ public abstract class ProjectTest {
         return this.bridge.payCart(userId, paymentDetails, paymentService);
     }
 
-    protected boolean askForSupply(int userId, List<TestItemInfo> items, String supplyService) {
+    protected boolean askForSupply(int userId, List<CatalogItemService> items, String supplyService) {
         return this.bridge.askForSupply(userId, items, supplyService);
     }
 
@@ -266,7 +268,7 @@ public abstract class ProjectTest {
         return this.bridge.getSellingHistoryOfStoreForManager(storeId, userId);
     }
 
-    protected HashMap<Integer, List<TestReceipt>> getSellingHistoryOfUser(int managerId, int userId) {
+    protected HashMap<Integer, List<ReceiptService>> getSellingHistoryOfUser(int managerId, int userId) {
         return this.bridge.getSellingHistoryOfUserForManager(managerId, userId);
     }
 
@@ -336,5 +338,9 @@ public abstract class ProjectTest {
 
     protected List<String> getRequestsOfStore_AsStoreOwnerManager(int ownerManagerId, int storeId) {
         return this.bridge.getRequestsOfStore(ownerManagerId, storeId);
+    }
+
+    protected void addItemAmount(int storeId, int itemId, int amount) {
+        this.bridge.addItemAmount(storeId, itemId, amount);
     }
 }

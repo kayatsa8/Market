@@ -1,6 +1,6 @@
 package Bridge;
 
-import Objects.*;
+import BusinessLayer.stores.Category;
 import ServiceLayer.Objects.*;
 
 import java.util.HashMap;
@@ -103,7 +103,16 @@ public interface Bridge {
      * @param price
      * @return itemId in store, -1 if failed
      */
-    int addItemToStore(int storeId, String itemName, int price);
+    int addCatalogItem(int storeId, String itemName, int price, Category category);
+
+
+    /**
+     * after Item added to store, we add amount to stock
+     * @param storeId
+     * @param itemId
+     * @param amount
+     */
+    void addItemAmount(int storeId, int itemId, int amount);
 
 
     /**
@@ -221,7 +230,7 @@ public interface Bridge {
      * @param items
      * @param supplyService
      */
-    boolean askForSupply(int userId, List<TestItemInfo> items, String supplyService);
+    boolean askForSupply(int userId, List<CatalogItemService> items, String supplyService);
 
     /**
      * closes store permanently only if user is store manager
@@ -300,7 +309,7 @@ public interface Bridge {
      * @param userId  the receipts of this user
      * @return the receipts of user with userId
      */
-    HashMap<Integer, List<TestReceipt>> getSellingHistoryOfUserForManager(int managerId, int userId);
+    HashMap<Integer, List<ReceiptService>> getSellingHistoryOfUserForManager(int managerId, int userId);
 
     /**
      * get information on traffic of shoppers
@@ -413,4 +422,6 @@ public interface Bridge {
      * @return list of requests
      */
     List<String> getRequestsOfStore(int ownerManagerId, int storeId);
+
+
 }
