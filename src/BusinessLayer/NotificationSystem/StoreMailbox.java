@@ -1,7 +1,6 @@
 package BusinessLayer.NotificationSystem;
 
-import BusinessLayer.stores.Store;
-import BusinessLayer.users.User;
+import BusinessLayer.Stores.Store;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,25 +1,49 @@
-package BusinessLayer.stores;
+package BusinessLayer.Stores;
 
-import BusinessLayer.Tree;
 import java.util.*;
-import static BusinessLayer.stores.StoreStatus.*;
+import static BusinessLayer.Stores.StoreStatus.*;
 
 public class Store {
+    public int getStoreID() {
+        return storeID;
+    }
+
     private int storeID;
+
+    public String getStoreName() {
+        return storeName;
+    }
+
+    public void setStoreName(String storeName) {
+        this.storeName = storeName;
+    }
+
+    private String storeName;
     private Map<CatalogItem, Integer> itemsAmounts;
     private Map<Integer, Bid> bids;
     private Map<Integer, Auction> auctions;
     private Map<Integer, Lottery> lotteries;
-    private Tree storeOwnersAndManagers;
     private StoreStatus storeStatus;
+
+    public List<Integer> getStoreOwners() {
+        return storeOwners;
+    }
+
+    public List<Integer> getStoreManagers() {
+        return storeManagers;
+    }
+
+    private List<Integer> storeOwners;
+    private List<Integer> storeManagers;
     private int bidsIDs;
     private int lotteriesIDs;
     private int auctionsIDs;
 
 
-    public Store(int storeID, int founderID)
+    public Store(int storeID, int founderID, String name)
     {
         this.storeID = storeID;
+        this.storeName = name;
         this.itemsAmounts = new HashMap<>();
         this.auctions = new HashMap<>();
         this.lotteries = new HashMap<>();
@@ -28,14 +52,11 @@ public class Store {
         this.lotteriesIDs = 0;
         this.auctionsIDs = 0;
         this.storeStatus = OPEN;
-        this.storeOwnersAndManagers = new Tree(founderID);
-
+        this.storeManagers = new ArrayList<>();
+        this.storeOwners = new ArrayList<>();
+        storeOwners.add(founderID);
     }
 
-    public int getFounderID()
-    {
-        return storeOwnersAndManagers.getRoot().getData();
-    }
     public void addCatalogItem(int itemID, String itemName, double itemPrice, Category itemCategory)
     {
         CatalogItem newItem = new CatalogItem(itemID, itemName, itemPrice, itemCategory);
@@ -56,7 +77,10 @@ public class Store {
     public void addBid(int itemID, int userID, double offeredPrice)
     {
         Bid newBid = new Bid(itemID, userID, offeredPrice);
-        newBid.setRepliers(storeOwnersAndManagers.getTreeDataAsList());
+        List<Integer> storeOwnersAndManagers = new ArrayList<>();
+        storeOwnersAndManagers.addAll(storeOwners);
+        storeOwnersAndManagers.addAll(storeManagers);
+        newBid.setRepliers(storeOwnersAndManagers);
         bids.put(bidsIDs++, newBid);
 
     }
@@ -136,5 +160,23 @@ public class Store {
             storeStatus = PERMANENTLY_CLOSE;
             return true;
         }
+    }
+
+    public void addManager(int userID) {
+        this.storeManagers.add(userID);
+    }
+
+    public void addOwner(int userID) {
+        this.storeOwners.add(userID);
+    }
+
+    //Integer instead of int so that it removes by object not index
+    public void removeManager(Integer id) {
+        this.storeManagers.remove(id);
+    }
+
+    //Integer instead of int so that it removes by object not index
+    public void removeOwner(Integer id) {
+        this.storeOwners.remove(id);
     }
 }

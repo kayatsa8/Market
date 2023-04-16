@@ -4,9 +4,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Cart {
-    public List<Basket> Baskets;
+    public List<Basket> baskets;
     public Cart(){
-        Baskets=new LinkedList<>();
+        baskets =new LinkedList<>();
     }
 
 
