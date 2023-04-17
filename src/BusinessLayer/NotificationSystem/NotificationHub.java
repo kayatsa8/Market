@@ -38,7 +38,7 @@ public class NotificationHub {
     }
 
     public UserMailbox registerToMailService(RegisteredUser user) throws Exception {
-        int userID = -1; // TODO: get the ID from user
+        int userID = user.getId();
         if(isRegistered(userID)){
             // LOG: ERROR: NotificationHub::registerToMailService: the user + userID + is already registered!
             throw new Exception("NotificationHub::registerToMailService: the user " + userID + " is already registered!");

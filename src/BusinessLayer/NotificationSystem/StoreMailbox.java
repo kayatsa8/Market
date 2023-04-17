@@ -13,7 +13,7 @@ public class StoreMailbox extends Mailbox{
     public StoreMailbox(Store _owner){
         owner = _owner;
         available = true;
-        ownerID = -1; // TODO: get the id from owner
+        ownerID = owner.getStoreID();
         notReadMessages = new ArrayList<>();
         readMessages = new ArrayList<>();
         sentMessages = new ArrayList<>();
@@ -21,7 +21,8 @@ public class StoreMailbox extends Mailbox{
 
     @Override
     protected void notifyOwner() throws Exception {
-        List<Integer> IDs = new ArrayList<>(); // TODO: get from store
+        List<Integer> IDs = owner.getStoreOwners();
+        IDs.addAll(owner.getStoreManagers());
         NotificationHub hub = NotificationHub.getInstance();
         Message notificationMessage;
 
@@ -33,7 +34,7 @@ public class StoreMailbox extends Mailbox{
     }
 
     private Message makeNotificationMessage(int id){
-        String storeName = "NAME"; // TODO: take name from store
+        String storeName = owner.getStoreName();
         String title = "A new message is waiting in " + storeName + "'s mailbox";
         String content = "You can view the message in the store's mailbox";
 
