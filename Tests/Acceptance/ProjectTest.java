@@ -200,9 +200,6 @@ public abstract class ProjectTest {
         return this.bridge.getSellingHistoryOfStoreForManager(storeId, userId);
     }
 
-    protected StoreService getStoreInformationAsStoreManager(int storeId, int userId) {
-        return this.bridge.getStoreInfoAsStoreManager(storeId, userId);
-    }
 
     protected boolean logOut(int userId) {
         return this.bridge.logOut(userId);
@@ -220,17 +217,11 @@ public abstract class ProjectTest {
         return this.bridge.defineStoreManager(storeId, storeManager, newStoreManager);
     }
 
-    protected boolean removeStoreManager(int storeId, int storeManagerId, int removeUserId) {
-        return this.bridge.removeStoreManager(storeId, storeManagerId, removeUserId);
-    }
 
     protected boolean defineStoreOwner(int storeId, int ownerId, int newCoOwnerId) {
         return this.bridge.defineStoreOwner(storeId, ownerId, newCoOwnerId);
     }
 
-    protected boolean removeStoreOwner(int storeId, int storeOwnerId, int newStoreOwnerId) {
-        return this.bridge.removeStoreOwner(storeId, storeOwnerId, newStoreOwnerId);
-    }
 
     protected boolean payCart(int userId, String paymentDetails, String paymentService) {
         return this.bridge.payCart(userId, paymentDetails, paymentService);
@@ -240,25 +231,12 @@ public abstract class ProjectTest {
         return this.bridge.askForSupply(userId, items, supplyService);
     }
 
-    protected boolean closeStorePermanently(int storeManagerId, int storeId) {
-        return this.bridge.closeStorePermanently(storeManagerId, storeId);
-    }
 
     protected boolean checkIfStoreOwner(int userId, int storeId) {
         return this.bridge.checkIfStoreOwner(userId, storeId);
     }
 
-    protected boolean removeRegisterdUser(int systemManagerId, int userToRemoveId) {
-        return this.bridge.removeRegisterdUser(systemManagerId, userToRemoveId);
-    }
 
-    protected void sendComplaint(int userId, String msg) {
-        this.bridge.postComplaint(userId, msg);
-    }
-
-    protected boolean answerComplaints(int userId, HashMap<Integer, String> complaintsAnswers) {
-        return this.bridge.answerComplaint(userId, complaintsAnswers);
-    }
 
     protected HashMap<Integer, String> getComplaints(int managerId) {
         return this.bridge.getComplaints(managerId);
@@ -281,21 +259,6 @@ public abstract class ProjectTest {
         return this.bridge.getSellingHistoryOfUserForManager(managerId, userId);
     }
 
-    protected HashMap<Integer, String> getUsersTraffic(int managerId) {
-        return this.bridge.getUsersTraffic(managerId);
-    }
-
-    protected HashMap<Integer, Integer> getPurchaseTraffic(int managerId) {
-        return this.bridge.getPurchaseTraffic(managerId);
-    }
-
-    protected int getNumberOfRegistrationForToady(int managerId) {
-        return this.bridge.getNumberOfRegistrationForToady(managerId);
-    }
-
-    protected boolean reopenStore(int userId, int storeId) {
-        return this.bridge.reopenStore(userId, storeId);
-    }
 
     protected List<String> getNotifications(int userId) {
         return this.bridge.getNotifications(userId);
@@ -345,11 +308,62 @@ public abstract class ProjectTest {
         return this.bridge.checkIfStoreManager(userId, storeId);
     }
 
+
+    protected void addItemAmount(int storeId, int itemId, int amount) {
+        this.bridge.addItemAmount(storeId, itemId, amount);
+    }
+
+
+
+
+
+    protected StoreService getStoreInformationAsStoreManager(int storeId, int userId) {
+        return this.bridge.getStoreInfoAsStoreManager(storeId, userId);
+    }
+
     protected List<String> getRequestsOfStore_AsStoreOwnerManager(int ownerManagerId, int storeId) {
         return this.bridge.getRequestsOfStore(ownerManagerId, storeId);
     }
 
-    protected void addItemAmount(int storeId, int itemId, int amount) {
-        this.bridge.addItemAmount(storeId, itemId, amount);
+
+    protected HashMap<Integer, String> getUsersTraffic(int managerId) {
+        return this.bridge.getUsersTraffic(managerId);
+    }
+
+    protected HashMap<Integer, Integer> getPurchaseTraffic(int managerId) {
+        return this.bridge.getPurchaseTraffic(managerId);
+    }
+
+    protected int getNumberOfRegistrationForToady(int managerId) {
+        return this.bridge.getNumberOfRegistrationForToady(managerId);
+    }
+
+    protected boolean reopenStore(int userId, int storeId) {
+        return this.bridge.reopenStore(userId, storeId);
+    }
+
+
+    protected boolean removeRegisterdUser(int systemManagerId, int userToRemoveId) {
+        return this.bridge.removeRegisterdUser(systemManagerId, userToRemoveId);
+    }
+
+    protected boolean removeStoreManager(int storeId, int storeManagerId, int removeUserId) {
+        return this.bridge.removeStoreManager(storeId, storeManagerId, removeUserId);
+    }
+
+    protected boolean removeStoreOwner(int storeId, int storeOwnerId, int newStoreOwnerId) {
+        return this.bridge.removeStoreOwner(storeId, storeOwnerId, newStoreOwnerId);
+    }
+
+    protected boolean closeStorePermanently(int storeManagerId, int storeId) {
+        return this.bridge.closeStorePermanently(storeManagerId, storeId);
+    }
+
+    protected void sendComplaint(int userId, String msg) {
+        this.bridge.postComplaint(userId, msg);
+    }
+
+    protected boolean answerComplaints(int userId, HashMap<Integer, String> complaintsAnswers) {
+        return this.bridge.answerComplaint(userId, complaintsAnswers);
     }
 }

@@ -147,11 +147,7 @@ public class RealBridge implements Bridge{
         return true;
     }
 
-    @Override
-    public boolean removeStoreManager(int storeId, int storeOwnerId, int removeUserId) {
-        //return this.facade.removeStoreManager(storeId, storeOwnerId, removeUserId);
-        return false;
-    }
+
 
     @Override
     public boolean defineStoreOwner(int storeId, int ownerId, int newCoOwnerId) {
@@ -159,11 +155,6 @@ public class RealBridge implements Bridge{
         return false;
     }
 
-    @Override
-    public boolean removeStoreOwner(int storeId, int storeOwnerId, int newStoreOwnerId) {
-        //return this.facade.removeStoreOwner(storeId, storeOwnerId, newStoreOwnerId);
-        return false;
-    }
 
     @Override
     public boolean payCart(int userId, String paymentDetails, String paymentService) {
@@ -177,11 +168,7 @@ public class RealBridge implements Bridge{
         return false;
     }
 
-    @Override
-    public boolean closeStorePermanently(int storeManagerId, int storeId) {
-        //return this.facade.closeStorePermanently(storeManagerId, storeId);
-        return false;
-    }
+
 
     @Override
     public boolean checkIfStoreOwner(int userId, int storeId) {
@@ -195,11 +182,6 @@ public class RealBridge implements Bridge{
         return false;
     }
 
-    @Override
-    public boolean removeRegisterdUser(int systemManagerId, int userToRemoveId) {
-        //return this.facade.removeRegisterdUser(systemManagerId, userToRemoveId);
-        return false;
-    }
 
     @Override
     public HashMap<Integer, String> getComplaints(int managerId) {
@@ -207,16 +189,6 @@ public class RealBridge implements Bridge{
         return null;
     }
 
-    @Override
-    public boolean answerComplaint(int userId, HashMap<Integer, String> complaintsAnswers) {
-        //return this.facade.answerComplaint(userId, complaintsAnswers);
-        return false;
-    }
-
-    @Override
-    public void postComplaint(int userId, String msg) {
-        //this.facade.sendComplaint(userId, msg);
-    }
 
     @Override
     public boolean sendMsg(int senderId, int receiverId, String msg) {
@@ -236,29 +208,6 @@ public class RealBridge implements Bridge{
         return null;
     }
 
-    @Override
-    public HashMap<Integer, String> getUsersTraffic(int managerId) {
-        //return this.facade.getUsersTraffic(managerId);
-        return null;
-    }
-
-    @Override
-    public HashMap<Integer, Integer> getPurchaseTraffic(int managerId) {
-        //return this.facade.getPurchaseTraffic(managerId);
-        return null;
-    }
-
-    @Override
-    public int getNumberOfRegistrationForToady(int managerId) {
-        //return this.facade.getNumberOfRegistrationForToady(managerId);
-        return 0;
-    }
-
-    @Override
-    public boolean reopenStore(int userId, int storeId) {
-        //return this.facade.reopenStore(userId, storeId);
-        return false;
-    }
 
     @Override
     public List<String> getNotifications(int userId) {
@@ -314,11 +263,7 @@ public class RealBridge implements Bridge{
         return false;
     }
 
-    @Override
-    public List<String> getRequestsOfStore(int ownerManagerId, int storeId) {
-        //return this.facade.getRequestsOfStore(ownerManagerId, storeId);
-        return null;
-    }
+
 
     @Override
     public boolean checkIfVisitor(int userId) {
@@ -330,6 +275,90 @@ public class RealBridge implements Bridge{
     public boolean checkIfLoggedIn(int userId) {
         //return this.facade.checkIfLoggedIn(userId);
         return false;
+    }
+
+
+
+
+
+
+
+
+    @Override
+    public boolean removeStoreManager(int storeId, int storeOwnerId, int removeUserId) {
+        /** NotForVersion1 */
+        //return this.facade.removeStoreManager(storeId, storeOwnerId, removeUserId);
+        return false;
+    }
+
+
+    @Override
+    public boolean removeStoreOwner(int storeId, int storeOwnerId, int newStoreOwnerId) {
+        /** NotForVersion1 */
+        //return this.facade.removeStoreOwner(storeId, storeOwnerId, newStoreOwnerId);
+        return false;
+    }
+
+    @Override
+    public boolean closeStorePermanently(int storeManagerId, int storeId) {
+        /** NotForVersion1 */
+        //return this.facade.closeStorePermanently(storeManagerId, storeId);
+        return false;
+    }
+
+    @Override
+    public boolean removeRegisterdUser(int systemManagerId, int userToRemoveId) {
+        /** NotForVersion1 */
+        //return this.facade.removeRegisterdUser(systemManagerId, userToRemoveId);
+        return false;
+    }
+
+    @Override
+    public boolean answerComplaint(int userId, HashMap<Integer, String> complaintsAnswers) {
+        /** NotForVersion1 */
+        //return this.facade.answerComplaint(userId, complaintsAnswers);
+        return false;
+    }
+
+    @Override
+    public void postComplaint(int userId, String msg) {
+        /** NotForVersion1 */
+        //this.facade.sendComplaint(userId, msg);
+    }
+
+    @Override
+    public HashMap<Integer, String> getUsersTraffic(int managerId) {
+        /** NotForVersion1 */
+        //return this.facade.getUsersTraffic(managerId);
+        return null;
+    }
+
+    @Override
+    public HashMap<Integer, Integer> getPurchaseTraffic(int managerId) {
+        /** NotForVersion1 */
+        //return this.facade.getPurchaseTraffic(managerId);
+        return null;
+    }
+
+    @Override
+    public int getNumberOfRegistrationForToady(int managerId) {
+        /** NotForVersion1 */
+        //return this.facade.getNumberOfRegistrationForToady(managerId);
+        return 0;
+    }
+
+    @Override
+    public boolean reopenStore(int userId, int storeId) {
+        /** NotForVersion1 */
+        //return this.facade.reopenStore(userId, storeId);
+        return false;
+    }
+
+    @Override
+    public List<String> getRequestsOfStore(int ownerManagerId, int storeId) {
+        /** NotForVersion1 */
+        //return this.facade.getRequestsOfStore(ownerManagerId, storeId);
+        return null;
     }
 
 

@@ -31,8 +31,9 @@ public class SystemManagerTests extends ProjectTest{
     }
 
     /**
-     * Close Store permanently #40
+     * Close Store permanently #40  NotForVersion1
      */
+    /*
     @Test
     public void closeStorePermanently_Valid(){
         boolean closed = this.closeStorePermanently(user7SystemManagerId, store2ClosedId);
@@ -52,12 +53,12 @@ public class SystemManagerTests extends ProjectTest{
     public void closeStorePermanently_NotSystemManager(){
         boolean closed = this.closeStorePermanently(user1GuestId, store2ClosedId);
         assertFalse(closed);
-    }
+    }*/
 
     /**
-     * remove registeredUser #41
+     * remove registeredUser #41   NotForVersion1
      */
-    @Test
+    /*@Test
     public void removeRegisteredUser_Valid(){
         boolean removed = this.removeRegisterdUser(user7SystemManagerId, user4LoggedInId);
         assertTrue(removed);
@@ -77,12 +78,12 @@ public class SystemManagerTests extends ProjectTest{
     public void removeRegisteredUser_NotValidManager(){
         boolean removed = this.removeRegisterdUser(user1GuestId, user4LoggedInId);
         assertFalse(removed);
-    }
+    }*/
 
     /**
-     * get information and answer request #42
+     * get information and answer request #42   NotForVersion1
      */
-    @Test
+    /*@Test
     public void answerComplaints_Valid(){
         this.sendComplaint(user4LoggedInId, "Complaint! important Very");
         HashMap<Integer, String> complaint = new HashMap<>();
@@ -120,7 +121,7 @@ public class SystemManagerTests extends ProjectTest{
 
         HashMap<Integer, List<String>> complaints = this.getMsgs(user1GuestId);
         assertNull(complaints.get(user7SystemManagerId));
-    }
+    }*/
 
     /**
      * Get Selling History #43
@@ -148,9 +149,9 @@ public class SystemManagerTests extends ProjectTest{
     }
 
     /**
-     * get system activity #44
+     * get system activity #44   NotForVersion1
      */
-    @Test
+    /*@Test
     public void getUsersTraffic_Valid(){
         HashMap<Integer, String> result = this.getUsersTraffic(user7SystemManagerId);
         assertNotNull(result);
@@ -180,6 +181,6 @@ public class SystemManagerTests extends ProjectTest{
         assertTrue(result < 0);
     }
 
-
+    */
 
 }

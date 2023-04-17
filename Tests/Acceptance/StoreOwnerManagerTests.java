@@ -169,9 +169,9 @@ public class StoreOwnerManagerTests extends ProjectTest{
 
 
     /**
-     * Remove Store Manager #33.5
+     * Remove Store Manager #33.5  NotForVersion1
      */
-    @Test
+    /*@Test
     public void removeStoreManager_Valid(){
         boolean removed = this.removeStoreManager(store2Id, user2LoggedInId, user5ManagerOwnerOfStore2ToBeRemoved);
         assertTrue(removed);
@@ -191,13 +191,13 @@ public class StoreOwnerManagerTests extends ProjectTest{
     public void removeStoreManager_NotByTheStoreManager(){
         boolean removed = this.removeStoreManager(store2Id, user1GuestId, user6ManagerOwnerOfStore2);
         assertFalse(removed);
-    }
+    }*/
 
 
     /**
-     * Remove Store Owner #34
+     * Remove Store Owner #34   NotForVersion1
      */
-    @Test
+    /*@Test
     public void removeStoreOwner_Valid(){
         boolean removed = this.removeStoreOwner(store2Id, user2LoggedInId, user5ManagerOwnerOfStore2ToBeRemoved);
         assertTrue(removed);
@@ -217,7 +217,7 @@ public class StoreOwnerManagerTests extends ProjectTest{
     public void removeStoreOwner_NotByStoreOwner(){
         boolean removed = this.removeStoreOwner(store2Id, user1GuestId, user6ManagerOwnerOfStore2);
         assertFalse(removed);
-    }
+    }*/
 
     /**
      * Close Store #35
@@ -245,9 +245,9 @@ public class StoreOwnerManagerTests extends ProjectTest{
     }
 
     /**
-     * Reopen Store #36
+     * Reopen Store #36 NotForVersion1
      */
-    @Test
+    /*@Test
     public void reopenStore_Valid(){
         int storeId = openAndCloseStoreForUser2();
 
@@ -275,7 +275,7 @@ public class StoreOwnerManagerTests extends ProjectTest{
         int storeId = openAndCloseStoreForUser2();
         boolean reopened = this.reopenStore(user1GuestId, store2Id);
         assertFalse(reopened);
-    }
+    }*/
 
     /**
      * Show information of store staff  #37
@@ -293,8 +293,9 @@ public class StoreOwnerManagerTests extends ProjectTest{
     }
 
     /**
-     * Get store info and answer request as Store manager #38
+     * Get store info and answer request as Store manager #38  NotForVersion1
      */
+    /*
     @Test
     public void getStoreInformation_Valid(){
         StoreService result = this.getStoreInformationAsStoreManager(store2Id, user2LoggedInId);
@@ -319,7 +320,7 @@ public class StoreOwnerManagerTests extends ProjectTest{
         //get the requests from this object
         assertTrue(false);
     }
-
+    */
 
     /**
      * Get Selling History #39
