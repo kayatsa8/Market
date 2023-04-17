@@ -5,7 +5,7 @@ import BusinessLayer.Log;
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.Receipts.Receipt.ReceiptCollection;
 import BusinessLayer.Receipts.ReceiptItem.ReceiptItem;
-import BusinessLayer.stores.CatalogItem;
+import BusinessLayer.Stores.CatalogItem;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 
 public class ReceiptHandler {
     private static final Logger log = Log.log;
-    private static AtomicInteger counterIds = new AtomicInteger(0);
+    private static AtomicInteger counterIds = new AtomicInteger(1);
     private ReceiptCollection receipts;
     public ReceiptHandler(){
         receipts = new ReceiptCollection();
@@ -29,7 +29,7 @@ public class ReceiptHandler {
      *
      *        - The value is a map of catalogItems to amount bought
      */
-    public void addReceipt(int ownerId, HashMap<Integer,HashMap<CatalogItem, Integer>> storeOrUserIdToItems){
+    public int addReceipt(int ownerId, HashMap<Integer,HashMap<CatalogItem, Integer>> storeOrUserIdToItems){
         Receipt newReceipt = new Receipt(counterIds.getAndIncrement(), ownerId, Calendar.getInstance());
 
         for (Map.Entry<Integer,HashMap<CatalogItem, Integer>> set : storeOrUserIdToItems.entrySet()) {
@@ -39,6 +39,7 @@ public class ReceiptHandler {
         log.info("Created receipt successfully.");
         receipts.add(ownerId, newReceipt);
         log.info("Added receipt successfully.");
+        return newReceipt.getId();
     }
 
     private ArrayList<ReceiptItem> convertToReceiptItems(HashMap<CatalogItem, Integer> catalogItemsToAmount){
@@ -52,15 +53,15 @@ public class ReceiptHandler {
         return items;
     }
 
-    public List<Receipt> getStoreReceiptsFromUser(int storeId){
+    public ArrayList<Receipt> getStoreReceiptsFromUser(int storeId){
         return receipts.getByOwnerId(storeId);
     }
 
-    public List<Receipt> getUserReceiptsFromStore(int userId){
+    public ArrayList<Receipt> getUserReceiptsFromStore(int userId){
         return receipts.getByOwnerId(userId);
     }
 
-    public List<Receipt> getAllReceipts(){
+    public ArrayList<Receipt> getAllReceipts(){
         return receipts.getAll();
     }
 

@@ -31,20 +31,23 @@ public class Receipt {
         }
     }
 
-    public boolean itemExists(int id){
-        return collection.exists(id);
+    public boolean itemExists(int userStoreId, int id){
+        return collection.exists(userStoreId, id);
     }
 
-    public boolean deleteItem(int id){
-        return collection.delete(id);
+    public boolean deleteItem(int userStoreId, int id){
+        return collection.delete(userStoreId, id);
     }
 
-    public boolean update(int id, ReceiptItem item) {
-        return collection.update(id, item);
+    public boolean update(int userStoreId, int id, ReceiptItem item) {
+        return collection.update(userStoreId, id, item);
     }
 
-    public ReceiptItem getItem(int id){
-        return collection.get(id);
+    public ReceiptItem getItem(int userStoreId, int id){
+        return collection.get(userStoreId, id);
     }
 
+    public boolean hasKeyId(int ownerId) {
+        return collection.hasKeyId(ownerId);
+    }
 }

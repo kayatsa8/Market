@@ -17,11 +17,11 @@ public class LoginScreen extends Screen{
         System.out.println("\nWelcome to the Login Menu!");
         String username = getUserName();
         String pass = getPass();
-        int output = this.market.logIn(username, pass);
-        if (output==0) {
+        try {
+            this.market.logIn(username, pass);
             System.out.println("Login Successful");
             endRun();
-        } else if (output==-1) {
+        }catch (Exception e)  {
             System.out.println("Problem logging in. Retry please");
             new LoginScreen(this.caller).run();
         }

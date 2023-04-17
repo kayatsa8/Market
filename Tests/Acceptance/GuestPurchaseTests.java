@@ -1,7 +1,8 @@
 package Acceptance;
 
-import Objects.TestCartInfo;
-import Objects.TestItemInfo;
+import ServiceLayer.Objects.CartService;
+import ServiceLayer.Objects.CatalogItemService;
+import ServiceLayer.Objects.StoreService;
 import org.junit.After;
 import org.junit.Test;
 
@@ -33,21 +34,20 @@ public class GuestPurchaseTests extends ProjectTest{
      */
     @Test
     public void getStoreInfoValid(){
-        //Maybe save the information in an object
-        String info = this.getStoreInfo(store2Id);
-        //assertTrue();
+        StoreService storeInfo = this.getStoreInfo(store2Id);
+        assertEquals(storeInfo.getStoreName(), "Store2");
     }
 
     @Test
     public void getStoreInfoStoreClosed(){
-        String info = this.getStoreInfo(store2ClosedId);
-        assertEquals("Store is Closed!", info);
+        StoreService storeInfo = this.getStoreInfo(store2ClosedId);
+        assertNull(storeInfo);
     }
 
     @Test
     public void getStoreInfoWrongId(){
-        String info = this.getStoreInfo(-1);
-        assertEquals("Store does not exists!", info);
+        StoreService storeInfo = this.getStoreInfo(-1);
+        assertNull(storeInfo);
     }
 
 
@@ -57,10 +57,9 @@ public class GuestPurchaseTests extends ProjectTest{
     @Test
     public void searchItemsValid(){
         List<String> filters= new ArrayList<>();
-        filters.add("filter1");
-        filters.add("filter2");
-        List<TestItemInfo> itemsFound = this.searchItems("existItemName", filters);
-        //assertEqulas();
+        filters.add("Dairy");
+        List<CatalogItemService> itemsFound = this.searchItems("Milk", filters);
+        assertEquals(itemsFound.get(0).getItemName(), "Item1");
     }
 
     @Test
@@ -68,8 +67,8 @@ public class GuestPurchaseTests extends ProjectTest{
         List<String> filters= new ArrayList<>();
         filters.add("filter1");
         filters.add("filter2");
-        List<TestItemInfo> itemsFound = this.searchItems("NotExistItemName", filters);
-        //assertEqulas();
+        List<CatalogItemService> itemsFound = this.searchItems("NotExistItemName", filters);
+        assertEquals(0, itemsFound.size());
     }
 
     /**
@@ -79,6 +78,10 @@ public class GuestPurchaseTests extends ProjectTest{
     public void addToBasketValid(){
         boolean added = this.addItemToBasket(user1GuestId, store2Id, item11Id, 10);
         assertTrue(added);
+
+        CartService cart = this.getCart(user1GuestId);
+        boolean hasItem = cart.getBasketOfStore(store2Id).hasItem(item11Id);
+        assertTrue(hasItem);
     }
 
     @Test
@@ -104,19 +107,19 @@ public class GuestPurchaseTests extends ProjectTest{
      */
     @Test
     public void showCartValid(){
-        TestCartInfo cart = this.showCart(user1GuestId);
-        //assertTrue();
+        CartService cart = this.getCart(user1GuestId);
+        assertTrue(cart.getBasketOfStore(store2Id).hasItem(item1Id));
     }
 
     @Test
     public void showCartUserNotExist(){
-        TestCartInfo cart = this.showCart(userNotExistId);
+        CartService cart = this.getCart(userNotExistId);
         assertNull(cart);
     }
 
     @Test
     public void showCartNotLoggedInUser(){
-        TestCartInfo cart = this.showCart(user3NotLoggedInId);
+        CartService cart = this.getCart(user3NotLoggedInId);
         assertNull(cart);
     }
 

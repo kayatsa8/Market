@@ -4,7 +4,7 @@ import CLI.MainMenu;
 public class main {
 
     public static void main(String[] args) {
-        new MainMenu(new Market()).run();//main
+        new MainMenu(Market.getInstance()).run();//main
     }
 
 }
