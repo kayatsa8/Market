@@ -1,6 +1,6 @@
 package Bridge;
 
-import BusinessLayer.stores.Category;
+import BusinessLayer.Stores.Category;
 import ServiceLayer.Objects.*;
 
 import java.util.HashMap;

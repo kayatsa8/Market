@@ -1,7 +1,7 @@
 package Bridge;
 
 
-import BusinessLayer.stores.Category;
+import BusinessLayer.Stores.Category;
 import Objects.*;
 import ServiceLayer.Objects.*;
 

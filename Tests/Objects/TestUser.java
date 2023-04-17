@@ -1,9 +1,8 @@
 package Objects;
-import BusinessLayer.users.RegisteredUser;
-import BusinessLayer.users.UserFacade;
+import BusinessLayer.Users.UserFacade;
 import org.junit.After;
 import org.junit.Test;
-import org.junit.runner.notification.RunListener;
+
 import static org.junit.Assert.*;
 public class TestUser {
     String goodPass1="ab123456";

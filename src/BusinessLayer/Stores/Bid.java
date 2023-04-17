@@ -1,9 +1,9 @@
-package BusinessLayer.stores;
+package BusinessLayer.Stores;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static BusinessLayer.stores.BidReplies.*;
+import static BusinessLayer.Stores.BidReplies.*;
 
 public class Bid {
     private int itemID;

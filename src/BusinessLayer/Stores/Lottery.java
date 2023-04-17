@@ -1,4 +1,4 @@
-package BusinessLayer.stores;
+package BusinessLayer.Stores;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;

@@ -2,7 +2,7 @@ package Acceptance;
 
 import Bridge.Bridge;
 import Bridge.Driver;
-import BusinessLayer.stores.Category;
+import BusinessLayer.Stores.Category;
 import ServiceLayer.Objects.*;
 
 import java.util.HashMap;

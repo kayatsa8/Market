@@ -1,6 +1,6 @@
 package Acceptance;
 
-import BusinessLayer.stores.Category;
+import BusinessLayer.Stores.Category;
 import ServiceLayer.Objects.CartService;
 import ServiceLayer.Objects.StoreService;
 import org.junit.After;

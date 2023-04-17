@@ -1,6 +1,6 @@
 package Acceptance;
 
-import BusinessLayer.stores.Category;
+import BusinessLayer.Stores.Category;
 import ServiceLayer.Objects.ReceiptService;
 import ServiceLayer.Objects.StoreService;
 import ServiceLayer.Objects.UserStaffInfoService;

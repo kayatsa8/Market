@@ -1,6 +1,6 @@
 package BusinessLayer.NotificationSystem;
 
-import BusinessLayer.users.RegisteredUser;
+import BusinessLayer.Users.RegisteredUser;
 
 import java.util.ArrayList;
 
@@ -10,7 +10,7 @@ public class UserMailbox extends Mailbox {
 
     public UserMailbox(RegisteredUser _owner){
         owner = _owner;
-        ownerID = -1; // TODO: get the id from owner
+        ownerID = owner.getId();
         notReadMessages = new ArrayList<>();
         readMessages = new ArrayList<>();
         sentMessages = new ArrayList<>();
@@ -18,7 +18,7 @@ public class UserMailbox extends Mailbox {
 
     @Override
     protected void notifyOwner() {
-        // TODO: implement when RegisteredUser implements this
+        // TODO: How to do this?
     }
 
 }
