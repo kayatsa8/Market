@@ -25,9 +25,9 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public boolean loginUser(int id, String password) {
+    public boolean loginUser(String name, String password) {
         if(real != null){
-            return real.loginUser(id, password);
+            return real.loginUser(name, password);
         }
         return true;
     }

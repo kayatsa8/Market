@@ -100,7 +100,7 @@ public class GuestVisitorTests extends ProjectTest{
      */
     @Test
     public void loginUserValid(){
-        boolean loggedIn = this.loginUser(user3NotLoggedInId, "User3!");
+        boolean loggedIn = this.loginUser("User3", "User3!");
         assertTrue(loggedIn);
 
         boolean check = checkIfLoggedIn(user3NotLoggedInId);
@@ -109,16 +109,16 @@ public class GuestVisitorTests extends ProjectTest{
 
     @Test
     public void loginUserWrongPassword(){
-        boolean loggedIn = this.loginUser(user3NotLoggedInId, "Y!");
+        boolean loggedIn = this.loginUser("User3", "Y!");
         assertFalse(loggedIn);
     }
 
     @Test
     public void loginUserNotRegistered(){
-        boolean loggedIn = this.loginUser(user1GuestId, "Yona123!");
+        boolean loggedIn = this.loginUser("User1", "Yona123!");
         assertFalse(loggedIn);
 
-        loggedIn = this.loginUser(userNotExistId, "Yona123!");
+        loggedIn = this.loginUser("User0", "Yona123!");
         assertFalse(loggedIn);
     }
 

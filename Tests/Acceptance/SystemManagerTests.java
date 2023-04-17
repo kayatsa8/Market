@@ -63,7 +63,7 @@ public class SystemManagerTests extends ProjectTest{
         assertTrue(removed);
         boolean check = this.checkIfStoreOwner(user4LoggedInId, store4Id);
         assertTrue(check);
-        boolean login = this.loginUser(user4LoggedInId, "User4!");
+        boolean login = this.loginUser("User4", "User4!");
         assertFalse(login);
     }
 

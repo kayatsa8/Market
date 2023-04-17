@@ -19,11 +19,11 @@ public interface Bridge {
 
     /**
      * Login User
-     * @param id
+     * @param name
      * @param password
      * @return true if log in successful
      */
-    boolean loginUser(int id, String password);
+    boolean loginUser(String name, String password);
 
 
     /**

@@ -4,6 +4,7 @@ import Bridge.Bridge;
 import Bridge.Driver;
 import BusinessLayer.Stores.Category;
 import ServiceLayer.Objects.*;
+import ServiceLayer.Result;
 
 import java.util.HashMap;
 import java.util.List;
@@ -93,9 +94,17 @@ public abstract class ProjectTest {
 
 
     protected int setUser(String userName, String password, int GuestOrMember, int logged) {
-        //if its a guest don't register
-        //register user to system and return the ID
-        return -1;
+        int id = -1;
+        if(GuestOrMember == MEMBER){
+            id = registerUser(userName, password);
+        }
+        else{
+            //what to do If it is Guest?
+        }
+        if(logged == LOGGED){
+            loginUser(userName, password);
+        }
+        return id;
     }
 
 
@@ -139,8 +148,8 @@ public abstract class ProjectTest {
         return this.bridge.registerUser(userName, password);
     }
 
-    protected boolean loginUser(int id, String password) {
-        return this.bridge.loginUser(id, password);
+    protected boolean loginUser(String name, String password) {
+        return this.bridge.loginUser(name, password);
     }
 
     protected void exitSystem(int id) {

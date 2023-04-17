@@ -4,30 +4,38 @@ package Bridge;
 import BusinessLayer.Stores.Category;
 import Objects.*;
 import ServiceLayer.Objects.*;
+import ServiceLayer.Result;
+import ServiceLayer.UserService;
 
 import java.util.HashMap;
 import java.util.List;
 
 public class RealBridge implements Bridge{
 
-    //public Facade facade;
+    public UserService userService;
 
     public RealBridge(){
-        //facade = new Facade;
+        userService = new UserService();
     }
 
 
     @Override
     public int registerUser(String userName, String password) {
-        //facade.registerUser(userName, password);
+        //Result<Boolean> result = userService.register(userName, password);
+        //if(result.isError()){
+        //    System.out.println(result.getMessage());
+        //}
         return 1;
     }
 
 
     @Override
-    public boolean loginUser(int id, String password) {
-        //facade.loginUser(id, password);
-        return false;
+    public boolean loginUser(String name, String password) {
+        Result<Boolean> result = userService.login(name, password);
+        if(result.isError()){
+            System.out.println(result.getMessage());
+        }
+        return result.getValue();
     }
 
     @Override

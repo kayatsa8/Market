@@ -40,7 +40,7 @@ public class SystemNotificationTests extends ProjectTest{
     public void delayedNotifications_Valid(){
 
         this.sendMsg(user2LoggedInId, user3NotLoggedInId, "Msg");
-        loginUser(user3NotLoggedInId, "User3!");
+        loginUser("User3", "User3!");
 
         List<String> notifications = getNotifications(user3NotLoggedInId);
         assertEquals(notifications.get(0), "Msg");
