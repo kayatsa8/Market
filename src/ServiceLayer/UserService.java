@@ -14,12 +14,12 @@ public class UserService {
 
     public void start() {
         log.info("Starting System");
-        market.SystemStart();
+        market.systemStart();
 
     }
     public Result<Boolean> login(String userName,String pass){
         try {
-            market.logIn(userName,pass);
+            market.login(userName,pass);
             log.info("logIn succeeded");
             return new Result<>(false,null);//login == true
         } catch (Exception e) {
@@ -40,7 +40,7 @@ public class UserService {
     }
     public Result<Boolean> Logout(String userName,String pass){
         try {
-            market.Logout(userName,pass);
+            market.logout(userName,pass);
             log.info("Logout succeeded");
             return new Result<>(false,null);//login == true,isErr==false
         } catch (Exception e) {

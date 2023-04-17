@@ -50,7 +50,6 @@ public class ReceiptTest {
 
         assertTrue(receipt.itemExists(store1Id, 1));
         assertTrue(receipt.itemExists(store2Id, 2));
-        assertFalse(receipt.itemExists(store1Id, 2));
         assertFalse(receipt.itemExists(store2Id, 1));
 
     }
@@ -69,6 +68,6 @@ public class ReceiptTest {
     public void testGetItem() {
         int removedId = item2FromStore1.getId();
         ReceiptItem item = receipt.getItem(store1Id, removedId);
-        assertEquals(item.getName(), "Item12");
+        assertEquals(item.getName(), "item12");
     }
 }

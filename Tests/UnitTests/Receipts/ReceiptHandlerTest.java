@@ -60,6 +60,7 @@ public class ReceiptHandlerTest {
 
     @Test
     public void getStoreReceiptsFromUser() {
+        receipt1Id = handler.addReceipt(userId, items);
         ArrayList<Receipt> receipts = handler.getStoreReceiptsFromUser(store1ID);
         assertEquals(receipts.get(0).getId(), receipt1Id);
     }
@@ -67,6 +68,7 @@ public class ReceiptHandlerTest {
 
     @Test
     public void getAllReceipts() {
+        receipt1Id = handler.addReceipt(userId, items);
         ArrayList<Receipt> receipts = handler.getAllReceipts();
         assertEquals(1, receipts.size());
     }
