@@ -1,6 +1,7 @@
-package Objects;
+package UnitTests;
 import BusinessLayer.Users.UserFacade;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -9,17 +10,11 @@ public class TestUser {
     String badPass1="123";
     String userName1="avi1";
     String userName2="avi2";
-    UserFacade userFacade=new UserFacade();
+    UserFacade userFacade;
 
+    @Before
     public void setUp() {
-
-//        RegisteredUser  registeredUser=new RegisteredUser(userName1,goodPass1);
-
-    }
-
-
-    @After
-    public void tearDown() {
+        userFacade=new UserFacade();
     }
 
     @Test
