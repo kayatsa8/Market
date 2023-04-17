@@ -10,24 +10,31 @@ public class Basket {
     //fields
     private Store store;
     private ConcurrentHashMap<Integer, ItemPair> items; //<ItemID, ItemPair>
+    private boolean saved;
+    //TODO: List<receiptItem> for every saved item, if saved is false again list becomes empty
 
 
     //methods
     public Basket(Store _store){
         store = _store;
         items = new ConcurrentHashMap<>();
+        saved = false;
     }
 
     public void addItem(CatalogItem item, int quantity) throws Exception {
         validateAddItem(item, quantity);
 
         items.putIfAbsent(item.getItemID(), new ItemPair(item, quantity));
+
+        saved = false;
     }
 
     public void changeItemQuantity(int itemID, int quantity) throws Exception {
         validateChangeItemQuantity(itemID, quantity);
 
         items.get(itemID).quantity = quantity;
+
+        saved = false;
     }
 
     public void removeItem(int itemID) throws Exception {
@@ -37,6 +44,8 @@ public class Basket {
         }
 
         items.remove(itemID);
+
+        saved = false;
     }
 
     private void validateAddItem(CatalogItem item, int quantity) throws Exception {
@@ -82,7 +91,21 @@ public class Basket {
         return inBasket;
     }
 
+    public void saveItems() throws Exception{
+        HashMap<CatalogItem, Integer> toBuy = getItems();
+
+        //TODO: ask store to save the items
+        //TODO: Basket should make List<receiptItem> for every item saved
+
+        saved = true;
+
+    }
+
     public void buyBasket() throws Exception{
+        if(!saved){
+            throw new Exception("The basket of store " + store.getStoreName() + " is not saved for buying");
+        }
+
         HashMap<CatalogItem, Integer> toBuy = getItems();
 
         //TODO: ask store to buy the items
@@ -90,6 +113,8 @@ public class Basket {
             NOTICE: the Store may throw an exception if Basket requests a certain
             item more than Store can provide.
          */
+
+        //TODO: send Store the receipt and return the list to cart
     }
 
 
