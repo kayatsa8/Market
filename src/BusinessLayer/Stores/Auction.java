@@ -42,6 +42,10 @@ public class Auction {
         };
         auctionTimer.schedule(endOfAuctionTask, endOfSale.getTime());
     }
+    public int getItemID()
+    {
+        return itemID;
+    }
 
     public boolean offer(int userID, double offerPrice)
     {

@@ -28,6 +28,10 @@ public class Bid {
             repliers.put(replierID, null);
         }
     }
+    public int getItemID()
+    {
+        return itemID;
+    }
 
     public boolean approve(int replierUserID)
     {

@@ -37,6 +37,10 @@ public class Lottery {
         };
         lotteryTimer.schedule(endOfLotteryTask, endOfSale.getTime());
     }
+    public int getItemID()
+    {
+        return itemID;
+    }
 
     public boolean participateInLottery(int userID, double offerPrice)
     {
