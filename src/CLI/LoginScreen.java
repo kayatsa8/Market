@@ -18,7 +18,7 @@ public class LoginScreen extends Screen{
         String username = getUserName();
         String pass = getPass();
         try {
-            this.market.logIn(username, pass);
+            this.market.login(username, pass);
             System.out.println("Login Successful");
             endRun();
         }catch (Exception e)  {

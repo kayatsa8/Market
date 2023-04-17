@@ -20,7 +20,7 @@ public class Market {
         userFacade.registerUser(username, pass);
     }
 
-    public void logIn(String username, String pass) throws Exception {
+    public void login(String username, String pass) throws Exception {
         userFacade.logIn(username, pass);
     }
     public void systemStart(){
