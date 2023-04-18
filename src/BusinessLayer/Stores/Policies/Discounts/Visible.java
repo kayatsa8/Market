@@ -9,13 +9,13 @@ public class Visible extends Discount{
 
     private int itemId;
     private double discount;
-    private Date expiringDate;
+    private Calendar expiringDate;
 
-    public Visible(int itemId, double discount, Date date){
+    public Visible(int itemId, double discount, Calendar endOfSale){
         super();
         this.discount = discount;
         this.itemId = itemId;
-        this.expiringDate = date;
+        this.expiringDate = endOfSale;
     }
 
 
@@ -28,13 +28,13 @@ public class Visible extends Discount{
         return discount;
     }
 
-    public Date getExpiringDate() {
+    public Calendar getExpiringDate() {
         return expiringDate;
     }
 
     public int getDaysUntilExpired() {
-        Date now = Calendar.getInstance().getTime();
-        long diff = expiringDate.getTime() - now.getTime();
+        Calendar now = Calendar.getInstance();
+        long diff = expiringDate.getTime().getTime() - now.getTime().getTime();
         return (int) diff/(1000*60*60*24);
     }
 }

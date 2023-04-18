@@ -6,16 +6,23 @@ import java.util.concurrent.TimeUnit;
 public class Lottery {
     private int itemID;
     private double price;
+    private TimerTask endOfLotteryTask;
+    private int lotteryID;
+    private Store store;
     private double priceLeft;
+    private int winnerID;
     private Calendar endOfSale;
     private boolean lotteryFinished;
     private Map<Integer, Double> winningOdds;
     private Timer lotteryTimer;
 
-    public Lottery(int itemID, double price, int lotteryPeriodInDays)
+    public Lottery(Store store, int lotteryID, int itemID, double price, int lotteryPeriodInDays)
     {
         this.itemID = itemID;
+        this.lotteryID = lotteryID;
+        this.store = store;
         this.price = price;
+        this.winnerID = -1;
         this.priceLeft = price;
         this.lotteryFinished = false;
         this.endOfSale = Calendar.getInstance();
@@ -25,14 +32,12 @@ public class Lottery {
         this.endOfSale.set(Calendar.MINUTE, 0);
         this.winningOdds = new HashMap<>();
         this.lotteryTimer = new Timer();
-        TimerTask endOfLotteryTask = new TimerTask()
+        endOfLotteryTask = new TimerTask()
         {
             @Override
             public void run()
             {
-                if (!lotteryFinished)
-                    System.out.println("The lottery is canceled and the money is returned to the participants"); //The task
-                cancel();
+                store.finishLotteryUnsuccessfully(lotteryID);
             }
         };
         lotteryTimer.schedule(endOfLotteryTask, endOfSale.getTime());
@@ -41,7 +46,13 @@ public class Lottery {
     {
         return itemID;
     }
-
+    public Timer getLotteryTimer()
+    {
+        return lotteryTimer;
+    }
+    public int getWinnerID() {
+        return winnerID;
+    }
     public boolean participateInLottery(int userID, double offerPrice)
     {
         if (Calendar.getInstance().before(endOfSale))
@@ -53,8 +64,8 @@ public class Lottery {
                 if (priceLeft == 0)
                 {
                     lotteryFinished = true;
-                    int winningUserID = getWinner();
-                    System.out.println("The item is sold to user ID: " + winningUserID + " at a price of " + winningOdds.get(winningUserID)); //The task
+                    winnerID = generateWinner();
+                    System.out.println("The item is sold to user ID: " + winnerID + " at a price of " + winningOdds.get(winnerID)); //The task
                 }
                 return true;
             }
@@ -70,7 +81,7 @@ public class Lottery {
         return (int) TimeUnit.MILLISECONDS.toDays(endOfSale.getTimeInMillis()-now.getTimeInMillis());
     }
 
-    private int getWinner()
+    private int generateWinner()
     {
         Random random = new Random();
         double randomNumber = random.nextDouble();
@@ -83,5 +94,9 @@ public class Lottery {
             }
         }
         return -1;
+    }
+    public boolean isLotteryFinished()
+    {
+        return lotteryFinished;
     }
 }

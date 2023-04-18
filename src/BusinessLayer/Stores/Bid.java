@@ -33,35 +33,57 @@ public class Bid {
         return itemID;
     }
 
-    public boolean approve(int replierUserID)
+    public double getHighestCounterOffer()
     {
-        if (!repliers.keySet().contains(replierUserID) || repliers.get(replierUserID) != null)
+        return highestCounterOffer;
+    }
+    public boolean approve(int replierUserID) throws Exception
+    {
+        if (!repliers.keySet().contains(replierUserID))
         {
-            return false;
+            //return false;
+            throw new Exception("The user " + replierUserID + " is not allowed to reply to bid in this store");
+        }
+        if (repliers.get(replierUserID) != null)
+        {
+            throw new Exception("The user " + replierUserID + " has already replied to this bid");
         }
         repliers.put(replierUserID, APPROVED);
         if (allReplied())
         {
-            finishBid();
+            //finishBid();
+            return true;
         }
-        return true;
+        return false;
     }
-    public boolean reject(int replierUserID)
+    public boolean reject(int replierUserID) throws Exception
     {
-        if (!repliers.keySet().contains(replierUserID) || repliers.get(replierUserID) != null)
+        if (!repliers.keySet().contains(replierUserID))
         {
-            return false;
+            //return false;
+            throw new Exception("The user " + replierUserID + " is not allowed to reply to bid in this store");
+        }
+        if (repliers.get(replierUserID) != null)
+        {
+            throw new Exception("The user " + replierUserID + " has already replied to this bid");
         }
         repliers.put(replierUserID, REJECTED);
+        if (bidRejected)
+            return false;
         bidRejected = true;
-        finishBid();
+        //finishBid();
         return true;
     }
-    public boolean counterOffer(int replierUserID, double counterOffer)
+    public boolean counterOffer(int replierUserID, double counterOffer) throws Exception
     {
-        if (!repliers.keySet().contains(replierUserID) || repliers.get(replierUserID) != null)
+        if (!repliers.keySet().contains(replierUserID))
         {
-            return false;
+            //return false;
+            throw new Exception("The user " + replierUserID + " is not allowed to reply to bid in this store");
+        }
+        if (repliers.get(replierUserID) != null)
+        {
+            throw new Exception("The user " + replierUserID + " has already replied to this bid");
         }
         repliers.put(replierUserID, COUNTERED);
         if (counterOffer > highestCounterOffer)
@@ -70,9 +92,10 @@ public class Bid {
         }
         if (allReplied())
         {
-            finishBid();
+            //finishBid();
+            return true;
         }
-        return true;
+        return false;
     }
 
     private boolean allReplied()
@@ -86,7 +109,7 @@ public class Bid {
         return true;
     }
 
-    private void finishBid()
+    /*private void finishBid()
     {
         if (bidRejected) //reject
         {
@@ -100,7 +123,7 @@ public class Bid {
         {
 
         }
-    }
+    }*/
 
     public Map<Integer, BidReplies> getRepliers()
     {
