@@ -8,27 +8,43 @@ import java.util.Map;
 
 public class UserFacade {
     private final static int MIN_PASS_LENGTH = 6;
-    private Map<String, RegisteredUser> users;
     private Map<Integer, RegisteredUser> userIDs;
     private UserDAO userDAO;
     private static int userID;
     private final static String adminName = "admin";
 
     public UserFacade() {
-        users = new HashMap<>();
         userIDs = new HashMap<>();
         userDAO = new UserDAO();
         userID = userDAO.getMaxID() + 1;
     }
-
-    public void createAdmin() {
-        RegisteredUser admin = new RegisteredUser(adminName, adminName, 0, true);
-//        userDAO.addUser(admin);
-        users.put(adminName, admin);
+    private int getNewId(){
+        userID++;
+        return userID;
     }
 
-    public RegisteredUser getUser(String userName) {
-        return users.get(userName);
+    public void createAdmin() throws Exception {
+        RegisteredUser admin = new RegisteredUser(adminName, adminName, 0, true);
+//        userDAO.addUser(admin);
+        userIDs.put(0, admin);
+    }
+
+    /**
+     *
+     * @param username the username
+     * @return <b>RegisteredUser</b> with the username or <b>null</b> if not found
+     */
+    public RegisteredUser getUser(String username) {
+        RegisteredUser tempReg=null;
+        for (Map.Entry<Integer, RegisteredUser> entry : userIDs.entrySet()) {
+            Integer id = entry.getKey();
+            RegisteredUser user = entry.getValue();
+            if (user.getUsername().equals(username)){
+                tempReg=user;
+                break;
+            }
+        }
+        return tempReg;
     }
 
     public RegisteredUser getUserByID(int userID) {
@@ -45,7 +61,6 @@ public class UserFacade {
                 // add to DB
                 userDAO.addUser(tempUser);
                 //add to cash
-                users.put(username, tempUser);
                 userIDs.put(tempUser.getId(), tempUser);
             }
         }
@@ -67,9 +82,15 @@ public class UserFacade {
     }
 
     public void logIn(String username, String password) throws Exception {
-        if (!(users.containsKey(username)
-                && getUser(username).getPassword().equals(password)))
-            throw new Exception("incorrect user name or password");
+        //List<RegisteredUser> list = new ArrayList<RegisteredUser>(userIDs.values()).stream().filter((user)->user.getUsername().equals(username)).toList();
+        if (username==null||password==null)
+            throw new Exception("username or password is Null");
+        RegisteredUser user=getUser(username);
+        if (user==null)
+            throw new Exception("incorrect user name");
+        int userId=user.getId();
+        if (getUserByID(userId)!=null&&!(getUserByID(userId).getPassword().equals(password)))
+            throw new Exception("incorrect password");
     }
 
     public boolean logOut(String username) {
@@ -81,13 +102,13 @@ public class UserFacade {
     }
 
     public void LoadUsers() {
-        HashMap<String, RegisteredUser> dbUsersMap = UserDAO.getAllUsers();
-        for (Map.Entry<String, RegisteredUser> entry : dbUsersMap.entrySet()) {
-            String name = entry.getKey();
+        HashMap<Integer, RegisteredUser> dbUsersMap = UserDAO.getAllUsers();
+        for (Map.Entry<Integer, RegisteredUser> entry : dbUsersMap.entrySet()) {
+            Integer id = entry.getKey();
             RegisteredUser user = entry.getValue();
             //TODO load User's Cart
             //user.setCart(cartDBO.getCart(name));
-            users.put(name, user);
+            userIDs.put(id, user);
         }
 
     }
@@ -107,6 +128,9 @@ public class UserFacade {
 
     public void addStore(int founderID, Store store) {
         RegisteredUser currUser = getUserByID(founderID);
+        if (currUser == null ) {
+            throw new RuntimeException("User does not exist");
+        }
         currUser.addStore(store);
     }
 
@@ -139,7 +163,6 @@ public class UserFacade {
 
     //only called from system manager after other user associations removed
     public void removeUser(RegisteredUser userToRemove) throws Exception {
-        users.remove(userToRemove.getUsername());
         userIDs.remove(userToRemove.getId());
         userDAO.removeUser(userToRemove);
     }

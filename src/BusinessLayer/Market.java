@@ -19,7 +19,7 @@ public class Market {
         storeFacade = new StoreFacade();
     }
 
-    public static Market getInstance() {
+    public static Market getInstance() throws Exception {
         if (instance == null) {
             instance = new Market();
             instance.createFirstAdmin();
@@ -39,7 +39,7 @@ public class Market {
         return systemManagerMap;
     }
 
-    private void createFirstAdmin() {
+    private void createFirstAdmin() throws Exception {
         userFacade.createAdmin();
     }
 
