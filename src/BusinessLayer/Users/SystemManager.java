@@ -21,7 +21,8 @@ public class SystemManager {
         this.market.addAdmin(myUser.getUsername(), this);
     }
 
-    public void closeStorePermanently(Store store) {
+    public void closeStorePermanently(Store store) throws Exception
+    {
         //remove all owners -> will automatically remove all managers
         int founderID = store.getFounderID();
         RegisteredUser founder = userFacade.getUserByID(founderID);
@@ -34,7 +35,8 @@ public class SystemManager {
         userFacade.removeUser(userToRemove);
     }
 
-    private void removeStoreAssociations(RegisteredUser userToRemove) {
+    private void removeStoreAssociations(RegisteredUser userToRemove) throws Exception
+    {
         int storeId;
         int founderId;
         int parentUserId;
