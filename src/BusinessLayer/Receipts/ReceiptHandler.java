@@ -5,6 +5,7 @@ import BusinessLayer.Log;
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.Receipts.Receipt.ReceiptCollection;
 import BusinessLayer.Receipts.ReceiptItem.ReceiptItem;
+import BusinessLayer.Stores.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 
 import java.util.*;
@@ -27,12 +28,17 @@ public class ReceiptHandler {
      *        - If the ownerId is userId than the keys of this map would be store Ids he bought at.
      *          If the ownerId is storeId than the key of this map would be the user bought from this store.
      *
-     *        - The value is a map of catalogItems to amount bought
+     *        - The value is a map of catalogItems to CartItemInfo
+     *          CartItemInfo : (amount, percent, finalPrice)
+     *
+     *        for store: key = userId (you only have 1 key)
+     *        for user: keys = storesId (you have multiple keys if he bought from several store)
+     *
      */
-    public int addReceipt(int ownerId, HashMap<Integer,HashMap<CatalogItem, Integer>> storeOrUserIdToItems){
+    public int addReceipt(int ownerId, HashMap<Integer,HashMap<CatalogItem, CartItemInfo>> storeOrUserIdToItems){
         Receipt newReceipt = new Receipt(counterIds.getAndIncrement(), ownerId, Calendar.getInstance());
 
-        for (Map.Entry<Integer,HashMap<CatalogItem, Integer>> set : storeOrUserIdToItems.entrySet()) {
+        for (Map.Entry<Integer,HashMap<CatalogItem, CartItemInfo>> set : storeOrUserIdToItems.entrySet()) {
             ArrayList<ReceiptItem> items = convertToReceiptItems(set.getValue());
             newReceipt.addItems(set.getKey(), items);
         }
@@ -42,12 +48,14 @@ public class ReceiptHandler {
         return newReceipt.getId();
     }
 
-    private ArrayList<ReceiptItem> convertToReceiptItems(HashMap<CatalogItem, Integer> catalogItemsToAmount){
+    private ArrayList<ReceiptItem> convertToReceiptItems(HashMap<CatalogItem, CartItemInfo> catalogItemsToAmount){
         ArrayList<ReceiptItem> items = new ArrayList<>();
-        for (Map.Entry<CatalogItem, Integer> set : catalogItemsToAmount.entrySet()) {
+        for (Map.Entry<CatalogItem, CartItemInfo> set : catalogItemsToAmount.entrySet()) {
             CatalogItem catalogItem = set.getKey();
-            int amount = set.getValue();
-            items.add(new ReceiptItem(catalogItem.getItemID(), catalogItem.getItemName(),amount, catalogItem.getPrice()));
+            CartItemInfo cartItemInfo = set.getValue();
+            int amount = cartItemInfo.getAmount();
+            double finalPrice = cartItemInfo.getFinalPrice();
+            items.add(new ReceiptItem(catalogItem.getItemID(), catalogItem.getItemName(),amount, catalogItem.getPrice(), finalPrice));
             log.info("Added items to receipt successfully.");
         }
         return items;
