@@ -1,5 +1,6 @@
 package BusinessLayer;
 
+import BusinessLayer.Receipts.ReceiptHandler;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 
@@ -8,17 +9,18 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Basket {
     //fields
-    private Store store;
-    private ConcurrentHashMap<Integer, ItemPair> items; //<ItemID, ItemPair>
-    private boolean saved;
-    //TODO: List<receiptItem> for every saved item, if saved is false again list becomes empty
+    private final Store store;
+    private final ConcurrentHashMap<Integer, ItemPair> items; //<ItemID, ItemPair>
+    private boolean itemsSaved; // true if the store saves the items inside the basket for the user
+    private HashMap<CatalogItem, Integer> savedItems; //<CatalogItem, quantity
 
 
     //methods
     public Basket(Store _store){
         store = _store;
         items = new ConcurrentHashMap<>();
-        saved = false;
+        itemsSaved = false;
+        savedItems = null;
     }
 
     public void addItem(CatalogItem item, int quantity) throws Exception {
@@ -26,7 +28,7 @@ public class Basket {
 
         items.putIfAbsent(item.getItemID(), new ItemPair(item, quantity));
 
-        saved = false;
+        releaseItems();
     }
 
     public void changeItemQuantity(int itemID, int quantity) throws Exception {
@@ -34,7 +36,7 @@ public class Basket {
 
         items.get(itemID).quantity = quantity;
 
-        saved = false;
+        releaseItems();
     }
 
     public void removeItem(int itemID) throws Exception {
@@ -45,7 +47,7 @@ public class Basket {
 
         items.remove(itemID);
 
-        saved = false;
+        releaseItems();
     }
 
     private void validateAddItem(CatalogItem item, int quantity) throws Exception {
@@ -85,36 +87,86 @@ public class Basket {
         HashMap<CatalogItem, Integer> inBasket = new HashMap<>();
 
         for(Integer itemID : items.keySet()){
-            inBasket.putIfAbsent(items.get(itemID).item, items.get(itemID).quantity);
+            inBasket.putIfAbsent(makeCopyOfCatalogItem(items.get(itemID).item),
+                    items.get(itemID).quantity);
         }
 
         return inBasket;
     }
 
+    private CatalogItem makeCopyOfCatalogItem(CatalogItem item){
+        return new CatalogItem(item.getItemID(), item.getItemName(), item.getPrice(), item.getCategory());
+    }
+
     public void saveItems() throws Exception{
-        HashMap<CatalogItem, Integer> toBuy = getItems();
+        HashMap<CatalogItem, Integer> savedItems = getItems();
 
-        //TODO: ask store to save the items
-        //TODO: Basket should make List<receiptItem> for every item saved
+        try{
 
-        saved = true;
+            StoreMock store = new StoreMock(); //TODO: remove the mock
+            store.saveItems(savedItems);
+        }
+        catch(Exception e){
+            //LOG
+
+            /*
+                NOTICE: the Store may throw an exception if Basket requests a certain
+                item more than Store can provide.
+            */
+            e.printStackTrace();
+        }
+
+        itemsSaved = true;
 
     }
 
-    public void buyBasket() throws Exception{
-        if(!saved){
+    /**
+     * @return a HashMap of the bought items and their quantities
+     * @throws Exception - the store can throw exceptions
+     */
+    public HashMap<CatalogItem, Integer> buyBasket() throws Exception{
+        if(!itemsSaved){
             throw new Exception("The basket of store " + store.getStoreName() + " is not saved for buying");
         }
 
-        HashMap<CatalogItem, Integer> toBuy = getItems();
+        try{
+            StoreMock store = new StoreMock(); //TODO: remove the mock
+            store.buyItems(savedItems);
+        }
+        catch(Exception e){
+            //LOG
+            e.printStackTrace();
+        }
 
-        //TODO: ask store to buy the items
+        return savedItems;
+    }
+
+    /**
+     * if the basket contents had changed for some reason, the basket
+     * asks the store to release the saved items
+     */
+    private void releaseItems(){
+        if(itemsSaved){
+            itemsSaved = false;
+            StoreMock store = new StoreMock(); //TODO: remove the mock
+            store.releaseItems(savedItems);
+            savedItems = null;
+        }
+    }
+
+    public double calculateTotalPrice(){
+        //TODO: see how the discounts should take place here.
         /*
-            NOTICE: the Store may throw an exception if Basket requests a certain
-            item more than Store can provide.
+         *  POSSIBLE SOLUTION: a wrapper for catalogItem
+         *  POSSIBLE SOLUTION 2: use receiptItem as that wrapper
          */
+        double price = 0;
 
-        //TODO: send Store the receipt and return the list to cart
+        for(ItemPair itemPair : items.values()){
+            price += itemPair.item.getPrice();
+        }
+
+        return price;
     }
 
 
@@ -137,6 +189,34 @@ public class Basket {
             item = _item;
             quantity = _quantity;
         }
+    }
+
+
+    /**
+     * temporary mocks, just to complete the code
+     */
+
+    private class StoreMock{
+        public void saveItems(HashMap<CatalogItem, Integer> itemsToSave) throws Exception{
+            throw new Exception("SWITCH THIS WITH THE REAL STORE");
+        }
+
+        public void buyItems(HashMap<CatalogItem, Integer> itemsToSave) throws Exception{
+            throw new Exception("SWITCH THIS WITH THE REAL STORE");
+        }
+
+        public ReceiptHandler getReceiptHandler(){
+            return null;
+        }
+
+        public int getStoreId(){
+            return 9;
+        }
+
+        public void releaseItems(HashMap<CatalogItem, Integer> items){
+
+        }
+
     }
 
 }
