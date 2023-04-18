@@ -5,45 +5,57 @@ import java.util.concurrent.TimeUnit;
 
 public class Auction {
     private int itemID;
+    private int auctionID;
+    private Store store;
     private double initialPrice;
     private double currentPrice;
+    private TimerTask endOfAuctionTask;
     private int currentWinningUserID;
     private Map<Integer, Double> offers;
     private Calendar endOfSale;
     private Timer auctionTimer;
 
-    public Auction(int itemID, double initialPrice, int auctionPeriodInDays)
+    public Auction(Store store, int AuctionID, int itemID, double initialPrice, int auctionPeriodInDays)
     {
         this.itemID = itemID;
+        this.auctionID = auctionID;
         endOfSale = Calendar.getInstance();
         endOfSale.add(Calendar.DAY_OF_MONTH, auctionPeriodInDays);
         endOfSale.set(Calendar.SECOND, 0);
         endOfSale.set(Calendar.HOUR_OF_DAY, 0);
         endOfSale.set(Calendar.MINUTE, 0);
+        this.store = store;
         this.initialPrice = initialPrice;
         this.currentPrice = initialPrice;
         this.currentWinningUserID = -1;
         this.offers = new HashMap<>();
         this.auctionTimer = new Timer();
-        TimerTask endOfAuctionTask = new TimerTask()
+        endOfAuctionTask = new TimerTask()
         {
             @Override
             public void run()
             {
                 if (currentWinningUserID == -1)
                 {
-                    cancel();
+                    store.finishAuctionUnsuccessfully(auctionID);
                 }
                 else
                 {
-                    System.out.println("The item is sold to user ID: " + currentWinningUserID + " at a price of " + currentPrice); //The task
+                    store.finishAuctionSuccessfully(auctionID);
                 }
             }
         };
         auctionTimer.schedule(endOfAuctionTask, endOfSale.getTime());
     }
-
-    public boolean offer(int userID, double offerPrice)
+    public int getItemID()
+    {
+        return itemID;
+    }
+    public Timer getAuctionTimer()
+    {
+        return auctionTimer;
+    }
+    public boolean offerToAuction(int userID, double offerPrice)
     {
         if (Calendar.getInstance().before(endOfSale))
         {
@@ -58,6 +70,10 @@ public class Auction {
         return false;
     }
 
+    public double getInitialPrice()
+    {
+        return initialPrice;
+    }
     public int getDaysLeft()
     {
         Calendar now = Calendar.getInstance();
@@ -65,7 +81,6 @@ public class Auction {
             return 0;
         return (int)TimeUnit.MILLISECONDS.toDays(endOfSale.getTimeInMillis()-now.getTimeInMillis());
     }
-
     public int getCurrentWinningUserID()
     {
         return currentWinningUserID;

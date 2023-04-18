@@ -79,7 +79,8 @@ public class Market {
         userFacade.removeManager(userName, userToRemove, storeID);
     }
 
-    public void closeStorePermanently(String username, int storeID) {
+    public void closeStorePermanently(String username, int storeID) throws Exception
+     {
         if (isAdmin(username)) {
             SystemManager systemManager = systemManagerMap.get(username);
             systemManager.closeStorePermanently(storeFacade.getStore(storeID));

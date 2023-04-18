@@ -5,18 +5,16 @@ import java.util.Date;
 
 public class Hidden extends Discount{
 
-
-
     private int itemId;
     private double discount;
-    private Date expiringDate;
-    private double coupon;
+    private Calendar endOfSale;
+    private String coupon;
 
-    public Hidden(int itemId, double discount, Date date, double coupon){
+    public Hidden(int itemId, double discount, Calendar endOfSale, String coupon){
         super();
         this.discount = discount;
         this.itemId = itemId;
-        this.expiringDate = date;
+        this.endOfSale = endOfSale;
         this.coupon = coupon;
     }
 
@@ -27,7 +25,7 @@ public class Hidden extends Discount{
         return 0;
     }
 
-    public double getDiscountWithCoupon(double coupon){
+    public double getDiscountWithCoupon(String coupon){
         if(couponValid(coupon) & getDaysUntilExpired() >= 0){
             return discount;
         }
@@ -35,17 +33,17 @@ public class Hidden extends Discount{
     }
 
 
-    public Date getExpiringDate() {
-        return expiringDate;
+    public Calendar getEndOfSale() {
+        return endOfSale;
     }
 
     public int getDaysUntilExpired() {
-        Date now = Calendar.getInstance().getTime();
-        long diff = expiringDate.getTime() - now.getTime();
+        Calendar now = Calendar.getInstance();
+        long diff = endOfSale.getTime().getTime() - now.getTime().getTime();
         return (int) diff/(1000*60*60*24);
     }
 
-    public boolean couponValid(double coupon){
+    public boolean couponValid(String coupon){
         return coupon == this.coupon;
     }
 
