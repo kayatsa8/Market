@@ -51,7 +51,7 @@ public class NotificationHub {
     }
 
     public StoreMailbox registerToMailService(Store store) throws Exception {
-        int storeID = -1; // TODO: get the ID from store
+        int storeID = store.getStoreID();
         if(isRegistered(storeID)){
             // LOG: ERROR: NotificationHub::registerToMailService: the store + storeID + is already registered!
             throw new Exception("NotificationHub::registerToMailService: the store " + storeID + " is already registered!");
