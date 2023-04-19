@@ -83,7 +83,7 @@ public class Cart {
      * @return a HashMap to give the ReceiptHandler in order to make a receipt
      * @throws Exception if the store throw exception for some reason
      */
-    public HashMap<Integer, HashMap<CatalogItem, Integer>> buyCart() throws Exception {
+    public HashMap<Integer, HashMap<CatalogItem, Integer>> buyCart(int userID) throws Exception {
         //TODO: this method should get purchase object in order to pay
         HashMap<Integer, HashMap<CatalogItem, Integer>> receiptData = new HashMap<>();
 
