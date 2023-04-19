@@ -45,4 +45,18 @@ public class Message {
         return sendingTime.format(format);
     }
 
+    @Override
+    public boolean equals(Object other){
+
+        if(!(other instanceof Message message)){
+            return false;
+        }
+
+        return senderID == message.senderID
+                && receiverID == message.receiverID
+                && title.equals(message.title)
+                && content.equals(message.content)
+                && sendingTime.equals(message.sendingTime);
+    }
+
 }

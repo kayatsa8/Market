@@ -20,7 +20,7 @@ public class StoreMailbox extends Mailbox{
     }
 
     @Override
-    protected void notifyOwner() throws Exception {
+    public void notifyOwner() throws Exception {
         List<Integer> IDs = owner.getStoreOwners();
         IDs.addAll(owner.getStoreManagers());
         NotificationHub hub = NotificationHub.getInstance();
@@ -41,11 +41,11 @@ public class StoreMailbox extends Mailbox{
         return new Message(ownerID, id, title, content);
     }
 
-    private void setMailboxAsUnavailable(){
+    public void setMailboxAsUnavailable(){
         available = false;
     }
 
-    private void setMailboxAsAvailable(){
+    public void setMailboxAsAvailable(){
         available = true;
     }
 
