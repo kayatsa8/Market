@@ -5,8 +5,6 @@ import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
 
-import java.util.Map;
-
 public class SystemManager {
     private final UserFacade userFacade;
     private final StoreFacade storeFacade;
@@ -18,14 +16,14 @@ public class SystemManager {
         this.market = Market.getInstance();
         this.userFacade = market.getUserFacade();
         this.storeFacade = market.getStoreFacade();
-        this.market.addAdmin(myUser.getUsername(), this);
+        this.market.addAdmin(myUser.getId(), this);
     }
 
     public void closeStorePermanently(Store store) throws Exception
     {
         //remove all owners -> will automatically remove all managers
         int founderID = store.getFounderID();
-        RegisteredUser founder = userFacade.getUserByID(founderID);
+        RegisteredUser founder = userFacade.getUser(founderID);
         myUser.closeStore(founder, store.getStoreID());
         storeFacade.closeStorePermanently(store.getStoreID());
     }
@@ -48,9 +46,9 @@ public class SystemManager {
             storeId = ownership.getStoreID();
             store = storeFacade.getStore(storeId);
             founderId = store.getFounderID();
-            founder = userFacade.getUserByID(founderId);
+            founder = userFacade.getUser(founderId);
             parentUserId = founder.getStoreIOwn(storeId).findChild(userToRemove);
-            parentUser = userFacade.getUserByID(parentUserId);
+            parentUser = userFacade.getUser(parentUserId);
             if (userToRemove.getId()==founderId) {
                 parentUser.getStoreIOwn(storeId).closeStore();
                 storeFacade.closeStorePermanently(storeId);

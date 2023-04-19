@@ -129,6 +129,12 @@ public class StoreOwnerManagerTests extends ProjectTest{
         assertTrue(check);
     }
 
+    @Test    //Checks circle of owners!
+    public void defineStoreOwner_DefineMyOwner(){
+        boolean defined = this.defineStoreOwner(store2Id, user6ManagerOwnerOfStore2, user2LoggedInId);
+        assertFalse(defined);
+    }
+
     @Test
     public void defineStoreOwner_AlreadyStoreOwner(){
         boolean defined = this.defineStoreOwner(store2Id, user2LoggedInId, user6ManagerOwnerOfStore2);
@@ -152,6 +158,12 @@ public class StoreOwnerManagerTests extends ProjectTest{
 
         boolean check = this.checkIfStoreManager(user3NotLoggedInId, store2Id);
         assertTrue(check);
+    }
+
+    @Test    //Checks circle of Managers!
+    public void defineStoreManager_DefineMyManager(){
+        boolean defined = this.defineStoreManager(store2Id, user6ManagerOwnerOfStore2, user2LoggedInId);
+        assertFalse(defined);
     }
 
     @Test

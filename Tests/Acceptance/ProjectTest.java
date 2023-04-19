@@ -44,7 +44,7 @@ public abstract class ProjectTest {
 
 
     private void setUpSystemManager() {
-        user7SystemManagerId = setUser("User7", "User7!", GUEST, LOGGED);
+        user7SystemManagerId = setUser("User7", "User7!", MEMBER, LOGGED);
         //make him system manager
     }
 
@@ -63,10 +63,15 @@ public abstract class ProjectTest {
         user2LoggedInId = setUser("User2","User2!", MEMBER, LOGGED);
         user5ManagerOwnerOfStore2ToBeRemoved = setUser("User5", "User5!", MEMBER, NOT_LOGGED);
         user6ManagerOwnerOfStore2 = setUser("User6", "User6!", MEMBER, LOGGED);
-        //Make user6 and user5 manager Owner
         store2Id = createStore(user2LoggedInId); //store is open
         store2ClosedId = createStore(user2LoggedInId); //store is close
-        //Make user5 as manager and owner of store2
+
+        //Make user6 and user5 manager Owner
+        defineStoreOwner(store2Id, user2LoggedInId, user5ManagerOwnerOfStore2ToBeRemoved);
+        defineStoreOwner(store2ClosedId , user2LoggedInId, user6ManagerOwnerOfStore2);
+        defineStoreManager(store2Id, user2LoggedInId, user5ManagerOwnerOfStore2ToBeRemoved);
+        defineStoreManager(store2ClosedId , user2LoggedInId, user6ManagerOwnerOfStore2);
+
         //add items
         item2Id = addCatalogItem(store2Id, "Name1", 10, Category.Kitchen);
         addItemAmount(store2Id, item2Id, 10);

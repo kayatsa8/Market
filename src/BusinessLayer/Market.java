@@ -12,14 +12,14 @@ public class Market {
     private static Market instance;
     private UserFacade userFacade;
     private StoreFacade storeFacade;
-    private Map<String, SystemManager> systemManagerMap;
+    private Map<Integer, SystemManager> systemManagerMap;
     private Market() {
         systemManagerMap = new HashMap<>();
         userFacade = new UserFacade();
         storeFacade = new StoreFacade();
     }
 
-    public static Market getInstance() throws Exception {
+    public static Market getInstance() {
         if (instance == null) {
             instance = new Market();
             instance.createFirstAdmin();
@@ -35,24 +35,24 @@ public class Market {
         return storeFacade;
     }
 
-    public Map<String, SystemManager> getSystemManagerMap() {
+    public Map<Integer, SystemManager> getSystemManagerMap() {
         return systemManagerMap;
     }
 
-    private void createFirstAdmin() throws Exception {
+    private void createFirstAdmin() {
         userFacade.createAdmin();
     }
 
-    public void addAdmin(String adminName, SystemManager systemManager) {
-        systemManagerMap.put(adminName, systemManager);
+    public void addAdmin(int newAdmin, SystemManager systemManager) {
+        systemManagerMap.put(newAdmin, systemManager);
     }
 
-    public void register(String username, String pass) throws Exception {
-        userFacade.registerUser(username, pass);
+    public int register(String username, String pass) throws Exception {
+        return userFacade.registerUser(username, pass);
     }
 
-    public void login(String username, String pass) throws Exception {
-        userFacade.logIn(username, pass);
+    public int login(String username, String pass) throws Exception {
+       return userFacade.logIn(username, pass);
     }
 
     public void systemStart() {
@@ -67,34 +67,36 @@ public class Market {
         userFacade.addOwner(userID, userToAddID, storeID);
     }
 
-    public void addManager(int userID, String userToAdd, int storeID) {
+    public void addManager(int userID, int userToAdd, int storeID) {
         userFacade.addManager(userID, userToAdd, storeID);
     }
 
-    public void removeOwner(int userID, String userToRemove, int storeID) {
+    public void removeOwner(int userID, int userToRemove, int storeID) {
         userFacade.removeOwner(userID, userToRemove, storeID);
     }
 
-    public void removeManager(int userID, String userToRemove, int storeID) {
+    public void removeManager(int userID, int userToRemove, int storeID) {
         userFacade.removeManager(userID, userToRemove, storeID);
     }
 
-    public void closeStorePermanently(String username, int storeID) throws Exception
+    public void closeStorePermanently(int userID, int storeID) throws Exception
      {
-        if (isAdmin(username)) {
-            SystemManager systemManager = systemManagerMap.get(username);
+        if (isAdmin(userID)) {
+            SystemManager systemManager = systemManagerMap.get(userID);
             systemManager.closeStorePermanently(storeFacade.getStore(storeID));
         }
-        throw new RuntimeException("Only admin can close stores permanently");
+        else {
+            throw new RuntimeException("Only admin can close stores permanently");
+        }
     }
 
-    private boolean isAdmin(String username) {
-        return systemManagerMap.get(username) != null;
+    private boolean isAdmin(int userID) {
+        return systemManagerMap.get(userID) != null;
     }
 
-    public void removeUser(String username, String userToRemove) throws Exception {
-        if (isAdmin(username)) {
-            SystemManager systemManager = systemManagerMap.get(username);
+    public void removeUser(int userID, int userToRemove) throws Exception {
+        if (isAdmin(userID)) {
+            SystemManager systemManager = systemManagerMap.get(userID);
             systemManager.removeUser(userFacade.getUser(userToRemove));
         }
         else

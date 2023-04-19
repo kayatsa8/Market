@@ -76,7 +76,7 @@ public class GuestVisitorTests extends ProjectTest{
 
     @Test
     public void registerUsedUser(){
-        int id = registerUser("User2", "User2!");
+        int id = this.registerUser("User2", "User2!");
         assertTrue(id < 0);
     }
 
@@ -104,7 +104,7 @@ public class GuestVisitorTests extends ProjectTest{
         assertTrue(loggedIn);
 
         boolean check = checkIfLoggedIn(user3NotLoggedInId);
-        assertTrue(check);
+        assertTrue(check);  /** Check Here*/
     }
 
     @Test

@@ -24,19 +24,17 @@ public class RealBridge implements Bridge{
 
     @Override
     public int registerUser(String userName, String password) {
-        //Result<Boolean> result = userService.register(userName, password);
-        //if(result.isError()){
-        //    System.out.println(result.getMessage());
-        //}
-        /** */
-        return 1;
+        Result<Integer> result = userService.register(userName, password);
+        return handleIntResult(result);
     }
 
 
     @Override
     public boolean loginUser(String name, String password) {
-        Result<Boolean> result = userService.login(name, password);
-        return handleBoolResult(result);
+        Result<Integer> result = userService.login(name, password);
+        int res = handleIntResult(result);
+        /** */
+        return res != -1;
     }
 
     @Override
@@ -160,9 +158,8 @@ public class RealBridge implements Bridge{
 
     @Override
     public boolean defineStoreManager(int storeId, int storeOwner, int newStoreManager){
-        //Result<Boolean> result = userService.addManager(,);
-        /** */
-        return true;
+        Result<Boolean> result = userService.addManager(storeOwner, newStoreManager, storeId);
+        return handleBoolResult(result);
     }
 
 
@@ -322,6 +319,7 @@ public class RealBridge implements Bridge{
     private boolean handleBoolResult(Result<Boolean> result) {
         if(result.isError()){
             System.out.println(result.getMessage());
+            return false;
         }
         return result.getValue();
     }
@@ -329,6 +327,7 @@ public class RealBridge implements Bridge{
     private int handleIntResult(Result<Integer> result) {
         if(result.isError()){
             System.out.println(result.getMessage());
+            return -1;
         }
         return result.getValue();
     }
@@ -337,16 +336,16 @@ public class RealBridge implements Bridge{
     @Override
     public boolean removeStoreManager(int storeId, int storeOwnerId, int removeUserId) {
         /** NotForVersion1 */
-        //return this.facade.removeStoreManager(storeId, storeOwnerId, removeUserId);
-        return false;
+        Result<Boolean> result = userService.removeManager(storeOwnerId, removeUserId, storeId);
+        return handleBoolResult(result);
     }
 
 
     @Override
     public boolean removeStoreOwner(int storeId, int storeOwnerId, int newStoreOwnerId) {
         /** NotForVersion1 */
-        //return this.facade.removeStoreOwner(storeId, storeOwnerId, newStoreOwnerId);
-        return false;
+        Result<Boolean> result = userService.removeOwner(storeOwnerId, newStoreOwnerId, storeId);
+        return handleBoolResult(result);
     }
 
     @Override

@@ -6,6 +6,7 @@ import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.UserFacade;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.Set;
@@ -15,26 +16,30 @@ import static BusinessLayer.Stores.StoreStatus.PERMANENTLY_CLOSE;
 import static org.junit.Assert.*;
 
 public class SystemManagerTest {
-    Market market;
-    String user1 = "user1";
-    String user2 = "user2";
-    String adminName = "admin";
-    RegisteredUser user;
-    RegisteredUser secondUser;
-    StoreFacade sf;
-    UserFacade uf;
-    int store1;
-    int store2;
-    int store3;
+    static Market market;
+    static String user1Name = "user1";
+    static String user2Name = "user2";
+    static String adminName = "admin";
+    static RegisteredUser user;
+    static RegisteredUser secondUser;
+    static StoreFacade sf;
+    static UserFacade uf;
+    static int store1;
+    static int store2;
+    static int store3;
+    static int user1;
+    static int user2;
+    static int adminID;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeClass
+    public static void setUp() throws Exception {
         market = Market.getInstance();
         sf = market.getStoreFacade();
         uf = market.getUserFacade();
+        adminID = uf.getUserByName(adminName).getId();
         try {
-            market.register(user1, user1+user1);
-            market.register(user2, user2+user2);
+            user1 = market.register(user1Name, user1Name+user1Name);
+            user2 = market.register(user2Name, user2Name+user2Name);
             user = market.getUserFacade().getUser(user1);
             secondUser = market.getUserFacade().getUser(user2);
             store1 = market.addStore(user.getId(), "test store 1");
@@ -62,12 +67,12 @@ public class SystemManagerTest {
         assertThrows("Only admin should be able to close store", RuntimeException.class,
                 ()->market.closeStorePermanently(user1, storeToDelete));
         try {
-            market.closeStorePermanently(adminName, storeToDelete);
+            market.closeStorePermanently(adminID, storeToDelete);
         }
         catch (Exception e) {
             assertTrue(e.getMessage()+" caused us to fail to close store", false);
         }
-        assertNull("Store should have been removed from store facade", sf.getStore(storeToDelete));
+        assertEquals("Store should have been removed from store facade", PERMANENTLY_CLOSE, sf.getStore(storeToDelete).getStoreStatus());
         assertNull("User should not see anymore that he owns the store", user.getStoreIOwn(storeToDelete));
     }
 
@@ -78,7 +83,7 @@ public class SystemManagerTest {
         assertThrows("Only admin should be able to remove user", RuntimeException.class,
                 ()->market.removeUser(user1, user2));
         try {
-            market.removeUser(adminName, user1);
+            market.removeUser(adminID, user1);
         }
         catch (Exception e) {
             assertTrue(e.getMessage()+" caused us to fail to remove user", false);
