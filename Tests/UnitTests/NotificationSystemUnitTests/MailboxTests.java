@@ -6,6 +6,9 @@ import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.Users.RegisteredUser;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 /**
@@ -92,6 +95,7 @@ public class MailboxTests {
         hub.removeFromService(1111);
         hub.removeFromService(2222);
     }
+
 
 
 
