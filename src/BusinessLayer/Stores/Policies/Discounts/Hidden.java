@@ -1,55 +1,43 @@
 package BusinessLayer.Stores.Policies.Discounts;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class Hidden extends Discount{
 
-
-
     private int itemId;
-    private double discount;
-    private Date expiringDate;
-    private double coupon;
+    private String coupon;
 
-    public Hidden(int itemId, double discount, Date date, double coupon){
+    public Hidden(int itemId, double discount, Calendar endOfSale, String coupon){
         super();
-        this.discount = discount;
         this.itemId = itemId;
-        this.expiringDate = date;
         this.coupon = coupon;
     }
 
-
+    public List<Integer> getItemsIDs()
+    {
+        List<Integer> item = new ArrayList<>();
+        item.add(itemId);
+        return item;
+    }
 
     @Override
     public double getDiscountToItem() {
-        return 0;
-    }
-
-    public double getDiscountWithCoupon(double coupon){
-        if(couponValid(coupon) & getDaysUntilExpired() >= 0){
-            return discount;
+        if(isExpired())
+        {
+            return 0;
         }
-        return 0;
+        return getPercent();
     }
 
-
-    public Date getExpiringDate() {
-        return expiringDate;
+    public boolean isExpired() {
+        Calendar now = Calendar.getInstance();
+        return now.after(getExpiringDate());
     }
 
-    public int getDaysUntilExpired() {
-        Date now = Calendar.getInstance().getTime();
-        long diff = expiringDate.getTime() - now.getTime();
-        return (int) diff/(1000*60*60*24);
-    }
-
-    public boolean couponValid(double coupon){
+    public boolean couponValid(String coupon){
         return coupon == this.coupon;
     }
-
-
-
-
 }

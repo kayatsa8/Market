@@ -4,18 +4,20 @@ public class ReceiptItem {
 
     private int id;
     private String name;
-    private double price;
+    private double priceBeforeDiscount;
     private int amount;
+    private double finalPrice;
 
-    public ReceiptItem(int id, String name, int amount, double price){
+    public ReceiptItem(int id, String name, int amount, double priceBeforeDiscount, double finalPrice){
         this.id = id;
         this.name = name;
         this.amount = amount;
-        this.price = price;
+        this.priceBeforeDiscount = priceBeforeDiscount;
+        this.finalPrice = finalPrice;
     }
 
     public double getPrice() {
-        return price;
+        return priceBeforeDiscount;
     }
 
     public int getAmount() {
@@ -30,5 +32,7 @@ public class ReceiptItem {
         return name;
     }
 
-
+    public double getFinalPrice() {
+        return finalPrice;
+    }
 }

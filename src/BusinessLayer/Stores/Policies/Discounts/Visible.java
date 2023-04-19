@@ -1,40 +1,38 @@
 package BusinessLayer.Stores.Policies.Discounts;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class Visible extends Discount{
 
 
     private int itemId;
-    private double discount;
-    private Date expiringDate;
 
-    public Visible(int itemId, double discount, Date date){
+    public Visible(int itemId, double discount, Calendar endOfSale){
         super();
-        this.discount = discount;
         this.itemId = itemId;
-        this.expiringDate = date;
     }
 
-
-
+    public List<Integer> getItemsIDs()
+    {
+        List<Integer> item = new ArrayList<>();
+        item.add(itemId);
+        return item;
+    }
     @Override
     public double getDiscountToItem() {
-        if(getDaysUntilExpired() < 0){
+        if(isExpired())
+        {
             return 0;
         }
-        return discount;
+        return getPercent();
     }
 
-    public Date getExpiringDate() {
-        return expiringDate;
-    }
-
-    public int getDaysUntilExpired() {
-        Date now = Calendar.getInstance().getTime();
-        long diff = expiringDate.getTime() - now.getTime();
-        return (int) diff/(1000*60*60*24);
+    public boolean isExpired() {
+        Calendar now = Calendar.getInstance();
+        return now.after(getExpiringDate());
     }
 }
