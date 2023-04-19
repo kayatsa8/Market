@@ -30,7 +30,7 @@ public class UserFacade {
     }
 
     public void createAdmin() {
-        RegisteredUser admin = new RegisteredUser(adminName, adminName, 0, true);
+        RegisteredUser admin = new RegisteredUser(adminName, adminName, 1000000, true);
 //        userDAO.addUser(admin);
         users.put(0, admin);
     }

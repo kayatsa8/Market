@@ -27,7 +27,7 @@ public class UserDAO {
     }
 
     public int getMaxID() {
-        return 0;
+        return 1000000;
     }
 
     public void removeManagership(int id, int storeID) {
