@@ -46,7 +46,7 @@ public abstract class Mailbox {
      * notify the owner of the mailbox about a new message,
      * using observer pattern
      */
-    abstract protected void notifyOwner() throws Exception;
+    abstract public void notifyOwner() throws Exception;
 
     public void markMessageAsRead(Message message) throws Exception {
 

@@ -18,7 +18,7 @@ public class UserMailbox extends Mailbox {
     }
 
     @Override
-    protected void notifyOwner() {
+    public void notifyOwner() {
         // TODO: How to do this?
         throw new IllegalArgumentException("This method is not implemented yet!");
     }
