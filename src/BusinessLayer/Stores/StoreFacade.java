@@ -4,10 +4,16 @@ import BusinessLayer.Stores.Policies.Discounts.Conditional;
 import BusinessLayer.Stores.Policies.Discounts.Discount;
 import BusinessLayer.Stores.Policies.Discounts.Hidden;
 import BusinessLayer.Stores.Policies.Discounts.Visible;
+import Globals.FilterValue;
+import Globals.SearchBy;
+import Globals.SearchFilter;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import static Globals.SearchFilter.STORE_RATING;
 
 public class StoreFacade {
     private Map<Integer, Store> stores;
@@ -114,6 +120,19 @@ public class StoreFacade {
         Map<CatalogItem, Boolean> res = new HashMap<>();
         for (Store store : stores.values()) {
             res.putAll(store.getCatalog());
+        }
+        return res;
+    }
+
+    public Map<CatalogItem, Boolean> getCatalog(String keywords, SearchBy searchBy, Map<SearchFilter, FilterValue> filters) throws Exception {
+        Map<CatalogItem, Boolean> res = new HashMap<>();
+        Collection<Store> storesToSearch = stores.values();
+        if (filters.containsKey(STORE_RATING)) {
+            storesToSearch.removeIf(store -> filters.get(STORE_RATING).filter());
+            filters.remove(STORE_RATING);
+        }
+        for (Store store : storesToSearch) {
+            res.putAll(store.getCatalog(keywords, searchBy, filters));
         }
         return res;
     }

@@ -98,10 +98,10 @@ public class UserService {
     /*
     here instead of StoreService bc only system admin can do this?
      */
-    public Result<Boolean> closeStorePermanently(String username, int storeID) throws Exception
+    public Result<Boolean> closeStorePermanently(int userID, int storeID) throws Exception
     {
         try {
-            market.closeStorePermanently(username, storeID);
+            market.closeStorePermanently(userID, storeID);
             log.info("closed store");
             return new Result<>(false, true);
         } catch (Exception e) {

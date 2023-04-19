@@ -5,8 +5,12 @@ import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Users.SystemManager;
 import BusinessLayer.Users.UserFacade;
+import Globals.FilterValue;
+import Globals.SearchBy;
+import Globals.SearchFilter;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Market {
@@ -113,5 +117,52 @@ public class Market {
 
     public Map<CatalogItem, Boolean> getCatalog() {
         return storeFacade.getCatalog();
+    }
+
+    public Map<CatalogItem, Boolean> searchCatalog(String keywords, SearchBy searchBy, Map<SearchFilter, FilterValue> filters) throws Exception {
+        return storeFacade.getCatalog(keywords, searchBy, filters);
+    }
+
+    public Cart getCart(int userID) {
+        return userFacade.getCart(userID);
+    }
+
+    public Cart addItemToCart(int userID, int storeID, int itemID, int quantity) throws Exception {
+        Store store = storeFacade.getStore(storeID);
+        CatalogItem item = store.getItem(itemID);
+        return userFacade.addItemToCart(userID, store, item, quantity);
+    }
+
+    public Cart removeItemFromCart(int userID, int storeID, int itemID) throws Exception {
+        return userFacade.removeItemFromCart(userID, storeID, itemID);
+    }
+
+    public Cart changeItemQuantityInCart(int userID, int storeID, int itemID, int quantity) throws Exception {
+        return userFacade.changeItemQuantityInCart(userID, storeID, itemID, quantity);
+    }
+
+    /**
+     * this method is used to show the costumer all the stores he added,
+     * he can choose one of them and see what is inside with getItemsInBasket
+     *
+     * @return List<String> @TODO maybe should be of some kind of object?
+     */
+    public List<String> getStoresOfBaskets(int userID) {
+        return userFacade.getStoresOfBaskets(userID);
+    }
+
+    public HashMap<CatalogItem, Integer> getItemsInBasket(int userID, String storeName) throws Exception {
+        return userFacade.getItemsInBasket(userID, storeName);
+    }
+
+    public Cart buyCart(int userID) throws Exception {
+        return userFacade.buyCart(userID);
+    }
+
+    /**
+     * empties the cart
+     */
+    public Cart emptyCart(int userID) {
+        return userFacade.emptyCart(userID);
     }
 }

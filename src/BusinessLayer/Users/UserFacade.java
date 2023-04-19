@@ -1,9 +1,14 @@
 package BusinessLayer.Users;
 
+import BusinessLayer.Cart;
+import BusinessLayer.Log;
+import BusinessLayer.NotificationSystem.NotificationHub;
+import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -120,8 +125,8 @@ public class UserFacade {
     }
 
     public void addOwner(int userID, int userToAddID, int storeID) {
-        RegisteredUser currUser = getUserByID(userID);
-        RegisteredUser newOwner = getUserByID(userToAddID);
+        RegisteredUser currUser = getUser(userID);
+        RegisteredUser newOwner = getUser(userToAddID);
         if (currUser == null || newOwner == null) {
             throw new RuntimeException("User does not exist");
         }
@@ -129,12 +134,12 @@ public class UserFacade {
     }
 
     public void addStore(int founderID, Store store) {
-        RegisteredUser currUser = getUserByID(founderID);
+        RegisteredUser currUser = getUser(founderID);
         currUser.addStore(store);
     }
 
-    public void addManager(String userName, String userToAdd, int storeID) {
-        RegisteredUser currUser = getUser(userName);
+    public void addManager(int userID, int userToAdd, int storeID) {
+        RegisteredUser currUser = getUser(userID);
         RegisteredUser newManager = getUser(userToAdd);
         if (currUser == null || newManager == null) {
             throw new RuntimeException("User does not exist");
@@ -142,18 +147,18 @@ public class UserFacade {
         currUser.addManager(newManager, storeID);
     }
 
-    public void removeOwner(String userName, String usernameToRemove, int storeID) {
-        RegisteredUser currUser = getUser(userName);
-        RegisteredUser ownerToRemove = getUser(usernameToRemove);
+    public void removeOwner(int userID, int userToRemove, int storeID) {
+        RegisteredUser currUser = getUser(userID);
+        RegisteredUser ownerToRemove = getUser(userToRemove);
         if (currUser == null || ownerToRemove == null) {
             throw new RuntimeException("User does not exist");
         }
         currUser.removeOwner(ownerToRemove, storeID);
     }
 
-    public void removeManager(String userName, String usernameToRemove, int storeID) {
-        RegisteredUser currUser = getUser(userName);
-        RegisteredUser managerToRemove = getUser(usernameToRemove);
+    public void removeManager(int userID, int userToRemove, int storeID) {
+        RegisteredUser currUser = getUser(userID);
+        RegisteredUser managerToRemove = getUser(userToRemove);
         if (currUser == null || managerToRemove == null) {
             throw new RuntimeException("User does not exist");
         }
@@ -163,7 +168,47 @@ public class UserFacade {
     //only called from system manager after other user associations removed
     public void removeUser(RegisteredUser userToRemove) throws Exception {
         users.remove(userToRemove.getUsername());
-        userIDs.remove(userToRemove.getId());
         userDAO.removeUser(userToRemove);
+    }
+
+    public Cart getCart(int userID) {
+        return getUser(userID).getCart();
+    }
+
+    public Cart addItemToCart(int userID, Store store, CatalogItem item, int quantity) throws Exception {
+        return getUser(userID).addItemToCart(store, item, quantity);
+    }
+
+    public Cart removeItemFromCart(int userID, int storeID, int itemID) throws Exception {
+        return getUser(userID).removeItemFromCart(storeID, itemID);
+    }
+
+    public Cart changeItemQuantityInCart(int userID, int storeID, int itemID, int quantity) throws Exception {
+        return getUser(userID).changeItemQuantityInCart(storeID, itemID, quantity);
+    }
+
+    /**
+     * this method is used to show the costumer all the stores he added,
+     * he can choose one of them and see what is inside with getItemsInBasket
+     *
+     * @return List<String> @TODO maybe should be of some kind of object?
+     */
+    public List<String> getStoresOfBaskets(int userID) {
+        return getUser(userID).getStoresOfBaskets();
+    }
+
+    public HashMap<CatalogItem, Integer> getItemsInBasket(int userID, String storeName) throws Exception {
+        return getUser(userID).getItemsInBasket(storeName);
+    }
+
+    public Cart buyCart(int userID) throws Exception {
+        return getUser(userID).buyCart();
+    }
+
+    /**
+     * empties the cart
+     */
+    public Cart emptyCart(int userID) {
+        return getUser(userID).emptyCart();
     }
 }

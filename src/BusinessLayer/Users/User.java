@@ -18,16 +18,19 @@ public abstract class User {
         return cart;
     }
 
-    public void addItem(Store store, CatalogItem item, int quantity) throws Exception {
+    public Cart addItemToCart(Store store, CatalogItem item, int quantity) throws Exception {
         cart.addItem(store, item, quantity);
+        return cart;
     }
 
-    public void removeItem(int storeID, int itemID) throws Exception {
+    public Cart removeItemFromCart(int storeID, int itemID) throws Exception {
         cart.removeItem(storeID, itemID);
+        return cart;
     }
 
-    public void changeItemQuantity(int storeID, int itemID, int quantity) throws Exception {
+    public Cart changeItemQuantityInCart(int storeID, int itemID, int quantity) throws Exception {
         cart.changeItemQuantity(storeID, itemID, quantity);
+        return cart;
     }
 
     /**
@@ -44,14 +47,16 @@ public abstract class User {
         return cart.getItemsInBasket(storeName);
     }
 
-    public void buyCart() throws Exception {
+    public Cart buyCart() throws Exception {
         cart.buyCart();
+        return cart;
     }
 
     /**
      * empties the cart
      */
-    public void empty() {
+    public Cart emptyCart() {
         cart.empty();
+        return cart;
     }
 }

@@ -12,6 +12,10 @@ import BusinessLayer.Stores.Policies.Discounts.Conditional;
 import BusinessLayer.Stores.Policies.Discounts.Discount;
 import BusinessLayer.Stores.Policies.Discounts.Hidden;
 import BusinessLayer.Stores.Policies.Discounts.Visible;
+import Globals.FilterValue;
+import Globals.SearchBy;
+import Globals.SearchFilter;
+
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -111,6 +115,57 @@ public class Store {
         }
         return res;
     }
+
+    public Map<CatalogItem, Boolean> getCatalog(String keywords, SearchBy searchBy, Map<SearchFilter, FilterValue> filters) throws Exception {
+        Map<CatalogItem, Boolean> res = new HashMap<>();
+        CatalogItem valueFromA;
+        Boolean valueFromB;
+        boolean filterResult;
+        for (Map.Entry<Integer, CatalogItem> entry : items.entrySet()) {
+            valueFromA = entry.getValue();
+            valueFromB = itemsAmounts.get(entry.getKey())>0;
+            if (belongsToSearch(valueFromA, keywords, searchBy)) {
+                filterResult = true;
+                for (FilterValue filterValue : filters.values()) {
+                    filterResult = filterResult && filterValue.filter();
+                }
+                if (filterResult) {
+                    res.put(valueFromA, valueFromB);
+                }
+            }
+        }
+        return res;
+    }
+
+    private boolean sameCategory(CatalogItem item, String keywords) {
+        return item.getCategory() == Category.valueOf(keywords);
+    }
+
+    private boolean sameName(CatalogItem item, String keywords) {
+        return item.getItemName().equals(keywords);
+    }
+
+    private boolean belongsToSearch(CatalogItem item, String keywords, SearchBy searchBy) throws Exception {
+        switch (searchBy) {
+            case CATEGORY: {
+                return sameCategory(item, keywords);
+            }
+            case ITEM_NAME: {
+                return sameName(item, keywords);
+            }
+            case KEY_WORD: {
+                String[] keys = keywords.split(",");
+                for (String key : keys) {
+                    if (sameCategory(item, key) || sameName(item, key)) {
+                        return true;
+                    }
+                }
+            }
+            throw new Exception("Search by " + searchBy + "is invalid");
+        }
+        throw new Exception("Search by " + searchBy + "is invalid");
+    }
+
     public void addVisibleDiscount(int itemID, double percent, Calendar endOfSale)
     {
         Discount visibleDiscount = new Visible(itemID, percent, endOfSale);
