@@ -53,6 +53,10 @@ public class Lottery {
     public int getWinnerID() {
         return winnerID;
     }
+    public List<Integer> getParticipants()
+    {
+        return winningOdds.keySet().stream().toList();
+    }
     public boolean participateInLottery(int userID, double offerPrice)
     {
         if (Calendar.getInstance().before(endOfSale))
