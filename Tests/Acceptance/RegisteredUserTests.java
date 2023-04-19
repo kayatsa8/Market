@@ -30,7 +30,7 @@ public class RegisteredUserTests extends ProjectTest{
      */
     @Test
     public void logout_Valid(){
-        boolean loggedOut = this.logOut(user4LoggedInId);
+        boolean loggedOut = this.logOut("User4", "User4!");
         assertTrue(loggedOut);
 
         boolean check = this.checkIfLoggedIn(user4LoggedInId);
@@ -39,7 +39,7 @@ public class RegisteredUserTests extends ProjectTest{
 
     @Test
     public void logOut_UserNotLoggedIn(){
-        boolean loggedOut = this.logOut(user3NotLoggedInId);
+        boolean loggedOut = this.logOut("User3", "User3!");
         assertFalse(loggedOut);
     }
 

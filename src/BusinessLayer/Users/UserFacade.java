@@ -1,112 +1,169 @@
 package BusinessLayer.Users;
 
+import BusinessLayer.Stores.Store;
+import DataAccessLayer.UserDAO;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import BusinessLayer.StorePermissions.StoreOwner;
-import DataAccessLayer.UserDAO;
-
 public class UserFacade {
-    private Map<String, RegisteredUser> users;
+    private final static int MIN_PASS_LENGTH = 6;
+    private Map<Integer, RegisteredUser> userIDs;
     private UserDAO userDAO;
     private static int userID;
+    private final static String adminName = "admin";
 
     public UserFacade() {
-        users = new HashMap<>();
-        userDAO=new UserDAO();
-        userID = userDAO.getMaxID()+1;
+        userIDs = new HashMap<>();
+        userDAO = new UserDAO();
+        userID = userDAO.getMaxID() + 1;
+    }
+    private int getNewId(){
+        userID++;
+        return userID;
+    }
+
+    public void createAdmin() throws Exception {
+        RegisteredUser admin = new RegisteredUser(adminName, adminName, 0, true);
+//        userDAO.addUser(admin);
+        userIDs.put(0, admin);
+    }
+
+    /**
+     *
+     * @param username the username
+     * @return <b>RegisteredUser</b> with the username or <b>null</b> if not found
+     */
+    public RegisteredUser getUser(String username) {
+        RegisteredUser tempReg=null;
+        for (Map.Entry<Integer, RegisteredUser> entry : userIDs.entrySet()) {
+            Integer id = entry.getKey();
+            RegisteredUser user = entry.getValue();
+            if (user.getUsername().equals(username)){
+                tempReg=user;
+                break;
+            }
+        }
+        return tempReg;
+    }
+
+    public RegisteredUser getUserByID(int userID) {
+        return userIDs.get(userID);
     }
 
     public void registerUser(String username, String password) throws Exception {
         checkUserName(username);
-        if (users.get(username)!=null) {
+        if (getUser(username) != null) {
             throw new Exception(String.format("Username %s is already in use. Please use another user name", username));
-        }
-        else {
-            if (checkPassword(password)){
-                RegisteredUser tempUser=new RegisteredUser(username,password, userID++);
+        } else {
+            if (checkPassword(password)) {
+                RegisteredUser tempUser = new RegisteredUser(username, password, userID++);
                 // add to DB
-                userDAO.AddUser(tempUser);
+                userDAO.addUser(tempUser);
                 //add to cash
-                users.put(username, tempUser);
+                userIDs.put(tempUser.getId(), tempUser);
             }
-
         }
     }
+
 
     private boolean checkPassword(String password) throws Exception {
-        if (password==null)
+        if (password == null)
             throw new Exception("Password cant be null");
-        return password.length()>=6;
-
+        if (password.length() < MIN_PASS_LENGTH)
+            throw new Exception("Password too short! Must be at least 6 chars");
+        return true;
     }
+
     private void checkUserName(String userName) throws Exception {
-        if (userName==null) {
+        if (userName == null) {
             throw new Exception("Password cant be null");
         }
     }
 
     public void logIn(String username, String password) throws Exception {
-        if (!(users.containsKey(username)
-                && users.get(username).getPassword().equals(password)))
-            throw new Exception("incorrect user name or password");
+        //List<RegisteredUser> list = new ArrayList<RegisteredUser>(userIDs.values()).stream().filter((user)->user.getUsername().equals(username)).toList();
+        if (username==null||password==null)
+            throw new Exception("username or password is Null");
+        RegisteredUser user=getUser(username);
+        if (user==null)
+            throw new Exception("incorrect user name");
+        int userId=user.getId();
+        if (getUserByID(userId)!=null&&!(getUserByID(userId).getPassword().equals(password)))
+            throw new Exception("incorrect password");
     }
 
     public boolean logOut(String username) {
         return true;
     }
-    public void SystemStart(){
+
+    public void systemStart() {
         LoadUsers();//Registered only
     }
-    public void LoadUsers(){
-        HashMap<String, RegisteredUser> dbUsersMap=UserDAO.GetAllUsers();
-        for(Map.Entry<String, RegisteredUser> entry : dbUsersMap.entrySet()) {
-            String name = entry.getKey();
+
+    public void LoadUsers() {
+        HashMap<Integer, RegisteredUser> dbUsersMap = UserDAO.getAllUsers();
+        for (Map.Entry<Integer, RegisteredUser> entry : dbUsersMap.entrySet()) {
+            Integer id = entry.getKey();
             RegisteredUser user = entry.getValue();
             //TODO load User's Cart
             //user.setCart(cartDBO.getCart(name));
-            users.put(name,user);
+            userIDs.put(id, user);
         }
 
     }
 
-
     public void logout(String userName, String pass) {
         //TODO sessions and all
     }
-    public void addOwner(String userName, String userToAdd, int storeID) {
-        RegisteredUser currUser = users.get(userName);
-        RegisteredUser newOwner = users.get(userToAdd);
-        if (currUser==null || newOwner==null) {
+
+    public void addOwner(int userID, int userToAddID, int storeID) {
+        RegisteredUser currUser = getUserByID(userID);
+        RegisteredUser newOwner = getUserByID(userToAddID);
+        if (currUser == null || newOwner == null) {
             throw new RuntimeException("User does not exist");
         }
         currUser.addOwner(newOwner, storeID);
     }
 
-    public void addManager(String userName, String userToAdd, int storeID) {
-        RegisteredUser currUser = users.get(userName);
-        RegisteredUser newManager = users.get(userToAdd);
-        if (currUser==null || newManager==null) {
+    public void addStore(int founderID, Store store) {
+        RegisteredUser currUser = getUserByID(founderID);
+        if (currUser == null ) {
+            throw new RuntimeException("User does not exist");
+        }
+        currUser.addStore(store);
+    }
+
+    public void addManager(int userID, String userToAdd, int storeID) {
+        RegisteredUser currUser = getUserByID(userID);
+        RegisteredUser newManager = getUser(userToAdd);
+        if (currUser == null || newManager == null) {
             throw new RuntimeException("User does not exist");
         }
         currUser.addManager(newManager, storeID);
     }
 
-    public void removeOwner(String userName, String usernameToRemove, int storeID) {
-        RegisteredUser currUser = users.get(userName);
-        RegisteredUser ownerToRemove = users.get(usernameToRemove);
-        if (currUser==null || ownerToRemove==null) {
+    public void removeOwner(int userID, String usernameToRemove, int storeID) {
+        RegisteredUser currUser = getUserByID(userID);
+        RegisteredUser ownerToRemove = getUser(usernameToRemove);
+        if (currUser == null || ownerToRemove == null) {
             throw new RuntimeException("User does not exist");
         }
         currUser.removeOwner(ownerToRemove, storeID);
     }
 
-    public void removeManager(String userName, String usernameToRemove, int storeID) {
-        RegisteredUser currUser = users.get(userName);
-        RegisteredUser managerToRemove = users.get(usernameToRemove);
-        if (currUser==null || managerToRemove==null) {
+    public void removeManager(int userID, String usernameToRemove, int storeID) {
+        RegisteredUser currUser = getUserByID(userID);
+        RegisteredUser managerToRemove = getUser(usernameToRemove);
+        if (currUser == null || managerToRemove == null) {
             throw new RuntimeException("User does not exist");
         }
         currUser.removeManager(managerToRemove, storeID);
+    }
+
+    //only called from system manager after other user associations removed
+    public void removeUser(RegisteredUser userToRemove) throws Exception {
+        userIDs.remove(userToRemove.getId());
+        userDAO.removeUser(userToRemove);
     }
 }

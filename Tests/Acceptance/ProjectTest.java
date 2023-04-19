@@ -201,8 +201,8 @@ public abstract class ProjectTest {
     }
 
 
-    protected boolean logOut(int userId) {
-        return this.bridge.logOut(userId);
+    protected boolean logOut(String userName, String password) {
+        return this.bridge.logOut(userName, password);
     }
 
     protected int createStore(int userId) {
