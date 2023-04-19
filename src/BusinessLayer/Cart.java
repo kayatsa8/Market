@@ -1,6 +1,7 @@
 package BusinessLayer;
 
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
+import BusinessLayer.ExternalSystems.Supply.SupplyClient;
 import BusinessLayer.Receipts.ReceiptHandler;
 import BusinessLayer.Stores.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
@@ -100,17 +101,23 @@ public class Cart {
      * @return a HashMap to give the ReceiptHandler in order to make a receipt
      * @throws Exception if the store throw exception for some reason
      */
-    public HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> buyCart(PurchaseClient purchase) throws Exception {
+    public HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> buyCart(PurchaseClient purchase, SupplyClient supply, String address) throws Exception {
         HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> receiptData = new HashMap<>();
 
         for(Basket basket : baskets.values()){
             basket.saveItems();
         }
 
+        //TODO: should change in future versions
         double finalPrice = calculateTotalPrice();
-        boolean success = purchase.pay(userID, finalPrice);
+        boolean purchaseSuccess = purchase.pay(userID, finalPrice);
 
-        if(!success){
+        //TODO: should change in future versions
+        supply.chooseService();
+        boolean supplySuccess = supply.supply(userID, address);
+
+
+        if(!purchaseSuccess || !supplySuccess){
             for(Basket basket : baskets.values()){
                 basket.releaseItems();
             }
