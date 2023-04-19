@@ -14,17 +14,9 @@ public class CartItemInfo {
     }
 
     public int getItemID() { return itemID; }
-    public int getAmount() {
-        return amount;
-    }
-
-    public double getFinalPrice() {
-        return originalPrice*amount*(1-percent);
-    }
-
-    public double getPercent() {
-        return percent;
-    }
+    public int getAmount() { return amount; }
+    public double getPercent() { return percent; }
     public double getOriginalPrice() { return originalPrice; }
     public void setPercent(double percent) { this.percent = percent; }
+    public double getFinalPrice() { return originalPrice*amount*(1-percent); }
 }
