@@ -109,4 +109,12 @@ public class StoreFacade {
         Store store = stores.get(storeID);
         store.addHiddenDiscount(itemID, percent, coupon, endOfSale);
     }
+
+    public Map<CatalogItem, Boolean> getCatalog() {
+        Map<CatalogItem, Boolean> res = new HashMap<>();
+        for (Store store : stores.values()) {
+            res.putAll(store.getCatalog());
+        }
+        return res;
+    }
 }

@@ -1,7 +1,5 @@
 package BusinessLayer.Users;
 
-import BusinessLayer.Log;
-import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
 
@@ -122,8 +120,8 @@ public class UserFacade {
     }
 
     public void addOwner(int userID, int userToAddID, int storeID) {
-        RegisteredUser currUser = getUser(userID);
-        RegisteredUser newOwner = getUser(userToAddID);
+        RegisteredUser currUser = getUserByID(userID);
+        RegisteredUser newOwner = getUserByID(userToAddID);
         if (currUser == null || newOwner == null) {
             throw new RuntimeException("User does not exist");
         }
@@ -131,12 +129,12 @@ public class UserFacade {
     }
 
     public void addStore(int founderID, Store store) {
-        RegisteredUser currUser = getUser(founderID);
+        RegisteredUser currUser = getUserByID(founderID);
         currUser.addStore(store);
     }
 
-    public void addManager(int userID, int userToAdd, int storeID) {
-        RegisteredUser currUser = getUser(userID);
+    public void addManager(String userName, String userToAdd, int storeID) {
+        RegisteredUser currUser = getUser(userName);
         RegisteredUser newManager = getUser(userToAdd);
         if (currUser == null || newManager == null) {
             throw new RuntimeException("User does not exist");
@@ -144,18 +142,18 @@ public class UserFacade {
         currUser.addManager(newManager, storeID);
     }
 
-    public void removeOwner(int userID, int idToRemove, int storeID) {
-        RegisteredUser currUser = getUser(userID);
-        RegisteredUser ownerToRemove = getUser(idToRemove);
+    public void removeOwner(String userName, String usernameToRemove, int storeID) {
+        RegisteredUser currUser = getUser(userName);
+        RegisteredUser ownerToRemove = getUser(usernameToRemove);
         if (currUser == null || ownerToRemove == null) {
             throw new RuntimeException("User does not exist");
         }
         currUser.removeOwner(ownerToRemove, storeID);
     }
 
-    public void removeManager(int userID, int idToRemove, int storeID) {
-        RegisteredUser currUser = getUser(userID);
-        RegisteredUser managerToRemove = getUser(idToRemove);
+    public void removeManager(String userName, String usernameToRemove, int storeID) {
+        RegisteredUser currUser = getUser(userName);
+        RegisteredUser managerToRemove = getUser(usernameToRemove);
         if (currUser == null || managerToRemove == null) {
             throw new RuntimeException("User does not exist");
         }
@@ -165,8 +163,7 @@ public class UserFacade {
     //only called from system manager after other user associations removed
     public void removeUser(RegisteredUser userToRemove) throws Exception {
         users.remove(userToRemove.getUsername());
-        users.remove(userToRemove.getId());
-        NotificationHub.getInstance().removeFromService(userToRemove.getId());
+        userIDs.remove(userToRemove.getId());
         userDAO.removeUser(userToRemove);
     }
 }

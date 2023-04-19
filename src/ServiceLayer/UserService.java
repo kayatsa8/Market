@@ -16,7 +16,6 @@ public class UserService {
     public void start() {
         log.info("Starting System");
         market.systemStart();
-
     }
 
     public Result<Integer> login(String userName, String pass) {
@@ -95,4 +94,20 @@ public class UserService {
             return new Result<>(true, e.getMessage());
         }
     }
+
+    /*
+    here instead of StoreService bc only system admin can do this?
+     */
+    public Result<Boolean> closeStorePermanently(String username, int storeID) throws Exception
+    {
+        try {
+            market.closeStorePermanently(username, storeID);
+            log.info("closed store");
+            return new Result<>(false, true);
+        } catch (Exception e) {
+            log.info("failed to close store");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
 }

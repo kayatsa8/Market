@@ -1,5 +1,6 @@
 package BusinessLayer;
 
+import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Users.SystemManager;
@@ -108,5 +109,9 @@ public class Market {
         Store store = storeFacade.addStore(founderID, name);
         userFacade.addStore(founderID, store);
         return store.getStoreID();
+    }
+
+    public Map<CatalogItem, Boolean> getCatalog() {
+        return storeFacade.getCatalog();
     }
 }

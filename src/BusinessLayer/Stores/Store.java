@@ -13,6 +13,8 @@ import BusinessLayer.Stores.Policies.Discounts.Discount;
 import BusinessLayer.Stores.Policies.Discounts.Hidden;
 import BusinessLayer.Stores.Policies.Discounts.Visible;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
 import static BusinessLayer.Stores.StoreStatus.*;
 
 public class Store {
@@ -94,6 +96,20 @@ public class Store {
 
     public int getFounderID() {
         return founderID;
+    }
+
+    public Map<CatalogItem, Boolean> getCatalog() {
+        Map<CatalogItem, Boolean> res = new HashMap<>();
+        CatalogItem valueFromA;
+        Boolean valueFromB;
+        for (Map.Entry<Integer, CatalogItem> entry : items.entrySet()) {
+            valueFromA = entry.getValue();
+            valueFromB = itemsAmounts.get(entry.getKey())>0;
+
+            // Put the value from map a as the key and the value from map b as the value in map c
+            res.put(valueFromA, valueFromB);
+        }
+        return res;
     }
     public void addVisibleDiscount(int itemID, double percent, Calendar endOfSale)
     {
