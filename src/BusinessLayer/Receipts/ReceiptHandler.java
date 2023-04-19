@@ -35,10 +35,10 @@ public class ReceiptHandler {
      *        for user: keys = storesId (you have multiple keys if he bought from several store)
      *
      */
-    public int addReceipt(int ownerId, HashMap<Integer,HashMap<CatalogItem, CartItemInfo>> storeOrUserIdToItems){
+    public int addReceipt(int ownerId, Map<Integer,Map<CatalogItem, CartItemInfo>> storeOrUserIdToItems){
         Receipt newReceipt = new Receipt(counterIds.getAndIncrement(), ownerId, Calendar.getInstance());
 
-        for (Map.Entry<Integer,HashMap<CatalogItem, CartItemInfo>> set : storeOrUserIdToItems.entrySet()) {
+        for (Map.Entry<Integer,Map<CatalogItem, CartItemInfo>> set : storeOrUserIdToItems.entrySet()) {
             ArrayList<ReceiptItem> items = convertToReceiptItems(set.getValue());
             newReceipt.addItems(set.getKey(), items);
         }
@@ -48,7 +48,7 @@ public class ReceiptHandler {
         return newReceipt.getId();
     }
 
-    private ArrayList<ReceiptItem> convertToReceiptItems(HashMap<CatalogItem, CartItemInfo> catalogItemsToAmount){
+    private ArrayList<ReceiptItem> convertToReceiptItems(Map<CatalogItem, CartItemInfo> catalogItemsToAmount){
         ArrayList<ReceiptItem> items = new ArrayList<>();
         for (Map.Entry<CatalogItem, CartItemInfo> set : catalogItemsToAmount.entrySet()) {
             CatalogItem catalogItem = set.getKey();

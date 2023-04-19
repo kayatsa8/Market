@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -23,18 +24,18 @@ public class ReceiptHandlerTest {
     private int store2ID = 2;
     private int userId = 1;
     private int receipt1Id = 1;
-    private HashMap<Integer,HashMap<CatalogItem, CartItemInfo>> items;
+    private Map<Integer, Map<CatalogItem, CartItemInfo>> items;
     @Before
     public void setUp() throws Exception {
         handler = new ReceiptHandler();
 
         items = new HashMap<>();
         HashMap<CatalogItem, CartItemInfo> itemsAndAmounts1 = new HashMap<>();
-        itemsAndAmounts1.put(new CatalogItem(11, "item11", 20, Category.Books), new CartItemInfo(20, 0.2, 10));
-        itemsAndAmounts1.put(new CatalogItem(12, "item12", 20, Category.Books), new CartItemInfo(20, 0.2, 10));
+        itemsAndAmounts1.put(new CatalogItem(11, "item11", 20, Category.Books), new CartItemInfo(11, 20, 0.2, 10));
+        itemsAndAmounts1.put(new CatalogItem(12, "item12", 20, Category.Books), new CartItemInfo(12, 20, 0.2, 10));
         HashMap<CatalogItem, CartItemInfo> itemsAndAmounts2 = new HashMap<>();
-        itemsAndAmounts2.put(new CatalogItem(21, "item21", 20, Category.Books), new CartItemInfo(20, 0.2, 10));
-        itemsAndAmounts2.put(new CatalogItem(22, "item22", 20, Category.Books), new CartItemInfo(20, 0.2, 10));
+        itemsAndAmounts2.put(new CatalogItem(21, "item21", 20, Category.Books), new CartItemInfo(21, 20, 0.2, 10));
+        itemsAndAmounts2.put(new CatalogItem(22, "item22", 20, Category.Books), new CartItemInfo(22, 20, 0.2, 10));
         items.put(store1ID, itemsAndAmounts1);
         items.put(store2ID, itemsAndAmounts2);
 
