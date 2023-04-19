@@ -2,6 +2,7 @@ package UnitTests.Receipts;
 
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.Receipts.ReceiptHandler;
+import BusinessLayer.Stores.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Category;
 import org.junit.After;
@@ -22,18 +23,18 @@ public class ReceiptHandlerTest {
     private int store2ID = 2;
     private int userId = 1;
     private int receipt1Id = 1;
-    private HashMap<Integer,HashMap<CatalogItem, Integer>> items;
+    private HashMap<Integer,HashMap<CatalogItem, CartItemInfo>> items;
     @Before
     public void setUp() throws Exception {
         handler = new ReceiptHandler();
 
         items = new HashMap<>();
-        HashMap<CatalogItem, Integer> itemsAndAmounts1 = new HashMap<>();
-        itemsAndAmounts1.put(new CatalogItem(11, "item11", 20, Category.Books), 20);
-        itemsAndAmounts1.put(new CatalogItem(12, "item12", 20, Category.Books), 20);
-        HashMap<CatalogItem, Integer> itemsAndAmounts2 = new HashMap<>();
-        itemsAndAmounts2.put(new CatalogItem(21, "item21", 20, Category.Books), 20);
-        itemsAndAmounts2.put(new CatalogItem(22, "item22", 20, Category.Books), 20);
+        HashMap<CatalogItem, CartItemInfo> itemsAndAmounts1 = new HashMap<>();
+        itemsAndAmounts1.put(new CatalogItem(11, "item11", 20, Category.Books), new CartItemInfo(20, 0.2, 10));
+        itemsAndAmounts1.put(new CatalogItem(12, "item12", 20, Category.Books), new CartItemInfo(20, 0.2, 10));
+        HashMap<CatalogItem, CartItemInfo> itemsAndAmounts2 = new HashMap<>();
+        itemsAndAmounts2.put(new CatalogItem(21, "item21", 20, Category.Books), new CartItemInfo(20, 0.2, 10));
+        itemsAndAmounts2.put(new CatalogItem(22, "item22", 20, Category.Books), new CartItemInfo(20, 0.2, 10));
         items.put(store1ID, itemsAndAmounts1);
         items.put(store2ID, itemsAndAmounts2);
 

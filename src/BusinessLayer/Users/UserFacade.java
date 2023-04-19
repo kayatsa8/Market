@@ -9,44 +9,33 @@ import java.util.Map;
 
 public class UserFacade {
     private final static int MIN_PASS_LENGTH = 6;
+    private Map<String, RegisteredUser> users;
     private Map<Integer, RegisteredUser> userIDs;
     private UserDAO userDAO;
     private static int userID;
     private final static String adminName = "admin";
 
     public UserFacade() {
+        users = new HashMap<>();
         userIDs = new HashMap<>();
         userDAO = new UserDAO();
         userID = userDAO.getMaxID() + 1;
     }
+
     private int getNewId(){
         int id=userID;
         userID++;
         return id;
     }
 
-    public void createAdmin() throws Exception {
+    public void createAdmin() {
         RegisteredUser admin = new RegisteredUser(adminName, adminName, 0, true);
 //        userDAO.addUser(admin);
-        userIDs.put(0, admin);
+        users.put(adminName, admin);
     }
 
-    /**
-     *
-     * @param username the username
-     * @return <b>RegisteredUser</b> with the username or <b>null</b> if not found
-     */
-    public RegisteredUser getUser(String username) {
-        RegisteredUser tempReg=null;
-        for (Map.Entry<Integer, RegisteredUser> entry : userIDs.entrySet()) {
-            Integer id = entry.getKey();
-            RegisteredUser user = entry.getValue();
-            if (user.getUsername().equals(username)){
-                tempReg=user;
-                break;
-            }
-        }
-        return tempReg;
+    public RegisteredUser getUser(String userName) {
+        return users.get(userName);
     }
 
     public RegisteredUser getUserByID(int userID) {
@@ -54,11 +43,7 @@ public class UserFacade {
     }
 
     public int registerUser(String username, String password) throws Exception {
-        checkUserName(username);
-        if (getUser(username) != null) {
-            throw new Exception(String.format("Username %s is already in use. Please use another user name", username));
-        } else {
-            checkPassword(password);
+        if (checkUserName(username) && checkPassword(password)) {
             RegisteredUser tempUser = new RegisteredUser(username, password, getNewId());
             // add to DB
             userDAO.addUser(tempUser);
@@ -69,17 +54,24 @@ public class UserFacade {
     }
 
 
-    private void checkPassword(String password) throws Exception {
+    private boolean checkPassword(String password) throws Exception {
         if (password == null)
             throw new Exception("Password cant be null");
         if (password.length() < MIN_PASS_LENGTH)
             throw new Exception("Password too short! Must be at least 6 chars");
+        return true;
     }
 
-    private void checkUserName(String userName) throws Exception {
+    private boolean checkUserName(String userName) throws Exception {
         if (userName == null) {
             throw new Exception("Password cant be null");
         }
+        for (RegisteredUser user : userIDs.values()) {
+            if (user.getUsername().equals(userName)) {
+                throw new Exception("Username "+userName+" already taken");
+            }
+        }
+        return true;
     }
 
     public int logIn(String username, String password) throws Exception {
@@ -89,10 +81,9 @@ public class UserFacade {
         RegisteredUser user=getUser(username);
         if (user==null)
             throw new Exception("incorrect user name");
-        int userId=user.getId();
-        if (getUserByID(userId)!=null&&!(getUserByID(userId).getPassword().equals(password)))
+        if (!user.getPassword().equals(password))
             throw new Exception("incorrect password");
-        return getUser(username).getId();
+        return user.getId();
     }
 
     public boolean logOut(String username) {
@@ -110,7 +101,7 @@ public class UserFacade {
             RegisteredUser user = entry.getValue();
             //TODO load User's Cart
             //user.setCart(cartDBO.getCart(name));
-            userIDs.put(id, user);
+            users.put(name, user);
         }
 
     }
@@ -130,9 +121,6 @@ public class UserFacade {
 
     public void addStore(int founderID, Store store) {
         RegisteredUser currUser = getUserByID(founderID);
-        if (currUser == null ) {
-            throw new RuntimeException("User does not exist");
-        }
         currUser.addStore(store);
     }
 
@@ -165,6 +153,7 @@ public class UserFacade {
 
     //only called from system manager after other user associations removed
     public void removeUser(RegisteredUser userToRemove) throws Exception {
+        users.remove(userToRemove.getUsername());
         userIDs.remove(userToRemove.getId());
         NotificationHub.getInstance().removeFromService(userToRemove.getId());
         userDAO.removeUser(userToRemove);

@@ -9,7 +9,7 @@ public class UserService {
     private static final Logger log = Log.log;
     private final Market market;
 
-    public UserService() throws Exception {
+    public UserService() {
         market = Market.getInstance();
     }
 
@@ -65,7 +65,7 @@ public class UserService {
 
     public Result<Boolean> addManager(int userID, int userToAdd, int storeID) {
         try {
-            market.addManager(userID, userToAdd, storeID);
+            market.addManager(userName, userToAdd, storeID);
             log.info("Added user to list of store managers");
             return new Result<>(false, true);
         } catch (Exception e) {
@@ -76,7 +76,7 @@ public class UserService {
 
     public Result<Boolean> removeOwner(int userID, int userToRemove, int storeID) {
         try {
-            market.removeOwner(userID, userToRemove, storeID);
+            market.removeOwner(userName, userToRemove, storeID);
             log.info("removed owner and subsequent owners/managers");
             return new Result<>(false, true);
         } catch (Exception e) {
@@ -87,7 +87,7 @@ public class UserService {
 
     public Result<Boolean> removeManager(int userID, int userToRemove, int storeID) {
         try {
-            market.removeManager(userID, userToRemove, storeID);
+            market.removeManager(userName, userToRemove, storeID);
             log.info("removed manager");
             return new Result<>(false, true);
         } catch (Exception e) {

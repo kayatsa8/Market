@@ -19,7 +19,7 @@ public class Market {
         storeFacade = new StoreFacade();
     }
 
-    public static Market getInstance() throws Exception {
+    public static Market getInstance() {
         if (instance == null) {
             instance = new Market();
             instance.createFirstAdmin();
@@ -39,7 +39,7 @@ public class Market {
         return systemManagerMap;
     }
 
-    private void createFirstAdmin() throws Exception {
+    private void createFirstAdmin() {
         userFacade.createAdmin();
     }
 
@@ -79,7 +79,8 @@ public class Market {
         userFacade.removeManager(userID, userToRemove, storeID);
     }
 
-    public void closeStorePermanently(String username, int storeID) {
+    public void closeStorePermanently(String username, int storeID) throws Exception
+     {
         if (isAdmin(username)) {
             SystemManager systemManager = systemManagerMap.get(username);
             systemManager.closeStorePermanently(storeFacade.getStore(storeID));
