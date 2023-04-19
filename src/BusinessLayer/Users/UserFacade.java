@@ -134,8 +134,8 @@ public class UserFacade {
         currUser.addStore(store);
     }
 
-    public void addManager(String userName, String userToAdd, int storeID) {
-        RegisteredUser currUser = getUser(userName);
+    public void addManager(int userID, String userToAdd, int storeID) {
+        RegisteredUser currUser = getUserByID(userID);
         RegisteredUser newManager = getUser(userToAdd);
         if (currUser == null || newManager == null) {
             throw new RuntimeException("User does not exist");
@@ -143,8 +143,8 @@ public class UserFacade {
         currUser.addManager(newManager, storeID);
     }
 
-    public void removeOwner(String userName, String usernameToRemove, int storeID) {
-        RegisteredUser currUser = getUser(userName);
+    public void removeOwner(int userID, String usernameToRemove, int storeID) {
+        RegisteredUser currUser = getUserByID(userID);
         RegisteredUser ownerToRemove = getUser(usernameToRemove);
         if (currUser == null || ownerToRemove == null) {
             throw new RuntimeException("User does not exist");
@@ -152,8 +152,8 @@ public class UserFacade {
         currUser.removeOwner(ownerToRemove, storeID);
     }
 
-    public void removeManager(String userName, String usernameToRemove, int storeID) {
-        RegisteredUser currUser = getUser(userName);
+    public void removeManager(int userID, String usernameToRemove, int storeID) {
+        RegisteredUser currUser = getUserByID(userID);
         RegisteredUser managerToRemove = getUser(usernameToRemove);
         if (currUser == null || managerToRemove == null) {
             throw new RuntimeException("User does not exist");
