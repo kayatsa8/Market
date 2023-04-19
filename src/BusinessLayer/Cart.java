@@ -10,6 +10,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Cart {
 
+    public ConcurrentHashMap<Integer, Basket> getBaskets() {
+        return baskets;
+    }
+
     //fields
     private final ConcurrentHashMap<Integer, Basket> baskets; // <storeID, Basket>
 
@@ -27,7 +31,7 @@ public class Cart {
     public void removeItem(int storeID, int itemID) throws Exception {
         if(!baskets.containsKey(storeID)){
             //LOG
-            throw new Exception("Cart::removeItem: the store " + storeID + " was not found!");
+            throw new Exception("Cart::removeItemFromCart: the store " + storeID + " was not found!");
         }
 
         baskets.get(storeID).removeItem(itemID);
@@ -36,7 +40,7 @@ public class Cart {
     public void changeItemQuantity(int storeID, int itemID, int quantity) throws Exception {
         if(!baskets.containsKey(storeID)){
             //LOG
-            throw new Exception("Cart::changeItemQuantity: the store " + storeID + " was not found!");
+            throw new Exception("Cart::changeItemQuantityInCart: the store " + storeID + " was not found!");
         }
 
         baskets.get(storeID).changeItemQuantity(itemID, quantity);

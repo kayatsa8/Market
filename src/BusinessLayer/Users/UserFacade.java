@@ -1,11 +1,14 @@
 package BusinessLayer.Users;
 
+import BusinessLayer.Cart;
 import BusinessLayer.Log;
 import BusinessLayer.NotificationSystem.NotificationHub;
+import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -144,18 +147,18 @@ public class UserFacade {
         currUser.addManager(newManager, storeID);
     }
 
-    public void removeOwner(int userID, int idToRemove, int storeID) {
+    public void removeOwner(int userID, int userToRemove, int storeID) {
         RegisteredUser currUser = getUser(userID);
-        RegisteredUser ownerToRemove = getUser(idToRemove);
+        RegisteredUser ownerToRemove = getUser(userToRemove);
         if (currUser == null || ownerToRemove == null) {
             throw new RuntimeException("User does not exist");
         }
         currUser.removeOwner(ownerToRemove, storeID);
     }
 
-    public void removeManager(int userID, int idToRemove, int storeID) {
+    public void removeManager(int userID, int userToRemove, int storeID) {
         RegisteredUser currUser = getUser(userID);
-        RegisteredUser managerToRemove = getUser(idToRemove);
+        RegisteredUser managerToRemove = getUser(userToRemove);
         if (currUser == null || managerToRemove == null) {
             throw new RuntimeException("User does not exist");
         }
@@ -165,8 +168,47 @@ public class UserFacade {
     //only called from system manager after other user associations removed
     public void removeUser(RegisteredUser userToRemove) throws Exception {
         users.remove(userToRemove.getUsername());
-        users.remove(userToRemove.getId());
-        NotificationHub.getInstance().removeFromService(userToRemove.getId());
         userDAO.removeUser(userToRemove);
+    }
+
+    public Cart getCart(int userID) {
+        return getUser(userID).getCart();
+    }
+
+    public Cart addItemToCart(int userID, Store store, CatalogItem item, int quantity) throws Exception {
+        return getUser(userID).addItemToCart(store, item, quantity);
+    }
+
+    public Cart removeItemFromCart(int userID, int storeID, int itemID) throws Exception {
+        return getUser(userID).removeItemFromCart(storeID, itemID);
+    }
+
+    public Cart changeItemQuantityInCart(int userID, int storeID, int itemID, int quantity) throws Exception {
+        return getUser(userID).changeItemQuantityInCart(storeID, itemID, quantity);
+    }
+
+    /**
+     * this method is used to show the costumer all the stores he added,
+     * he can choose one of them and see what is inside with getItemsInBasket
+     *
+     * @return List<String> @TODO maybe should be of some kind of object?
+     */
+    public List<String> getStoresOfBaskets(int userID) {
+        return getUser(userID).getStoresOfBaskets();
+    }
+
+    public HashMap<CatalogItem, Integer> getItemsInBasket(int userID, String storeName) throws Exception {
+        return getUser(userID).getItemsInBasket(storeName);
+    }
+
+    public Cart buyCart(int userID) throws Exception {
+        return getUser(userID).buyCart();
+    }
+
+    /**
+     * empties the cart
+     */
+    public Cart emptyCart(int userID) {
+        return getUser(userID).emptyCart();
     }
 }

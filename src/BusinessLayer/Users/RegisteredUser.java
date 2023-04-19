@@ -1,5 +1,6 @@
 package BusinessLayer.Users;
 
+import BusinessLayer.Cart;
 import BusinessLayer.StorePermissions.StoreManager;
 import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Store;

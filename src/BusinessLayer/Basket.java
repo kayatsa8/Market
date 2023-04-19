@@ -11,7 +11,7 @@ public class Basket {
     private Store store;
     private ConcurrentHashMap<Integer, ItemPair> items; //<ItemID, ItemPair>
     private boolean saved;
-    //TODO: List<receiptItem> for every saved item, if saved is false again list becomes empty
+    //TODO: List<receiptItem> for every saved item, if saved is false again list becomes emptyCart
 
 
     //methods
@@ -40,7 +40,7 @@ public class Basket {
     public void removeItem(int itemID) throws Exception {
         if(!items.containsKey(itemID)){
             //LOG
-            throw new Exception("ERROR: Basket::removeItem: no such item in basket!");
+            throw new Exception("ERROR: Basket::removeItemFromCart: no such item in basket!");
         }
 
         items.remove(itemID);
@@ -51,29 +51,29 @@ public class Basket {
     private void validateAddItem(CatalogItem item, int quantity) throws Exception {
         if(item == null){
             //LOG
-            throw new Exception("ERROR: Basket::addItem: given item is null!");
+            throw new Exception("ERROR: Basket::addItemToCart: given item is null!");
         }
 
         if(quantity < 1){
             //LOG
-            throw new Exception("ERROR: Basket::addItem: given quantity is not valid!");
+            throw new Exception("ERROR: Basket::addItemToCart: given quantity is not valid!");
         }
 
         if(items.containsKey(item.getItemID())){
             //LOG
-            throw new Exception("ERROR: Basket::addItem: the item is already in the basket!");
+            throw new Exception("ERROR: Basket::addItemToCart: the item is already in the basket!");
         }
     }
 
     private void validateChangeItemQuantity(int itemID, int quantity) throws Exception {
         if(quantity < 1){
             //LOG
-            throw new Exception("ERROR: Basket::changeItemQuantity: given quantity is not valid!");
+            throw new Exception("ERROR: Basket::changeItemQuantityInCart: given quantity is not valid!");
         }
 
         if(!items.containsKey(itemID)){
             //LOG
-            throw new Exception("ERROR: Basket::changeItemQuantity: the item is not in the basket!");
+            throw new Exception("ERROR: Basket::changeItemQuantityInCart: the item is not in the basket!");
         }
     }
 
