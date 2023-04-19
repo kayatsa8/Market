@@ -46,21 +46,6 @@ public class StoreFacade {
     {
         return getStore(storeID).getItemAmount(itemID);
     }
-    public void buyCart(Map<Integer, Map<Integer, Integer>> storesToItemsToAmount)
-    {
-        for (Map.Entry<Integer, Map<Integer, Integer>> storeToItemsToAmount: storesToItemsToAmount.entrySet())
-        {
-            buyBasket(storeToItemsToAmount.getKey(), storeToItemsToAmount.getValue());
-        }
-    }
-    public void buyBasket(int storeID, Map<Integer, Integer> itemsAmountsToBuy)
-    {
-        getStore(storeID).buyBasket(itemsAmountsToBuy);
-    }
-    public boolean saveBasketItemsForUpcomingPurchase(int storeID, Map<Integer, Integer> itemsAmountsToSave)
-    {
-        return getStore(storeID).saveItemsForUpcomingPurchase(itemsAmountsToSave);
-    }
     public void addItemAmount(int storeID, int itemID, int amountToAdd)
     {
         getStore(storeID).addItemAmount(itemID, amountToAdd);
