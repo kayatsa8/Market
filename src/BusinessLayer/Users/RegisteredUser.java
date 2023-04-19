@@ -1,5 +1,7 @@
 package BusinessLayer.Users;
 
+import BusinessLayer.NotificationSystem.Mailbox;
+import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.StorePermissions.StoreManager;
 import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Store;
@@ -12,6 +14,7 @@ public class RegisteredUser extends User{
     private String password;
     private int id;
     private UserDAO userDAO;
+    private Mailbox mailbox;
 
     public Map<Integer, StoreOwner> getStoresIOwn() {
         return storesIOwn;
@@ -25,22 +28,24 @@ public class RegisteredUser extends User{
     private Map<Integer, StoreManager> storesIManage;
     private SystemManager systemManager;
 
-    public RegisteredUser(String username, String pass, int id) {
+    public RegisteredUser(String username, String pass, int id) throws Exception {
         this.username = username;
         this.password = pass;
         this.id = id;
         this.storesIOwn = new HashMap<>();
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();
+        this.mailbox=NotificationHub.getInstance().registerToMailService(this);
     }
 
-    public RegisteredUser(String username, String pass, int id, boolean isAdmin) {
+    public RegisteredUser(String username, String pass, int id, boolean isAdmin) throws Exception {
         this.username = username;
         this.password = pass;
         this.id = id;
         this.storesIOwn = new HashMap<>();
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();
+        this.mailbox=NotificationHub.getInstance().registerToMailService(this);
         if (isAdmin) {
             systemManager = new SystemManager(this);
         }

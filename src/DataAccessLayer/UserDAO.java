@@ -6,23 +6,23 @@ import java.util.HashMap;
 
 //DB mock
 public class UserDAO {
-    private static HashMap<String, RegisteredUser> userMap = new HashMap<>();
+    private static HashMap<Integer, RegisteredUser> userMap = new HashMap<>();
 
     public UserDAO() {
     }
 
-    public static HashMap<String, RegisteredUser> getAllUsers() {
+    public static HashMap<Integer, RegisteredUser> getAllUsers() {
         return userMap;
     }
 
     public void addUser(RegisteredUser user) {
-        userMap.put(user.getUsername(), user);
+        userMap.put(user.getId(), user);
 //        if(userMap.put(user.getUsername(),user)==null)
 //            throw new Exception("Fail to add user in UserDAO");
     }
 
     public void removeUser(RegisteredUser user) throws Exception {
-        if (userMap.remove(user.getUsername()) == null)
+        if (userMap.remove(user.getId()) == null)
             throw new Exception("Fail to remove user in UserDAO");
     }
 
