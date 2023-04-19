@@ -5,12 +5,12 @@ public class CartItemInfo {
     private int itemID;
     private int amount;
     private double percent;
-    private double finalPrice;
-    public CartItemInfo(int itemID, int amount, double percent, double finalPrice){
+    private double originalPrice;
+    public CartItemInfo(int itemID, int amount, double percent, double originalPrice){
         this.itemID = itemID;
         this.amount = amount;
         this.percent = 0;
-        this.finalPrice = 0;
+        this.originalPrice = originalPrice;
     }
 
     public int getItemID() { return itemID; }
@@ -19,13 +19,12 @@ public class CartItemInfo {
     }
 
     public double getFinalPrice() {
-        return finalPrice;
+        return originalPrice*amount*(1-percent);
     }
 
     public double getPercent() {
         return percent;
     }
+    public double getOriginalPrice() { return originalPrice; }
     public void setPercent(double percent) { this.percent = percent; }
-    public void setFinalPrice(double finalPrice) { this.finalPrice = finalPrice; }
-
 }

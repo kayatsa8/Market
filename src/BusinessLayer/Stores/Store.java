@@ -126,14 +126,14 @@ public class Store {
     public void buyBasket(List<CartItemInfo> basketItems, int userID)
     {
         ReceiptHandler RH = new ReceiptHandler();
-        HashMap<CatalogItem, CartItemInfo> receiptItems = new HashMap<>();
+        Map<CatalogItem, CartItemInfo> receiptItems = new HashMap<>();
         for (CartItemInfo cartItemInfo : basketItems)
         {
             int itemID = cartItemInfo.getItemID();
             receiptItems.put(getItem(itemID), cartItemInfo);
             savedItemsAmounts.put(itemID, savedItemsAmounts.get(itemID) - cartItemInfo.getAmount());
         }
-        HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> receiptInfo = new HashMap<>();
+        Map<Integer, Map<CatalogItem, CartItemInfo>> receiptInfo = new HashMap<>();
         receiptInfo.put(userID, receiptItems);
         RH.addReceipt(storeID, receiptInfo);
         storeMailBox.sendMessageToList(storeOwners, "New purchase", "User " + userID + " made a purchase in store " + storeName + " where you are one of the owners");
@@ -164,7 +164,6 @@ public class Store {
                 saveItemAmount(itemID, itemAmountToSave);
                 double itemDiscountPercent = getItemDiscountsPercent(itemID);
                 cartItemInfo.setPercent(itemDiscountPercent);
-                cartItemInfo.setFinalPrice(getItem(itemID).getPrice() * (1-itemDiscountPercent) * cartItemInfo.getAmount());
             }
             log.info("Items was saved for upcoming purchase at store " + storeID);
         }

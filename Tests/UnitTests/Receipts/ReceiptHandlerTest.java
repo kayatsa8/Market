@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -23,7 +24,7 @@ public class ReceiptHandlerTest {
     private int store2ID = 2;
     private int userId = 1;
     private int receipt1Id = 1;
-    private HashMap<Integer,HashMap<CatalogItem, CartItemInfo>> items;
+    private Map<Integer, Map<CatalogItem, CartItemInfo>> items;
     @Before
     public void setUp() throws Exception {
         handler = new ReceiptHandler();
