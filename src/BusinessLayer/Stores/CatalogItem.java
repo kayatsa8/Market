@@ -30,4 +30,16 @@ public class CatalogItem {
     {
         return itemID;
     }
+
+    @Override
+    public boolean equals(Object other){
+        if(!(other instanceof CatalogItem item)){
+            return false;
+        }
+
+        return itemName.equals(item.itemName)
+                && price == item.price
+                && itemID == item.itemID
+                && category == item.category;
+    }
 }

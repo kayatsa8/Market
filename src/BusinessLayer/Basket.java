@@ -187,6 +187,10 @@ public class Basket {
         return price;
     }
 
+    public boolean isItemInBasket(int itemID){
+        return items.containsKey(itemID);
+    }
+
 
 
 

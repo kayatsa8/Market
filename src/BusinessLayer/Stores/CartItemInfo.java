@@ -30,4 +30,16 @@ public class CartItemInfo {
     public void setAmount(int _amount){
         amount = _amount;
     }
+
+    @Override
+    public boolean equals(Object object){
+        if(!(object instanceof CartItemInfo item)){
+            return false;
+        }
+
+        return itemID == item.itemID
+                && amount == item.amount
+                && percent == item.percent
+                && originalPrice == item.originalPrice;
+    }
 }

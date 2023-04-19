@@ -151,4 +151,10 @@ public class Cart {
 
         return price;
     }
+
+    public boolean isItemInCart(int itemID, int storeID){
+        return baskets.get(storeID).isItemInBasket(itemID);
+    }
+
+
 }
