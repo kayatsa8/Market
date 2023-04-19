@@ -6,6 +6,8 @@ import BusinessLayer.Log;
 import BusinessLayer.NotificationSystem.Mailbox;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.NotificationSystem.StoreMailbox;
+import BusinessLayer.Receipts.Receipt.Receipt;
+import BusinessLayer.Receipts.ReceiptHandler;
 import BusinessLayer.Stores.Policies.Discounts.Conditional;
 import BusinessLayer.Stores.Policies.Discounts.Discount;
 import BusinessLayer.Stores.Policies.Discounts.Hidden;
@@ -31,6 +33,7 @@ public class Store {
     private Map<Integer, Bid> bids;
     private Map<Integer, Auction> auctions;
     private Map<Integer, Lottery> lotteries;
+    private ReceiptHandler receiptHandler;
     private List<Integer> storeOwners;
     private List<Integer> storeManagers;
     public List<Integer> getStoreOwners() {
@@ -60,6 +63,7 @@ public class Store {
     {
         return discounts.get(discountID);
     }
+    public ReceiptHandler getReceiptHandler() { return receiptHandler; }
 
     public Store(int storeID, int founderID, String name)
     {
@@ -72,6 +76,7 @@ public class Store {
         this.auctions = new HashMap<>();
         this.lotteries = new HashMap<>();
         this.bids = new HashMap<>();
+        this.receiptHandler = new ReceiptHandler();
         this.bidsIDs = 0;
         this.lotteriesIDs = 0;
         this.auctionsIDs = 0;
@@ -118,27 +123,31 @@ public class Store {
         savedItemsAmounts.put(itemID, 0);
         log.info("Added new item: " + itemName + ", at store " + storeID);
     }
-    public void buyBasket(Map<Integer, Integer> itemsAmountsToBuy)
+    public void buyBasket(List<CartItemInfo> basketItems, int userID)
     {
-        int currentAmountToSave;
-        int amountToBuy;
-        for (Integer itemID : itemsAmountsToBuy.keySet())
+        ReceiptHandler RH = new ReceiptHandler();
+        HashMap<CatalogItem, CartItemInfo> receiptItems = new HashMap<>();
+        for (CartItemInfo cartItemInfo : basketItems)
         {
-            currentAmountToSave = savedItemsAmounts.get(itemID);
-            amountToBuy = itemsAmountsToBuy.get(itemID);
-            savedItemsAmounts.put(itemID, currentAmountToSave - amountToBuy);
+            int itemID = cartItemInfo.getItemID();
+            receiptItems.put(getItem(itemID), cartItemInfo);
+            savedItemsAmounts.put(itemID, savedItemsAmounts.get(itemID) - cartItemInfo.getAmount());
         }
-        storeMailBox.sendMessageToList(storeOwners, "New purchase", "User made a purchase in store where you are one of the owners");
+        HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> receiptInfo = new HashMap<>();
+        receiptInfo.put(userID, receiptItems);
+        RH.addReceipt(storeID, receiptInfo);
+        storeMailBox.sendMessageToList(storeOwners, "New purchase", "User " + userID + " made a purchase in store " + storeName + " where you are one of the owners");
         log.info("A basket was bought at store " + storeID);
     }
-    public boolean saveItemsForUpcomingPurchase(Map<Integer, Integer> itemsAmountsToSave)
+    public boolean saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems)
     {
         boolean success = true;
         int itemAmountToSave;
         int itemCurrentAmount;
-        for (Integer itemID : itemsAmountsToSave.keySet())
+        for (CartItemInfo cartItemInfo : basketItems)
         {
-            itemAmountToSave = itemsAmountsToSave.get(itemID);
+            int itemID = cartItemInfo.getItemID();
+            itemAmountToSave = cartItemInfo.getAmount();
             itemCurrentAmount = itemsAmounts.get(itemID);
             if (itemCurrentAmount < itemAmountToSave)
             {
@@ -148,15 +157,32 @@ public class Store {
         }
         if (success)
         {
-            for (Integer itemID : itemsAmountsToSave.keySet())
+            for (CartItemInfo cartItemInfo : basketItems)
             {
-                saveItemAmount(itemID, itemsAmountsToSave.get(itemID));
+                int itemID = cartItemInfo.getItemID();
+                itemAmountToSave = cartItemInfo.getAmount();
+                saveItemAmount(itemID, itemAmountToSave);
+                double itemDiscountPercent = getItemDiscountsPercent(itemID);
+                cartItemInfo.setPercent(itemDiscountPercent);
+                cartItemInfo.setFinalPrice(getItem(itemID).getPrice() * (1-itemDiscountPercent) * cartItemInfo.getAmount());
             }
             log.info("Items was saved for upcoming purchase at store " + storeID);
         }
         else
             log.warning("Items wasn't saved for upcoming purchase at store " + storeID + " due to lack of items");
         return success;
+    }
+    private double getItemDiscountsPercent(int itemID) //return: [0,1]
+    {
+        double pricePercent = 1;
+        for (Discount discount : discounts.values())
+        {
+            if (discount.getItemsIDs().contains(itemID))
+            {
+                pricePercent = pricePercent * (1 - discount.getDiscountToItem());
+            }
+        }
+        return 1-pricePercent;
     }
     private void saveItemAmount(int itemID, int amountToSave)
     {
