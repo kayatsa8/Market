@@ -32,7 +32,7 @@ public class Bid {
     {
         return itemID;
     }
-
+    public int getUserID() { return userID; }
     public double getHighestCounterOffer()
     {
         return highestCounterOffer;
