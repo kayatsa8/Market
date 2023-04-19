@@ -1,18 +1,22 @@
 package BusinessLayer;
 
 import BusinessLayer.Receipts.ReceiptHandler;
+import BusinessLayer.Stores.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Basket {
     //fields
     private final Store store;
-    private final ConcurrentHashMap<Integer, ItemPair> items; //<ItemID, ItemPair>
+    private final ConcurrentHashMap<Integer, ItemWrapper> items; //<ItemID, ItemWrapper>
     private boolean itemsSaved; // true if the store saves the items inside the basket for the user
-    private HashMap<CatalogItem, Integer> savedItems; //<CatalogItem, quantity
+    private List<CartItemInfo> savedItems;
+    //private HashMap<CatalogItem, Integer> savedItems; //<CatalogItem, quantity
 
 
     //methods
@@ -26,7 +30,7 @@ public class Basket {
     public void addItem(CatalogItem item, int quantity) throws Exception {
         validateAddItem(item, quantity);
 
-        items.putIfAbsent(item.getItemID(), new ItemPair(item, quantity));
+        items.putIfAbsent(item.getItemID(), new ItemWrapper(item, quantity));
 
         releaseItems();
     }
@@ -34,7 +38,7 @@ public class Basket {
     public void changeItemQuantity(int itemID, int quantity) throws Exception {
         validateChangeItemQuantity(itemID, quantity);
 
-        items.get(itemID).quantity = quantity;
+        items.get(itemID).info.setAmount(quantity);
 
         releaseItems();
     }
@@ -83,12 +87,12 @@ public class Basket {
         return store;
     }
 
-    public HashMap<CatalogItem, Integer> getItems(){
-        HashMap<CatalogItem, Integer> inBasket = new HashMap<>();
+    public HashMap<CatalogItem, CartItemInfo> getItems(){
+        HashMap<CatalogItem, CartItemInfo> inBasket = new HashMap<>();
 
         for(Integer itemID : items.keySet()){
             inBasket.putIfAbsent(makeCopyOfCatalogItem(items.get(itemID).item),
-                    items.get(itemID).quantity);
+                    new CartItemInfo(items.get(itemID).info));
         }
 
         return inBasket;
@@ -99,12 +103,11 @@ public class Basket {
     }
 
     public void saveItems() throws Exception{
-        HashMap<CatalogItem, Integer> savedItems = getItems();
+        savedItems = getItemsInfo();
 
         try{
-
-            StoreMock store = new StoreMock(); //TODO: remove the mock
-            store.saveItems(savedItems);
+            store.saveItemsForUpcomingPurchase(getItemsInfo());
+            itemsSaved = true;
         }
         catch(Exception e){
             //LOG
@@ -114,56 +117,71 @@ public class Basket {
                 item more than Store can provide.
             */
             e.printStackTrace();
+            savedItems = null;
+            itemsSaved = false;
         }
 
-        itemsSaved = true;
 
+
+    }
+
+    private List<CartItemInfo> getItemsInfo(){
+        List<CartItemInfo> infos = new ArrayList<>();
+
+        for(ItemWrapper wrapper : items.values()){
+            infos.add(new CartItemInfo(wrapper.info));
+        }
+
+        return infos;
     }
 
     /**
      * @return a HashMap of the bought items and their quantities
      * @throws Exception - the store can throw exceptions
      */
-    public HashMap<CatalogItem, Integer> buyBasket() throws Exception{
+    public HashMap<CatalogItem, CartItemInfo> buyBasket(int userID) throws Exception{
         if(!itemsSaved){
             throw new Exception("The basket of store " + store.getStoreName() + " is not saved for buying");
         }
 
         try{
-            StoreMock store = new StoreMock(); //TODO: remove the mock
-            store.buyItems(savedItems);
+            store.buyBasket(savedItems, userID);
         }
         catch(Exception e){
             //LOG
             e.printStackTrace();
         }
 
-        return savedItems;
+        return prepareItemsForReceipt();
+    }
+
+    private HashMap<CatalogItem, CartItemInfo> prepareItemsForReceipt(){
+        HashMap<CatalogItem, CartItemInfo> data = new HashMap<>();
+
+        for(ItemWrapper item : items.values()){
+            data.putIfAbsent(item.item, item.info);
+        }
+
+        return data;
     }
 
     /**
      * if the basket contents had changed for some reason, the basket
      * asks the store to release the saved items
      */
-    private void releaseItems(){
+    public void releaseItems(){
         if(itemsSaved){
             itemsSaved = false;
-            StoreMock store = new StoreMock(); //TODO: remove the mock
-            store.releaseItems(savedItems);
+            //TODO: store.releaseItems(savedItems);
             savedItems = null;
         }
     }
 
     public double calculateTotalPrice(){
-        //TODO: see how the discounts should take place here.
-        /*
-         *  POSSIBLE SOLUTION: a wrapper for catalogItem
-         *  POSSIBLE SOLUTION 2: use receiptItem as that wrapper
-         */
         double price = 0;
 
-        for(ItemPair itemPair : items.values()){
-            price += itemPair.item.getPrice();
+        for(ItemWrapper wrapper : items.values()){
+            price += wrapper.info.getFinalPrice();
         }
 
         return price;
@@ -181,42 +199,14 @@ public class Basket {
      * <CatalogItem, quantity>
      * this class is a wrapper for Basket use only
      */
-    private class ItemPair{
+    private class ItemWrapper{
         public CatalogItem item;
-        public int quantity;
+        public CartItemInfo info;
 
-        public ItemPair(CatalogItem _item, int _quantity){
+        public ItemWrapper(CatalogItem _item, int quantity){
             item = _item;
-            quantity = _quantity;
+            info = new CartItemInfo(item.getItemID(), quantity, 0, item.getPrice());
         }
-    }
-
-
-    /**
-     * temporary mocks, just to complete the code
-     */
-
-    private class StoreMock{
-        public void saveItems(HashMap<CatalogItem, Integer> itemsToSave) throws Exception{
-            throw new Exception("SWITCH THIS WITH THE REAL STORE");
-        }
-
-        public void buyItems(HashMap<CatalogItem, Integer> itemsToSave) throws Exception{
-            throw new Exception("SWITCH THIS WITH THE REAL STORE");
-        }
-
-        public ReceiptHandler getReceiptHandler(){
-            return null;
-        }
-
-        public int getStoreId(){
-            return 9;
-        }
-
-        public void releaseItems(HashMap<CatalogItem, Integer> items){
-
-        }
-
     }
 
 }

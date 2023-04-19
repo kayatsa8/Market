@@ -13,10 +13,21 @@ public class CartItemInfo {
         this.originalPrice = originalPrice;
     }
 
+    public CartItemInfo(CartItemInfo other){
+        itemID = other.itemID;
+        amount = other.amount;
+        percent = other.percent;
+        originalPrice = other.originalPrice;
+    }
+
     public int getItemID() { return itemID; }
     public int getAmount() { return amount; }
     public double getPercent() { return percent; }
     public double getOriginalPrice() { return originalPrice; }
     public void setPercent(double percent) { this.percent = percent; }
     public double getFinalPrice() { return originalPrice*amount*(1-percent); }
+
+    public void setAmount(int _amount){
+        amount = _amount;
+    }
 }

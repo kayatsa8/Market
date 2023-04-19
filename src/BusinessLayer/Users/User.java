@@ -11,7 +11,7 @@ public abstract class User {
         this.cart = cart;
     }
 
-    private Cart cart;
+    protected Cart cart;
     public User() {
         this.cart = new Cart();
     }

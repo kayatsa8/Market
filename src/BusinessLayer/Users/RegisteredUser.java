@@ -1,5 +1,6 @@
 package BusinessLayer.Users;
 
+import BusinessLayer.Cart;
 import BusinessLayer.StorePermissions.StoreManager;
 import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Store;
@@ -32,6 +33,7 @@ public class RegisteredUser extends User{
         this.storesIOwn = new HashMap<>();
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();
+        this.cart = new Cart(id);
     }
 
     public RegisteredUser(String username, String pass, int id, boolean isAdmin) {
@@ -41,6 +43,7 @@ public class RegisteredUser extends User{
         this.storesIOwn = new HashMap<>();
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();
+        this.cart = new Cart(id);
         if (isAdmin) {
             systemManager = new SystemManager(this);
         }

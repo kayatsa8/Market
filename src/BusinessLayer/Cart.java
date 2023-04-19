@@ -1,6 +1,8 @@
 package BusinessLayer;
 
+import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.Receipts.ReceiptHandler;
+import BusinessLayer.Stores.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 
@@ -12,10 +14,25 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Cart {
 
     //fields
+    private final int userID;
     private final ConcurrentHashMap<Integer, Basket> baskets; // <storeID, Basket>
 
     //methods
+
+    /**
+     * a constructor for registered user
+     * @param _userID the id of the user
+     */
+    public Cart(int _userID){
+        userID = _userID;
+        baskets = new ConcurrentHashMap<>();
+    }
+
+    /**
+     * a constructor for not registered user
+     */
     public Cart(){
+        userID = 999999; // a convention
         baskets = new ConcurrentHashMap<>();
     }
 
@@ -57,7 +74,7 @@ public class Cart {
         return names;
     }
 
-    public HashMap<CatalogItem, Integer> getItemsInBasket(String storeName) throws Exception {
+    public HashMap<CatalogItem, CartItemInfo> getItemsInBasket(String storeName) throws Exception {
         int storeID = findStoreWithName(storeName);
 
         if(storeID == -1){
@@ -83,18 +100,26 @@ public class Cart {
      * @return a HashMap to give the ReceiptHandler in order to make a receipt
      * @throws Exception if the store throw exception for some reason
      */
-    public HashMap<Integer, HashMap<CatalogItem, Integer>> buyCart(int userID) throws Exception {
-        //TODO: this method should get purchase object in order to pay
-        HashMap<Integer, HashMap<CatalogItem, Integer>> receiptData = new HashMap<>();
+    public HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> buyCart(PurchaseClient purchase) throws Exception {
+        HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> receiptData = new HashMap<>();
 
         for(Basket basket : baskets.values()){
             basket.saveItems();
         }
 
-        //TODO: here the payment will take place
+        double finalPrice = calculateTotalPrice();
+        boolean success = purchase.pay(userID, finalPrice);
+
+        if(!success){
+            for(Basket basket : baskets.values()){
+                basket.releaseItems();
+            }
+            return null;
+        }
+
 
         for(Basket basket : baskets.values()){
-            receiptData.putIfAbsent(basket.getStore().getStoreID(), basket.buyBasket());
+            receiptData.putIfAbsent(basket.getStore().getStoreID(), basket.buyBasket(userID));
         }
 
         empty();
