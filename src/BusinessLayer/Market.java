@@ -47,12 +47,12 @@ public class Market {
         systemManagerMap.put(adminName, systemManager);
     }
 
-    public void register(String username, String pass) throws Exception {
-        userFacade.registerUser(username, pass);
+    public int register(String username, String pass) throws Exception {
+        return userFacade.registerUser(username, pass);
     }
 
-    public void login(String username, String pass) throws Exception {
-        userFacade.logIn(username, pass);
+    public int login(String username, String pass) throws Exception {
+       return userFacade.logIn(username, pass);
     }
 
     public void systemStart() {
@@ -67,16 +67,16 @@ public class Market {
         userFacade.addOwner(userID, userToAddID, storeID);
     }
 
-    public void addManager(String userName, String userToAdd, int storeID) {
-        userFacade.addManager(userName, userToAdd, storeID);
+    public void addManager(int userID, int userToAdd, int storeID) {
+        userFacade.addManager(userID, userToAdd, storeID);
     }
 
-    public void removeOwner(String userName, String userToRemove, int storeID) {
-        userFacade.removeOwner(userName, userToRemove, storeID);
+    public void removeOwner(int userID, int userToRemove, int storeID) {
+        userFacade.removeOwner(userID, userToRemove, storeID);
     }
 
-    public void removeManager(String userName, String userToRemove, int storeID) {
-        userFacade.removeManager(userName, userToRemove, storeID);
+    public void removeManager(int userID, int userToRemove, int storeID) {
+        userFacade.removeManager(userID, userToRemove, storeID);
     }
 
     public void closeStorePermanently(String username, int storeID) throws Exception

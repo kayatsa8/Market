@@ -19,22 +19,22 @@ public class UserService {
 
     }
 
-    public Result<Boolean> login(String userName, String pass) {
+    public Result<Integer> login(String userName, String pass) {
         try {
-            market.login(userName,pass);
+            int id=market.login(userName,pass);
             log.info("logIn succeeded");
-            return new Result<>(false, null);//login == true
+            return new Result<>(false, id);//login == true
         } catch (Exception e) {
             log.info("logIn failed");
             return new Result<>(true, e.getMessage());//login==false
         }
     }
 
-    public Result<Boolean> register(String userName, String pass) {
+    public Result<Integer> register(String userName, String pass) {
         try {
-            market.register(userName, pass);
+            int id=market.register(userName, pass);
             log.info("logIn succeeded");
-            return new Result<>(false, null);//login == true,isErr==false
+            return new Result<>(false, id);//login == true,isErr==false
         } catch (Exception e) {
             log.info("logIn failed");
             return new Result<>(true, e.getMessage());//login==false
@@ -63,7 +63,7 @@ public class UserService {
         }
     }
 
-    public Result<Boolean> addManager(String userName, String userToAdd, int storeID) {
+    public Result<Boolean> addManager(int userID, int userToAdd, int storeID) {
         try {
             market.addManager(userName, userToAdd, storeID);
             log.info("Added user to list of store managers");
@@ -74,7 +74,7 @@ public class UserService {
         }
     }
 
-    public Result<Boolean> removeOwner(String userName, String userToRemove, int storeID) {
+    public Result<Boolean> removeOwner(int userID, int userToRemove, int storeID) {
         try {
             market.removeOwner(userName, userToRemove, storeID);
             log.info("removed owner and subsequent owners/managers");
@@ -85,7 +85,7 @@ public class UserService {
         }
     }
 
-    public Result<Boolean> removeManager(String userName, String userToRemove, int storeID) {
+    public Result<Boolean> removeManager(int userID, int userToRemove, int storeID) {
         try {
             market.removeManager(userName, userToRemove, storeID);
             log.info("removed manager");

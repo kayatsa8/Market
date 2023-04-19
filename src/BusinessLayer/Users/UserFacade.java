@@ -1,5 +1,6 @@
 package BusinessLayer.Users;
 
+import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
 
@@ -21,6 +22,12 @@ public class UserFacade {
         userID = userDAO.getMaxID() + 1;
     }
 
+    private int getNewId(){
+        int id=userID;
+        userID++;
+        return id;
+    }
+
     public void createAdmin() {
         RegisteredUser admin = new RegisteredUser(adminName, adminName, 0, true);
 //        userDAO.addUser(admin);
@@ -35,19 +42,14 @@ public class UserFacade {
         return userIDs.get(userID);
     }
 
-    public void registerUser(String username, String password) throws Exception {
-        checkUserName(username);
-        if (getUser(username) != null) {
-            throw new Exception(String.format("Username %s is already in use. Please use another user name", username));
-        } else {
-            if (checkPassword(password)) {
-                RegisteredUser tempUser = new RegisteredUser(username, password, userID++);
-                // add to DB
-                userDAO.addUser(tempUser);
-                //add to cash
-                users.put(username, tempUser);
-                userIDs.put(tempUser.getId(), tempUser);
-            }
+    public int registerUser(String username, String password) throws Exception {
+        if (checkUserName(username) && checkPassword(password)) {
+            RegisteredUser tempUser = new RegisteredUser(username, password, getNewId());
+            // add to DB
+            userDAO.addUser(tempUser);
+            //add to cash
+            userIDs.put(tempUser.getId(), tempUser);
+            return tempUser.getId();
         }
     }
 
@@ -60,16 +62,28 @@ public class UserFacade {
         return true;
     }
 
-    private void checkUserName(String userName) throws Exception {
+    private boolean checkUserName(String userName) throws Exception {
         if (userName == null) {
             throw new Exception("Password cant be null");
         }
+        for (RegisteredUser user : userIDs.values()) {
+            if (user.getUsername().equals(userName)) {
+                throw new Exception("Username "+userName+" already taken");
+            }
+        }
+        return true;
     }
 
-    public void logIn(String username, String password) throws Exception {
-        if (!(users.containsKey(username)
-                && getUser(username).getPassword().equals(password)))
-            throw new Exception("incorrect user name or password");
+    public int logIn(String username, String password) throws Exception {
+        //List<RegisteredUser> list = new ArrayList<RegisteredUser>(userIDs.values()).stream().filter((user)->user.getUsername().equals(username)).toList();
+        if (username==null||password==null)
+            throw new Exception("username or password is Null");
+        RegisteredUser user=getUser(username);
+        if (user==null)
+            throw new Exception("incorrect user name");
+        if (!user.getPassword().equals(password))
+            throw new Exception("incorrect password");
+        return user.getId();
     }
 
     public boolean logOut(String username) {
@@ -77,13 +91,13 @@ public class UserFacade {
     }
 
     public void systemStart() {
-        LoadUsers();//Registered only
+        loadUsers();//Registered only
     }
 
-    public void LoadUsers() {
-        HashMap<String, RegisteredUser> dbUsersMap = UserDAO.getAllUsers();
-        for (Map.Entry<String, RegisteredUser> entry : dbUsersMap.entrySet()) {
-            String name = entry.getKey();
+    public void loadUsers() {
+        HashMap<Integer, RegisteredUser> dbUsersMap = UserDAO.getAllUsers();
+        for (Map.Entry<Integer, RegisteredUser> entry : dbUsersMap.entrySet()) {
+            Integer id = entry.getKey();
             RegisteredUser user = entry.getValue();
             //TODO load User's Cart
             //user.setCart(cartDBO.getCart(name));
@@ -110,27 +124,27 @@ public class UserFacade {
         currUser.addStore(store);
     }
 
-    public void addManager(String userName, String userToAdd, int storeID) {
-        RegisteredUser currUser = getUser(userName);
-        RegisteredUser newManager = getUser(userToAdd);
+    public void addManager(int userID, int userToAdd, int storeID) {
+        RegisteredUser currUser = getUserByID(userID);
+        RegisteredUser newManager = getUserByID(userToAdd);
         if (currUser == null || newManager == null) {
             throw new RuntimeException("User does not exist");
         }
         currUser.addManager(newManager, storeID);
     }
 
-    public void removeOwner(String userName, String usernameToRemove, int storeID) {
-        RegisteredUser currUser = getUser(userName);
-        RegisteredUser ownerToRemove = getUser(usernameToRemove);
+    public void removeOwner(int userID, int idToRemove, int storeID) {
+        RegisteredUser currUser = getUserByID(userID);
+        RegisteredUser ownerToRemove = getUserByID(idToRemove);
         if (currUser == null || ownerToRemove == null) {
             throw new RuntimeException("User does not exist");
         }
         currUser.removeOwner(ownerToRemove, storeID);
     }
 
-    public void removeManager(String userName, String usernameToRemove, int storeID) {
-        RegisteredUser currUser = getUser(userName);
-        RegisteredUser managerToRemove = getUser(usernameToRemove);
+    public void removeManager(int userID, int idToRemove, int storeID) {
+        RegisteredUser currUser = getUserByID(userID);
+        RegisteredUser managerToRemove = getUserByID(idToRemove);
         if (currUser == null || managerToRemove == null) {
             throw new RuntimeException("User does not exist");
         }
@@ -141,6 +155,7 @@ public class UserFacade {
     public void removeUser(RegisteredUser userToRemove) throws Exception {
         users.remove(userToRemove.getUsername());
         userIDs.remove(userToRemove.getId());
+        NotificationHub.getInstance().removeFromService(userToRemove.getId());
         userDAO.removeUser(userToRemove);
     }
 }

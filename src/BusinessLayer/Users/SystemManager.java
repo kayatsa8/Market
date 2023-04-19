@@ -13,7 +13,7 @@ public class SystemManager {
     private RegisteredUser myUser;
     private Market market;
 
-    public SystemManager(RegisteredUser user) {
+    public SystemManager(RegisteredUser user) throws Exception {
         this.myUser = user;
         this.market = Market.getInstance();
         this.userFacade = market.getUserFacade();
