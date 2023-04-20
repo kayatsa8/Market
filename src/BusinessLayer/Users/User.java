@@ -1,6 +1,7 @@
 package BusinessLayer.Users;
 
 import BusinessLayer.Cart;
+import BusinessLayer.Stores.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 
@@ -43,12 +44,13 @@ public abstract class User {
         return cart.getStoresOfBaskets();
     }
 
-    public HashMap<CatalogItem, Integer> getItemsInBasket(String storeName) throws Exception {
+    public HashMap<CatalogItem, CartItemInfo> getItemsInBasket(String storeName) throws Exception {
         return cart.getItemsInBasket(storeName);
     }
 
+    //@TODO Sagi to fix
     public Cart buyCart() throws Exception {
-        cart.buyCart();
+//        cart.buyCart();
         return cart;
     }
 

@@ -1,5 +1,6 @@
 package ServiceLayer;
 
+import BusinessLayer.Stores.CartItemInfo;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -107,7 +108,7 @@ public class ShoppingService {
         }
     }
 
-    public HashMap<CatalogItem, Integer> getItemsInBasket(int userID, String storeName) throws Exception {
+    public HashMap<CatalogItem, CartItemInfo> getItemsInBasket(int userID, String storeName) throws Exception {
         return market.getItemsInBasket(userID, storeName);
     }
 

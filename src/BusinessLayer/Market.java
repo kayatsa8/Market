@@ -1,6 +1,7 @@
 package BusinessLayer;
 
 import BusinessLayer.StorePermissions.StoreActionPermissions;
+import BusinessLayer.Stores.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
@@ -90,9 +91,10 @@ public class Market {
      {
          //@TODO check if this doesnt break tests
         if (isAdmin(userID)) {
-            //SystemManager systemManager = systemManagerMap.get(userID);
-            //systemManager.closeStorePermanently(storeFacade.getStore(storeID));
-            return storeFacade.closeStorePermanently(storeID);
+            SystemManager systemManager = systemManagerMap.get(userID);
+            systemManager.closeStorePermanently(storeFacade.getStore(storeID));
+//            return storeFacade.closeStorePermanently(storeID);
+            return true;
         }
         else {
             throw new RuntimeException("Only admin can close stores permanently");
@@ -114,6 +116,7 @@ public class Market {
 
     public int addStore(int founderID, String name)
     {
+        //bc of two-way dependency: store is created with only founder ID then when founder receives store pointer he adds himself to owner list
         Store store = storeFacade.addStore(founderID, name);
         userFacade.addStore(founderID, store);
         return store.getStoreID();
@@ -155,7 +158,7 @@ public class Market {
         return userFacade.getStoresOfBaskets(userID);
     }
 
-    public HashMap<CatalogItem, Integer> getItemsInBasket(int userID, String storeName) throws Exception {
+    public HashMap<CatalogItem, CartItemInfo> getItemsInBasket(int userID, String storeName) throws Exception {
         return userFacade.getItemsInBasket(userID, storeName);
     }
 

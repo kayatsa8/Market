@@ -2,14 +2,12 @@ package BusinessLayer.StorePermissions;
 
 import BusinessLayer.Stores.Store;
 
-import java.util.Collection;
-
-public abstract class StorePermissions {
+public abstract class StoreEmployees {
     private int userID;
     private int parentID;
     private Store store;
 
-    public StorePermissions(int userID, int parentID, Store store) {
+    public StoreEmployees(int userID, int parentID, Store store) {
         this.userID = userID;
         this.parentID = parentID;
         this.store = store;
@@ -30,5 +28,7 @@ public abstract class StorePermissions {
     public int getStoreID() {
         return store.getStoreID();
     }
+
+    public abstract boolean hasPermission(StoreActionPermissions permission);
 
 }

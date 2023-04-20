@@ -67,7 +67,7 @@ public class RegisteredUser extends User{
     }
 
     private boolean isAdmin() {
-        return systemManager==null;
+        return systemManager!=null;
     }
 
     private boolean ownsStore(int storeID) {
@@ -102,9 +102,11 @@ public class RegisteredUser extends User{
         storeOwnership.addOwner(newOwner);
     }
 
-    public void addStoreOwnership(StoreOwner storeOwnership) {
+    public StoreOwner addStoreOwnership(StoreOwner storeOwnership) {
         int storeID = storeOwnership.getStoreID();
-        storesIOwn.put(storeID, new StoreOwner(this.getId(), storeOwnership));
+        StoreOwner ownership = new StoreOwner(this.getId(), storeOwnership);
+        storesIOwn.put(storeID, ownership);
+        return ownership;
     }
 
     public void addManager(RegisteredUser newManager, int storeID) {

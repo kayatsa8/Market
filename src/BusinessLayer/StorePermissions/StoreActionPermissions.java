@@ -8,5 +8,6 @@ public enum StoreActionPermissions {
     PURCHASE_HISTORY,
     GET_COMPLAINTS,
     RESPOND,
-    GET_ROLES
+    GET_ROLES,
+    BID_MANAGEMENT
 }

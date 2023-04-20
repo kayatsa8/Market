@@ -1,12 +1,9 @@
 package BusinessLayer.StorePermissions;
 
-import BusinessLayer.Stores.Store;
-
-import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class StoreManager extends StorePermissions{
+public class StoreManager extends StoreEmployees {
 
     private ConcurrentHashMap<StoreActionPermissions, Integer> map;
     private Set<StoreActionPermissions> storeActionPermissions;
@@ -17,16 +14,15 @@ public class StoreManager extends StorePermissions{
         storeActionPermissions = map.newKeySet();
     }
 
-    public boolean addPermission(StoreActionPermissions permission) {
-        return this.storeActionPermissions.add(permission);
+    public void addPermission(StoreActionPermissions permission) {
+        this.storeActionPermissions.add(permission);
     }
 
-    public boolean removePermission(StoreActionPermissions permission) {
-        return this.storeActionPermissions.remove(permission);
+    public void removePermission(StoreActionPermissions permission) {
+        this.storeActionPermissions.remove(permission);
     }
 
-    @Override
-    protected boolean hasPermission(StoreActionPermissions permission) {
+    public boolean hasPermission(StoreActionPermissions permission) {
         return this.storeActionPermissions.contains(permission);
     }
 }

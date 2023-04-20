@@ -4,7 +4,7 @@ import BusinessLayer.Cart;
 import BusinessLayer.Log;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
-import BusinessLayer.StorePermissions.StoreOwner;
+import BusinessLayer.Stores.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
@@ -169,7 +169,7 @@ public class UserFacade {
 
     //only called from system manager after other user associations removed
     public void removeUser(RegisteredUser userToRemove) throws Exception {
-        users.remove(userToRemove.getUsername());
+        users.remove(userToRemove.getId());
         userDAO.removeUser(userToRemove);
     }
 
@@ -199,7 +199,7 @@ public class UserFacade {
         return getUser(userID).getStoresOfBaskets();
     }
 
-    public HashMap<CatalogItem, Integer> getItemsInBasket(int userID, String storeName) throws Exception {
+    public HashMap<CatalogItem, CartItemInfo> getItemsInBasket(int userID, String storeName) throws Exception {
         return getUser(userID).getItemsInBasket(storeName);
     }
 
