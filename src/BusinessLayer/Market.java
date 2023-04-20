@@ -165,4 +165,9 @@ public class Market {
     public Cart emptyCart(int userID) {
         return userFacade.emptyCart(userID);
     }
+
+    public Store getStoreInfo(int storeID)
+    {
+        return storeFacade.getStore(storeID);
+    }
 }
