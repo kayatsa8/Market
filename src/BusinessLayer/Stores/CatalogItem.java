@@ -4,9 +4,9 @@ public class CatalogItem {
     private String itemName;
     private double price;
     private int itemID;
-    private Category category;
+    private String category;
 
-    public CatalogItem(int itemID ,String itemName, double price, Category category)
+    public CatalogItem(int itemID ,String itemName, double price, String category)
     {
         this.itemID = itemID;
         this.itemName = itemName;
@@ -22,7 +22,7 @@ public class CatalogItem {
     {
         return price;
     }
-    public Category getCategory()
+    public String getCategory()
     {
         return category;
     }
@@ -32,8 +32,8 @@ public class CatalogItem {
     }
 
     @Override
-    public boolean equals(Object other){
-        if(!(other instanceof CatalogItem item)){
+    public boolean equals(Object other) {
+        if (!(other instanceof CatalogItem item)) {
             return false;
         }
 
@@ -41,5 +41,11 @@ public class CatalogItem {
                 && price == item.price
                 && itemID == item.itemID
                 && category == item.category;
+    }
+
+    public String setName(String newName) {
+        String oldName = itemName;
+        itemName = newName;
+        return oldName;
     }
 }
