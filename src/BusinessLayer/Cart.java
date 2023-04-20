@@ -1,5 +1,6 @@
 package BusinessLayer;
 
+import BusinessLayer.CartAndBasket.Repositories.Carts.BasketsRepository;
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
 import BusinessLayer.Receipts.ReceiptHandler;
@@ -14,23 +15,19 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Cart {
 
-    public ConcurrentHashMap<Integer, Basket> getBaskets() {
-        return baskets;
-    }
-
     //fields
+
     private final int userID;
-    private final ConcurrentHashMap<Integer, Basket> baskets; // <storeID, Basket>
+    private final BasketsRepository baskets;
 
     //methods
-
     /**
      * a constructor for registered user
      * @param _userID the id of the user
      */
     public Cart(int _userID){
         userID = _userID;
-        baskets = new ConcurrentHashMap<>();
+        baskets = new BasketsRepository();
     }
 
     /**
@@ -38,7 +35,7 @@ public class Cart {
      */
     public Cart(){
         userID = 999999; // a convention
-        baskets = new ConcurrentHashMap<>();
+        baskets = new BasketsRepository();
     }
 
     public void addItem(Store store, CatalogItem item, int quantity) throws Exception {
@@ -158,6 +155,12 @@ public class Cart {
 
     public boolean isItemInCart(int itemID, int storeID){
         return baskets.get(storeID).isItemInBasket(itemID);
+    }
+
+
+
+    public ConcurrentHashMap<Integer, Basket> getBaskets() {
+        return baskets.getBaskets();
     }
 
 

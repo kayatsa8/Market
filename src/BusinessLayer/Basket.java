@@ -1,5 +1,7 @@
 package BusinessLayer;
 
+import BusinessLayer.CartAndBasket.Repositories.Baskets.ItemsRepository;
+import BusinessLayer.CartAndBasket.Repositories.Baskets.SavedItemsRepository;
 import BusinessLayer.Receipts.ReceiptHandler;
 import BusinessLayer.Stores.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
@@ -13,19 +15,18 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Basket {
     //fields
     private final Store store;
-    private final ConcurrentHashMap<Integer, ItemWrapper> items; //<ItemID, ItemWrapper>
+    private final ItemsRepository items;
     private boolean itemsSaved; // true if the store saves the items inside the basket for the user
-    private List<CartItemInfo> savedItems;
-    //private HashMap<CatalogItem, Integer> savedItems; //<CatalogItem, quantity
+    private SavedItemsRepository savedItems;
 
 
 
     //methods
     public Basket(Store _store){
         store = _store;
-        items = new ConcurrentHashMap<>();
+        items = new ItemsRepository();
         itemsSaved = false;
-        savedItems = null;
+        savedItems = new SavedItemsRepository();
     }
 
     public void addItem(CatalogItem item, int quantity) throws Exception {
@@ -104,7 +105,7 @@ public class Basket {
     }
 
     public void saveItems() throws Exception{
-        savedItems = getItemsInfo();
+        savedItems.set(getItemsInfo());
 
         try{
             store.saveItemsForUpcomingPurchase(getItemsInfo());
@@ -118,7 +119,7 @@ public class Basket {
                 item more than Store can provide.
             */
             e.printStackTrace();
-            savedItems = null;
+            savedItems.set(null);
             itemsSaved = false;
         }
 
@@ -146,7 +147,7 @@ public class Basket {
         }
 
         try{
-            store.buyBasket(savedItems, userID);
+            store.buyBasket(savedItems.getList(), userID);
         }
         catch(Exception e){
             //LOG
@@ -173,8 +174,8 @@ public class Basket {
     public void releaseItems(){
         if(itemsSaved){
             itemsSaved = false;
-            //TODO: store.releaseItems(savedItems);
-            savedItems = null;
+            //TODO: store.releaseItems(savedItems.getList);
+            savedItems.set(null);
         }
     }
 
@@ -204,7 +205,7 @@ public class Basket {
      * <CatalogItem, quantity>
      * this class is a wrapper for Basket use only
      */
-    private class ItemWrapper{
+    public class ItemWrapper{
         public CatalogItem item;
         public CartItemInfo info;
 
