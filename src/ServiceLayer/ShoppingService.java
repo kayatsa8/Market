@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 /*
+<<<<<<< HEAD
 getSellingHistory               int storeId, int userId
 
 askForSupply                    int userId, List<TestItemInfo> items, String supplyService
@@ -29,6 +30,39 @@ rankAStore                      int userId, int storeId, int rank
 getStoreRank                    int userId, int storeId
 rankAnItemInStore               int userId, int storeId, int itemId, int rank
 getItemRank                     int userId, int storeId, int itemId
+=======
+getStoreInfo(storeId)                                       int storeId
+getStoreInfoAsStoreManager(storeId, userId)                 int storeId, int userId
+searchItems(itemName, filters)                              String itemName, List<String> filters
+
+addItemToBasket(userId, storeId, itemId, amount)            int userId, int storeId, int itemId, int amount
+showCart(userId)                                            int userId
+buyCart(userId, paymentDetails)                             int userId, String paymentDetails
+payCart(userId, paymentDetails, paymentService)             int userId, String paymentDetails, String paymentService
+
+addItemToStore(storeId, itemName, price)                    int storeId, String itemName, int price
+removeItemFromStore(storeId, itemId)                        int storeId, int itemId
+updateItemName(storeId, itemId, newName)                    int storeId, int itemId, String newName
+
+getSellingHistory(storeId, userId)                          int storeId, int userId
+
+createStore(userId)                                         int userId
+reopenStore(userId, storeId)                                int userId, int storeId
+closeStore(userId, storeId)                                 int userId, int storeId
+closeStorePermanently(storeManagerId, storeId)              int storeManagerId, int storeId
+
+askForSupply(userId, items, supplyService)                  int userId, List<TestItemInfo> items, String supplyService
+
+checkIfStoreOwner(userId, storeId)                          int userId, int storeId
+checkIfStoreManager(userId, storeId)                        int userId, int storeId
+
+rankAStore(userId, storeId, rank)                           int userId, int storeId, int rank
+getStoreRank(userId, storeId)                               int userId, int storeId
+rankAnItemInStore(userId, storeId, itemId, rank)            int userId, int storeId, int itemId, int rank
+getItemRank(userId, storeId, itemId)                        int userId, int storeId, int itemId
+
+getRequestsOfStore(ownerManagerId, storeId)                 int ownerManagerId, int storeId
+>>>>>>> 9b37986 (resolving rebase conflicts)
  */
 
 public class ShoppingService {
