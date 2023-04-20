@@ -53,9 +53,9 @@ public class ConcurrencyTests extends ProjectTest{
 
         assertNotEquals(user4Bought, user2Bought);
         StoreService info = getStoreInfo(store2Id);
-        //boolean exists = info.itemInStore(item21Id);
+        boolean exists = info.hasItem(item21Id);
         //assertFalse(exists);
-        //uncomment above, checks if item is in store
+        //uncomment above when StoreService is implemented, checks if item is in store
         assertTrue(false);
 
 
@@ -98,12 +98,15 @@ public class ConcurrencyTests extends ProjectTest{
         CartService cart4 = getCart(user4LoggedInId);
         boolean stillInCart = cart4.getBasketOfStore(store2Id).hasItem(item22Id);
 
-        boolean itemExists = stillInCart;  //default for compilation
-        //itemExists = info.itemInStore(item22Id);
+        boolean itemExists = info.hasItem(item22Id);
         assertNotEquals(stillInCart, itemExists);
+
+        //remove this when StoreService is implemented
+        assertTrue(false);
     }
 
 
+    boolean manager5 = false, manager6 = false;
     /**
      * 2 Store Owners try to put same user as manager
      */
@@ -111,19 +114,19 @@ public class ConcurrencyTests extends ProjectTest{
     public void simultaneouslyAddManager(){
         Thread thread1 = new Thread("User2") {
             public void run(){
-                user4Bought = defineStoreManager(store2Id, user5ManagerOwnerOfStore2ToBeRemoved, user4LoggedInId);
+                manager5 = defineStoreManager(store2Id, user5ManagerOwnerOfStore2ToBeRemoved, user4LoggedInId);
             }
         };
 
         Thread thread2 = new Thread("User4") {
             public void run(){
-                user2Bought = defineStoreManager(store2Id, user6ManagerOwnerOfStore2, user4LoggedInId);
+                manager6 = defineStoreManager(store2Id, user6ManagerOwnerOfStore2, user4LoggedInId);
             }
         };
 
         thread1.start();
         thread2.start();
-        assertNotEquals(user4Bought, user2Bought);
+        assertNotEquals(manager5, manager6);
 
     }
 

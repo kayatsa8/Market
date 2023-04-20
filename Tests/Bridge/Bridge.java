@@ -1,10 +1,14 @@
 package Bridge;
 
 import BusinessLayer.Stores.Category;
+import Globals.FilterValue;
+import Globals.SearchBy;
+import Globals.SearchFilter;
 import ServiceLayer.Objects.*;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public interface Bridge {
 
@@ -65,20 +69,21 @@ public interface Bridge {
 
     /**
      * searches for items in the store with itemName and with filters to use
-     * @param itemName
+     * @param keywords
      * @param filters
      * @return
      */
-    List<CatalogItemService> searchItems(String itemName, List<String> filters);
+    List<CatalogItemService> searchItems(String keywords, SearchBy searchBy, Map<SearchFilter, FilterValue> filters);
 
-    /**
-     * adds item to basket if store open and item in store
-     * @param userId
-     * @param storeId
-     * @param itemId
-     * @param amount
-     * @return
-     */
+
+        /**
+         * adds item to basket if store open and item in store
+         * @param userId
+         * @param storeId
+         * @param itemId
+         * @param amount
+         * @return
+         */
     CartService addItemToBasket(int userId, int storeId, int itemId, int amount);
 
     /**

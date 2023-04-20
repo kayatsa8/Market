@@ -1,6 +1,10 @@
 package Acceptance;
 
 import BusinessLayer.Stores.Category;
+import Globals.FilterValue;
+import Globals.FilterValue.*;
+import Globals.SearchBy;
+import Globals.SearchFilter;
 import ServiceLayer.Objects.CartService;
 import ServiceLayer.Objects.CatalogItemService;
 import ServiceLayer.Objects.StoreService;
@@ -8,6 +12,7 @@ import org.junit.After;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -37,6 +42,9 @@ public class GuestPurchaseTests extends ProjectTest{
     public void getStoreInfoValid(){
         StoreService storeInfo = this.getStoreInfo(store2Id);
         assertEquals(storeInfo.getStoreName(), "Store2");
+
+        //add here more assertion
+        assertTrue(false);
     }
 
     @Test
@@ -56,19 +64,43 @@ public class GuestPurchaseTests extends ProjectTest{
      * Search items #12
      */
     @Test
-    public void searchItemsValid(){
-        List<String> filters= new ArrayList<>();
-        filters.add("Dairy");
-        List<CatalogItemService> itemsFound = this.searchItems("Milk", filters);
-        assertEquals(itemsFound.get(0).getItemName(), "Item1");
+    public void searchItemsByKeyWord_Valid(){
+        addItemToStoreForTests(store2Id, "Bread", 10, Category.Kitchen, 10);
+        addItemToStoreForTests(store2Id, "Bread2", 10, Category.Kitchen, 10);
+        addItemToStoreForTests(store2Id, "Meat2", 10, Category.Kitchen, 10);
+        String keyWords = "Bread";
+
+        List<CatalogItemService> itemsFound = this.searchItems(keyWords, SearchBy.KEY_WORD, null);
+
+        boolean breadExists = false;
+        for(CatalogItemService item: itemsFound){
+            if(item.getItemName().contains("Bread")){
+                breadExists = true;
+            }
+        }
+        assertTrue(breadExists);
     }
 
     @Test
+    public void searchItemsByFilter_Valid(){
+        addItemToStoreForTests(store2Id, "Bread", 10, Category.Clothing, 10);
+        addItemToStoreForTests(store2Id, "Bread2", 10, Category.Kitchen, 10);
+        addItemToStoreForTests(store2Id, "Meat2", 10, Category.Sports, 10);
+
+        HashMap<SearchFilter, FilterValue> filters = new HashMap<>();
+        //filters.put(SearchFilter.CATEGORY, Fi);
+        List<CatalogItemService> itemsFound = this.searchItems("", SearchBy.CATEGORY, filters);
+        assertEquals(itemsFound.get(0).getItemName(), "Item1");
+
+        //Do this test? How to do the filters with the FilterValue
+        assertTrue(false);
+    }
+
+
+    @Test
     public void searchItemsNoMatch(){
-        List<String> filters= new ArrayList<>();
-        filters.add("filter1");
-        filters.add("filter2");
-        List<CatalogItemService> itemsFound = this.searchItems("NotExistItemName", filters);
+        String keyWords = "Shoe";
+        List<CatalogItemService> itemsFound = this.searchItems(keyWords, SearchBy.KEY_WORD, null);
         assertEquals(0, itemsFound.size());
     }
 

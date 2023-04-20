@@ -2,6 +2,9 @@ package Bridge;
 
 
 import BusinessLayer.Stores.Category;
+import Globals.FilterValue;
+import Globals.SearchBy;
+import Globals.SearchFilter;
 import ServiceLayer.Objects.*;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
@@ -9,6 +12,7 @@ import ServiceLayer.UserService;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RealBridge implements Bridge{
 
@@ -56,11 +60,13 @@ public class RealBridge implements Bridge{
     }
 
     @Override
-    public List<CatalogItemService> searchItems(String itemName, List<String> filters) {
-        //List<CatalogItemService> result = this.facade.searchItems(itemName, filters);
-        //return result;
-        /** */
-        return null;
+    public List<CatalogItemService> searchItems(String keywords, SearchBy searchBy, Map<SearchFilter, FilterValue> filters) {
+        Result<List<CatalogItemService>> result =  shoppingService.searchCatalog(keywords, searchBy, filters);
+        if(result.isError()){
+            System.out.println(result.getMessage());
+            return null;
+        }
+        return result.getValue();
     }
 
 
@@ -199,22 +205,6 @@ public class RealBridge implements Bridge{
         return null;
     }
 
-    @Override
-    public boolean payCart(int userId, String paymentDetails, String paymentService) {
-        //return this.facade.payCart(userId, paymentDetails, paymentService);
-        /** Not sure...*/
-        return false;
-    }
-
-    @Override
-    public boolean askForSupply(int userId, List<CatalogItemService> items, String supplyService) {
-        //return this.facade.askForSupply(userId, items, supplyService);
-        /** Not sure...*/
-        return false;
-    }
-
-
-
     private boolean handleBoolResult(Result<Boolean> result) {
         if(result.isError()){
             System.out.println(result.getMessage());
@@ -230,6 +220,12 @@ public class RealBridge implements Bridge{
         }
         return result.getValue();
     }
+
+
+
+
+
+
 
 
     @Override
@@ -406,5 +402,23 @@ public class RealBridge implements Bridge{
         /** NotForVersion1 */
 
     }
+
+
+    @Override
+    public boolean payCart(int userId, String paymentDetails, String paymentService) {
+        //return this.facade.payCart(userId, paymentDetails, paymentService);
+        /** Not sure...*/
+        return false;
+    }
+
+    @Override
+    public boolean askForSupply(int userId, List<CatalogItemService> items, String supplyService) {
+        //return this.facade.askForSupply(userId, items, supplyService);
+        /** Not sure...*/
+        return false;
+    }
+
+
+
 
 }

@@ -3,12 +3,14 @@ package Acceptance;
 import Bridge.Bridge;
 import Bridge.Driver;
 import BusinessLayer.Stores.Category;
+import Globals.FilterValue;
+import Globals.SearchBy;
+import Globals.SearchFilter;
 import ServiceLayer.Objects.*;
-import ServiceLayer.Result;
 
 import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 
 
 public abstract class ProjectTest {
@@ -73,7 +75,9 @@ public abstract class ProjectTest {
         defineStoreManager(store2ClosedId , user2LoggedInId, user6ManagerOwnerOfStore2);
 
         //add items
-        item2Id = addItemToStoreForTests(store2Id, "Name1", 10, Category.Kitchen, 10);
+        item1Id = addItemToStoreForTests(store2Id, "item1", 10, Category.Books, 10);
+        item11Id = addItemToStoreForTests(store2Id, "item11", 10, Category.Books, 10);
+        item2Id = addItemToStoreForTests(store2Id, "item2", 10, Category.Kitchen, 10);
         item2ToBeRemovedId = addItemToStoreForTests(store2Id, "Name2", 10, Category.Kitchen, 10);
     }
 
@@ -120,7 +124,7 @@ public abstract class ProjectTest {
         setUpUser2();
         setUpUser3();
         setUpUser4();
-        addItemsToUser(user1GuestId, store2Id, item1Id);
+        addItemsToUserForTests(user1GuestId, store2Id, item1Id);
     }
 
 
@@ -133,27 +137,9 @@ public abstract class ProjectTest {
 
     /**
      * add items to cart of user from store
-     * @param userId
-     * @param storeId
      */
-    private void addItemsToUser(int userId, int storeId, int itemId) {
+    private void addItemsToUserForTests(int userId, int storeId, int itemId) {
         this.addItemToBasket(userId, storeId, itemId, 1);
-    }
-
-
-    /**
-     * userName : YonatanUser
-     * password : YonatanPass123
-     * @return
-     */
-    protected int registerYonatan() {
-        return registerUser("YonatanUser", "YonatanPass123!");
-    }
-
-
-    protected String getTestItemName(int storeId, int itemId){
-        //get item name from store, hold here lists of items?
-        return "getTestItemName";
     }
 
 
@@ -177,8 +163,8 @@ public abstract class ProjectTest {
         return this.bridge.getStoreInfo(storeId);
     }
 
-    protected List<CatalogItemService> searchItems(String itemName, List<String> filters) {
-        return this.bridge.searchItems(itemName, filters);
+    protected List<CatalogItemService> searchItems(String keywords, SearchBy searchBy, Map<SearchFilter, FilterValue> filters) {
+        return this.bridge.searchItems(keywords, searchBy, filters);
     }
 
     protected CartService addItemToBasket(int userId, int storeId, int itemId, int amount) {

@@ -1,10 +1,14 @@
 package Bridge;
 
 import BusinessLayer.Stores.Category;
+import Globals.FilterValue;
+import Globals.SearchBy;
+import Globals.SearchFilter;
 import ServiceLayer.Objects.*;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ProxyBridge implements Bridge{
 
@@ -57,9 +61,9 @@ public class ProxyBridge implements Bridge{
 
 
     @Override
-    public List<CatalogItemService> searchItems(String itemName, List<String> filters) {
+    public List<CatalogItemService> searchItems(String keywords, SearchBy searchBy, Map<SearchFilter, FilterValue> filters) {
         if(real != null){
-            return real.searchItems(itemName, filters);
+            return real.searchItems(keywords, searchBy, filters);
         }
         return null;
     }

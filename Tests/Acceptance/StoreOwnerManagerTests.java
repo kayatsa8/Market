@@ -58,7 +58,7 @@ public class StoreOwnerManagerTests extends ProjectTest{
 
     @Test
     public void addItemToStore_ItemExistsInStore(){
-        int itemId = this.addCatalogItem(store2Id, getTestItemName(store2Id, item2Id), 10, Category.Kitchen);
+        int itemId = this.addCatalogItem(store2Id, "item2", 10, Category.Kitchen);
         assertTrue(itemId < 0);
     }
 
