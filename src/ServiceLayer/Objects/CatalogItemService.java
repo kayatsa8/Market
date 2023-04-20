@@ -1,14 +1,13 @@
 package ServiceLayer.Objects;
 
 import BusinessLayer.Stores.CatalogItem;
-import BusinessLayer.Stores.Category;
 
 public class CatalogItemService {
 
     private String itemName;
     private double price;
     private int itemID;
-    private Category category;
+    private String category;
     private boolean inStock;
 
     public CatalogItemService(CatalogItem item, boolean inStock)
@@ -32,7 +31,7 @@ public class CatalogItemService {
         return itemID;
     }
 
-    public Category getCategory() {
+    public String getCategory() {
         return category;
     }
 

@@ -183,7 +183,7 @@ public class RealBridge implements Bridge{
 
     @Override
     public boolean removeRegisterdUser(int systemManagerId, int userToRemoveId) {
-        //return this.facade.removeRegisterdUser(systemManagerId, userToRemoveId);
+        //return this.facade.removeRegisteredUser(systemManagerId, userToRemoveId);
         return false;
     }
 

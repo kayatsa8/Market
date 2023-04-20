@@ -86,11 +86,13 @@ public class Market {
         userFacade.removeManager(userID, userToRemove, storeID);
     }
 
-    public void closeStorePermanently(int userID, int storeID) throws Exception
+    public boolean closeStorePermanently(int userID, int storeID) throws Exception
      {
+         //@TODO check if this doesnt break tests
         if (isAdmin(userID)) {
-            SystemManager systemManager = systemManagerMap.get(userID);
-            systemManager.closeStorePermanently(storeFacade.getStore(storeID));
+            //SystemManager systemManager = systemManagerMap.get(userID);
+            //systemManager.closeStorePermanently(storeFacade.getStore(storeID));
+            return storeFacade.closeStorePermanently(storeID);
         }
         else {
             throw new RuntimeException("Only admin can close stores permanently");
@@ -166,6 +168,46 @@ public class Market {
      */
     public Cart emptyCart(int userID) {
         return userFacade.emptyCart(userID);
+    }
+
+    public Store getStoreInfo(int storeID)
+    {
+        return storeFacade.getStore(storeID);
+    }
+
+    public CatalogItem addItemToStore(int storeID, String itemName, double itemPrice, String itemCategory)
+    {
+        return storeFacade.addCatalogItem(storeID, itemName, itemPrice, itemCategory);
+    }
+
+    public void removeItemFromStore(int storeID, int itemID) throws Exception
+    {
+        storeFacade.removeItemFromStore(storeID, itemID);
+    }
+
+    public String updateItemName(int storeID, int itemID, String newName) throws Exception
+    {
+        return storeFacade.updateItemName(storeID, itemID, newName);
+    }
+
+    public Boolean checkIfStoreOwner(int userId, int storeID) throws Exception
+    {
+        return storeFacade.checkIfStoreOwner(userId, storeID);
+    }
+
+    public Boolean checkIfStoreManager(int userID, int storeID) throws Exception
+    {
+        return storeFacade.checkIfStoreManager(userID, storeID);
+    }
+
+    public Boolean reopenStore(int userID, int storeID) throws Exception
+    {
+        return storeFacade.reopenStore(userID, storeID);
+    }
+
+    public Boolean closeStore(int userID, int storeID) throws Exception
+    {
+        return storeFacade.closeStore(userID, storeID);
     }
 
     public void addManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) {

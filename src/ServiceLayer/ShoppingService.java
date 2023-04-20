@@ -1,16 +1,18 @@
 package ServiceLayer;
 
-import BusinessLayer.Cart;
-import BusinessLayer.StorePermissions.StoreActionPermissions;
-import BusinessLayer.Users.RegisteredUser;
 import Globals.FilterValue;
 import Globals.SearchBy;
-import BusinessLayer.Log;
-import BusinessLayer.Market;
-import BusinessLayer.Stores.CatalogItem;
 import Globals.SearchFilter;
+
+import BusinessLayer.Log;
+import BusinessLayer.Cart;
+import BusinessLayer.Market;
+import BusinessLayer.Stores.Store;
+import BusinessLayer.Stores.CatalogItem;
+
 import ServiceLayer.Objects.CartService;
 import ServiceLayer.Objects.CatalogItemService;
+import ServiceLayer.Objects.StoreService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -119,5 +121,132 @@ public class ShoppingService {
     public void emptyCart(int userID) {
         market.emptyCart(userID);
     }
+    public Result<StoreService> getStoreInfo(int storeID) {
+        try {
+            Store store = market.getStoreInfo(storeID);
+            StoreService storeService = new StoreService(store);
+            log.info("Store information received successfully");
+            return new Result<>(false, storeService);
+        } catch (Exception e) {
+            log.info("Store information not received");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<StoreService> getStoreInfoAsStoreManager(int storeID, int userID) {
+        try {
+            Store store = market.getStoreInfo(storeID);
+            StoreService storeService = new StoreService(store);
+            log.info("Store information received successfully as store manager");
+            return new Result<>(false, storeService);
+        } catch (Exception e) {
+            log.info("Store information not received");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<CatalogItemService> addItemToStore(int storeID, String itemName, double itemPrice, String itemCategory)
+    {
+        try {
+            CatalogItem catalogItem = market.addItemToStore(storeID, itemName, itemPrice, itemCategory);
+            CatalogItemService catalogItemService = new CatalogItemService(catalogItem, false);
+            log.info("Added new item to store");
+            return new Result<>(false, catalogItemService);
+        } catch (Exception e) {
+            log.info("Failed to add new item to store");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<String> removeItemFromStore(int storeID, int itemID)
+    {
+        try {
+            market.removeItemFromStore(storeID, itemID);
+            log.info("Removed item from store");
+            return new Result<>(false, "Item removed");
+        } catch (Exception e) {
+            log.info("Failed to remove item from store");
+            return new Result<>(true, e.getMessage());
+        }
+    }
 
+    public Result<String> updateItemName(int storeID, int itemID, String newName)
+    {
+        try {
+            String oldItemName = market.updateItemName(storeID, itemID, newName);
+            log.info("Changed item name from " + oldItemName + " to " + newName);
+            return new Result<>(false, "Changed item name from " + oldItemName + " to " + newName);
+        } catch (Exception e) {
+            log.info("Failed to change item name");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result<Boolean> checkIfStoreOwner(int userID, int storeID)
+    {
+        try {
+            Boolean isStoreOwner = market.checkIfStoreOwner(userID, storeID);
+            log.info("Checked if user " + userID + " is store owner at store " + storeID);
+            return new Result<>(false, isStoreOwner);
+        } catch (Exception e) {
+            log.info("Failed to check if user " + userID + " is store owner at store " + storeID);
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<Boolean> checkIfStoreManager(int userID, int storeID)
+    {
+        try {
+            Boolean isStoreManager = market.checkIfStoreManager(userID, storeID);
+            log.info("Checked if user " + userID + " is store manager at store " + storeID);
+            return new Result<>(false, isStoreManager);
+        } catch (Exception e) {
+            log.info("Failed to check if user " + userID + " is store manager at store " + storeID);
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result<Boolean> reopenStore(int userID, int storeID)
+    {
+        try {
+            Boolean reopenStore = market.reopenStore(userID, storeID);
+            log.info("Open store");
+            return new Result<>(false, reopenStore);
+        } catch (Exception e) {
+            log.info("Failed to reopen store " + storeID);
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result<Boolean> closeStore(int userID, int storeID)
+    {
+        try {
+            Boolean closeStore = market.closeStore(userID, storeID);
+            log.info("Close store");
+            return new Result<>(false, closeStore);
+        } catch (Exception e) {
+            log.info("Failed to close store " + storeID);
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result<Boolean> closeStorePermanently(int userID, int storeID)
+    {
+        try {
+            Boolean closeStorePermanently = market.closeStorePermanently(userID, storeID);
+            log.info("Close store permanently");
+            return new Result<>(false, closeStorePermanently);
+        } catch (Exception e) {
+            log.info("Failed to close store " + storeID + " permanently");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result<Integer> createStore(int userID, String storeName)
+    {
+        try {
+            int storeID = market.addStore(userID, storeName);
+            log.info("Create new store");
+            return new Result<>(false, storeID);
+        } catch (Exception e) {
+            log.info("Failed to create new store");
+            return new Result<>(true, e.getMessage());
+        }
+    }
 }
