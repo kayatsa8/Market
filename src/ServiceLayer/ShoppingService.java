@@ -23,6 +23,9 @@ import java.util.logging.Logger;
 /*
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 88675fc4d69b5c10d6950cbe0d6bbe328f6c83c6
 getSellingHistory               int storeId, int userId
 
 askForSupply                    int userId, List<TestItemInfo> items, String supplyService
@@ -31,6 +34,7 @@ rankAStore                      int userId, int storeId, int rank
 getStoreRank                    int userId, int storeId
 rankAnItemInStore               int userId, int storeId, int itemId, int rank
 getItemRank                     int userId, int storeId, int itemId
+<<<<<<< HEAD
 =======
 getStoreInfo(storeId)                                       int storeId
 getStoreInfoAsStoreManager(storeId, userId)                 int storeId, int userId
@@ -71,6 +75,8 @@ getStoreRank                    int userId, int storeId
 rankAnItemInStore               int userId, int storeId, int itemId, int rank
 getItemRank                     int userId, int storeId, int itemId
 >>>>>>> 15e08e8 (Most of shopping service)
+=======
+>>>>>>> 88675fc4d69b5c10d6950cbe0d6bbe328f6c83c6
  */
 
 public class ShoppingService {
