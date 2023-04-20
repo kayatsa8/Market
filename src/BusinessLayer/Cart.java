@@ -28,6 +28,7 @@ public class Cart {
     public Cart(int _userID){
         userID = _userID;
         baskets = new BasketsRepository();
+        Log.log.info("A new cart was created for user " + userID);
     }
 
     /**
@@ -36,29 +37,35 @@ public class Cart {
     public Cart(){
         userID = 999999; // a convention
         baskets = new BasketsRepository();
+        Log.log.info("A new cart was created for a guest user");
     }
 
     public void addItem(Store store, CatalogItem item, int quantity) throws Exception {
         baskets.putIfAbsent(store.getStoreID(), new Basket(store));
         baskets.get(store.getStoreID()).addItem(item, quantity);
+
+        Log.log.info("The item " + item.getItemID() + " of store " +
+                store.getStoreID() + " was added (" + quantity + " unites)");
     }
 
     public void removeItem(int storeID, int itemID) throws Exception {
         if(!baskets.containsKey(storeID)){
-            //LOG
+            Log.log.warning("Cart::removeItemFromCart: the store " + storeID + " was not found!");
             throw new Exception("Cart::removeItemFromCart: the store " + storeID + " was not found!");
         }
 
         baskets.get(storeID).removeItem(itemID);
+        Log.log.info("The item " + itemID + " of store " + storeID + " was removed from the cart");
     }
 
     public void changeItemQuantity(int storeID, int itemID, int quantity) throws Exception {
         if(!baskets.containsKey(storeID)){
-            //LOG
+            Log.log.warning("Cart::changeItemQuantityInCart: the store " + storeID + " was not found!");
             throw new Exception("Cart::changeItemQuantityInCart: the store " + storeID + " was not found!");
         }
 
         baskets.get(storeID).changeItemQuantity(itemID, quantity);
+        Log.log.info("The quantity of item " + itemID + "was changed");
     }
 
     /**
@@ -80,7 +87,7 @@ public class Cart {
         int storeID = findStoreWithName(storeName);
 
         if(storeID == -1){
-            //LOG
+            Log.log.warning("Cart::getItemsInBasket: the store " + storeName + " was not found!");
             throw new Exception("Cart::getItemsInBasket: the store " + storeName + " was not found!");
         }
 
@@ -108,6 +115,7 @@ public class Cart {
         for(Basket basket : baskets.values()){
             basket.saveItems();
         }
+        Log.log.info("Items of cart " + userID + " are saved");
 
         //TODO: should change in future versions
         double finalPrice = calculateTotalPrice();
@@ -124,15 +132,21 @@ public class Cart {
             }
             return null;
         }
+        else{
+            Log.log.info("Cart " + userID + " payment completed");
+            Log.log.info("Cart " + userID + " delivery is scheduled");
+        }
 
 
         for(Basket basket : baskets.values()){
             receiptData.putIfAbsent(basket.getStore().getStoreID(), basket.buyBasket(userID));
         }
 
-        empty();
+        Log.log.info("All items of " + userID + "are bought");
 
-        //LOG: buy method completed
+        empty();
+        Log.log.info("Cart " + userID + " is empty");
+
         return receiptData;
     }
 
