@@ -1,27 +1,20 @@
 package ServiceLayer.Objects;
 
+import BusinessLayer.Stores.Store;
+
 public class StoreService {
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //change this when implementing this object
-    public String getStoreName(){
-        return "Temp";
+    public final int founderID;
+    public final String storeName;
+    public final int storeID;
+    public StoreService(Store store)
+    {
+        storeID = store.getStoreID();
+        storeName = store.getStoreName();
+        founderID = store.getFounderID();
     }
 
     public boolean hasItem(int itemId) {
-        //return true if store has item with this id
         return true;
     }
 }
