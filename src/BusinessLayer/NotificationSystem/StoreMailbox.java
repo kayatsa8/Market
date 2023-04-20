@@ -1,5 +1,6 @@
 package BusinessLayer.NotificationSystem;
 
+import BusinessLayer.Log;
 import BusinessLayer.NotificationSystem.Repositories.NotReadMessagesRepository;
 import BusinessLayer.NotificationSystem.Repositories.ReadMessagesRepository;
 import BusinessLayer.NotificationSystem.Repositories.SentMessagesRepository;
@@ -46,10 +47,12 @@ public class StoreMailbox extends Mailbox{
 
     public void setMailboxAsUnavailable(){
         available = false;
+        Log.log.info("The mailbox of " + ownerID + " was marked as unavailable.");
     }
 
     public void setMailboxAsAvailable(){
         available = true;
+        Log.log.info("The mailbox of " + ownerID + " was marked as available.");
     }
 
     public boolean isAvailable(){
