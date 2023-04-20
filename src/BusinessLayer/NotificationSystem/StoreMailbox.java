@@ -1,5 +1,8 @@
 package BusinessLayer.NotificationSystem;
 
+import BusinessLayer.NotificationSystem.Repositories.NotReadMessagesRepository;
+import BusinessLayer.NotificationSystem.Repositories.ReadMessagesRepository;
+import BusinessLayer.NotificationSystem.Repositories.SentMessagesRepository;
 import BusinessLayer.Stores.Store;
 
 import java.util.ArrayList;
@@ -14,9 +17,9 @@ public class StoreMailbox extends Mailbox{
         owner = _owner;
         available = true;
         ownerID = owner.getStoreID();
-        notReadMessages = new ArrayList<>();
-        readMessages = new ArrayList<>();
-        sentMessages = new ArrayList<>();
+        notReadMessages = new NotReadMessagesRepository();
+        readMessages = new ReadMessagesRepository();
+        sentMessages = new SentMessagesRepository();
     }
 
     @Override

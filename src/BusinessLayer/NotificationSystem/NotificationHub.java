@@ -1,6 +1,7 @@
 package BusinessLayer.NotificationSystem;
 
 
+import BusinessLayer.NotificationSystem.Repositories.MailboxesRepository;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Users.RegisteredUser;
 
@@ -29,12 +30,13 @@ public class NotificationHub {
 
 
     // fields
-    private ConcurrentHashMap<Integer, Mailbox> mailboxes; // <ID, Mailbox>
+    //private final ConcurrentHashMap<Integer, Mailbox> mailboxes; // <ID, Mailbox>
+    private final MailboxesRepository mailboxes;
 
 
     // object methods
     private NotificationHub() {
-        mailboxes = new ConcurrentHashMap<>();
+        mailboxes = new MailboxesRepository();
     }
 
     public UserMailbox registerToMailService(RegisteredUser user) throws Exception {
