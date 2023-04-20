@@ -3,6 +3,8 @@ package BusinessLayer.Users;
 import BusinessLayer.Cart;
 import BusinessLayer.Log;
 import BusinessLayer.NotificationSystem.NotificationHub;
+import BusinessLayer.StorePermissions.StoreActionPermissions;
+import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
@@ -210,5 +212,15 @@ public class UserFacade {
      */
     public Cart emptyCart(int userID) {
         return getUser(userID).emptyCart();
+    }
+
+    public void addManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) {
+        RegisteredUser user = getUser(userID);
+        user.addManagerPermission(storeID, manager, permission);
+    }
+
+    public void removeManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) {
+        RegisteredUser user = getUser(userID);
+        user.removeManagerPermission(storeID, manager, permission);
     }
 }

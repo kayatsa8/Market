@@ -1,8 +1,10 @@
 package BusinessLayer;
 
+import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
+import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.SystemManager;
 import BusinessLayer.Users.UserFacade;
 import Globals.FilterValue;
@@ -164,5 +166,13 @@ public class Market {
      */
     public Cart emptyCart(int userID) {
         return userFacade.emptyCart(userID);
+    }
+
+    public void addManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) {
+        userFacade.addManagerPermission(userID, storeID, manager, permission);
+    }
+
+    public void removeManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) {
+        userFacade.removeManagerPermission(userID, storeID, manager, permission);
     }
 }

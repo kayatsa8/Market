@@ -1,6 +1,7 @@
 package BusinessLayer.Users;
 
 import BusinessLayer.Cart;
+import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.StorePermissions.StoreManager;
 import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Store;
@@ -150,7 +151,7 @@ public class RegisteredUser extends User{
             throw new RuntimeException("User is not a store owner");
         }
         if (!managerToRemove.managesStore(storeID)) {
-            throw new RuntimeException("Owner to remove doesn't own store");
+            throw new RuntimeException("Manager to remove doesn't manage store");
         }
         storeOwnership.removeManager(managerToRemove);
     }
@@ -163,6 +164,28 @@ public class RegisteredUser extends User{
     public void removeOwnership(int storeID) {
         storesIOwn.remove(storeID);
         userDAO.removeOwnership(this.getId(), storeID);
+    }
+
+    public void addManagerPermission(int storeID, RegisteredUser manager, StoreActionPermissions permission) {
+        StoreOwner storeOwnership = getStoreIOwn(storeID);
+        if (storeOwnership==null) {
+            throw new RuntimeException("User is not a store owner");
+        }
+        if (!manager.managesStore(storeID)) {
+            throw new RuntimeException("Manager doesn't manage store");
+        }
+        storeOwnership.addManagerPermission(manager, permission);
+    }
+
+    public void removeManagerPermission(int storeID, RegisteredUser manager, StoreActionPermissions permission) {
+        StoreOwner storeOwnership = getStoreIOwn(storeID);
+        if (storeOwnership==null) {
+            throw new RuntimeException("User is not a store owner");
+        }
+        if (!manager.managesStore(storeID)) {
+            throw new RuntimeException("Manager doesn't manage store");
+        }
+        storeOwnership.removeManagerPermission(manager, permission);
     }
 
 }

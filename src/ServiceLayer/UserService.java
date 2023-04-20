@@ -2,6 +2,8 @@ package ServiceLayer;
 
 import BusinessLayer.Log;
 import BusinessLayer.Market;
+import BusinessLayer.StorePermissions.StoreActionPermissions;
+import BusinessLayer.Users.RegisteredUser;
 
 import java.util.logging.Logger;
 
@@ -106,6 +108,26 @@ public class UserService {
             return new Result<>(false, true);
         } catch (Exception e) {
             log.info("failed to close store");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result addManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) {
+        try {
+            market.addManagerPermission(userID, storeID, manager, permission);
+            return new Result<>(false, true);
+        } catch (Exception e) {
+            log.info("failed to add permission");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result removeManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) {
+        try {
+            market.removeManagerPermission(userID, storeID, manager, permission);
+            return new Result<>(false, true);
+        } catch (Exception e) {
+            log.info("failed to remove permission");
             return new Result<>(true, e.getMessage());
         }
     }

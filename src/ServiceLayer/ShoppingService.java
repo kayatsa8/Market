@@ -1,6 +1,8 @@
 package ServiceLayer;
 
 import BusinessLayer.Cart;
+import BusinessLayer.StorePermissions.StoreActionPermissions;
+import BusinessLayer.Users.RegisteredUser;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import BusinessLayer.Log;
@@ -117,4 +119,5 @@ public class ShoppingService {
     public void emptyCart(int userID) {
         market.emptyCart(userID);
     }
+
 }
