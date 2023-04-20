@@ -57,7 +57,7 @@ public class RealBridge implements Bridge{
 
     @Override
     public List<CatalogItemService> searchItems(String itemName, List<String> filters) {
-        //List<CatalogItemService> result = this.facade.searchItems(itemName, filters);
+        //Result<List<CatalogItemService>> items =  shoppingService.searchCatalog();
         //return result;
         /** */
         return null;
