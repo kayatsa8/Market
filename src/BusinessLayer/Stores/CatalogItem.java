@@ -42,7 +42,7 @@ public class CatalogItem {
                 && itemID == item.itemID
                 && category == item.category;
     }
-    
+
     public String setName(String newName) {
         String oldName = itemName;
         itemName = newName;
