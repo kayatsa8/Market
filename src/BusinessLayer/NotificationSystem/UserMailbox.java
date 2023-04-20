@@ -4,6 +4,7 @@ import BusinessLayer.NotificationSystem.Repositories.NotReadMessagesRepository;
 import BusinessLayer.NotificationSystem.Repositories.ReadMessagesRepository;
 import BusinessLayer.NotificationSystem.Repositories.SentMessagesRepository;
 import BusinessLayer.Users.RegisteredUser;
+import jdk.jshell.spi.ExecutionControl;
 
 import java.util.ArrayList;
 
@@ -20,7 +21,7 @@ public class UserMailbox extends Mailbox {
     }
 
     @Override
-    protected void notifyOwner() {
+    public void notifyOwner() {
         // TODO: How to do this?
     }
 
