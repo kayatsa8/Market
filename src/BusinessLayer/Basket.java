@@ -1,40 +1,47 @@
 package BusinessLayer;
 
+import BusinessLayer.Receipts.ReceiptHandler;
+import BusinessLayer.Stores.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Basket {
     //fields
-    private Store store;
-    private ConcurrentHashMap<Integer, ItemPair> items; //<ItemID, ItemPair>
-    private boolean saved;
-    //TODO: List<receiptItem> for every saved item, if saved is false again list becomes emptyCart
+    private final Store store;
+    private final ConcurrentHashMap<Integer, ItemWrapper> items; //<ItemID, ItemWrapper>
+    private boolean itemsSaved; // true if the store saves the items inside the basket for the user
+    private List<CartItemInfo> savedItems;
+    //private HashMap<CatalogItem, Integer> savedItems; //<CatalogItem, quantity
+
 
 
     //methods
     public Basket(Store _store){
         store = _store;
         items = new ConcurrentHashMap<>();
-        saved = false;
+        itemsSaved = false;
+        savedItems = null;
     }
 
     public void addItem(CatalogItem item, int quantity) throws Exception {
         validateAddItem(item, quantity);
 
-        items.putIfAbsent(item.getItemID(), new ItemPair(item, quantity));
+        items.putIfAbsent(item.getItemID(), new ItemWrapper(item, quantity));
 
-        saved = false;
+        releaseItems();
     }
 
     public void changeItemQuantity(int itemID, int quantity) throws Exception {
         validateChangeItemQuantity(itemID, quantity);
 
-        items.get(itemID).quantity = quantity;
+        items.get(itemID).info.setAmount(quantity);
 
-        saved = false;
+        releaseItems();
     }
 
     public void removeItem(int itemID) throws Exception {
@@ -45,7 +52,7 @@ public class Basket {
 
         items.remove(itemID);
 
-        saved = false;
+        releaseItems();
     }
 
     private void validateAddItem(CatalogItem item, int quantity) throws Exception {
@@ -81,40 +88,108 @@ public class Basket {
         return store;
     }
 
-    public HashMap<CatalogItem, Integer> getItems(){
-        HashMap<CatalogItem, Integer> inBasket = new HashMap<>();
+    public HashMap<CatalogItem, CartItemInfo> getItems(){
+        HashMap<CatalogItem, CartItemInfo> inBasket = new HashMap<>();
 
         for(Integer itemID : items.keySet()){
-            inBasket.putIfAbsent(items.get(itemID).item, items.get(itemID).quantity);
+            inBasket.putIfAbsent(makeCopyOfCatalogItem(items.get(itemID).item),
+                    new CartItemInfo(items.get(itemID).info));
         }
 
         return inBasket;
     }
 
+    private CatalogItem makeCopyOfCatalogItem(CatalogItem item){
+        return new CatalogItem(item.getItemID(), item.getItemName(), item.getPrice(), item.getCategory());
+    }
+
     public void saveItems() throws Exception{
-        HashMap<CatalogItem, Integer> toBuy = getItems();
+        savedItems = getItemsInfo();
 
-        //TODO: ask store to save the items
-        //TODO: Basket should make List<receiptItem> for every item saved
+        try{
+            store.saveItemsForUpcomingPurchase(getItemsInfo());
+            itemsSaved = true;
+        }
+        catch(Exception e){
+            //LOG
 
-        saved = true;
+            /*
+                NOTICE: the Store may throw an exception if Basket requests a certain
+                item more than Store can provide.
+            */
+            e.printStackTrace();
+            savedItems = null;
+            itemsSaved = false;
+        }
+
+
 
     }
 
-    public void buyBasket() throws Exception{
-        if(!saved){
+    private List<CartItemInfo> getItemsInfo(){
+        List<CartItemInfo> infos = new ArrayList<>();
+
+        for(ItemWrapper wrapper : items.values()){
+            infos.add(new CartItemInfo(wrapper.info));
+        }
+
+        return infos;
+    }
+
+    /**
+     * @return a HashMap of the bought items and their quantities
+     * @throws Exception - the store can throw exceptions
+     */
+    public HashMap<CatalogItem, CartItemInfo> buyBasket(int userID) throws Exception{
+        if(!itemsSaved){
             throw new Exception("The basket of store " + store.getStoreName() + " is not saved for buying");
         }
 
-        HashMap<CatalogItem, Integer> toBuy = getItems();
+        try{
+            store.buyBasket(savedItems, userID);
+        }
+        catch(Exception e){
+            //LOG
+            e.printStackTrace();
+        }
 
-        //TODO: ask store to buy the items
-        /*
-            NOTICE: the Store may throw an exception if Basket requests a certain
-            item more than Store can provide.
-         */
+        return prepareItemsForReceipt();
+    }
 
-        //TODO: send Store the receipt and return the list to cart
+    private HashMap<CatalogItem, CartItemInfo> prepareItemsForReceipt(){
+        HashMap<CatalogItem, CartItemInfo> data = new HashMap<>();
+
+        for(ItemWrapper item : items.values()){
+            data.putIfAbsent(item.item, item.info);
+        }
+
+        return data;
+    }
+
+    /**
+     * if the basket contents had changed for some reason, the basket
+     * asks the store to release the saved items
+     */
+    public void releaseItems(){
+        if(itemsSaved){
+            itemsSaved = false;
+            //TODO: store.releaseItems(savedItems);
+            savedItems = null;
+        }
+    }
+
+    public double calculateTotalPrice(){
+        double price = 0;
+
+        for(ItemWrapper wrapper : items.values()){
+            price += wrapper.info.getFinalPrice();
+        }
+
+        return price;
+    }
+
+    public boolean isItemInBasket(int itemID){
+        return items.containsKey(itemID);
     }
 
 
@@ -129,13 +204,13 @@ public class Basket {
      * <CatalogItem, quantity>
      * this class is a wrapper for Basket use only
      */
-    private class ItemPair{
+    private class ItemWrapper{
         public CatalogItem item;
-        public int quantity;
+        public CartItemInfo info;
 
-        public ItemPair(CatalogItem _item, int _quantity){
+        public ItemWrapper(CatalogItem _item, int quantity){
             item = _item;
-            quantity = _quantity;
+            info = new CartItemInfo(item.getItemID(), quantity, 0, item.getPrice());
         }
     }
 

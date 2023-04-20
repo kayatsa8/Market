@@ -46,17 +46,16 @@ public class Message {
     }
 
     @Override
-    public boolean equals(Object other){
-
-        if(!(other instanceof Message message)){
+    public boolean equals(Object object){
+        if(!(object instanceof Message other)){
             return false;
         }
 
-        return senderID == message.senderID
-                && receiverID == message.receiverID
-                && title.equals(message.title)
-                && content.equals(message.content)
-                && sendingTime.equals(message.sendingTime);
+        return senderID == other.senderID
+                && receiverID == other.receiverID
+                && title.equals(other.title)
+                && content.equals(other.content)
+                && sendingTime.equals(other.sendingTime);
     }
 
 }

@@ -1,5 +1,9 @@
 package BusinessLayer;
 
+import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
+import BusinessLayer.ExternalSystems.Supply.SupplyClient;
+import BusinessLayer.Receipts.ReceiptHandler;
+import BusinessLayer.Stores.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 
@@ -15,11 +19,25 @@ public class Cart {
     }
 
     //fields
+    private final int userID;
     private final ConcurrentHashMap<Integer, Basket> baskets; // <storeID, Basket>
 
-
     //methods
+
+    /**
+     * a constructor for registered user
+     * @param _userID the id of the user
+     */
+    public Cart(int _userID){
+        userID = _userID;
+        baskets = new ConcurrentHashMap<>();
+    }
+
+    /**
+     * a constructor for not registered user
+     */
     public Cart(){
+        userID = 999999; // a convention
         baskets = new ConcurrentHashMap<>();
     }
 
@@ -61,7 +79,7 @@ public class Cart {
         return names;
     }
 
-    public HashMap<CatalogItem, Integer> getItemsInBasket(String storeName) throws Exception {
+    public HashMap<CatalogItem, CartItemInfo> getItemsInBasket(String storeName) throws Exception {
         int storeID = findStoreWithName(storeName);
 
         if(storeID == -1){
@@ -82,29 +100,43 @@ public class Cart {
         return -1; //not found
     }
 
-    public void buyCart() throws Exception {
-        //TODO: this method should return receipt to user
-        //TODO: this method should get purchase object in order to pay
-        //TODO: make list of List<receiptItem> returned by baskets
+    /**
+     * HashMap <k,v> = <StoreID, <CatalogItem, quantity>>
+     * @return a HashMap to give the ReceiptHandler in order to make a receipt
+     * @throws Exception if the store throw exception for some reason
+     */
+    public HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> buyCart(PurchaseClient purchase, SupplyClient supply, String address) throws Exception {
+        HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> receiptData = new HashMap<>();
 
         for(Basket basket : baskets.values()){
             basket.saveItems();
         }
 
-        //TODO: here the payment will take place
+        //TODO: should change in future versions
+        double finalPrice = calculateTotalPrice();
+        boolean purchaseSuccess = purchase.pay(userID, finalPrice);
 
-        for(Basket basket : baskets.values()){
-            //TODO: add the list to the receipt list
-            basket.buyBasket();
+        //TODO: should change in future versions
+        supply.chooseService();
+        boolean supplySuccess = supply.supply(userID, address);
+
+
+        if(!purchaseSuccess || !supplySuccess){
+            for(Basket basket : baskets.values()){
+                basket.releaseItems();
+            }
+            return null;
         }
 
-        //TODO: create the receipt for user
+
+        for(Basket basket : baskets.values()){
+            receiptData.putIfAbsent(basket.getStore().getStoreID(), basket.buyBasket(userID));
+        }
 
         empty();
 
         //LOG: buy method completed
-        //TODO: return the receipt
-
+        return receiptData;
     }
 
     /**
@@ -114,7 +146,19 @@ public class Cart {
         baskets.clear();
     }
 
+    public double calculateTotalPrice(){
+        double price = 0;
+
+        for(Basket basket : baskets.values()){
+            price += basket.calculateTotalPrice();
+        }
+
+        return price;
+    }
+
+    public boolean isItemInCart(int itemID, int storeID){
+        return baskets.get(storeID).isItemInBasket(itemID);
+    }
 
 
-    //REMEMBER: Cart should make receipts and send to both store and user
 }

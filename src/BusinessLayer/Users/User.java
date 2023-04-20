@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public abstract class User {
-    private Cart cart;
+    protected Cart cart;
 
     public User() {
         this.cart = new Cart();
