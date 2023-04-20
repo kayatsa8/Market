@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 
 /*
 <<<<<<< HEAD
+<<<<<<< HEAD
 getSellingHistory               int storeId, int userId
 
 askForSupply                    int userId, List<TestItemInfo> items, String supplyService
@@ -34,12 +35,13 @@ getItemRank                     int userId, int storeId, int itemId
 getStoreInfo(storeId)                                       int storeId
 getStoreInfoAsStoreManager(storeId, userId)                 int storeId, int userId
 searchItems(itemName, filters)                              String itemName, List<String> filters
+=======
+getSellingHistory               int storeId, int userId
+>>>>>>> 15e08e8 (Most of shopping service)
 
-addItemToBasket(userId, storeId, itemId, amount)            int userId, int storeId, int itemId, int amount
-showCart(userId)                                            int userId
-buyCart(userId, paymentDetails)                             int userId, String paymentDetails
-payCart(userId, paymentDetails, paymentService)             int userId, String paymentDetails, String paymentService
+askForSupply                    int userId, List<TestItemInfo> items, String supplyService
 
+<<<<<<< HEAD
 addItemToStore(storeId, itemName, price)                    int storeId, String itemName, int price
 removeItemFromStore(storeId, itemId)                        int storeId, int itemId
 updateItemName(storeId, itemId, newName)                    int storeId, int itemId, String newName
@@ -63,6 +65,12 @@ getItemRank(userId, storeId, itemId)                        int userId, int stor
 
 getRequestsOfStore(ownerManagerId, storeId)                 int ownerManagerId, int storeId
 >>>>>>> 9b37986 (resolving rebase conflicts)
+=======
+rankAStore                      int userId, int storeId, int rank
+getStoreRank                    int userId, int storeId
+rankAnItemInStore               int userId, int storeId, int itemId, int rank
+getItemRank                     int userId, int storeId, int itemId
+>>>>>>> 15e08e8 (Most of shopping service)
  */
 
 public class ShoppingService {
