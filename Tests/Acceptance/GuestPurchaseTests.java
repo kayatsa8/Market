@@ -1,5 +1,6 @@
 package Acceptance;
 
+import BusinessLayer.Stores.Category;
 import ServiceLayer.Objects.CartService;
 import ServiceLayer.Objects.CatalogItemService;
 import ServiceLayer.Objects.StoreService;
@@ -76,29 +77,31 @@ public class GuestPurchaseTests extends ProjectTest{
      */
     @Test
     public void addToBasketValid(){
-        boolean added = this.addItemToBasket(user1GuestId, store2Id, item11Id, 10);
+        CartService cart = this.addItemToBasket(user1GuestId, store2Id, item11Id, 10);
+        boolean added = cart.getBasketOfStore(store2Id).hasItem(item11Id);
         assertTrue(added);
-
-        CartService cart = this.getCart(user1GuestId);
-        boolean hasItem = cart.getBasketOfStore(store2Id).hasItem(item11Id);
-        assertTrue(hasItem);
     }
 
     @Test
     public void addToBasketStoreClosed(){
-        boolean added = this.addItemToBasket(user1GuestId, store2ClosedId, item1Id, 19);
+        CartService cart = this.addItemToBasket(user1GuestId, store2ClosedId, item1Id, 19);
+        boolean added = cart.getBasketOfStore(store2ClosedId).hasItem(item1Id);
         assertFalse(added);
     }
 
     @Test
     public void addToBasketNegativeAmount(){
-        boolean added = this.addItemToBasket(user1GuestId, store2Id, item11Id, -9);
+        int item12Id = addItemToStoreForTests(store2Id, "Name11", 10, Category.Kitchen, 100);
+        CartService cart = this.addItemToBasket(user1GuestId, store2Id, item12Id, -9);
+        boolean added = cart.getBasketOfStore(store2Id).hasItem(item12Id);
         assertFalse(added);
     }
 
     @Test
     public void addToBasketItemNotInStore(){
-        boolean added = this.addItemToBasket(user1GuestId, store2Id, item2Id, 10);
+        addItemToStoreForTests(store4Id, "NameDD",10, Category.Books, 10);
+        CartService cart = this.addItemToBasket(user1GuestId, store2Id, store4Id, 10);
+        boolean added = cart.getBasketOfStore(store2Id).hasItem(item2Id);
         assertFalse(added);
     }
 

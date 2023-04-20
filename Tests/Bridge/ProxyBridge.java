@@ -66,11 +66,11 @@ public class ProxyBridge implements Bridge{
 
 
     @Override
-    public boolean addItemToBasket(int userId, int storeId, int itemId, int amount) {
+    public CartService addItemToBasket(int userId, int storeId, int itemId, int amount) {
         if(real != null){
             return real.addItemToBasket(userId, storeId, itemId, amount);
         }
-        return true;
+        return null;
     }
 
     @Override
@@ -336,13 +336,6 @@ public class ProxyBridge implements Bridge{
         return null;
     }
 
-    @Override
-    public boolean makeAComplaint(int userId, String complaint) {
-        if(real != null){
-            return real.makeAComplaint(userId, complaint);
-        }
-        return false;
-    }
 
     @Override
     public boolean rankAStore(int userId, int storeId, int rank) {
@@ -408,13 +401,6 @@ public class ProxyBridge implements Bridge{
         return null;
     }
 
-    @Override
-    public boolean checkIfVisitor(int userId) {
-        if(real != null){
-            return real.checkIfVisitor(userId);
-        }
-        return false;
-    }
 
     @Override
     public boolean checkIfLoggedIn(int userId) {

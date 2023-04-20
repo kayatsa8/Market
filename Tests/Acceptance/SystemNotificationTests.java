@@ -38,12 +38,13 @@ public class SystemNotificationTests extends ProjectTest{
      */
     @Test
     public void delayedNotifications_Valid(){
+        logOut("User4", "User4!!");
 
-        this.sendMsg(user2LoggedInId, user3NotLoggedInId, "Msg");
-        loginUser("User3", "User3!");
+        this.closeStore(user4LoggedInId, store4Id);
+        loginUser("User4", "User4!");
 
         List<String> notifications = getNotifications(user3NotLoggedInId);
-        assertEquals(notifications.get(0), "Msg");
+        assertEquals(notifications.get(0), "Closed store");
     }
 
 

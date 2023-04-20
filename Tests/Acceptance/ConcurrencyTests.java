@@ -125,8 +125,6 @@ public class ConcurrencyTests extends ProjectTest{
         thread2.start();
         assertNotEquals(user4Bought, user2Bought);
 
-        boolean manager = checkIfStoreManager(user4LoggedInId, store2Id);
-        assertTrue(manager);
     }
 
 

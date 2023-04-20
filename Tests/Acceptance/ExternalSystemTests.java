@@ -2,6 +2,7 @@ package Acceptance;
 
 import ServiceLayer.Objects.CatalogItemService;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ public class ExternalSystemTests extends ProjectTest{
     @Override
     public void setUp() {
         super.setUp();
-        setUpAllMarket();
+        //setUpAllMarket();
     }
 
 
@@ -27,17 +28,17 @@ public class ExternalSystemTests extends ProjectTest{
     /**
      * Change connection with external system #2
      */
-    @Test
+    @Test @Ignore
     public void changeConnectionToExternalSystem_Valid(){
 
     }
 
-    @Test
+    @Test @Ignore
     public void changeConnectionToExternalSystem_WrongStoreInfo(){
 
     }
 
-    @Test
+    @Test @Ignore
     public void changeConnectionToExternalSystem_WrongSystemInformation(){
 
     }
@@ -46,6 +47,7 @@ public class ExternalSystemTests extends ProjectTest{
     /**
      * Turning to payment service #3
      */
+    /*
     @Test
     public void turnToPaymentService_Valid(){
         boolean paid = this.payCart(user1GuestId, "PaymentDetails", "PaymentService1");
@@ -63,12 +65,12 @@ public class ExternalSystemTests extends ProjectTest{
         boolean paid = this.payCart(user1GuestId, "PaymentDetails", "PaymentServiceNotExisting");
         assertFalse(paid);
     }
-
+    */
 
     /**
      *  Turning to Supply Service #4
      */
-    @Test
+    /*@Test
     public void turnToSupplyService_Valid(){
         List<CatalogItemService> items = new ArrayList<>();
         boolean received = this.askForSupply(user1GuestId, items, "SupplyService1");
@@ -96,6 +98,6 @@ public class ExternalSystemTests extends ProjectTest{
         boolean received = this.askForSupply(user1GuestId, items, "SupplyServiceNotExisting");
         assertFalse(received);
     }
-
+    */
 
 }

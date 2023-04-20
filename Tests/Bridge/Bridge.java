@@ -38,7 +38,7 @@ public interface Bridge {
      * @param userId
      * @return true if user is an active guest, false if he is not active right now
      */
-    boolean checkIfVisitor(int userId);
+    //boolean checkIfVisitor(int userId);
 
 
     /**
@@ -79,7 +79,7 @@ public interface Bridge {
      * @param amount
      * @return
      */
-    boolean addItemToBasket(int userId, int storeId, int itemId, int amount);
+    CartService addItemToBasket(int userId, int storeId, int itemId, int amount);
 
     /**
      * gets the cart of this user
@@ -348,13 +348,6 @@ public interface Bridge {
      */
     List<String> getNotifications(int userId);
 
-    /**
-     * submit a complaint
-     * @param userId
-     * @param complaint
-     * @return
-     */
-    boolean makeAComplaint(int userId, String complaint);
 
     /**
      * User can rank a store
