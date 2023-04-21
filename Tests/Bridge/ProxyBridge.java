@@ -1,6 +1,5 @@
 package Bridge;
 
-import BusinessLayer.Stores.Category;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -94,11 +93,11 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public int addCatalogItem(int storeId, String itemName, int price, Category category) {
+    public  CatalogItemService addCatalogItem(int storeId, String itemName, int price, String category) {
         if(real != null){
             return real.addCatalogItem(storeId, itemName, price, category);
         }
-        return -1;
+        return null;
     }
 
     @Override
@@ -117,11 +116,11 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public boolean changeItemName(int storeId, int itemId, String newName) {
+    public String changeItemName(int storeId, int itemId, String newName) {
         if(real != null){
             return real.changeItemName(storeId, itemId, newName);
         }
-        return false;
+        return "Not removed";
     }
 
     @Override
@@ -157,9 +156,9 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public int createStore(int userId) {
+    public int createStore(int userId, String name) {
         if(real != null){
-            return real.createStore(userId);
+            return real.createStore(userId, name);
         }
         return -1;
     }

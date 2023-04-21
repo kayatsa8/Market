@@ -1,8 +1,8 @@
 package Acceptance;
 
 import Bridge.Bridge;
+import Bridge.RealBridge;
 import Bridge.Driver;
-import BusinessLayer.Stores.Category;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -65,8 +65,8 @@ public abstract class ProjectTest {
         user2LoggedInId = setUser("User2","User2!", MEMBER, LOGGED);
         user5ManagerOwnerOfStore2ToBeRemoved = setUser("User5", "User5!", MEMBER, NOT_LOGGED);
         user6ManagerOwnerOfStore2 = setUser("User6", "User6!", MEMBER, LOGGED);
-        store2Id = createStore(user2LoggedInId); //store is open
-        store2ClosedId = createStore(user2LoggedInId); //store is close
+        store2Id = createStore(user2LoggedInId, "Store2"); //store is open
+        store2ClosedId = createStore(user2LoggedInId, "Store22"); //store is close
 
         //Make user6 and user5 manager Owner
         defineStoreOwner(store2Id, user2LoggedInId, user5ManagerOwnerOfStore2ToBeRemoved);
@@ -75,10 +75,10 @@ public abstract class ProjectTest {
         defineStoreManager(store2ClosedId , user2LoggedInId, user6ManagerOwnerOfStore2);
 
         //add items
-        item1Id = addItemToStoreForTests(store2Id, "item1", 10, Category.Books, 10);
-        item11Id = addItemToStoreForTests(store2Id, "item11", 10, Category.Books, 10);
-        item2Id = addItemToStoreForTests(store2Id, "item2", 10, Category.Kitchen, 10);
-        item2ToBeRemovedId = addItemToStoreForTests(store2Id, "Name2", 10, Category.Kitchen, 10);
+        item1Id = addItemToStoreForTests(store2Id, "item1", 10, "Books", 10);
+        item11Id = addItemToStoreForTests(store2Id, "item11", 10, "Books", 10);
+        item2Id = addItemToStoreForTests(store2Id, "item2", 10, "Kitchen", 10);
+        item2ToBeRemovedId = addItemToStoreForTests(store2Id, "Name2", 10, "Kitchen", 10);
     }
 
     /**
@@ -95,7 +95,7 @@ public abstract class ProjectTest {
         user4LoggedInId = setUser("User4","User4!", MEMBER, LOGGED);
         if(user2LoggedInId == -1)
             user2LoggedInId = setUser("User2","User2!", MEMBER, LOGGED);   //created for the ownership of the store
-        store4Id = createStore(user4LoggedInId);  //user4 is founder, user2 is owner
+        store4Id = createStore(user4LoggedInId, "Store4");  //user4 is founder, user2 is owner
         //add items
     }
 
@@ -128,7 +128,7 @@ public abstract class ProjectTest {
     }
 
 
-    public int addItemToStoreForTests(int storeId, String name, int price, Category category, int amount){
+    public int addItemToStoreForTests(int storeId, String name, int price, String category, int amount){
         int id = addCatalogItem(storeId, name, price, category);
         addItemAmount(storeId, id, amount);
         return id;
@@ -179,8 +179,11 @@ public abstract class ProjectTest {
         return this.bridge.buyCart(userId, paymentDetails);
     }
 
-    protected int addCatalogItem(int storeId, String itemName, int price, Category category) {
-        return this.bridge.addCatalogItem(storeId, itemName, price, category);
+    protected int addCatalogItem(int storeId, String itemName, int price, String category) {
+        CatalogItemService item = this.bridge.addCatalogItem(storeId, itemName, price, category);
+        if(item == null)
+            return -1;
+        return item.getItemID();
     }
 
     protected boolean removeItemFromStore(int storeId, int itemId) {
@@ -188,7 +191,8 @@ public abstract class ProjectTest {
     }
 
     protected boolean changeItemName(int storeId, int itemId, String newName) {
-        return this.bridge.changeItemName(storeId, itemId, newName);
+        String res = this.bridge.changeItemName(storeId, itemId, newName);
+        return res.contains("Changed Item");
     }
 
     protected List<UserStaffInfoService> showStaffInfo(int storeId, int userId) {
@@ -203,8 +207,8 @@ public abstract class ProjectTest {
         return this.bridge.logOut(userName, password);
     }
 
-    protected int createStore(int userId) {
-        return this.bridge.createStore(userId);
+    protected int createStore(int userId, String storeName) {
+        return this.bridge.createStore(userId, storeName);
     }
 
     protected boolean closeStore(int userId, int storeId) {

@@ -1,6 +1,5 @@
 package Acceptance;
 
-import BusinessLayer.Stores.Category;
 import Globals.FilterValue;
 import Globals.FilterValue.*;
 import Globals.SearchBy;
@@ -9,6 +8,7 @@ import ServiceLayer.Objects.CartService;
 import ServiceLayer.Objects.CatalogItemService;
 import ServiceLayer.Objects.StoreService;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 public class GuestPurchaseTests extends ProjectTest{
 
 
-    @Override
+    @Before
     public void setUp() {
         super.setUp();
         setUpAllMarket();
@@ -65,9 +65,9 @@ public class GuestPurchaseTests extends ProjectTest{
      */
     @Test
     public void searchItemsByKeyWord_Valid(){
-        addItemToStoreForTests(store2Id, "Bread", 10, Category.Kitchen, 10);
-        addItemToStoreForTests(store2Id, "Bread2", 10, Category.Kitchen, 10);
-        addItemToStoreForTests(store2Id, "Meat2", 10, Category.Kitchen, 10);
+        addItemToStoreForTests(store2Id, "Bread", 10, "Kitchen", 10);
+        addItemToStoreForTests(store2Id, "Bread2", 10, "Kitchen", 10);
+        addItemToStoreForTests(store2Id, "Meat2", 10, "Kitchen", 10);
         String keyWords = "Bread";
 
         List<CatalogItemService> itemsFound = this.searchItems(keyWords, SearchBy.KEY_WORD, null);
@@ -83,9 +83,9 @@ public class GuestPurchaseTests extends ProjectTest{
 
     @Test
     public void searchItemsByFilter_Valid(){
-        addItemToStoreForTests(store2Id, "Bread", 10, Category.Clothing, 10);
-        addItemToStoreForTests(store2Id, "Bread2", 10, Category.Kitchen, 10);
-        addItemToStoreForTests(store2Id, "Meat2", 10, Category.Sports, 10);
+        addItemToStoreForTests(store2Id, "Bread", 10, "Clothing", 10);
+        addItemToStoreForTests(store2Id, "Bread2", 10, "Kitchen", 10);
+        addItemToStoreForTests(store2Id, "Meat2", 10, "Sports", 10);
 
         HashMap<SearchFilter, FilterValue> filters = new HashMap<>();
         //filters.put(SearchFilter.CATEGORY, Fi);
@@ -123,7 +123,7 @@ public class GuestPurchaseTests extends ProjectTest{
 
     @Test
     public void addToBasketNegativeAmount(){
-        int item12Id = addItemToStoreForTests(store2Id, "Name11", 10, Category.Kitchen, 100);
+        int item12Id = addItemToStoreForTests(store2Id, "Name11", 10, "Kitchen", 100);
         CartService cart = this.addItemToBasket(user1GuestId, store2Id, item12Id, -9);
         boolean added = cart.getBasketOfStore(store2Id).hasItem(item12Id);
         assertFalse(added);
@@ -131,7 +131,7 @@ public class GuestPurchaseTests extends ProjectTest{
 
     @Test
     public void addToBasketItemNotInStore(){
-        addItemToStoreForTests(store4Id, "NameDD",10, Category.Books, 10);
+        addItemToStoreForTests(store4Id, "NameDD",10, "Kitchen", 10);
         CartService cart = this.addItemToBasket(user1GuestId, store2Id, store4Id, 10);
         boolean added = cart.getBasketOfStore(store2Id).hasItem(item2Id);
         assertFalse(added);

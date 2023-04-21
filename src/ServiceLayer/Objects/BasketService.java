@@ -14,4 +14,8 @@ public class BasketService {
         //return true if I have in this basket item with this itemId
         return true;
     }
+
+    public boolean isEmpty() {
+        return basket.getItems().isEmpty();
+    }
 }

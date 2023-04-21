@@ -1,10 +1,10 @@
 package Acceptance;
 
-import BusinessLayer.Stores.Category;
 import ServiceLayer.Objects.ReceiptService;
 import ServiceLayer.Objects.StoreService;
 import ServiceLayer.Objects.UserStaffInfoService;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 
@@ -17,7 +17,7 @@ public class StoreOwnerManagerTests extends ProjectTest{
 
 
 
-    @Override
+    @Before
     public void setUp() {
         super.setUp();
         setUpAllMarket();
@@ -36,7 +36,7 @@ public class StoreOwnerManagerTests extends ProjectTest{
      */
     @Test
     public void addItemToStore_Valid(){
-        int itemId = this.addCatalogItem(store2Id, "itemName", 10, Category.Kitchen);
+        int itemId = this.addCatalogItem(store2Id, "itemName", 10, "Kitchen");
         addItemAmount(store2Id, itemId, 10);
         assertTrue(itemId > 0);
 
@@ -46,19 +46,19 @@ public class StoreOwnerManagerTests extends ProjectTest{
 
     @Test
     public void addItemToStore_PriceWrong(){
-        int itemId = this.addCatalogItem(store2Id, "itemName2", -1, Category.Kitchen);
+        int itemId = this.addCatalogItem(store2Id, "itemName2", -1, "Kitchen");
         assertTrue(itemId < 0);
     }
 
     @Test
     public void addItemToStore_StoreNotExisting(){
-        int itemId = this.addCatalogItem(-1, "itemName2", 1, Category.Kitchen);
+        int itemId = this.addCatalogItem(-1, "itemName2", 1, "Kitchen");
         assertTrue(itemId < 0);
     }
 
     @Test
     public void addItemToStore_ItemExistsInStore(){
-        int itemId = this.addCatalogItem(store2Id, "item2", 10, Category.Kitchen);
+        int itemId = this.addCatalogItem(store2Id, "item2", 10, "Kitchen");
         assertTrue(itemId < 0);
     }
 

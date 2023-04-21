@@ -1,15 +1,15 @@
 package Acceptance;
 
-import BusinessLayer.Stores.Category;
 import ServiceLayer.Objects.CartService;
 import ServiceLayer.Objects.StoreService;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class ConcurrencyTests extends ProjectTest{
 
-    @Override
+    @Before
     public void setUp() {
         super.setUp();
         setUpAllMarket();
@@ -29,7 +29,7 @@ public class ConcurrencyTests extends ProjectTest{
     @Test
     public void twoUsersBuyingLastItem(){
         //Store2 as only 1 item21 !!
-        int item21Id = this.addCatalogItem(store2Id, "Item21", 10, Category.Kitchen);
+        int item21Id = this.addCatalogItem(store2Id, "Item21", 10, "Kitchen");
         addItemAmount(store2Id, item21Id, 1);
 
         addItemToBasket(user2LoggedInId, store2Id, item21Id, 1);
@@ -73,7 +73,7 @@ public class ConcurrencyTests extends ProjectTest{
      */
     @Test
     public void buyingAndDeletingTheSameTime(){
-        int item22Id = this.addCatalogItem(store2Id, "Item22", 10, Category.Kitchen);
+        int item22Id = this.addCatalogItem(store2Id, "Item22", 10, "Kitchen");
         addItemAmount(store2Id, item22Id, 10);
 
         addItemToBasket(user4LoggedInId, store2Id, item22Id, 1);

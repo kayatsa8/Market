@@ -2,6 +2,7 @@ package Acceptance;
 
 import ServiceLayer.Objects.ReceiptService;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -12,7 +13,7 @@ import static org.junit.Assert.*;
 public class SystemManagerTests extends ProjectTest{
 
 
-    @Override
+    @Before
     public void setUp() {
         super.setUp();
         setUpAllMarket();

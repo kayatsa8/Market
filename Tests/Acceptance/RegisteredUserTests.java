@@ -2,6 +2,7 @@ package Acceptance;
 
 import ServiceLayer.Objects.ReceiptService;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -12,7 +13,7 @@ import static org.junit.Assert.*;
 public class RegisteredUserTests extends ProjectTest{
 
 
-    @Override
+    @Before
     public void setUp() {
         super.setUp();
         setUpUser3();
@@ -49,20 +50,19 @@ public class RegisteredUserTests extends ProjectTest{
     @Test
     public void openStore_Valid(){
         //add more arguments
-        int storeId = this.createStore(user2LoggedInId);
+        int storeId = this.createStore(user2LoggedInId, "Store2");
         assertTrue(storeId > 0);
     }
 
     @Test
     public void createStore_MissingInformation(){
-        //Missing info should be here
-        int storeId = this.createStore(user2LoggedInId);
+        int storeId = this.createStore(user2LoggedInId, "");
         assertTrue(storeId > 0);
     }
 
     @Test
     public void createStore_NotLoggedIn(){
-        int storeId = this.createStore(user3NotLoggedInId);
+        int storeId = this.createStore(user3NotLoggedInId, "Store3");
         assertFalse(storeId > 0);
     }
 

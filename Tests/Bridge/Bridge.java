@@ -1,6 +1,5 @@
 package Bridge;
 
-import BusinessLayer.Stores.Category;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -106,9 +105,9 @@ public interface Bridge {
      * @param storeId
      * @param itemName
      * @param price
-     * @return itemId in store, -1 if failed
+     * @return Item
      */
-    int addCatalogItem(int storeId, String itemName, int price, Category category);
+    CatalogItemService addCatalogItem(int storeId, String itemName, int price, String category);
 
 
     /**
@@ -135,7 +134,7 @@ public interface Bridge {
      * @param newName
      * @return true if successful
      */
-    boolean changeItemName(int storeId, int itemId, String newName);
+    String changeItemName(int storeId, int itemId, String newName);
 
     /**
      * return the staff info if the user is manager/owner
@@ -175,7 +174,7 @@ public interface Bridge {
      * @param userId
      * @return id of the new store
      */
-    int createStore(int userId);
+    int createStore(int userId, String storeName);
 
     /**
      * closes store only if user is the founder of the store

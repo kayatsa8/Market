@@ -17,4 +17,8 @@ public class StoreService {
     public boolean hasItem(int itemId) {
         return true;
     }
+
+    public String getStoreName(){
+        return storeName;
+    }
 }

@@ -1,7 +1,6 @@
 package Bridge;
 
 
-import BusinessLayer.Stores.Category;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -44,19 +43,15 @@ public class RealBridge implements Bridge{
         return res != -1;
     }
 
-    @Override
-    public void exitSystem(int id) {
-        //facade.exitSystem(id);
-        /** */
-    }
-
 
     @Override
     public StoreService getStoreInfo(int storeId) {
-        //StoreService result = facade.getStoreInfo(storeId);
-        //return result;
-        /** */
-        return null;
+        Result<StoreService> result = shoppingService.getStoreInfo(storeId);
+        if(result.isError()){
+            System.out.println(result.getMessage());
+            return null;
+        }
+        return result.getValue();
     }
 
     @Override
@@ -98,37 +93,48 @@ public class RealBridge implements Bridge{
     }
 
     @Override
-    public boolean buyCart(int userId, String paymentDetails) {
-        //return facade.buyCart(userId, paymentDetails);
-        /** */
+    public boolean buyCart(int userId, String deliveryAddress) {
+        try {
+            shoppingService.buyCart(userId, deliveryAddress);
+
+            //temp fix, I need it to return boolean
+            return shoppingService.getCart(userId).getValue().isEmpty();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public CatalogItemService addCatalogItem(int storeId, String itemName, int price, String category) {
+        Result<CatalogItemService> result = shoppingService.addItemToStore(storeId, itemName, price, category);
+        if(result.isError()){
+            System.out.println(result.getMessage());
+            return null;
+        }
+        return result.getValue();
+    }
+
+
+
+    @Override
+    public boolean removeItemFromStore(int storeId, int itemId) {
+        Result<String> result =  shoppingService.removeItemFromStore(storeId, itemId);
+        if(result.isError()){
+            System.out.println(result.getMessage());
+            return false;
+        }
+        //item removed
         return true;
     }
 
     @Override
-    public int addCatalogItem(int storeId, String itemName, int price, Category category) {
-        //return facade.addCatalogItem(storeId, itemName, price, category);
-        /** */
-        return -1;
-    }
-
-    @Override
-    public void addItemAmount(int storeId, int itemId, int amount) {
-        //this.facade.addItemAmount(storeId, itemId, amount);
-        /** */
-    }
-
-    @Override
-    public boolean removeItemFromStore(int storeId, int itemId) {
-        //return this.facade.removeItemFromStore(storeId, itemId);
-        /** */
-        return false;
-    }
-
-    @Override
-    public boolean changeItemName(int storeId, int itemId, String newName) {
-        //return this.facade.updateItemName(storeId, itemId, newName);
-        /** */
-        return false;
+    public String changeItemName(int storeId, int itemId, String newName) {
+        Result<String> result = shoppingService.updateItemName(storeId, itemId, newName);
+        if(result.isError()){
+            System.out.println(result.getMessage());
+        }
+        return result.getValue();
     }
 
     @Override
@@ -147,9 +153,12 @@ public class RealBridge implements Bridge{
 
     @Override
     public StoreService getStoreInfoAsStoreManager(int storeId, int userId) {
-        //return this.facade.getStoreInfoAsStoreManager(storeId, userId);
-        /** */
-        return null;
+        Result<StoreService> result = shoppingService.getStoreInfoAsStoreManager(storeId, userId);
+        if(result.isError()){
+            System.out.println(result.getMessage());
+            return null;
+        }
+        return result.getValue();
     }
 
     @Override
@@ -158,18 +167,17 @@ public class RealBridge implements Bridge{
         return handleBoolResult(result);
     }
 
+
     @Override
-    public int createStore(int userId) {
-        //return this.facade.createStore(userId);
-        /** */
-        return -1;
+    public int createStore(int userId, String storeName) {
+        Result<Integer>  result = shoppingService.createStore(userId, storeName);
+        return handleIntResult(result);
     }
 
     @Override
     public boolean closeStore(int userId, int storeId) {
-        //return this.facade.closeStore(userId, storeId);
-        /** */
-        return true;
+        Result<Boolean> result = shoppingService.closeStore(userId, storeId);
+        return handleBoolResult(result);
     }
 
     @Override
@@ -183,6 +191,19 @@ public class RealBridge implements Bridge{
         Result<Boolean> result = userService.addOwner(ownerId, newCoOwnerId, storeId);
         return handleBoolResult(result);
     }
+
+    @Override
+    public void addItemAmount(int storeId, int itemId, int amount) {
+        //this.facade.addItemAmount(storeId, itemId, amount);
+        /** */
+    }
+
+    @Override
+    public void exitSystem(int id) {
+        //facade.exitSystem(id);
+        /** */
+    }
+
 
     @Override
     public HashMap<Integer, List<ReceiptService>> getSellingHistoryOfUserForManager(int managerId, int userId) {
@@ -205,6 +226,24 @@ public class RealBridge implements Bridge{
         return null;
     }
 
+
+
+
+    @Override
+    public boolean checkIfStoreOwner(int userId, int storeId) {
+        Result<Boolean> result = shoppingService.checkIfStoreOwner(userId, storeId);
+        return handleBoolResult(result);
+    }
+
+    @Override
+    public boolean checkIfStoreManager(int userId, int storeId) {
+        Result<Boolean> result = shoppingService.checkIfStoreManager(userId, storeId);
+        return handleBoolResult(result);
+    }
+
+
+
+
     private boolean handleBoolResult(Result<Boolean> result) {
         if(result.isError()){
             System.out.println(result.getMessage());
@@ -226,21 +265,6 @@ public class RealBridge implements Bridge{
 
 
 
-
-
-    @Override
-    public boolean checkIfStoreOwner(int userId, int storeId) {
-        //return this.facade.checkIfStoreOwner(userId, storeId);
-        /** Don't implement...*/
-        return false;
-    }
-
-    @Override
-    public boolean checkIfStoreManager(int userId, int storeId) {
-        //return this.facade.checkIfStoreManager(userId, storeId);
-        /** Don't implement...*/
-        return false;
-    }
 
 
     @Override
@@ -299,8 +323,15 @@ public class RealBridge implements Bridge{
     @Override
     public boolean closeStorePermanently(int storeManagerId, int storeId) {
         /** NotForVersion1 */
-        //return this.facade.closeStorePermanently(storeManagerId, storeId);
-        return false;
+        Result<Boolean> result = shoppingService.closeStorePermanently(storeManagerId, storeId);
+        return handleBoolResult(result);
+    }
+
+    @Override
+    public boolean reopenStore(int userId, int storeId) {
+        /** NotForVersion1 */
+        Result<Boolean> result = shoppingService.reopenStore(userId, storeId);
+        return handleBoolResult(result);
     }
 
     @Override
@@ -344,12 +375,6 @@ public class RealBridge implements Bridge{
         return 0;
     }
 
-    @Override
-    public boolean reopenStore(int userId, int storeId) {
-        /** NotForVersion1 */
-        //return this.facade.reopenStore(userId, storeId);
-        return false;
-    }
 
     @Override
     public List<String> getRequestsOfStore(int ownerManagerId, int storeId) {

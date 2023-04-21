@@ -2,6 +2,7 @@ package Acceptance;
 
 import ServiceLayer.Objects.CatalogItemService;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -12,7 +13,7 @@ import static org.junit.Assert.*;
 
 public class ExternalSystemTests extends ProjectTest{
 
-    @Override
+    @Before
     public void setUp() {
         super.setUp();
         //setUpAllMarket();

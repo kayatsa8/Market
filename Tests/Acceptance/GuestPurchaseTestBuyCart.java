@@ -2,13 +2,14 @@ package Acceptance;
 
 import ServiceLayer.Objects.CartService;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class GuestPurchaseTestBuyCart extends ProjectTest{
 
 
-    @Override
+    @Before
     public void setUp() {
         super.setUp();
         setUpAllMarket();
