@@ -27,7 +27,12 @@ public class SentMessagesRepository {
     }
 
     public boolean contains(Message message){
-        return sentMessages.contains(message);
+        for(Message m : sentMessages){
+            if(m.equals(message)){
+                return true;
+            }
+        }
+        return false;
         //TODO: DAO
     }
 
