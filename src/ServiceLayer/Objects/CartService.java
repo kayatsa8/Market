@@ -19,7 +19,10 @@ public class CartService {
 
 
     public BasketService getBasketOfStore(int storeId){
-        //get the basket I have for this storeId
+        for(BasketService basket: baskets){
+            if(basket.getStoreId() == storeId)
+                return basket;
+        }
         return null;
     }
 

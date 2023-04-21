@@ -132,7 +132,7 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public HashMap<Integer, List<ReceiptService>> getSellingHistoryOfStoreForManager(int storeId, int userId) {
+    public List<ReceiptService> getSellingHistoryOfStoreForManager(int storeId, int userId) {
         if(real != null){
             return real.getSellingHistoryOfStoreForManager(storeId, userId);
         }
@@ -373,7 +373,7 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public HashMap<Integer, List<ReceiptService>> getPersonalHistory(int userId) {
+    public List<ReceiptService> getPersonalHistory(int userId) {
         if(real != null){
             return real.getPersonalHistory(userId);
         }

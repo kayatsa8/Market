@@ -1,7 +1,6 @@
 package Acceptance;
 
 import Bridge.Bridge;
-import Bridge.RealBridge;
 import Bridge.Driver;
 import Globals.FilterValue;
 import Globals.SearchBy;
@@ -21,32 +20,33 @@ public abstract class ProjectTest {
     final int NOT_LOGGED = 2;
 
     private Bridge bridge;
-    protected int user1GuestId = -1;         //guest - active
-    protected int user2LoggedInId = -1;
-    protected int user3NotLoggedInId = -1;   // registered, not logged in
-    protected int user4LoggedInId = -1;      //logged in, have items in carts
-    protected int user5ManagerOwnerOfStore2ToBeRemoved = -1; //Owner/Manager of store2, to be removed positioned  by user2
-    protected int user6ManagerOwnerOfStore2 = -1;            //Owner/Manager of store2, positioned by user2
-    protected int user7SystemManagerId = -1;
-    protected int userNotExistId = -1;
-    protected int store2Id = -1;             //store is open
-    protected int store2ClosedId = -1;
-    protected int store4Id = -1;
-    protected int item1Id = -1;              //item1 in user1 basket
-    protected int item11Id = -1;             //item11 in store2 but not in basket
-    protected int item2Id = -1;              //item2 in store2
-    protected int item2ToBeRemovedId = -1;
+    protected static int user1GuestId = -1;         //guest - active
+    protected static int user2LoggedInId = -1;
+    protected static int user3NotLoggedInId = -1;   // registered, not logged in
+    protected static int user4LoggedInId = -1;      //logged in, have items in carts
+    protected static int user5ManagerOwnerOfStore2ToBeRemoved = -1; //Owner/Manager of store2, to be removed positioned  by user2
+    protected static int user6ManagerOwnerOfStore2 = -1;            //Owner/Manager of store2, positioned by user2
+    protected static int user7SystemManagerId = -1;
+    protected static int userNotExistId = -1;
+    protected static int store2Id = -1;             //store is open
+    protected static int store2ClosedId = -1;
+    protected static int store4Id = -1;
+    protected static int item1Id = -1;              //item1 in user1 basket
+    protected static int item11Id = -1;             //item11 in store2 but not in basket
+    protected static int item2Id = -1;              //item2 in store2
+    protected static int item2ToBeRemovedId = -1;
 
 
     public void setUp() {
-        this.bridge = Driver.getBridge();
+        if(bridge == null)
+            this.bridge = Driver.getBridge();
         setUpSystemManager();
         //setUpExternalSystems();
     }
 
 
     private void setUpSystemManager() {
-        user7SystemManagerId = setUser("User7", "User7!", MEMBER, LOGGED);
+        user7SystemManagerId = 0; //setUser("User7", "User7!", MEMBER, LOGGED);
         //make him system manager
     }
 
@@ -62,17 +62,21 @@ public abstract class ProjectTest {
      * User2: Member, logged in, Store Owner and Manager of store2
      */
     protected void setUpUser2(){
+        if(user2LoggedInId != -1){
+            return;
+        }
         user2LoggedInId = setUser("User2","User2!", MEMBER, LOGGED);
         user5ManagerOwnerOfStore2ToBeRemoved = setUser("User5", "User5!", MEMBER, NOT_LOGGED);
         user6ManagerOwnerOfStore2 = setUser("User6", "User6!", MEMBER, LOGGED);
         store2Id = createStore(user2LoggedInId, "Store2"); //store is open
         store2ClosedId = createStore(user2LoggedInId, "Store22"); //store is close
+        closeStore(user2LoggedInId, store2ClosedId);
 
         //Make user6 and user5 manager Owner
+        defineStoreOwner(store2Id, user2LoggedInId, user6ManagerOwnerOfStore2);
         defineStoreOwner(store2Id, user2LoggedInId, user5ManagerOwnerOfStore2ToBeRemoved);
-        defineStoreOwner(store2ClosedId , user2LoggedInId, user6ManagerOwnerOfStore2);
-        defineStoreManager(store2Id, user2LoggedInId, user5ManagerOwnerOfStore2ToBeRemoved);
-        defineStoreManager(store2ClosedId , user2LoggedInId, user6ManagerOwnerOfStore2);
+        defineStoreManager(store2Id, user2LoggedInId, user6ManagerOwnerOfStore2);
+        defineStoreManager(store2Id , user2LoggedInId, user5ManagerOwnerOfStore2ToBeRemoved);
 
         //add items
         item1Id = addItemToStoreForTests(store2Id, "item1", 10, "Books", 10);
@@ -85,6 +89,8 @@ public abstract class ProjectTest {
      * User3: Member, Not logged in, Has a cart with items
      */
     protected void setUpUser3() {
+        if(user3NotLoggedInId != -1)
+            return;
         user3NotLoggedInId = setUser("User3","User3!", MEMBER, NOT_LOGGED);
     }
 
@@ -125,6 +131,17 @@ public abstract class ProjectTest {
         setUpUser3();
         setUpUser4();
         addItemsToUserForTests(user1GuestId, store2Id, item1Id);
+    }
+
+
+    protected void setUpBuyUser4() {
+        if(user2LoggedInId == -1)
+            setUpUser2();
+        if(user4LoggedInId == -1)
+            setUpUser4();
+
+        addItemsToUserForTests(user4LoggedInId, store2Id, item2Id);
+        buyCart(user4LoggedInId, "paypal");
     }
 
 
@@ -175,8 +192,8 @@ public abstract class ProjectTest {
         return this.bridge.getCart(userId);
     }
 
-    protected boolean buyCart(int userId, String paymentDetails) {
-        return this.bridge.buyCart(userId, paymentDetails);
+    protected boolean buyCart(int userId, String deliveryAddress) {
+        return this.bridge.buyCart(userId, deliveryAddress);
     }
 
     protected int addCatalogItem(int storeId, String itemName, int price, String category) {
@@ -192,15 +209,11 @@ public abstract class ProjectTest {
 
     protected boolean changeItemName(int storeId, int itemId, String newName) {
         String res = this.bridge.changeItemName(storeId, itemId, newName);
-        return res.contains("Changed Item");
+        return res.contains("Changed item");
     }
 
     protected List<UserStaffInfoService> showStaffInfo(int storeId, int userId) {
         return this.bridge.showStaffInfo(storeId, userId);
-    }
-
-    protected HashMap<Integer,List<ReceiptService>> getSellingHistory(int storeId, int userId) {
-        return this.bridge.getSellingHistoryOfStoreForManager(storeId, userId);
     }
 
     protected boolean logOut(String userName, String password) {
@@ -223,9 +236,10 @@ public abstract class ProjectTest {
         return this.bridge.defineStoreOwner(storeId, ownerId, newCoOwnerId);
     }
 
-    protected HashMap<Integer,List<ReceiptService>> getSellingHistoryOfStore(int userId, int storeId) {
+    protected List<ReceiptService> getSellingHistoryOfStore(int userId, int storeId) {
         return this.bridge.getSellingHistoryOfStoreForManager(storeId, userId);
     }
+
 
     protected HashMap<Integer, List<ReceiptService>> getSellingHistoryOfUser(int managerId, int userId) {
         return this.bridge.getSellingHistoryOfUserForManager(managerId, userId);
@@ -236,7 +250,7 @@ public abstract class ProjectTest {
     }
 
 
-    protected HashMap<Integer, List<ReceiptService>> getPersonalHistory(int userId) {
+    protected List<ReceiptService> getPersonalHistory(int userId) {
         return this.bridge.getPersonalHistory(userId);
     }
 

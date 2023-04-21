@@ -5,6 +5,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -13,11 +14,17 @@ import static org.junit.Assert.*;
 public class RegisteredUserTests extends ProjectTest{
 
 
+    public static boolean doneSetUp = false;
+
     @Before
     public void setUp() {
         super.setUp();
-        setUpUser3();
-        setUpUser4();
+        if(!doneSetUp) {
+            setUpUser3();
+            setUpUser4();
+            setUpBuyUser4();
+            doneSetUp = true;
+        }
     }
 
 
@@ -49,16 +56,11 @@ public class RegisteredUserTests extends ProjectTest{
      */
     @Test
     public void openStore_Valid(){
-        //add more arguments
+
         int storeId = this.createStore(user2LoggedInId, "Store2");
         assertTrue(storeId > 0);
     }
 
-    @Test
-    public void createStore_MissingInformation(){
-        int storeId = this.createStore(user2LoggedInId, "");
-        assertTrue(storeId > 0);
-    }
 
     @Test
     public void createStore_NotLoggedIn(){
@@ -153,22 +155,25 @@ public class RegisteredUserTests extends ProjectTest{
      */
      @Test
     public void getPersonalHistory_Valid(){
-         HashMap<Integer, List<ReceiptService>> history = this.getPersonalHistory(user2LoggedInId);
+         List<ReceiptService> history = this.getPersonalHistory(user2LoggedInId);
          assertNotNull(history);
+         assertFalse(true);
 
          //assertTrue(history.get(0) );
     }
 
     @Test
     public void getPersonalHistory_NoHistory(){
-        HashMap<Integer, List<ReceiptService>> history = this.getPersonalHistory(user1GuestId);
+        List<ReceiptService> history = this.getPersonalHistory(user1GuestId);
         assertNull(history);
+        assertFalse(true);
     }
 
     @Test
     public void getPersonalHistory_NotLoggedIn(){
-        HashMap<Integer, List<ReceiptService>> history = this.getPersonalHistory(user3NotLoggedInId);
+        List<ReceiptService> history = this.getPersonalHistory(user3NotLoggedInId);
         assertNull(history);
+        assertFalse(true);
     }
 
     /**

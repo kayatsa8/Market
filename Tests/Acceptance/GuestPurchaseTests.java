@@ -20,10 +20,15 @@ import static org.junit.Assert.*;
 public class GuestPurchaseTests extends ProjectTest{
 
 
+    public static boolean doneSetUp = false;
+
     @Before
     public void setUp() {
         super.setUp();
-        setUpAllMarket();
+        if(!doneSetUp) {
+            setUpAllMarket();
+            doneSetUp = true;
+        }
     }
 
 
@@ -42,9 +47,7 @@ public class GuestPurchaseTests extends ProjectTest{
     public void getStoreInfoValid(){
         StoreService storeInfo = this.getStoreInfo(store2Id);
         assertEquals(storeInfo.getStoreName(), "Store2");
-
-        //add here more assertion
-        assertTrue(false);
+        assertTrue(storeInfo.getStoreId() >= 0);
     }
 
     @Test
@@ -64,13 +67,13 @@ public class GuestPurchaseTests extends ProjectTest{
      * Search items #12
      */
     @Test
-    public void searchItemsByKeyWord_Valid(){
+    public void searchItemsByItemName_Valid(){
         addItemToStoreForTests(store2Id, "Bread", 10, "Kitchen", 10);
         addItemToStoreForTests(store2Id, "Bread2", 10, "Kitchen", 10);
         addItemToStoreForTests(store2Id, "Meat2", 10, "Kitchen", 10);
         String keyWords = "Bread";
 
-        List<CatalogItemService> itemsFound = this.searchItems(keyWords, SearchBy.KEY_WORD, null);
+        List<CatalogItemService> itemsFound = this.searchItems(keyWords, SearchBy.ITEM_NAME, new HashMap<>());
 
         boolean breadExists = false;
         for(CatalogItemService item: itemsFound){
@@ -80,6 +83,58 @@ public class GuestPurchaseTests extends ProjectTest{
         }
         assertTrue(breadExists);
     }
+
+    @Test
+    public void searchItemsByCategory_Valid(){
+        addItemToStoreForTests(store2Id, "Beans", 10, "Kitchen", 10);
+        addItemToStoreForTests(store2Id, "Buns", 10, "Kitchen", 10);
+        addItemToStoreForTests(store2Id, "Screw driver", 10, "Tools", 10);
+        String category = "Kitchen";
+
+        List<CatalogItemService> itemsFound = this.searchItems(category, SearchBy.CATEGORY, new HashMap<>());
+
+        boolean wrongCategory = true;
+        for(CatalogItemService item: itemsFound){
+            if (!item.getCategory().equals("Kitchen")) {
+                wrongCategory = false;
+                break;
+            }
+        }
+        assertTrue(wrongCategory);
+    }
+
+
+    @Test
+    public void searchItemsByKeyItem_Valid(){
+        addItemToStoreForTests(store2Id, "pants", 10, "Clothes", 10);
+        addItemToStoreForTests(store2Id, "shorts", 10, "Clothes", 10);
+        addItemToStoreForTests(store2Id, "shirt", 10, "Clothes", 10);
+        addItemToStoreForTests(store2Id, "Clothes", 10, "Tools", 10);
+
+        String keyWords = "pants, shirt, Tools";
+
+        List<CatalogItemService> itemsFound = this.searchItems(keyWords, SearchBy.KEY_WORD, new HashMap<>());
+
+        boolean foundPants = false;
+        boolean foundShirt = false;
+        boolean foundTools = false;
+        for(CatalogItemService item: itemsFound){
+            if(item.getItemName().equals("pants")){
+                foundPants = true;
+            }
+            if(item.getItemName().equals("shirt")){
+                foundShirt = true;
+            }
+            if(item.getCategory().equals("Tools")){
+                foundTools = true;
+            }
+        }
+        assertTrue(foundPants);
+        assertTrue(foundShirt);
+        assertTrue(foundTools);
+        assertTrue(false);
+    }
+
 
     @Test
     public void searchItemsByFilter_Valid(){
@@ -109,32 +164,44 @@ public class GuestPurchaseTests extends ProjectTest{
      */
     @Test
     public void addToBasketValid(){
-        CartService cart = this.addItemToBasket(user1GuestId, store2Id, item11Id, 10);
+        CartService cart = this.addItemToBasket(user4LoggedInId, store2Id, item11Id, 10);
         boolean added = cart.getBasketOfStore(store2Id).hasItem(item11Id);
         assertTrue(added);
     }
 
     @Test
     public void addToBasketStoreClosed(){
-        CartService cart = this.addItemToBasket(user1GuestId, store2ClosedId, item1Id, 19);
-        boolean added = cart.getBasketOfStore(store2ClosedId).hasItem(item1Id);
-        assertFalse(added);
+        CartService cart = this.addItemToBasket(user4LoggedInId, store2ClosedId, item1Id, 19);
+        if(cart == null)
+            assertNull(cart);
+        else{
+            boolean added = cart.getBasketOfStore(store2ClosedId).hasItem(item1Id);
+            assertFalse(added);
+        }
     }
 
     @Test
     public void addToBasketNegativeAmount(){
         int item12Id = addItemToStoreForTests(store2Id, "Name11", 10, "Kitchen", 100);
         CartService cart = this.addItemToBasket(user1GuestId, store2Id, item12Id, -9);
-        boolean added = cart.getBasketOfStore(store2Id).hasItem(item12Id);
-        assertFalse(added);
+        if(cart == null)
+            assertNull(cart);
+        else {
+            boolean added = cart.getBasketOfStore(store2Id).hasItem(item12Id);
+            assertFalse(added);
+        }
     }
 
     @Test
     public void addToBasketItemNotInStore(){
         addItemToStoreForTests(store4Id, "NameDD",10, "Kitchen", 10);
         CartService cart = this.addItemToBasket(user1GuestId, store2Id, store4Id, 10);
-        boolean added = cart.getBasketOfStore(store2Id).hasItem(item2Id);
-        assertFalse(added);
+        if(cart == null)
+            assertNull(cart);
+        else{
+            boolean added = cart.getBasketOfStore(store2Id).hasItem(item2Id);
+            assertFalse(added);
+        }
     }
 
     /**

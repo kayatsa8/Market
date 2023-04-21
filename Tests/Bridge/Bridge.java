@@ -151,7 +151,7 @@ public interface Bridge {
      * @param userId
      * @return list of receipts if user is store manager/owner
      */
-    HashMap<Integer, List<ReceiptService>> getSellingHistoryOfStoreForManager(int storeId, int userId);
+    List<ReceiptService> getSellingHistoryOfStoreForManager(int storeId, int userId);
 
     /**
      * gets the store information the store manager asked for and checks if her has access
@@ -394,7 +394,7 @@ public interface Bridge {
      * @param userId
      * @return Map of store Id to Receipt
      */
-    HashMap<Integer, List<ReceiptService>> getPersonalHistory(int userId);
+    List<ReceiptService> getPersonalHistory(int userId);
 
     /**
      * gets username and password

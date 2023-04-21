@@ -134,7 +134,7 @@ public class RealBridge implements Bridge{
         if(result.isError()){
             System.out.println(result.getMessage());
         }
-        return result.getValue();
+        return result.getMessage();
     }
 
     @Override
@@ -145,10 +145,13 @@ public class RealBridge implements Bridge{
     }
 
     @Override
-    public HashMap<Integer, List<ReceiptService>> getSellingHistoryOfStoreForManager(int storeId, int userId) {
-        //return this.facade.getSellingHistory(storeId, userId);
-        /** */
-        return null;
+    public List<ReceiptService> getSellingHistoryOfStoreForManager(int storeId, int userId) {
+        Result<List<ReceiptService>> result = shoppingService.getSellingHistoryOfStoreForManager(storeId, userId);
+        if(result.isError()){
+            System.out.println(result.getMessage());
+            return null;
+        }
+        return result.getValue();
     }
 
     @Override
@@ -194,8 +197,7 @@ public class RealBridge implements Bridge{
 
     @Override
     public void addItemAmount(int storeId, int itemId, int amount) {
-        //this.facade.addItemAmount(storeId, itemId, amount);
-        /** */
+        shoppingService.addItemAmount(storeId, itemId, amount);
     }
 
     @Override
@@ -220,7 +222,7 @@ public class RealBridge implements Bridge{
     }
 
     @Override
-    public HashMap<Integer, List<ReceiptService>> getPersonalHistory(int userId) {
+    public List<ReceiptService> getPersonalHistory(int userId) {
         //return this.facade.getPersonalHistory(userId);
         /** */
         return null;

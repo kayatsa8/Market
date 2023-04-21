@@ -2,6 +2,7 @@ package ServiceLayer;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Message;
+import BusinessLayer.Receipts.Receipt.Receipt;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -220,6 +221,13 @@ public class ShoppingService {
             return new Result<>(true, e.getMessage());
         }
     }
+
+
+    public void addItemAmount(int storeId, int itemId, int amount){
+        market.addItemAmount(storeId, itemId, amount);
+    }
+
+
     public Result<String> removeItemFromStore(int storeID, int itemID)
     {
         try {
@@ -412,4 +420,22 @@ public class ShoppingService {
         }
     }
 
+    public Result<List<ReceiptService>> getSellingHistoryOfStoreForManager(int storeId, int userId) {
+
+        try {
+            List<Receipt> result = market.getSellingHistoryOfStoreForManager(storeId, userId);
+            return new Result<>(false, receiptsToReceiptsService(result));
+        } catch (Exception e) {
+            return new Result<>(true, null);
+        }
+
+    }
+
+    private List<ReceiptService> receiptsToReceiptsService(List<Receipt> receipts) {
+        List<ReceiptService> result = new ArrayList<>();
+        for(Receipt receipt: receipts){
+            result.add(new ReceiptService(receipt));
+        }
+        return result;
+    }
 }

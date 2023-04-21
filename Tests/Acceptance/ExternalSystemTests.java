@@ -13,10 +13,15 @@ import static org.junit.Assert.*;
 
 public class ExternalSystemTests extends ProjectTest{
 
+    public static boolean doneSetUp = false;
+
     @Before
     public void setUp() {
         super.setUp();
-        //setUpAllMarket();
+        if(!doneSetUp) {
+            //setUpAllMarket();
+            doneSetUp = true;
+        }
     }
 
 
