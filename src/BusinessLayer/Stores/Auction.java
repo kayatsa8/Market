@@ -89,4 +89,8 @@ public class Auction {
     {
         return currentPrice;
     }
+
+    public Integer getAuctionID() {
+        return auctionID;
+    }
 }

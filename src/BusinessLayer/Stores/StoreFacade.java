@@ -1,27 +1,23 @@
 package BusinessLayer.Stores;
 
-import BusinessLayer.Stores.Policies.Discounts.Conditional;
-import BusinessLayer.Stores.Policies.Discounts.Discount;
-import BusinessLayer.Stores.Policies.Discounts.Hidden;
-import BusinessLayer.Stores.Policies.Discounts.Visible;
+import BusinessLayer.NotificationSystem.Message;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
 
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static Globals.SearchFilter.STORE_RATING;
 
 public class StoreFacade {
     private Map<Integer, Store> stores;
+    private Set<String> categoryPool;
     private int storesIDs;
     private int itemsIDs;
 
     public StoreFacade() {
         this.stores = new HashMap<>();
+        this.categoryPool = new HashSet<>();
         this.storesIDs = 0;
         this.itemsIDs = 0;
     }
@@ -44,9 +40,10 @@ public class StoreFacade {
     {
         return getStore(storeID).getItem(itemID);
     }
-    public void addCatalogItem(int storeID, String itemName, double itemPrice, Category itemCategory)
+    public CatalogItem addCatalogItem(int storeID, String itemName, double itemPrice, String itemCategory)
     {
-        getStore(storeID).addCatalogItem(itemsIDs++, itemName, itemPrice, itemCategory);
+        categoryPool.add(itemCategory);
+        return getStore(storeID).addCatalogItem(itemsIDs++, itemName, itemPrice, itemCategory);
     }
     public int getItemAmount(int storeID, int itemID)
     {
@@ -88,17 +85,23 @@ public class StoreFacade {
     {
         return getStore(storeID).counterOffer(bidID, replierUserID, counterOffer);
     }
-    public boolean openStore(int storeID) throws Exception
+    public boolean reopenStore(int userID, int storeID) throws Exception
     {
-        return getStore(storeID).openStore();
+        if (isStoreExists(storeID))
+            return getStore(storeID).reopenStore(userID);
+        throw new Exception("Store ID " + storeID + " does not exist");
     }
-    public boolean closeStore(int storeID) throws Exception
+    public boolean closeStore(int userID, int storeID) throws Exception
     {
-        return getStore(storeID).closeStore();
+        if (isStoreExists(storeID))
+            return getStore(storeID).closeStore(userID);
+        throw new Exception("Store ID " + storeID + " does not exist");
     }
     public boolean closeStorePermanently(int storeID) throws Exception
     {
-        return getStore(storeID).closeStorePermanently();
+        if (isStoreExists(storeID))
+            return getStore(storeID).closeStorePermanently();
+        throw new Exception("Store ID " + storeID + " does not exist");
     }
     public void addVisibleDiscount(int storeID, int itemID, double percent, Calendar endOfSale)
     {
@@ -136,4 +139,70 @@ public class StoreFacade {
         }
         return res;
     }
+
+    public void removeItemFromStore(int storeID, int itemID) throws Exception
+    {
+        getStore(storeID).removeItemFromStore(itemID);
+    }
+
+    public String updateItemName(int storeID, int itemID, String newName) throws Exception
+    {
+        return getStore(storeID).updateItemName(itemID, newName);
+    }
+
+    public Boolean checkIfStoreOwner(int userID, int storeID) throws Exception
+    {
+        if (isStoreExists(storeID))
+        {
+            return getStore(storeID).checkIfStoreOwner(userID);
+        }
+        throw new Exception("Store ID " + storeID + " does not exist");
+    }
+
+    public boolean isStoreExists(int storeID)
+    {
+        return stores.containsKey(storeID);
+    }
+
+    public Boolean checkIfStoreManager(int userID, int storeID) throws Exception
+    {
+        if (isStoreExists(storeID))
+        {
+            return getStore(storeID).checkIfStoreManager(userID);
+        }
+        throw new Exception("Store ID " + storeID + " does not exist");
+    }
+
+    public void sendMessage(int storeID, int receiverID, String title, String content){
+        stores.get(storeID).sendMessage(receiverID, title, content);
+    }
+
+    public void markMessageAsRead(int storeID, Message message) throws Exception {
+        stores.get(storeID).markMessageAsRead(message);
+    }
+
+    public void markMessageAsNotRead(int storeID, Message message) throws Exception {
+        stores.get(storeID).markMessageAsNotRead(message);
+    }
+
+    public List<Message> watchNotReadMessages(int storeID){
+        return stores.get(storeID).watchNotReadMessages();
+    }
+
+    public List<Message> watchReadMessages(int storeID){
+        return stores.get(storeID).watchReadMessages();
+    }
+
+    public List<Message> watchSentMessages(int storeID){
+        return stores.get(storeID).watchSentMessages();
+    }
+
+    public void setMailboxAsUnavailable(int storeID){
+        stores.get(storeID).setMailboxAsUnavailable();
+    }
+
+    public void setMailboxAsAvailable(int storeID){
+        stores.get(storeID).setMailboxAsAvailable();
+    }
+
 }

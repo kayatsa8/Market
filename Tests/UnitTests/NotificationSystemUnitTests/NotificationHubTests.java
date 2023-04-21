@@ -21,10 +21,9 @@ public class NotificationHubTests {
         RegisteredUser user = new RegisteredUser("user1", "123456", 1111);
 
         try{
-            UserMailbox mailbox = hub.registerToMailService(user);
-            assertNotNull(mailbox);
+            assertNotNull(user.getMailbox());
             hub.removeFromService(1111);
-            assertFalse("The user is still registered", hub.isRegistered(1111));
+            assertFalse("The user is still registered", hub.isRegistered(user.getId()));
         }
         catch(Exception e){
             fail(e.getMessage());
@@ -39,8 +38,7 @@ public class NotificationHubTests {
         try{
             RegisteredUser user = new RegisteredUser("user1", "123456", 1111);
             Store store = new Store(456, 1111, "store1");
-            Mailbox temp = hub.registerToMailService(user);
-            StoreMailbox mailbox = hub.registerToMailService(store);
+            StoreMailbox mailbox = store.getMailBox();
 
             assertNotNull(mailbox);
 
@@ -61,9 +59,9 @@ public class NotificationHubTests {
         RegisteredUser user2 = new RegisteredUser("user2", "123456789", 2222);
         RegisteredUser user3 = new RegisteredUser("user3", "123456789", 3333);
 
-        Mailbox mailbox1 = hub.registerToMailService(user1);
-        Mailbox mailbox2 = hub.registerToMailService(user2);
-        Mailbox mailbox3 = hub.registerToMailService(user3);
+        Mailbox mailbox1 = user1.getMailbox();
+        Mailbox mailbox2 = user2.getMailbox();
+        Mailbox mailbox3 = user3.getMailbox();
 
         Message message1 = new Message(user1.getId(), user2.getId(), "title1", "message1");
 
@@ -75,9 +73,9 @@ public class NotificationHubTests {
         // Bad case
         assertFalse("The message was sent to different mailbox!", mailbox3.watchNotReadMessages().contains(message1));
 
-        hub.removeFromService(1111);
-        hub.removeFromService(2222);
-        hub.removeFromService(3333);
+        hub.removeFromService(user1.getId());
+        hub.removeFromService(user2.getId());
+        hub.removeFromService(user3.getId());
     }
 
 

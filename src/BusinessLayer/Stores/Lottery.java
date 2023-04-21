@@ -103,4 +103,8 @@ public class Lottery {
     {
         return lotteryFinished;
     }
+
+    public Integer getLotteryID() {
+        return lotteryID;
+    }
 }

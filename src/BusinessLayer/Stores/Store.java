@@ -2,11 +2,11 @@ package BusinessLayer.Stores;
 
 import java.util.*;
 
+import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Log;
-import BusinessLayer.NotificationSystem.Mailbox;
+import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.NotificationSystem.StoreMailbox;
-import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.Receipts.ReceiptHandler;
 import BusinessLayer.Stores.Policies.Discounts.Conditional;
 import BusinessLayer.Stores.Policies.Discounts.Discount;
@@ -17,7 +17,6 @@ import Globals.SearchBy;
 import Globals.SearchFilter;
 
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static BusinessLayer.Stores.StoreStatus.*;
 
@@ -70,6 +69,9 @@ public class Store {
         return discounts.get(discountID);
     }
     public ReceiptHandler getReceiptHandler() { return receiptHandler; }
+    public int getFounderID() {
+        return founderID;
+    }
 
     public Store(int storeID, int founderID, String name)
     {
@@ -98,10 +100,6 @@ public class Store {
         log.info("Store " + storeID + " created with name: " + storeName);
     }
 
-    public int getFounderID() {
-        return founderID;
-    }
-
     public Map<CatalogItem, Boolean> getCatalog() {
         Map<CatalogItem, Boolean> res = new HashMap<>();
         CatalogItem valueFromA;
@@ -110,7 +108,7 @@ public class Store {
             valueFromA = entry.getValue();
             valueFromB = itemsAmounts.get(entry.getKey())>0;
 
-            // Put the value from map a as the key and the value from map b as the value in map c
+            // Put the value from map A as the key and the value from map B as the value in map res
             res.put(valueFromA, valueFromB);
         }
         return res;
@@ -138,7 +136,7 @@ public class Store {
     }
 
     private boolean sameCategory(CatalogItem item, String keywords) {
-        return item.getCategory() == Category.valueOf(keywords);
+        return item.getCategory() == keywords;
     }
 
     private boolean sameName(CatalogItem item, String keywords) {
@@ -187,12 +185,13 @@ public class Store {
     public StoreStatus getStoreStatus() {
         return storeStatus;
     }
-    public void addCatalogItem(int itemID, String itemName, double itemPrice, Category itemCategory) {
+    public CatalogItem addCatalogItem(int itemID, String itemName, double itemPrice, String itemCategory) {
         CatalogItem newItem = new CatalogItem(itemID, itemName, itemPrice, itemCategory);
         itemsAmounts.put(itemID, 0);
         items.put(itemID, newItem);
         savedItemsAmounts.put(itemID, 0);
         log.info("Added new item: " + itemName + ", at store " + storeID);
+        return newItem;
     }
     public void buyBasket(List<CartItemInfo> basketItems, int userID)
     {
@@ -210,37 +209,45 @@ public class Store {
         storeMailBox.sendMessageToList(storeOwners, "New purchase", "User " + userID + " made a purchase in store " + storeName + " where you are one of the owners");
         log.info("A basket was bought at store " + storeID);
     }
-    public boolean saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems)
+    public boolean saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems) throws Exception
     {
-        boolean success = true;
+        if (checkIfItemsInStock(basketItems))
+        {
+            int itemID;
+            int itemAmountToSave;
+            double itemDiscountPercent;
+            for (CartItemInfo cartItemInfo : basketItems)
+            {
+                itemID = cartItemInfo.getItemID();
+                itemAmountToSave = cartItemInfo.getAmount();
+                saveItemAmount(itemID, itemAmountToSave);
+                itemDiscountPercent = getItemDiscountsPercent(itemID);
+                cartItemInfo.setPercent(itemDiscountPercent);
+            }
+            log.info("Items was saved for upcoming purchase at store " + storeID);
+            return true;
+        }
+        else {
+            log.warning("Items wasn't saved for upcoming purchase at store " + storeID + " due to lack of items");
+            throw new Exception("Not enough items in stock");
+        }
+    }
+    private boolean checkIfItemsInStock(List<CartItemInfo> basketItems)
+    {
+        int itemID;
         int itemAmountToSave;
         int itemCurrentAmount;
         for (CartItemInfo cartItemInfo : basketItems)
         {
-            int itemID = cartItemInfo.getItemID();
+            itemID = cartItemInfo.getItemID();
             itemAmountToSave = cartItemInfo.getAmount();
             itemCurrentAmount = itemsAmounts.get(itemID);
             if (itemCurrentAmount < itemAmountToSave)
             {
-                success = false;
-                break;
+                return false;
             }
         }
-        if (success)
-        {
-            for (CartItemInfo cartItemInfo : basketItems)
-            {
-                int itemID = cartItemInfo.getItemID();
-                itemAmountToSave = cartItemInfo.getAmount();
-                saveItemAmount(itemID, itemAmountToSave);
-                double itemDiscountPercent = getItemDiscountsPercent(itemID);
-                cartItemInfo.setPercent(itemDiscountPercent);
-            }
-            log.info("Items was saved for upcoming purchase at store " + storeID);
-        }
-        else
-            log.warning("Items wasn't saved for upcoming purchase at store " + storeID + " due to lack of items");
-        return success;
+        return true;
     }
     private double getItemDiscountsPercent(int itemID) //return: [0,1]
     {
@@ -258,11 +265,45 @@ public class Store {
     {
         int itemAmountToSave = amountToSave;
         int itemCurrentAmount = itemsAmounts.get(itemID);
-        if (itemCurrentAmount >= itemAmountToSave)
+        int itemCurrentSavedAmount = savedItemsAmounts.get(itemID);
+        if ((itemCurrentAmount - itemAmountToSave >= 0) && (itemCurrentSavedAmount + itemAmountToSave >= 0))
         {
             itemsAmounts.put(itemID, itemCurrentAmount - itemAmountToSave);
-            savedItemsAmounts.put(itemID, itemAmountToSave);
+            savedItemsAmounts.put(itemID, itemCurrentSavedAmount + itemAmountToSave);
         }
+    }
+
+    public void reverseSavedItems(List<CartItemInfo> basketItems) throws Exception
+    {
+        boolean success = checkIfItemsSaved(basketItems);
+        if (success)
+        {
+            for (CartItemInfo cartItemInfo : basketItems)
+            {
+                saveItemAmount(cartItemInfo.getItemID(), - cartItemInfo.getAmount());
+            }
+        }
+        else
+        {
+            throw new Exception("Somehow the amounts of items to unsave exceed the amounts saved before");
+        }
+    }
+    private boolean checkIfItemsSaved(List<CartItemInfo> basketItems)
+    {
+        int itemID;
+        int itemAmountToRemoveFromSaved;
+        int itemCurrentSavedAmount;
+        for (CartItemInfo cartItemInfo : basketItems)
+        {
+            itemID = cartItemInfo.getItemID();
+            itemAmountToRemoveFromSaved = cartItemInfo.getAmount();
+            itemCurrentSavedAmount = savedItemsAmounts.get(itemID);
+            if (itemCurrentSavedAmount < itemAmountToRemoveFromSaved)
+            {
+                return false;
+            }
+        }
+        return true;
     }
     public void addBid(int itemID, int userID, double offeredPrice)
     {
@@ -325,7 +366,7 @@ public class Store {
         }
         else
         {
-            storeMailBox.sendMessage(userID, "Bid countered", "Hi, your bid for the item: " + items.get(itemID).getItemName() + ", was counterd by the store with counter-offer of: " + bid.getHighestCounterOffer() + " while the original price is: " + items.get(itemID).getPrice());
+            storeMailBox.sendMessage(userID, "Bid countered", "Hi, your bid for the item: " + items.get(itemID).getItemName() + ", was countered by the store with counter-offer of: " + bid.getHighestCounterOffer() + " while the original price is: " + items.get(itemID).getPrice());
             log.info("Bid " + bidID + " was counter-offered with price of " + bid.getHighestCounterOffer());
         }
     }
@@ -456,10 +497,12 @@ public class Store {
         return false;
     }
 
-    public boolean openStore() throws Exception
+    public boolean reopenStore(int userID) throws Exception
     {
+        if (!storeOwners.contains(userID))
+            throw new Exception("User is not allowed to open store");
         if (storeStatus == OPEN) {
-            throw new Exception("Store is already open");
+            return false;
         } else if (storeStatus == PERMANENTLY_CLOSE) {
             throw new Exception("Store is permanently closed and cannot be opened");
         } else {
@@ -468,15 +511,18 @@ public class Store {
             storeOwnersAndManagers.addAll(storeOwners);
             storeOwnersAndManagers.addAll(storeManagers);
             storeMailBox.sendMessageToList(storeOwnersAndManagers, "Store opened", "Store " + storeName + " has opened");
+            storeMailBox.setMailboxAsAvailable();
             log.info("Store " + storeID + " opened");
             return true;
         }
     }
 
-    public boolean closeStore() throws Exception
+    public boolean closeStore(int userID) throws Exception
     {
+        if (!storeOwners.contains(userID))
+            throw new Exception("User is not allowed to close store");
         if (storeStatus == CLOSE) {
-            throw new Exception("Store is already close");
+            return false;
         } else if (storeStatus == PERMANENTLY_CLOSE) {
             throw new Exception("Store is permanently close and cannot change its status to close");
         } else {
@@ -485,6 +531,7 @@ public class Store {
             storeOwnersAndManagers.addAll(storeOwners);
             storeOwnersAndManagers.addAll(storeManagers);
             storeMailBox.sendMessageToList(storeOwnersAndManagers, "Store closed", "Store " + storeName + " has closed");
+            storeMailBox.setMailboxAsUnavailable();
             log.info("Store " + storeID + " closed");
             return true;
         }
@@ -500,6 +547,7 @@ public class Store {
             storeOwnersAndManagers.addAll(storeOwners);
             storeOwnersAndManagers.addAll(storeManagers);
             storeMailBox.sendMessageToList(storeOwnersAndManagers, "Store closed permanently", "Store " + storeName + " has closed permanently");
+            storeMailBox.setMailboxAsUnavailable();
             log.info("Store " + storeID + " is permanently closed");
             return true;
         }
@@ -521,5 +569,125 @@ public class Store {
     //Integer instead of int so that it removes by object not index
     public void removeOwner(Integer id) {
         this.storeOwners.remove(id);
+    }
+
+    public void removeItemFromStore(int itemID) throws Exception
+    {
+        if (savedItemsAmounts.get(itemID) > 0)
+            throw new Exception("Someone is in the middle of a purchase with this item, please try again in a few seconds");
+        else
+            savedItemsAmounts.remove(itemID);
+        if (haveActiveNonEmptyLottery(itemID))
+            throw new Exception("Someone participates in a lottery for this item, please try again when the lottery ends");
+        else
+            removeItemLotteries(itemID);
+        if (haveActiveNonEmptyAuction(itemID))
+            throw new Exception("Someone participates in an auction for this item, please try again when the auction ends");
+        else
+            removeItemAuctions(itemID);
+        removeItem(itemID);
+    }
+
+    private void removeItemAuctions(int itemID)
+    {
+        List<Integer> auctionsIDsToRemove = new ArrayList<>();
+        for (Auction auction : auctions.values()) {
+            if (auction.getItemID() == itemID)
+                auctionsIDsToRemove.add(auction.getAuctionID());
+        }
+        for (Integer auctionID : auctionsIDsToRemove) {
+            auctions.remove(auctionID);
+        }
+    }
+
+    private void removeItemLotteries(int itemID)
+    {
+        List<Integer> lotteriesIDsToRemove = new ArrayList<>();
+        for (Lottery lottery : lotteries.values()) {
+            if (lottery.getItemID() == itemID)
+                lotteriesIDsToRemove.add(lottery.getLotteryID());
+        }
+        for (Integer lotteryID : lotteriesIDsToRemove) {
+            lotteries.remove(lotteryID);
+        }
+    }
+
+    private boolean haveActiveNonEmptyAuction(int itemID)
+    {
+        for (Auction auction : auctions.values()) {
+            if (auction.getItemID() == itemID && auction.getCurrentWinningUserID() != -1)
+                return true;
+        }
+        return false;
+    }
+
+    private boolean haveActiveNonEmptyLottery(int itemID)
+    {
+        for (Lottery lottery : lotteries.values()) {
+            if (lottery.getItemID() == itemID && !lottery.getParticipants().isEmpty())
+                return true;
+        }
+        return false;
+    }
+
+    private void removeItem(int itemID)
+    {
+        itemsAmounts.remove(itemID);
+        items.remove(itemID);
+    }
+
+    public String updateItemName(int itemID, String newName) throws Exception
+    {
+        if (items.keySet().contains(itemID))
+        {
+            return getItem(itemID).setName(newName);
+        }
+        throw new Exception("Item with ID " + itemID + " is not exist in store " + storeName);
+    }
+
+    public Boolean checkIfStoreOwner(int userID)
+    {
+        return storeOwners.contains(userID);
+    }
+
+    public Boolean checkIfStoreManager(int userID)
+    {
+        return storeManagers.contains(userID);
+    }
+
+    public StoreMailbox getMailBox(){
+        return storeMailBox;
+    }
+
+    public void sendMessage(int receiverID, String title, String content){
+        storeMailBox.sendMessage(receiverID, title, content);
+    }
+
+    public void markMessageAsRead(Message message) throws Exception {
+        storeMailBox.markMessageAsRead(message);
+    }
+
+    public void markMessageAsNotRead(Message message) throws Exception {
+        storeMailBox.markMessageAsNotRead(message);
+    }
+
+    public List<Message> watchNotReadMessages(){
+        return storeMailBox.watchNotReadMessages();
+    }
+
+    public List<Message> watchReadMessages(){
+        return storeMailBox.watchReadMessages();
+    }
+
+    public List<Message> watchSentMessages(){
+        return storeMailBox.watchSentMessages();
+    }
+
+    public void setMailboxAsUnavailable(){
+        storeMailBox.setMailboxAsUnavailable();
+    }
+
+    public void setMailboxAsAvailable(){
+        storeMailBox.setMailboxAsAvailable();
     }
 }

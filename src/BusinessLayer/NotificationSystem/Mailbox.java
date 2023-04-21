@@ -1,13 +1,18 @@
 package BusinessLayer.NotificationSystem;
 
+import BusinessLayer.Log;
+import BusinessLayer.NotificationSystem.Repositories.NotReadMessagesRepository;
+import BusinessLayer.NotificationSystem.Repositories.ReadMessagesRepository;
+import BusinessLayer.NotificationSystem.Repositories.SentMessagesRepository;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Mailbox {
     protected int ownerID;
-    protected List<Message> notReadMessages;
-    protected List<Message> readMessages;
-    protected List<Message> sentMessages;
+    protected NotReadMessagesRepository notReadMessages;
+    protected ReadMessagesRepository readMessages;
+    protected SentMessagesRepository sentMessages;
 
     public void sendMessage(int receiverID, String title, String content){
         Message message = new Message(ownerID, receiverID, title, content);
@@ -19,6 +24,7 @@ public abstract class Mailbox {
             System.out.println(e.getMessage());
             e.printStackTrace();
             // LOG: ERROR: Mailbox::sendMessage:e.getMessage()
+            Log.log.severe("ERROR: Mailbox::sendMessage: " + e.getMessage());
             return;
         }
 
@@ -27,13 +33,14 @@ public abstract class Mailbox {
 
     public void receiveMessage(Message message) throws Exception{
         if(message == null){
-            // LOG: ERROR: Mailbox::receiveMessage: the given message is null
+            Log.log.warning("ERROR: Mailbox::receiveMessage: the given message is null");
             throw new Exception("Mailbox::receiveMessage: the given message is null");
         }
 
         if(ownerID != message.getReceiverID()){
-            // LOG: ERROR: Mailbox::receiveMessage: A message for " + message.getReceiverID() +
-            //                    "was sent to " + ownerID
+            Log.log.severe("ERROR: Mailbox::receiveMessage: A message for "
+                    + message.getReceiverID()
+                    + "was sent to " + ownerID);
             throw new Exception("Mailbox::receiveMessage: A message for " + message.getReceiverID() +
                     "was sent to " + ownerID);
         }
@@ -51,7 +58,7 @@ public abstract class Mailbox {
     public void markMessageAsRead(Message message) throws Exception {
 
         if(message == null || !notReadMessages.contains(message)){
-            // LOG: ERROR: Mailbox::markMessageAsRead: given message is invalid
+            Log.log.warning("ERROR: Mailbox::markMessageAsRead: given message is invalid");
             throw new Exception("Mailbox::markMessageAsRead: given message is invalid");
         }
 
@@ -63,7 +70,7 @@ public abstract class Mailbox {
     public void markMessageAsNotRead(Message message) throws Exception {
 
         if(message == null || !readMessages.contains(message)){
-            // LOG: ERROR: Mailbox::markMessageAsNotRead: given message is invalid
+            Log.log.warning("ERROR: Mailbox::markMessageAsNotRead: given message is invalid");
             throw new Exception("Mailbox::markMessageAsNotRead: given message is invalid");
         }
 
@@ -73,15 +80,15 @@ public abstract class Mailbox {
     }
 
     public List<Message> watchNotReadMessages(){
-        return new ArrayList<>(notReadMessages);
+        return new ArrayList<>(notReadMessages.getMessages());
     }
 
     public List<Message> watchReadMessages(){
-        return new ArrayList<>(readMessages);
+        return new ArrayList<>(readMessages.getMessages());
     }
 
     public List<Message> watchSentMessages(){
-        return new ArrayList<>(sentMessages);
+        return new ArrayList<>(sentMessages.getMessages());
     }
 
 }

@@ -1,6 +1,9 @@
 package BusinessLayer.Users;
 
-import BusinessLayer.Cart;
+import BusinessLayer.CartAndBasket.Cart;
+import BusinessLayer.NotificationSystem.Message;
+import BusinessLayer.NotificationSystem.NotificationHub;
+import BusinessLayer.NotificationSystem.UserMailbox;
 import BusinessLayer.StorePermissions.StoreManager;
 import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Store;
@@ -13,6 +16,7 @@ public class RegisteredUser extends User{
     private String password;
     private int id;
     private UserDAO userDAO;
+    private UserMailbox mailbox;
 
     public Map<Integer, StoreOwner> getStoresIOwn() {
         return storesIOwn;
@@ -33,6 +37,11 @@ public class RegisteredUser extends User{
         this.storesIOwn = new HashMap<>();
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();
+        this.cart = new Cart(id);
+
+        try {
+            this.mailbox = NotificationHub.getInstance().registerToMailService(this);
+        } catch (Exception e) {}
     }
 
     public RegisteredUser(String username, String pass, int id, boolean isAdmin) {
@@ -42,9 +51,13 @@ public class RegisteredUser extends User{
         this.storesIOwn = new HashMap<>();
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();
+        this.cart = new Cart(id);
         if (isAdmin) {
             systemManager = new SystemManager(this);
         }
+        try {
+            this.mailbox = NotificationHub.getInstance().registerToMailService(this);
+        } catch (Exception e) {}
     }
 
     public int getId() {
@@ -161,6 +174,34 @@ public class RegisteredUser extends User{
     public void removeOwnership(int storeID) {
         storesIOwn.remove(storeID);
         userDAO.removeOwnership(this.getId(), storeID);
+    }
+
+    public UserMailbox getMailbox(){
+        return mailbox;
+    }
+
+    public void sendMessage(int receiverID, String title, String content){
+        mailbox.sendMessage(receiverID, title, content);
+    }
+
+    public void markMessageAsRead(Message message) throws Exception {
+        mailbox.markMessageAsRead(message);
+    }
+
+    public void markMessageAsNotRead(Message message) throws Exception {
+        mailbox.markMessageAsNotRead(message);
+    }
+
+    public List<Message> watchNotReadMessages(){
+        return mailbox.watchNotReadMessages();
+    }
+
+    public List<Message> watchReadMessages(){
+        return mailbox.watchReadMessages();
+    }
+
+    public List<Message> watchSentMessages(){
+        return mailbox.watchSentMessages();
     }
 
 }

@@ -1,6 +1,6 @@
 package ServiceLayer.Objects;
 
-import BusinessLayer.Basket;
+import BusinessLayer.CartAndBasket.Basket;
 
 public class BasketService {
 

@@ -1,5 +1,9 @@
 package BusinessLayer.NotificationSystem;
 
+import BusinessLayer.Log;
+import BusinessLayer.NotificationSystem.Repositories.NotReadMessagesRepository;
+import BusinessLayer.NotificationSystem.Repositories.ReadMessagesRepository;
+import BusinessLayer.NotificationSystem.Repositories.SentMessagesRepository;
 import BusinessLayer.Stores.Store;
 
 import java.util.ArrayList;
@@ -14,9 +18,9 @@ public class StoreMailbox extends Mailbox{
         owner = _owner;
         available = true;
         ownerID = owner.getStoreID();
-        notReadMessages = new ArrayList<>();
-        readMessages = new ArrayList<>();
-        sentMessages = new ArrayList<>();
+        notReadMessages = new NotReadMessagesRepository();
+        readMessages = new ReadMessagesRepository();
+        sentMessages = new SentMessagesRepository();
     }
 
     @Override
@@ -43,10 +47,12 @@ public class StoreMailbox extends Mailbox{
 
     public void setMailboxAsUnavailable(){
         available = false;
+        Log.log.info("The mailbox of " + ownerID + " was marked as unavailable.");
     }
 
     public void setMailboxAsAvailable(){
         available = true;
+        Log.log.info("The mailbox of " + ownerID + " was marked as available.");
     }
 
     public boolean isAvailable(){
