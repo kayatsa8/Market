@@ -1,12 +1,12 @@
 package ServiceLayer;
 
-import BusinessLayer.Stores.CartItemInfo;
+import BusinessLayer.CartAndBasket.CartItemInfo;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
 
 import BusinessLayer.Log;
-import BusinessLayer.Cart;
+import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.Market;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.CatalogItem;

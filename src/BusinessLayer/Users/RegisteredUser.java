@@ -1,6 +1,6 @@
 package BusinessLayer.Users;
 
-import BusinessLayer.Cart;
+import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.NotificationSystem.UserMailbox;
 import BusinessLayer.StorePermissions.StoreManager;

@@ -2,6 +2,7 @@ package BusinessLayer.Stores;
 
 import java.util.*;
 
+import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Log;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.NotificationSystem.StoreMailbox;

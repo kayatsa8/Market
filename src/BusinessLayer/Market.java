@@ -1,6 +1,7 @@
 package BusinessLayer;
 
-import BusinessLayer.Stores.CartItemInfo;
+import BusinessLayer.CartAndBasket.Cart;
+import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;

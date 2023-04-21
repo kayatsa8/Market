@@ -1,6 +1,6 @@
 package ServiceLayer.Objects;
 
-import BusinessLayer.Stores.CartItemInfo;
+import BusinessLayer.CartAndBasket.CartItemInfo;
 
 public class CartItemInfoService {
     private final int itemID;

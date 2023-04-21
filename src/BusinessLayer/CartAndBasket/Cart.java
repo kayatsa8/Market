@@ -1,10 +1,9 @@
-package BusinessLayer;
+package BusinessLayer.CartAndBasket;
 
 import BusinessLayer.CartAndBasket.Repositories.Carts.BasketsRepository;
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
-import BusinessLayer.Receipts.ReceiptHandler;
-import BusinessLayer.Stores.CartItemInfo;
+import BusinessLayer.Log;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 
