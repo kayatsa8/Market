@@ -1,5 +1,6 @@
 package BusinessLayer.Stores;
 
+import BusinessLayer.NotificationSystem.Message;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -158,7 +159,7 @@ public class StoreFacade {
         throw new Exception("Store ID " + storeID + " does not exist");
     }
 
-    private boolean isStoreExists(int storeID)
+    public boolean isStoreExists(int storeID)
     {
         return stores.containsKey(storeID);
     }
@@ -171,4 +172,37 @@ public class StoreFacade {
         }
         throw new Exception("Store ID " + storeID + " does not exist");
     }
+
+    public void sendMessage(int storeID, int receiverID, String title, String content){
+        stores.get(storeID).sendMessage(receiverID, title, content);
+    }
+
+    public void markMessageAsRead(int storeID, Message message) throws Exception {
+        stores.get(storeID).markMessageAsRead(message);
+    }
+
+    public void markMessageAsNotRead(int storeID, Message message) throws Exception {
+        stores.get(storeID).markMessageAsNotRead(message);
+    }
+
+    public List<Message> watchNotReadMessages(int storeID){
+        return stores.get(storeID).watchNotReadMessages();
+    }
+
+    public List<Message> watchReadMessages(int storeID){
+        return stores.get(storeID).watchReadMessages();
+    }
+
+    public List<Message> watchSentMessages(int storeID){
+        return stores.get(storeID).watchSentMessages();
+    }
+
+    public void setMailboxAsUnavailable(int storeID){
+        stores.get(storeID).setMailboxAsUnavailable();
+    }
+
+    public void setMailboxAsAvailable(int storeID){
+        stores.get(storeID).setMailboxAsAvailable();
+    }
+
 }

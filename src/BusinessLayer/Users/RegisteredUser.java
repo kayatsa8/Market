@@ -1,6 +1,7 @@
 package BusinessLayer.Users;
 
 import BusinessLayer.CartAndBasket.Cart;
+import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.NotificationSystem.UserMailbox;
 import BusinessLayer.StorePermissions.StoreManager;
@@ -177,6 +178,30 @@ public class RegisteredUser extends User{
 
     public UserMailbox getMailbox(){
         return mailbox;
+    }
+
+    public void sendMessage(int receiverID, String title, String content){
+        mailbox.sendMessage(receiverID, title, content);
+    }
+
+    public void markMessageAsRead(Message message) throws Exception {
+        mailbox.markMessageAsRead(message);
+    }
+
+    public void markMessageAsNotRead(Message message) throws Exception {
+        mailbox.markMessageAsNotRead(message);
+    }
+
+    public List<Message> watchNotReadMessages(){
+        return mailbox.watchNotReadMessages();
+    }
+
+    public List<Message> watchReadMessages(){
+        return mailbox.watchReadMessages();
+    }
+
+    public List<Message> watchSentMessages(){
+        return mailbox.watchSentMessages();
     }
 
 }

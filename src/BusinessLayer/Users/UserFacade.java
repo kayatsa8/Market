@@ -2,6 +2,7 @@ package BusinessLayer.Users;
 
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.Log;
+import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
@@ -211,5 +212,33 @@ public class UserFacade {
      */
     public Cart emptyCart(int userID) {
         return getUser(userID).emptyCart();
+    }
+
+    public boolean isUserExists(int ID){
+        return users.containsKey(ID);
+    }
+
+    public void sendMessage(int senderID, int receiverID, String title, String content){
+        users.get(senderID).sendMessage(receiverID, title, content);
+    }
+
+    public void markMessageAsRead(int userID, Message message) throws Exception {
+        users.get(userID).markMessageAsRead(message);
+    }
+
+    public void markMessageAsNotRead(int userID, Message message) throws Exception {
+        users.get(userID).markMessageAsNotRead(message);
+    }
+
+    public List<Message> watchNotReadMessages(int userID){
+        return users.get(userID).watchNotReadMessages();
+    }
+
+    public List<Message> watchReadMessages(int userID){
+        return users.get(userID).watchReadMessages();
+    }
+
+    public List<Message> watchSentMessages(int userID){
+        return users.get(userID).watchSentMessages();
     }
 }
