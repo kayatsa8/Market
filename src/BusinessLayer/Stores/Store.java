@@ -652,4 +652,8 @@ public class Store {
     {
         return storeManagers.contains(userID);
     }
+
+    public StoreMailbox getMailBox(){
+        return storeMailBox;
+    }
 }

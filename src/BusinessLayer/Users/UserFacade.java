@@ -3,6 +3,7 @@ package BusinessLayer.Users;
 import BusinessLayer.Cart;
 import BusinessLayer.Log;
 import BusinessLayer.NotificationSystem.NotificationHub;
+import BusinessLayer.Stores.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
@@ -197,12 +198,12 @@ public class UserFacade {
         return getUser(userID).getStoresOfBaskets();
     }
 
-    public HashMap<CatalogItem, Integer> getItemsInBasket(int userID, String storeName) throws Exception {
+    public HashMap<CatalogItem, CartItemInfo> getItemsInBasket(int userID, String storeName) throws Exception {
         return getUser(userID).getItemsInBasket(storeName);
     }
 
-    public Cart buyCart(int userID) throws Exception {
-        return getUser(userID).buyCart();
+    public Cart buyCart(int userID, String deliveryAddress) throws Exception {
+        return getUser(userID).buyCart(deliveryAddress);
     }
 
     /**

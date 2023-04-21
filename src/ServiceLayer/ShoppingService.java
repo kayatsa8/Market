@@ -1,5 +1,6 @@
 package ServiceLayer;
 
+import BusinessLayer.Stores.CartItemInfo;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -10,6 +11,7 @@ import BusinessLayer.Market;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.CatalogItem;
 
+import ServiceLayer.Objects.CartItemInfoService;
 import ServiceLayer.Objects.CartService;
 import ServiceLayer.Objects.CatalogItemService;
 import ServiceLayer.Objects.StoreService;
@@ -165,12 +167,19 @@ public class ShoppingService {
         }
     }
 
-    public HashMap<CatalogItem, Integer> getItemsInBasket(int userID, String storeName) throws Exception {
-        return market.getItemsInBasket(userID, storeName);
+    public HashMap<CatalogItemService, CartItemInfoService> getItemsInBasket(int userID, String storeName) throws Exception {
+        HashMap<CatalogItemService, CartItemInfoService> map = new HashMap<>();
+        HashMap<CatalogItem, CartItemInfo> items = market.getItemsInBasket(userID, storeName);
+
+        for(CatalogItem item : items.keySet()){
+            map.putIfAbsent(new CatalogItemService(item, true), new CartItemInfoService(items.get(item)));
+        }
+
+        return map;
     }
 
-    public void buyCart(int userID) throws Exception {
-        market.buyCart(userID);
+    public void buyCart(int userID, String deliveryAddress) throws Exception {
+        market.buyCart(userID, deliveryAddress);
     }
 
     /**

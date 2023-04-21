@@ -1,5 +1,6 @@
 package BusinessLayer;
 
+import BusinessLayer.Stores.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
@@ -152,12 +153,12 @@ public class Market {
         return userFacade.getStoresOfBaskets(userID);
     }
 
-    public HashMap<CatalogItem, Integer> getItemsInBasket(int userID, String storeName) throws Exception {
+    public HashMap<CatalogItem, CartItemInfo> getItemsInBasket(int userID, String storeName) throws Exception {
         return userFacade.getItemsInBasket(userID, storeName);
     }
 
-    public Cart buyCart(int userID) throws Exception {
-        return userFacade.buyCart(userID);
+    public Cart buyCart(int userID, String deliveryAddress) throws Exception {
+        return userFacade.buyCart(userID, deliveryAddress);
     }
 
     /**
