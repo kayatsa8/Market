@@ -9,12 +9,16 @@ import static org.junit.Assert.*;
 
 public class ConcurrencyTests extends ProjectTest{
 
+    public static boolean doneSetUp = false;
+
     @Before
     public void setUp() {
         super.setUp();
-        setUpAllMarket();
+        if(!doneSetUp) {
+            setUpAllMarket();
+            doneSetUp = true;
+        }
     }
-
 
     @After
     public void tearDown() {

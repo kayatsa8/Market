@@ -1,23 +1,25 @@
 package Acceptance;
 
 import ServiceLayer.Objects.CartService;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 
 import static org.junit.Assert.*;
 
 public class GuestVisitorTests extends ProjectTest{
 
 
+    public static boolean init = false;
 
     @Before
     public void setUp() {
         super.setUp();
-        setUpUser2();
-        setUpUser3();
+        if(!init) {
+            setUpUser2();
+            setUpUser3();
+            init = true;
+        }
     }
+
 
     @After
     public void tearDown() {

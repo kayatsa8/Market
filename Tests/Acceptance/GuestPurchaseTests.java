@@ -20,10 +20,15 @@ import static org.junit.Assert.*;
 public class GuestPurchaseTests extends ProjectTest{
 
 
+    public static boolean doneSetUp = false;
+
     @Before
     public void setUp() {
         super.setUp();
-        setUpAllMarket();
+        if(!doneSetUp) {
+            setUpAllMarket();
+            doneSetUp = true;
+        }
     }
 
 
@@ -42,9 +47,7 @@ public class GuestPurchaseTests extends ProjectTest{
     public void getStoreInfoValid(){
         StoreService storeInfo = this.getStoreInfo(store2Id);
         assertEquals(storeInfo.getStoreName(), "Store2");
-
-        //add here more assertion
-        assertTrue(false);
+        assertTrue(storeInfo.getStoreId() >= 0);
     }
 
     @Test

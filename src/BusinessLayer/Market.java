@@ -3,6 +3,7 @@ package BusinessLayer;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Message;
+import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
@@ -290,5 +291,16 @@ public class Market {
         }
 
         return false;
+    }
+
+    public void addItemAmount(int storeID, int itemID, int amountToAdd)
+    {
+        storeFacade.addItemAmount(storeID, itemID, amountToAdd);
+    }
+
+    public List<Receipt> getSellingHistoryOfStoreForManager(int storeId, int userId) throws Exception {
+        if(storeFacade.checkIfStoreManager(userId, storeId) || isAdmin(userId))
+            return storeFacade.getStore(storeId).getReceiptHandler().getAllReceipts();
+        return null;
     }
 }

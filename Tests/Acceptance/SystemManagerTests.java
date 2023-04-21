@@ -13,11 +13,16 @@ import static org.junit.Assert.*;
 public class SystemManagerTests extends ProjectTest{
 
 
+    public static boolean doneSetUp = false;
+
     @Before
     public void setUp() {
         super.setUp();
-        setUpAllMarket();
-        butCartUser2Store4();
+        if(!doneSetUp) {
+            setUpAllMarket();
+            butCartUser2Store4();
+            doneSetUp = true;
+        }
     }
 
 
@@ -130,14 +135,14 @@ public class SystemManagerTests extends ProjectTest{
     @Test
     public void getSellingHistoryOfStore_Valid(){
         //Change to receipt
-        HashMap<Integer,List<ReceiptService>> receipts = this.getSellingHistoryOfStore(user7SystemManagerId, store2Id);
+        List<ReceiptService> receipts = this.getSellingHistoryOfStore(user7SystemManagerId, store2Id);
         assertNotNull(receipts);
         //assertEquals(receipts.get(0).getItems().get(0).getName(), "Tomato");
     }
 
     @Test
     public void getSellingHistoryOfStore_WrongStore(){
-        HashMap<Integer,List<ReceiptService>> receipts = this.getSellingHistoryOfStore(user7SystemManagerId, -1);
+        List<ReceiptService> receipts = this.getSellingHistoryOfStore(user7SystemManagerId, -1);
         assertNull(receipts);
     }
 
