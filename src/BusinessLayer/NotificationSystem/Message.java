@@ -1,5 +1,7 @@
 package BusinessLayer.NotificationSystem;
 
+import ServiceLayer.Objects.MessageService;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -22,6 +24,14 @@ public class Message {
         title = _title;
         content = _content;
         sendingTime = LocalDateTime.now();
+    }
+
+    public Message(MessageService message){
+        senderID = message.getSenderID();
+        receiverID = message.getReceiverID();
+        title = message.getTitle();
+        content = message.getContent();
+        sendingTime = message.getSendingTime();
     }
 
     public int getSenderID(){
@@ -57,5 +67,7 @@ public class Message {
                 && content.equals(other.content)
                 && sendingTime.equals(other.sendingTime);
     }
+
+    public LocalDateTime getSendingTime(){return sendingTime;}
 
 }

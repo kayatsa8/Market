@@ -1,6 +1,9 @@
 package BusinessLayer.Users;
 
-import BusinessLayer.Cart;
+import BusinessLayer.CartAndBasket.Cart;
+import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
+import BusinessLayer.ExternalSystems.Supply.SupplyClient;
+import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 
@@ -43,12 +46,12 @@ public abstract class User {
         return cart.getStoresOfBaskets();
     }
 
-    public HashMap<CatalogItem, Integer> getItemsInBasket(String storeName) throws Exception {
+    public HashMap<CatalogItem, CartItemInfo> getItemsInBasket(String storeName) throws Exception {
         return cart.getItemsInBasket(storeName);
     }
 
-    public Cart buyCart() throws Exception {
-        cart.buyCart();
+    public Cart buyCart(String deliveryAddress) throws Exception {
+        cart.buyCart(new PurchaseClient(), new SupplyClient(), deliveryAddress);
         return cart;
     }
 

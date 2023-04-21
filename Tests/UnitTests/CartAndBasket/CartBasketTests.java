@@ -1,11 +1,10 @@
 package UnitTests.CartAndBasket;
 
-import BusinessLayer.Cart;
+import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
-import BusinessLayer.Stores.CartItemInfo;
+import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
-import BusinessLayer.Stores.Category;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Users.RegisteredUser;
 import org.junit.Before;
@@ -39,18 +38,18 @@ public class CartBasketTests {
         client = new RegisteredUser("client", "123456", 2222);
 
         store1 = new Store(1000001, 1111, "store1");
-        store1.addCatalogItem(10000, "1", 2, Category.Books);
+        store1.addCatalogItem(10000, "1", 2, "Books");
         item1 = store1.getItem(10000);
         store1.addItemAmount(item1.getItemID(), 100);
-        store1.addCatalogItem(10001, "2", 3, Category.Books);
+        store1.addCatalogItem(10001, "2", 3, "Books");
         item2 = store1.getItem(10001);
         store1.addItemAmount(item2.getItemID(), 100);
 
         store2 = new Store(1000002, 1111, "store2");
-        store2.addCatalogItem(10002, "3", 7, Category.Books);
+        store2.addCatalogItem(10002, "3", 7, "Books");
         item3 = store2.getItem(10002);
         store2.addItemAmount(item3.getItemID(), 100);
-        store2.addCatalogItem(10003, "4", 5, Category.Books);
+        store2.addCatalogItem(10003, "4", 5, "Books");
         item4 = store2.getItem(10003);
         store2.addItemAmount(item4.getItemID(), 100);
 

@@ -1,8 +1,10 @@
 package BusinessLayer.Users;
 
-import BusinessLayer.Cart;
+import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.Log;
+import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.NotificationSystem.NotificationHub;
+import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
@@ -197,12 +199,12 @@ public class UserFacade {
         return getUser(userID).getStoresOfBaskets();
     }
 
-    public HashMap<CatalogItem, Integer> getItemsInBasket(int userID, String storeName) throws Exception {
+    public HashMap<CatalogItem, CartItemInfo> getItemsInBasket(int userID, String storeName) throws Exception {
         return getUser(userID).getItemsInBasket(storeName);
     }
 
-    public Cart buyCart(int userID) throws Exception {
-        return getUser(userID).buyCart();
+    public Cart buyCart(int userID, String deliveryAddress) throws Exception {
+        return getUser(userID).buyCart(deliveryAddress);
     }
 
     /**
@@ -210,5 +212,33 @@ public class UserFacade {
      */
     public Cart emptyCart(int userID) {
         return getUser(userID).emptyCart();
+    }
+
+    public boolean isUserExists(int ID){
+        return users.containsKey(ID);
+    }
+
+    public void sendMessage(int senderID, int receiverID, String title, String content){
+        users.get(senderID).sendMessage(receiverID, title, content);
+    }
+
+    public void markMessageAsRead(int userID, Message message) throws Exception {
+        users.get(userID).markMessageAsRead(message);
+    }
+
+    public void markMessageAsNotRead(int userID, Message message) throws Exception {
+        users.get(userID).markMessageAsNotRead(message);
+    }
+
+    public List<Message> watchNotReadMessages(int userID){
+        return users.get(userID).watchNotReadMessages();
+    }
+
+    public List<Message> watchReadMessages(int userID){
+        return users.get(userID).watchReadMessages();
+    }
+
+    public List<Message> watchSentMessages(int userID){
+        return users.get(userID).watchSentMessages();
     }
 }

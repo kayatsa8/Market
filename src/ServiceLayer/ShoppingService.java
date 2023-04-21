@@ -1,18 +1,18 @@
 package ServiceLayer;
 
+import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.NotificationSystem.Message;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
 
 import BusinessLayer.Log;
-import BusinessLayer.Cart;
+import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.Market;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.CatalogItem;
 
-import ServiceLayer.Objects.CartService;
-import ServiceLayer.Objects.CatalogItemService;
-import ServiceLayer.Objects.StoreService;
+import ServiceLayer.Objects.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -165,12 +165,19 @@ public class ShoppingService {
         }
     }
 
-    public HashMap<CatalogItem, Integer> getItemsInBasket(int userID, String storeName) throws Exception {
-        return market.getItemsInBasket(userID, storeName);
+    public HashMap<CatalogItemService, CartItemInfoService> getItemsInBasket(int userID, String storeName) throws Exception {
+        HashMap<CatalogItemService, CartItemInfoService> map = new HashMap<>();
+        HashMap<CatalogItem, CartItemInfo> items = market.getItemsInBasket(userID, storeName);
+
+        for(CatalogItem item : items.keySet()){
+            map.putIfAbsent(new CatalogItemService(item, true), new CartItemInfoService(items.get(item)));
+        }
+
+        return map;
     }
 
-    public void buyCart(int userID) throws Exception {
-        market.buyCart(userID);
+    public void buyCart(int userID, String deliveryAddress) throws Exception {
+        market.buyCart(userID, deliveryAddress);
     }
 
     /**
@@ -307,4 +314,102 @@ public class ShoppingService {
             return new Result<>(true, e.getMessage());
         }
     }
+
+    public Result<Boolean> sendMessage(int storeID, int receiverID, String title, String content){
+        boolean response = market.sendMessage(storeID, receiverID, title, content);
+
+        if(response){
+            return new Result<Boolean>(true, "Message was sent");
+        }
+        else{
+            return new Result<Boolean>(false, "Message was not sent");
+        }
+
+    }
+
+    public Result<Boolean> markMessageAsRead(int storeID, MessageService messageService){
+        try{
+            market.markMessageAsRead(storeID, new Message(messageService));
+            return new Result<Boolean>(true, "Success");
+        }
+        catch(Exception e){
+            return new Result<Boolean>(false, "Failure");
+        }
+    }
+
+    public Result<Boolean> markMessageAsNotRead(int storeID, MessageService messageService){
+        try{
+            market.markMessageAsNotRead(storeID, new Message(messageService));
+            return new Result<Boolean>(true, "Success");
+        }
+        catch(Exception e){
+            return new Result<Boolean>(false, "Failure");
+        }
+    }
+
+    public Result<List<MessageService>> watchNotReadMessages(int storeID){
+        List<Message> messages = market.watchNotReadMessages(storeID);
+
+        if(messages == null){
+            return new Result<List<MessageService>>(false, "Error");
+        }
+        else{
+            return new Result<List<MessageService>>(true, messageListToMessageServiceList(messages));
+        }
+    }
+
+    private List<MessageService> messageListToMessageServiceList(List<Message> messages){
+        List<MessageService> toReturn = new ArrayList<>();
+
+        for(Message message : messages){
+            toReturn.add(new MessageService(message));
+        }
+
+        return toReturn;
+    }
+
+    public Result<List<MessageService>> watchReadMessages(int storeID){
+        List<Message> messages = market.watchReadMessages(storeID);
+
+        if(messages == null){
+            return new Result<List<MessageService>>(false, "Error");
+        }
+        else{
+            return new Result<List<MessageService>>(true, messageListToMessageServiceList(messages));
+        }
+    }
+
+    public Result<List<MessageService>> watchSentMessages(int storeID){
+        List<Message> messages = market.watchSentMessages(storeID);
+
+        if(messages == null){
+            return new Result<List<MessageService>>(false, "Error");
+        }
+        else{
+            return new Result<List<MessageService>>(true, messageListToMessageServiceList(messages));
+        }
+    }
+
+    public Result<Boolean> setMailboxAsUnavailable(int storeID){
+        boolean answer = market.setMailboxAsUnavailable(storeID);
+
+        if(answer){
+            return new Result<Boolean>(true, "Success");
+        }
+        else{
+            return new Result<Boolean>(false, "Failure");
+        }
+    }
+
+    public Result<Boolean> setMailboxAsAvailable(int storeID){
+        boolean answer = market.setMailboxAsAvailable(storeID);
+
+        if(answer){
+            return new Result<Boolean>(true, "Success");
+        }
+        else{
+            return new Result<Boolean>(false, "Failure");
+        }
+    }
+
 }

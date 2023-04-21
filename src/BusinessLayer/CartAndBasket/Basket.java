@@ -1,16 +1,13 @@
-package BusinessLayer;
+package BusinessLayer.CartAndBasket;
 
 import BusinessLayer.CartAndBasket.Repositories.Baskets.ItemsRepository;
 import BusinessLayer.CartAndBasket.Repositories.Baskets.SavedItemsRepository;
-import BusinessLayer.Receipts.ReceiptHandler;
-import BusinessLayer.Stores.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class Basket {
     //fields
@@ -171,10 +168,10 @@ public class Basket {
      * if the basket contents had changed for some reason, the basket
      * asks the store to release the saved items
      */
-    public void releaseItems(){
+    public void releaseItems() throws Exception {
         if(itemsSaved){
             itemsSaved = false;
-            //TODO: store.releaseItems(savedItems.getList);
+            store.reverseSavedItems(savedItems.getList());
             savedItems.set(null);
         }
     }

@@ -1,5 +1,8 @@
 package BusinessLayer;
 
+import BusinessLayer.CartAndBasket.Cart;
+import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
@@ -152,12 +155,12 @@ public class Market {
         return userFacade.getStoresOfBaskets(userID);
     }
 
-    public HashMap<CatalogItem, Integer> getItemsInBasket(int userID, String storeName) throws Exception {
+    public HashMap<CatalogItem, CartItemInfo> getItemsInBasket(int userID, String storeName) throws Exception {
         return userFacade.getItemsInBasket(userID, storeName);
     }
 
-    public Cart buyCart(int userID) throws Exception {
-        return userFacade.buyCart(userID);
+    public Cart buyCart(int userID, String deliveryAddress) throws Exception {
+        return userFacade.buyCart(userID, deliveryAddress);
     }
 
     /**
@@ -205,5 +208,87 @@ public class Market {
     public Boolean closeStore(int userID, int storeID) throws Exception
     {
         return storeFacade.closeStore(userID, storeID);
+    }
+
+    public boolean sendMessage(int senderID, int receiverID, String title, String content){
+        if(storeFacade.isStoreExists(senderID)){
+            storeFacade.sendMessage(senderID, receiverID, title, content);
+            return true;
+        }
+        if(userFacade.isUserExists(senderID)){
+            userFacade.sendMessage(senderID, receiverID, title, content);
+            return true;
+        }
+
+        return false;
+    }
+
+    public void markMessageAsRead(int ID, Message message) throws Exception {
+        if(storeFacade.isStoreExists(ID)){
+            storeFacade.markMessageAsRead(ID, message);
+        }
+        if(userFacade.isUserExists(ID)){
+            userFacade.markMessageAsRead(ID, message);
+        }
+    }
+
+    public void markMessageAsNotRead(int ID, Message message) throws Exception {
+        if(storeFacade.isStoreExists(ID)){
+            storeFacade.markMessageAsNotRead(ID, message);
+        }
+        if(userFacade.isUserExists(ID)){
+            userFacade.markMessageAsNotRead(ID, message);
+        }
+    }
+
+    public List<Message> watchNotReadMessages(int ID){
+        if(storeFacade.isStoreExists(ID)){
+            return storeFacade.watchNotReadMessages(ID);
+        }
+        if(userFacade.isUserExists(ID)){
+            return userFacade.watchNotReadMessages(ID);
+        }
+
+        return null;
+    }
+
+    public List<Message> watchReadMessages(int ID){
+        if(storeFacade.isStoreExists(ID)){
+            return storeFacade.watchNotReadMessages(ID);
+        }
+        if(userFacade.isUserExists(ID)){
+            return userFacade.watchReadMessages(ID);
+        }
+
+        return null;
+    }
+
+    public List<Message> watchSentMessages(int ID){
+        if(storeFacade.isStoreExists(ID)){
+            return storeFacade.watchSentMessages(ID);
+        }
+        if(userFacade.isUserExists(ID)){
+            return userFacade.watchSentMessages(ID);
+        }
+
+        return null;
+    }
+
+    public boolean setMailboxAsUnavailable(int storeID){
+        if(storeFacade.isStoreExists(storeID)){
+            storeFacade.setMailboxAsUnavailable(storeID);
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean setMailboxAsAvailable(int storeID){
+        if(storeFacade.isStoreExists(storeID)){
+            storeFacade.setMailboxAsAvailable(storeID);
+            return true;
+        }
+
+        return false;
     }
 }

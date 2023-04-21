@@ -2,7 +2,11 @@ package ServiceLayer;
 
 import BusinessLayer.Log;
 import BusinessLayer.Market;
+import BusinessLayer.NotificationSystem.Message;
+import ServiceLayer.Objects.MessageService;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class UserService {
@@ -109,5 +113,95 @@ public class UserService {
             return new Result<>(true, e.getMessage());
         }
     }
+
+    public Result<Boolean> sendMessage(int userID, int receiverID, String title, String content){
+        boolean answer = market.sendMessage(userID, receiverID, title, content);
+
+        if(answer){
+            return new Result<Boolean>(false, "Success");
+        }
+        else{
+            return new Result<Boolean>(true, "Failure");
+        }
+    }
+
+    public Result<Boolean> markMessageAsRead(int userID, MessageService messageService){
+        try{
+            Message message = new Message(messageService);
+
+            market.markMessageAsRead(userID, message);
+
+            return new Result<Boolean>(false, "Success");
+        }
+        catch(Exception e){
+            return new Result<Boolean>(true, e.getMessage());
+        }
+    }
+
+    public Result<Boolean> markMessageAsNotRead(int userID, MessageService messageService){
+        try{
+            Message message = new Message(messageService);
+
+            market.markMessageAsNotRead(userID, message);
+
+            return new Result<Boolean>(false, "Success");
+        }
+        catch(Exception e){
+            return new Result<Boolean>(true, e.getMessage());
+        }
+    }
+
+    public Result<List<MessageService>> watchNotReadMessages(int userID){
+        List<MessageService> messageServices;
+        List<Message> messages = market.watchNotReadMessages(userID);
+
+        if(messages == null){
+            return new Result<>(true, "Failure");
+        }
+
+        messageServices = messageListToMessageServiceList(messages);
+
+        return new Result<>(false, messageServices);
+
+    }
+
+    private List<MessageService> messageListToMessageServiceList(List<Message> messages){
+        List<MessageService> toReturn = new ArrayList<>();
+
+        for(Message message : messages){
+            toReturn.add(new MessageService(message));
+        }
+
+        return toReturn;
+    }
+
+    public Result<List<MessageService>> watchReadMessages(int userID){
+        List<MessageService> messageServices;
+        List<Message> messages = market.watchReadMessages(userID);
+
+        if(messages == null){
+            return new Result<>(true, "Failure");
+        }
+
+        messageServices = messageListToMessageServiceList(messages);
+
+        return new Result<>(false, messageServices);
+
+    }
+
+    public Result<List<MessageService>> watchSentMessages(int userID){
+        List<MessageService> messageServices;
+        List<Message> messages = market.watchSentMessages(userID);
+
+        if(messages == null){
+            return new Result<>(true, "Failure");
+        }
+
+        messageServices = messageListToMessageServiceList(messages);
+
+        return new Result<>(false, messageServices);
+
+    }
+
 
 }
