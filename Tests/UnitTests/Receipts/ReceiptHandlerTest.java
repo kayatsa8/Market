@@ -2,7 +2,7 @@ package UnitTests.Receipts;
 
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.Receipts.ReceiptHandler;
-import BusinessLayer.Stores.CartItemInfo;
+import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 import org.junit.After;
 import org.junit.Before;

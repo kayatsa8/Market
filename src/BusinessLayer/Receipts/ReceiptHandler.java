@@ -5,7 +5,7 @@ import BusinessLayer.Log;
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.Receipts.Receipt.ReceiptCollection;
 import BusinessLayer.Receipts.ReceiptItem.ReceiptItem;
-import BusinessLayer.Stores.CartItemInfo;
+import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 
 import java.util.*;

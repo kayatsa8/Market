@@ -1,6 +1,6 @@
 package ServiceLayer.Objects;
 
-import BusinessLayer.Basket;
+import BusinessLayer.CartAndBasket.Basket;
 
 public class BasketService {
 
@@ -11,7 +11,15 @@ public class BasketService {
     }
 
     public boolean hasItem(int itemId){
-        //return true if I have in this basket item with this itemId
-        return true;
+        return basket.isItemInBasket(itemId);
     }
+
+    public boolean isEmpty() {
+        return basket.getItems().isEmpty();
+    }
+
+    public int getStoreId(){
+        return basket.getStore().getStoreID();
+    }
+
 }

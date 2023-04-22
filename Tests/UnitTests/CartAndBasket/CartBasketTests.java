@@ -1,9 +1,9 @@
 package UnitTests.CartAndBasket;
 
-import BusinessLayer.Cart;
+import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
-import BusinessLayer.Stores.CartItemInfo;
+import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Users.RegisteredUser;

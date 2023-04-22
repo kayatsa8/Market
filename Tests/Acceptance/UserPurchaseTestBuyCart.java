@@ -1,14 +1,16 @@
 package Acceptance;
 
-import ServiceLayer.Objects.MessageService;
+import ServiceLayer.Objects.CartService;
+import ServiceLayer.Objects.ReceiptService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
+
 import static org.junit.Assert.*;
 
-public class SystemNotificationTests extends ProjectTest{
+public class UserPurchaseTestBuyCart extends ProjectTest{
 
 
     public static boolean doneSetUp = false;
@@ -25,59 +27,36 @@ public class SystemNotificationTests extends ProjectTest{
 
     @After
     public void tearDown() {
+        //delete stores and delete users from DB
     }
 
 
     /**
-     * Live Notification #5
+     * Buy cart #15
      */
     @Test
-    public void getLiveNotification(){
-        closeStore(user2LoggedInId, store2Id);
+    public void buyCartValid(){
+        boolean added = this.buyCart(user4LoggedInId, "PaymentDetails");
+        assertTrue(added);
 
-        List<MessageService> notifications = watchNotReadMessages(user2LoggedInId);
-        List<MessageService> notifications2 = watchNotReadMessages(user6OwnerOfStore2);
+        CartService afterCart = this.getCart(user4LoggedInId);
+        assertTrue(afterCart.isEmpty());
 
-        boolean foundClosed1 = false;
-        boolean foundClosed2 = false;
-        for(MessageService msg: notifications) {
-            if (msg.getTitle().equals("Store closed")){
-                foundClosed1 = true;
-                break;
-            }
-        }
-        for(MessageService msg: notifications2) {
-            if (msg.getTitle().equals("Store closed")){
-                foundClosed2 = true;
-                break;
-            }
-        }
-        assertTrue(foundClosed1);
-        assertTrue(foundClosed2);
-
-
+        List<ReceiptService> receipts = this.getSellingHistoryOfStore(user5ManagerOfStore2ToBeRemoved, store2Id);
+        assertTrue(false);
     }
 
-    /**
-     * delayed Notifications #6
-     */
     @Test
-    public void delayedNotifications_Valid(){
-        logOut("User4", "User4!!");
+    public void buyCartWrongPaymentDetails(){
+        boolean added = this.buyCart(user4LoggedInId, "");
+        assertFalse(added);
+    }
 
-        this.closeStore(user4LoggedInId, store4Id);
-        loginUser("User4", "User4!");
-
-        List<MessageService> notifications = watchNotReadMessages(user4LoggedInId);
-
-        boolean foundClosed = false;
-        for(MessageService msg: notifications) {
-            if (msg.getTitle().equals("Store closed")){
-                foundClosed = true;
-                break;
-            }
-        }
-        assertTrue(foundClosed);
+    @Test
+    public void buyCartUserNotLoggedIn(){
+        boolean added = this.buyCart(user3NotLoggedInId, "PaymentDetails");
+        assertFalse(added);
+        assertTrue(false);
     }
 
 
@@ -90,6 +69,7 @@ public class SystemNotificationTests extends ProjectTest{
     protected static int user4LoggedInId = -1;      //logged in, have items in carts
     protected static int user5ManagerOfStore2ToBeRemoved = -1; //Owner/Manager of store2, to be removed positioned  by user2
     protected static int user6OwnerOfStore2 = -1;            //Owner/Manager of store2, positioned by user2
+    protected static int userNotExistId = -1;
     protected static int store2Id = -1;             //store is open
     protected static int store2ClosedId = -1;
     protected static int store4Id = -1;
@@ -114,9 +94,9 @@ public class SystemNotificationTests extends ProjectTest{
         if(user2LoggedInId != -1){
             return;
         }
-        user2LoggedInId = setUser("User2NotificationTests","User2!", MEMBER, LOGGED);
-        user5ManagerOfStore2ToBeRemoved = setUser("User5NotificationTests", "User5!", MEMBER, NOT_LOGGED);
-        user6OwnerOfStore2 = setUser("User6NotificationTests", "User6!", MEMBER, LOGGED);
+        user2LoggedInId = setUser("User2UserPurchase","User2!", MEMBER, LOGGED);
+        user5ManagerOfStore2ToBeRemoved = setUser("User5UserPurchase", "User5!", MEMBER, NOT_LOGGED);
+        user6OwnerOfStore2 = setUser("User6UserPurchase", "User6!", MEMBER, LOGGED);
         store2Id = createStore(user2LoggedInId, "Store2"); //store is open
         store2ClosedId = createStore(user2LoggedInId, "Store22"); //store is close
         closeStore(user2LoggedInId, store2ClosedId);
@@ -138,16 +118,16 @@ public class SystemNotificationTests extends ProjectTest{
     protected void setUpUser3() {
         if(user3NotLoggedInId != -1)
             return;
-        user3NotLoggedInId = setUser("User3NotificationTests","User3!", MEMBER, NOT_LOGGED);
+        user3NotLoggedInId = setUser("User3UserPurchase","User3!", MEMBER, NOT_LOGGED);
     }
 
     /**
      * User4: Member, logged in, Store Owner and founder of store4
      */
     protected void setUpUser4(){
-        user4LoggedInId = setUser("User4NotificationTests","User4!", MEMBER, LOGGED);
+        user4LoggedInId = setUser("User4UserPurchase","User4!", MEMBER, LOGGED);
         if(user2LoggedInId == -1)
-            user2LoggedInId = setUser("User2NotificationTests","User2!", MEMBER, LOGGED);   //created for the ownership of the store
+            user2LoggedInId = setUser("User2UserPurchase","User2!", MEMBER, LOGGED);   //created for the ownership of the store
         store4Id = createStore(user4LoggedInId, "Store4");  //user4 is founder, user2 is owner
         //add items
         item4Id = addItemToStoreForTests(store4Id, "Item4", 10, "Clothes", 10 );
@@ -177,6 +157,7 @@ public class SystemNotificationTests extends ProjectTest{
         addItemsToUserForTests(user4LoggedInId, store2Id, item2Id);
         buyCart(user4LoggedInId, "paypal");
     }
+
 
 
 }

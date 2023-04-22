@@ -1,6 +1,6 @@
 package BusinessLayer.CartAndBasket.Repositories.Baskets;
 
-import BusinessLayer.Stores.CartItemInfo;
+import BusinessLayer.CartAndBasket.CartItemInfo;
 
 import java.util.List;
 

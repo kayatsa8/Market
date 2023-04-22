@@ -1,10 +1,14 @@
 package Bridge;
 
-import Objects.*;
+import Globals.FilterValue;
+import Globals.SearchBy;
+import Globals.SearchFilter;
 import ServiceLayer.Objects.*;
+import ServiceLayer.Result;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public interface Bridge {
 
@@ -19,11 +23,11 @@ public interface Bridge {
 
     /**
      * Login User
-     * @param id
+     * @param name
      * @param password
      * @return true if log in successful
      */
-    boolean loginUser(int id, String password);
+    boolean loginUser(String name, String password);
 
 
     /**
@@ -38,7 +42,7 @@ public interface Bridge {
      * @param userId
      * @return true if user is an active guest, false if he is not active right now
      */
-    boolean checkIfVisitor(int userId);
+    //boolean checkIfVisitor(int userId);
 
 
     /**
@@ -65,21 +69,22 @@ public interface Bridge {
 
     /**
      * searches for items in the store with itemName and with filters to use
-     * @param itemName
+     * @param keywords
      * @param filters
      * @return
      */
-    List<CatalogItemService> searchItems(String itemName, List<String> filters);
+    List<CatalogItemService> searchItems(String keywords, SearchBy searchBy, Map<SearchFilter, FilterValue> filters);
 
-    /**
-     * adds item to basket if store open and item in store
-     * @param userId
-     * @param storeId
-     * @param itemId
-     * @param amount
-     * @return
-     */
-    boolean addItemToBasket(int userId, int storeId, int itemId, int amount);
+
+        /**
+         * adds item to basket if store open and item in store
+         * @param userId
+         * @param storeId
+         * @param itemId
+         * @param amount
+         * @return
+         */
+    CartService addItemToBasket(int userId, int storeId, int itemId, int amount);
 
     /**
      * gets the cart of this user
@@ -101,9 +106,18 @@ public interface Bridge {
      * @param storeId
      * @param itemName
      * @param price
-     * @return itemId in store, -1 if failed
+     * @return Item
      */
-    int addItemToStore(int storeId, String itemName, int price);
+    CatalogItemService addCatalogItem(int storeId, String itemName, int price, String category);
+
+
+    /**
+     * after Item added to store, we add amount to stock
+     * @param storeId
+     * @param itemId
+     * @param amount
+     */
+    void addItemAmount(int storeId, int itemId, int amount);
 
 
     /**
@@ -121,7 +135,7 @@ public interface Bridge {
      * @param newName
      * @return true if successful
      */
-    boolean changeItemName(int storeId, int itemId, String newName);
+    String changeItemName(int storeId, int itemId, String newName);
 
     /**
      * return the staff info if the user is manager/owner
@@ -138,7 +152,7 @@ public interface Bridge {
      * @param userId
      * @return list of receipts if user is store manager/owner
      */
-    HashMap<Integer, List<ReceiptService>> getSellingHistoryOfStoreForManager(int storeId, int userId);
+    List<ReceiptService> getSellingHistoryOfStoreForManager(int storeId, int userId);
 
     /**
      * gets the store information the store manager asked for and checks if her has access
@@ -150,17 +164,18 @@ public interface Bridge {
 
     /**
      * logout from system, save cart for this user
-     * @param userId
+     * @param userName
+     * @param password
      * @return true if logged out successful
      */
-    boolean logOut(int userId);
+    boolean logOut(String userName, String password);
 
     /**
      * creates a store and puts userId as store founder
      * @param userId
      * @return id of the new store
      */
-    int createStore(int userId);
+    int createStore(int userId, String storeName);
 
     /**
      * closes store only if user is the founder of the store
@@ -221,7 +236,7 @@ public interface Bridge {
      * @param items
      * @param supplyService
      */
-    boolean askForSupply(int userId, List<TestItemInfo> items, String supplyService);
+    boolean askForSupply(int userId, List<CatalogItemService> items, String supplyService);
 
     /**
      * closes store permanently only if user is store manager
@@ -300,7 +315,7 @@ public interface Bridge {
      * @param userId  the receipts of this user
      * @return the receipts of user with userId
      */
-    HashMap<Integer, List<TestReceipt>> getSellingHistoryOfUserForManager(int managerId, int userId);
+    HashMap<Integer, List<ReceiptService>> getSellingHistoryOfUserForManager(int managerId, int userId);
 
     /**
      * get information on traffic of shoppers
@@ -331,20 +346,7 @@ public interface Bridge {
      */
     boolean reopenStore(int userId, int storeId);
 
-    /**
-     * gets the list of notifications for his user
-     * @param userId
-     * @return
-     */
-    List<String> getNotifications(int userId);
 
-    /**
-     * submit a complaint
-     * @param userId
-     * @param complaint
-     * @return
-     */
-    boolean makeAComplaint(int userId, String complaint);
 
     /**
      * User can rank a store
@@ -387,7 +389,7 @@ public interface Bridge {
      * @param userId
      * @return Map of store Id to Receipt
      */
-    HashMap<Integer, List<ReceiptService>> getPersonalHistory(int userId);
+    List<ReceiptService> getPersonalHistory(int userId);
 
     /**
      * gets username and password
@@ -413,4 +415,14 @@ public interface Bridge {
      * @return list of requests
      */
     List<String> getRequestsOfStore(int ownerManagerId, int storeId);
+
+
+    /**
+     *
+     * @param id
+     * @return list of messages
+     */
+    List<MessageService> watchNotReadMessages(int id);
+
+
 }

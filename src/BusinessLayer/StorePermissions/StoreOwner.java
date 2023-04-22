@@ -112,18 +112,4 @@ public class StoreOwner extends StorePermissions {
         }
         return res;
     }
-
-    public void addManagerPermission(RegisteredUser manager, StoreActionPermissions permission) {
-        if (!managersIDefined.contains(manager)) {
-            throw new RuntimeException("This user is not the one who defined this owner");
-        }
-        manager.getStoreIManage(this.getStoreID()).addPermission(permission);
-    }
-
-    public void removeManagerPermission(RegisteredUser manager, StoreActionPermissions permission) {
-        if (!managersIDefined.contains(manager)) {
-            throw new RuntimeException("This user is not the one who defined this owner");
-        }
-        manager.getStoreIManage(this.getStoreID()).removePermission(permission);
-    }
 }

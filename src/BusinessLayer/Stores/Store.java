@@ -2,7 +2,9 @@ package BusinessLayer.Stores;
 
 import java.util.*;
 
+import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Log;
+import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.NotificationSystem.StoreMailbox;
 import BusinessLayer.Receipts.ReceiptHandler;
@@ -651,5 +653,41 @@ public class Store {
     public Boolean checkIfStoreManager(int userID)
     {
         return storeManagers.contains(userID);
+    }
+
+    public StoreMailbox getMailBox(){
+        return storeMailBox;
+    }
+
+    public void sendMessage(int receiverID, String title, String content){
+        storeMailBox.sendMessage(receiverID, title, content);
+    }
+
+    public void markMessageAsRead(Message message) throws Exception {
+        storeMailBox.markMessageAsRead(message);
+    }
+
+    public void markMessageAsNotRead(Message message) throws Exception {
+        storeMailBox.markMessageAsNotRead(message);
+    }
+
+    public List<Message> watchNotReadMessages(){
+        return storeMailBox.watchNotReadMessages();
+    }
+
+    public List<Message> watchReadMessages(){
+        return storeMailBox.watchReadMessages();
+    }
+
+    public List<Message> watchSentMessages(){
+        return storeMailBox.watchSentMessages();
+    }
+
+    public void setMailboxAsUnavailable(){
+        storeMailBox.setMailboxAsUnavailable();
+    }
+
+    public void setMailboxAsAvailable(){
+        storeMailBox.setMailboxAsAvailable();
     }
 }
