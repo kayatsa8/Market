@@ -32,7 +32,8 @@ public class SystemNotificationTests extends ProjectTest{
      * Live Notification #5
      */
     @Test
-    public void getLiveNotification(){
+    public void getLiveNotification() throws Exception
+    {
         closeStore(user2LoggedInId, store2Id);
 
         List<MessageService> notifications = watchNotReadMessages(user2LoggedInId);
@@ -62,7 +63,8 @@ public class SystemNotificationTests extends ProjectTest{
      * delayed Notifications #6
      */
     @Test
-    public void delayedNotifications_Valid(){
+    public void delayedNotifications_Valid() throws Exception
+    {
         logOut("User4", "User4!!");
 
         this.closeStore(user4LoggedInId, store4Id);

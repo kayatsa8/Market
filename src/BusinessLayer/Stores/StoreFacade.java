@@ -22,68 +22,107 @@ public class StoreFacade {
         this.itemsIDs = 0;
     }
 
-    public Store addStore(int founderID, String name)//TODO sync with users
+    public Store addStore(int founderID, String name)
     {
         Store newStore = new Store(storesIDs, founderID, name);
         stores.put(storesIDs++, newStore);
         return newStore;
     }
-    public void setStoreName(int storeID, String storeName)
+    public void setStoreName(int storeID, String storeName) throws Exception
     {
-        getStore(storeID).setStoreName(storeName);
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        store.setStoreName(storeName);
     }
     public Store getStore(int storeID)
     {
         return stores.get(storeID);
     }
-    public CatalogItem getItem(int storeID, int itemID)
+    public CatalogItem getItem(int storeID, int itemID) throws Exception
     {
-        return getStore(storeID).getItem(itemID);
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        return store.getItem(itemID);
     }
-    public CatalogItem addCatalogItem(int storeID, String itemName, double itemPrice, String itemCategory)
+    public CatalogItem addCatalogItem(int storeID, String itemName, double itemPrice, String itemCategory) throws Exception
     {
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
         categoryPool.add(itemCategory);
-        return getStore(storeID).addCatalogItem(itemsIDs++, itemName, itemPrice, itemCategory);
+        return store.addCatalogItem(itemsIDs++, itemName, itemPrice, itemCategory);
     }
-    public int getItemAmount(int storeID, int itemID)
+    public int getItemAmount(int storeID, int itemID) throws Exception
     {
-        return getStore(storeID).getItemAmount(itemID);
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        return store.getItemAmount(itemID);
     }
-    public void addItemAmount(int storeID, int itemID, int amountToAdd)
+    public void addItemAmount(int storeID, int itemID, int amountToAdd) throws Exception
     {
-        getStore(storeID).addItemAmount(itemID, amountToAdd);
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        store.addItemAmount(itemID, amountToAdd);
     }
-    public void addBid(int storeID, int itemID, int userID, double offeredPrice)
+    public void addBid(int storeID, int itemID, int userID, double offeredPrice) throws Exception
     {
-        getStore(storeID).addBid(itemID, userID, offeredPrice);
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        store.addBid(itemID, userID, offeredPrice);
     }
-    public void addLottery(int storeID, int itemID, double price, int lotteryPeriodInDays)
+    public void addLottery(int storeID, int itemID, double price, int lotteryPeriodInDays) throws Exception
     {
-        getStore(storeID).addLottery(itemID, price, lotteryPeriodInDays);
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        store.addLottery(itemID, price, lotteryPeriodInDays);
     }
-    public void addAuction(int storeID, int itemID, double initialPrice, int auctionPeriodInDays)
+    public void addAuction(int storeID, int itemID, double initialPrice, int auctionPeriodInDays) throws Exception
     {
-        getStore(storeID).addAuction(itemID, initialPrice, auctionPeriodInDays);
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        store.addAuction(itemID, initialPrice, auctionPeriodInDays);
     }
-    public boolean participateInLottery(int storeID, int lotteryID, int userID, double offerPrice)
+    public boolean participateInLottery(int storeID, int lotteryID, int userID, double offerPrice) throws Exception
     {
-        return getStore(storeID).participateInLottery(lotteryID, userID, offerPrice);
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        return store.participateInLottery(lotteryID, userID, offerPrice);
     }
-    public boolean offerToAuction(int storeID, int auctionID, int userID, double offerPrice)
+    public boolean offerToAuction(int storeID, int auctionID, int userID, double offerPrice) throws Exception
     {
-        return getStore(storeID).offerToAuction(auctionID, userID, offerPrice);
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        return store.offerToAuction(auctionID, userID, offerPrice);
     }
     public boolean approve(int storeID, int bidID, int replierUserID) throws Exception
     {
-        return getStore(storeID).approve(bidID, replierUserID);
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        return store.approve(bidID, replierUserID);
     }
     public boolean reject(int storeID, int bidID, int replierUserID) throws Exception
     {
-        return getStore(storeID).reject(bidID, replierUserID);
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        return store.reject(bidID, replierUserID);
     }
     public boolean counterOffer(int storeID, int bidID, int replierUserID, double counterOffer) throws Exception
     {
-        return getStore(storeID).counterOffer(bidID, replierUserID, counterOffer);
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        return store.counterOffer(bidID, replierUserID, counterOffer);
     }
     public boolean reopenStore(int userID, int storeID) throws Exception
     {
@@ -103,19 +142,25 @@ public class StoreFacade {
             return getStore(storeID).closeStorePermanently();
         throw new Exception("Store ID " + storeID + " does not exist");
     }
-    public void addVisibleDiscount(int storeID, int itemID, double percent, Calendar endOfSale)
+    public void addVisibleDiscount(int storeID, int itemID, double percent, Calendar endOfSale) throws Exception
     {
-        Store store = stores.get(storeID);
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
         store.addVisibleDiscount(itemID, percent, endOfSale);
     }
-    public void addConditionalDiscount(int storeID, Map<Integer, Integer> itemsIDsToAmounts, double percent, Calendar endOfSale)
+    public void addConditionalDiscount(int storeID, Map<Integer, Integer> itemsIDsToAmounts, double percent, Calendar endOfSale) throws Exception
     {
-        Store store = stores.get(storeID);
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
         store.addConditionalDiscount(itemsIDsToAmounts, percent, endOfSale);
     }
-    public void addHiddenDiscount(int storeID, int itemID, double percent, String coupon, Calendar endOfSale)
+    public void addHiddenDiscount(int storeID, int itemID, double percent, String coupon, Calendar endOfSale) throws Exception
     {
-        Store store = stores.get(storeID);
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
         store.addHiddenDiscount(itemID, percent, coupon, endOfSale);
     }
 
@@ -140,14 +185,20 @@ public class StoreFacade {
         return res;
     }
 
-    public void removeItemFromStore(int storeID, int itemID) throws Exception
+    public CatalogItem removeItemFromStore(int storeID, int itemID) throws Exception
     {
-        getStore(storeID).removeItemFromStore(itemID);
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        return store.removeItemFromStore(itemID);
     }
 
     public String updateItemName(int storeID, int itemID, String newName) throws Exception
     {
-        return getStore(storeID).updateItemName(itemID, newName);
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        return store.updateItemName(itemID, newName);
     }
 
     public Boolean checkIfStoreOwner(int userID, int storeID) throws Exception
@@ -173,36 +224,67 @@ public class StoreFacade {
         throw new Exception("Store ID " + storeID + " does not exist");
     }
 
-    public void sendMessage(int storeID, int receiverID, String title, String content){
-        stores.get(storeID).sendMessage(receiverID, title, content);
+    public void sendMessage(int storeID, int receiverID, String title, String content) throws Exception
+    {
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        store.sendMessage(receiverID, title, content);
     }
 
-    public void markMessageAsRead(int storeID, Message message) throws Exception {
-        stores.get(storeID).markMessageAsRead(message);
+    public void markMessageAsRead(int storeID, Message message) throws Exception
+    {
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        store.markMessageAsRead(message);
     }
 
-    public void markMessageAsNotRead(int storeID, Message message) throws Exception {
-        stores.get(storeID).markMessageAsNotRead(message);
+    public void markMessageAsNotRead(int storeID, Message message) throws Exception
+    {
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        store.markMessageAsNotRead(message);
     }
 
-    public List<Message> watchNotReadMessages(int storeID){
-        return stores.get(storeID).watchNotReadMessages();
+    public List<Message> watchNotReadMessages(int storeID) throws Exception
+    {
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        return store.watchNotReadMessages();
     }
 
-    public List<Message> watchReadMessages(int storeID){
-        return stores.get(storeID).watchReadMessages();
+    public List<Message> watchReadMessages(int storeID) throws Exception
+    {
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        return store.watchReadMessages();
     }
 
-    public List<Message> watchSentMessages(int storeID){
-        return stores.get(storeID).watchSentMessages();
+    public List<Message> watchSentMessages(int storeID) throws Exception
+    {
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        return store.watchSentMessages();
     }
 
-    public void setMailboxAsUnavailable(int storeID){
-        stores.get(storeID).setMailboxAsUnavailable();
+    public void setMailboxAsUnavailable(int storeID) throws Exception
+    {
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        store.setMailboxAsUnavailable();
     }
 
-    public void setMailboxAsAvailable(int storeID){
-        stores.get(storeID).setMailboxAsAvailable();
+    public void setMailboxAsAvailable(int storeID) throws Exception
+    {
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        store.setMailboxAsAvailable();
     }
-
 }

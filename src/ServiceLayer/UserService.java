@@ -114,7 +114,8 @@ public class UserService {
         }
     }
 
-    public Result<Boolean> sendMessage(int userID, int receiverID, String title, String content){
+    public Result<Boolean> sendMessage(int userID, int receiverID, String title, String content) throws Exception
+    {
         boolean answer = market.sendMessage(userID, receiverID, title, content);
 
         if(answer){
@@ -151,7 +152,8 @@ public class UserService {
         }
     }
 
-    public Result<List<MessageService>> watchNotReadMessages(int userID){
+    public Result<List<MessageService>> watchNotReadMessages(int userID) throws Exception
+    {
         List<MessageService> messageServices;
         List<Message> messages = market.watchNotReadMessages(userID);
 
@@ -175,7 +177,8 @@ public class UserService {
         return toReturn;
     }
 
-    public Result<List<MessageService>> watchReadMessages(int userID){
+    public Result<List<MessageService>> watchReadMessages(int userID) throws Exception
+    {
         List<MessageService> messageServices;
         List<Message> messages = market.watchReadMessages(userID);
 
@@ -189,7 +192,8 @@ public class UserService {
 
     }
 
-    public Result<List<MessageService>> watchSentMessages(int userID){
+    public Result<List<MessageService>> watchSentMessages(int userID) throws Exception
+    {
         List<MessageService> messageServices;
         List<Message> messages = market.watchSentMessages(userID);
 

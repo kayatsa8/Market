@@ -119,7 +119,7 @@ public class RealBridge implements Bridge{
 
     @Override
     public boolean removeItemFromStore(int storeId, int itemId) {
-        Result<String> result =  shoppingService.removeItemFromStore(storeId, itemId);
+        Result<CatalogItemService> result =  shoppingService.removeItemFromStore(storeId, itemId);
         if(result.isError()){
             System.out.println(result.getMessage());
             return false;
@@ -196,7 +196,8 @@ public class RealBridge implements Bridge{
     }
 
     @Override
-    public void addItemAmount(int storeId, int itemId, int amount) {
+    public void addItemAmount(int storeId, int itemId, int amount) throws Exception
+    {
         shoppingService.addItemAmount(storeId, itemId, amount);
     }
 
@@ -238,7 +239,8 @@ public class RealBridge implements Bridge{
     }
 
     @Override
-    public List<MessageService> watchNotReadMessages(int id) {
+    public List<MessageService> watchNotReadMessages(int id) throws Exception
+    {
         Result<List<MessageService>> result = shoppingService.watchNotReadMessages(id);
         if(result.isError()){
             System.out.println(result.getMessage());
