@@ -4,6 +4,7 @@ import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
 import ServiceLayer.Objects.*;
+import ServiceLayer.Result;
 
 import java.util.HashMap;
 import java.util.List;
@@ -345,12 +346,6 @@ public interface Bridge {
      */
     boolean reopenStore(int userId, int storeId);
 
-    /**
-     * gets the list of notifications for his user
-     * @param userId
-     * @return
-     */
-    List<String> getNotifications(int userId);
 
 
     /**
@@ -420,6 +415,14 @@ public interface Bridge {
      * @return list of requests
      */
     List<String> getRequestsOfStore(int ownerManagerId, int storeId);
+
+
+    /**
+     *
+     * @param id
+     * @return list of messages
+     */
+    List<MessageService> watchNotReadMessages(int id);
 
 
 }

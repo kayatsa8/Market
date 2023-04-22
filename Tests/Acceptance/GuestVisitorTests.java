@@ -77,7 +77,7 @@ public class GuestVisitorTests extends ProjectTest{
 
     @Test
     public void registerUsedUser(){
-        int id = this.registerUser("User2", "User2!");
+        int id = this.registerUser("User2GuestVisitorTests", "User2!");
         assertTrue(id < 0);
     }
 
@@ -101,7 +101,7 @@ public class GuestVisitorTests extends ProjectTest{
      */
     @Test
     public void loginUserValid(){
-        boolean loggedIn = this.loginUser("User3", "User3!");
+        boolean loggedIn = this.loginUser("User3GuestVisitorTests", "User3!");
         assertTrue(loggedIn);
 
         //boolean check = checkIfLoggedIn(user3NotLoggedInId);
@@ -123,6 +123,44 @@ public class GuestVisitorTests extends ProjectTest{
         assertFalse(loggedIn);
     }
 
+
+
+
+
+    protected static int user1GuestId = -1;         //guest - active
+    protected static int user2LoggedInId = -1;
+    protected static int user3NotLoggedInId = -1;   // registered, not logged in
+    protected static int user5ManagerOfStore2ToBeRemoved = -1; //Owner/Manager of store2, to be removed positioned  by user2
+    protected static int user6OwnerOfStore2 = -1;            //Owner/Manager of store2, positioned by user2
+    protected static int store2Id = -1;             //store is open
+    protected static int store2ClosedId = -1;
+
+
+    protected void setUpUser1(){
+        user1GuestId = setUser("User1","User1!", GUEST, NOT_LOGGED);
+    }
+
+
+    /**
+     * User2: Member, logged in, Store Owner and Manager of store2
+     */
+    protected void setUpUser2(){
+        if(user2LoggedInId != -1){
+            return;
+        }
+        user2LoggedInId = setUser("User2GuestVisitorTests","User2!", MEMBER, LOGGED);
+        store2Id = createStore(user2LoggedInId, "Store2"); //store is open
+
+    }
+
+    /**
+     * User3: Member, Not logged in, Has a cart with items
+     */
+    protected void setUpUser3() {
+        if(user3NotLoggedInId != -1)
+            return;
+        user3NotLoggedInId = setUser("User3GuestVisitorTests","User3!", MEMBER, NOT_LOGGED);
+    }
 
 
 

@@ -331,14 +331,6 @@ public class ProxyBridge implements Bridge{
         return false;
     }
 
-    @Override
-    public List<String> getNotifications(int userId) {
-        if(real != null){
-            return real.getNotifications(userId);
-        }
-        return null;
-    }
-
 
     @Override
     public boolean rankAStore(int userId, int storeId, int rank) {
@@ -401,6 +393,13 @@ public class ProxyBridge implements Bridge{
         if(real != null){
             return real.getRequestsOfStore(ownerManagerId, storeId);
         }
+        return null;
+    }
+
+    @Override
+    public List<MessageService> watchNotReadMessages(int id) {
+        if(real != null)
+            return real.watchNotReadMessages(id);
         return null;
     }
 
