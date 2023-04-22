@@ -136,11 +136,11 @@ public class Store {
     }
 
     private boolean sameCategory(CatalogItem item, String keywords) {
-        return item.getCategory().equals(keywords);
+        return (item.getCategory().toLowerCase()).equals(keywords.toLowerCase());
     }
 
     private boolean sameName(CatalogItem item, String keywords) {
-        return item.getItemName().equals(keywords);
+        return (item.getItemName().toLowerCase()).equals(keywords.toLowerCase());
     }
 
     public boolean belongsToSearch(CatalogItem item, String keywords, SearchBy searchBy) throws Exception {
@@ -154,6 +154,7 @@ public class Store {
             case KEY_WORD: {
                 String[] keys = keywords.split(",");
                 for (String key : keys) {
+                    key = key.strip();
                     if (sameCategory(item, key) || sameName(item, key)) {
                         return true;
                     }
@@ -209,7 +210,7 @@ public class Store {
         storeMailBox.sendMessageToList(storeOwners, "New purchase", "User " + userID + " made a purchase in store " + storeName + " where you are one of the owners");
         log.info("A basket was bought at store " + storeID);
     }
-    public boolean saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems) throws Exception
+    public synchronized boolean saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems) throws Exception
     {
         if (checkIfItemsInStock(basketItems))
         {

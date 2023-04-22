@@ -40,11 +40,8 @@ public class ItemsManagementTests {
         int storeID = market.addStore(founder1.getId(), "storeName1");
         store1 = market.getStoreInfo(storeID);
         market.addOwner(founder1.getId(), id6, storeID);
-        market.addOwner(founder1.getId(), id7, storeID);
+        market.addManager(founder1.getId(), id7, storeID);
     }
-
-    //            store1.addCatalogItem();
-    //            store1.removeItemFromStore();
 
     @Test
     public void aAddCatalogItemSuccessfully(){

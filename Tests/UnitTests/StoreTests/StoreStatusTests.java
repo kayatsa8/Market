@@ -41,7 +41,7 @@ public class StoreStatusTests {
         int storeID = market.addStore(founder1.getId(), "storeName1");
         store1 = market.getStoreInfo(storeID);
         market.addOwner(founder1.getId(), id2, storeID);
-        market.addOwner(founder1.getId(), id3, storeID);
+        market.addManager(founder1.getId(), id3, storeID);
     }
 
     @Test

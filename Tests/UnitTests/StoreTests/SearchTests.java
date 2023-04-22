@@ -6,13 +6,15 @@ import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.UserFacade;
+import Globals.SearchBy;
 import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.junit.Assert.*;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SearchTests {
     static Market market;
     static StoreFacade storeFacade;
@@ -22,68 +24,96 @@ public class SearchTests {
     static RegisteredUser storeManager1;
     static RegisteredUser noRole;
     static Store store1;
-    static CatalogItem item1;
+    static Store store2;
+    static Store store3;
 
     @BeforeClass
     public static void setUp() throws Exception {
         market = Market.getInstance();
         storeFacade = market.getStoreFacade();
         userFacade = market.getUserFacade();
-        int id5 = market.register("userName5", "password5");
-        int id6 = market.register("userName6", "password6");
-        int id7 = market.register("userName7", "password7");
-        int id8 = market.register("userName8", "password8");
-        founder1 = userFacade.getUser(id5);
-        storeOwner1 = userFacade.getUser(id6);
-        storeManager1 = userFacade.getUser(id7);
-        noRole = userFacade.getUser(id8);
-        int storeID = market.addStore(founder1.getId(), "storeName1");
-        store1 = market.getStoreInfo(storeID);
-        market.addOwner(founder1.getId(), id6, storeID);
-        market.addOwner(founder1.getId(), id7, storeID);
+        int id9 = market.register("userName9", "password9");
+        int id10 = market.register("userName10", "password10");
+        int id11 = market.register("userName11", "password11");
+        int id12 = market.register("userName12", "password12");
+        founder1 = userFacade.getUser(id9);
+        storeOwner1 = userFacade.getUser(id10);
+        storeManager1 = userFacade.getUser(id11);
+        noRole = userFacade.getUser(id12);
+        int storeID1 = market.addStore(founder1.getId(), "storeName1");
+        store1 = market.getStoreInfo(storeID1);
+        int storeID2 = market.addStore(founder1.getId(), "storeName2");
+        store2 = market.getStoreInfo(storeID2);
+        int storeID3 = market.addStore(founder1.getId(), "storeName3");
+        store3 = market.getStoreInfo(storeID3);
+        market.addOwner(founder1.getId(), id10, storeID1);
+        market.addManager(founder1.getId(), id11, storeID1);
+        market.addItemToStore(storeID1, "item1", 10, "category1");
+        market.addItemToStore(storeID1, "item2", 20, "category2");
+        market.addItemToStore(storeID1, "item5", 50, "category5");
+        market.addItemToStore(storeID2, "item1", 10, "category1");
+        market.addItemToStore(storeID2, "item2", 20, "category2");
+        market.addItemToStore(storeID2, "item3", 30, "category3");
+        market.addItemToStore(storeID2, "item4", 40, "category4");
     }
 
-    //            store1.addCatalogItem();
-    //            store1.removeItemFromStore();
-
     @Test
-    public void aAddCatalogItemSuccessfully(){
+    public void getAllItems(){
         try {
-            item1 = storeFacade.addCatalogItem(store1.getStoreID(), "Harry Potter Book", 79.90, "Books");
-            assertNotNull("Item added to store",item1);
+            Map<CatalogItem, Boolean> items1 = store1.getCatalog();
+            Map<CatalogItem, Boolean> items2 = store2.getCatalog();
+            Map<CatalogItem, Boolean> items3 = store3.getCatalog();
+            Map<CatalogItem, Boolean> allItems = storeFacade.getCatalog();
+            assertTrue("Store 1 should return 3 items", items1.keySet().size()==3);
+            assertTrue("Store 2 should return 4 items", items2.keySet().size()==4);
+            assertTrue("Store 3 should return 0 items", items3.keySet().size()==0);
+            assertTrue("All stores together should return 7 items", allItems.keySet().size()==7);
         } catch (Exception e) {
             fail(e.getMessage());
         }
     }
 
     @Test
-    public void bAddCatalogItemUnsuccessfully(){
+    public void getSearchedItemsByItemName(){
         try {
-            CatalogItem item = storeFacade.addCatalogItem(1656, "Blabla Book", 100, "Books");
-            fail("Should throw an error for store not exist");
-        } catch (Exception e) {
-            assertTrue("Store not exist", ("No store with ID: " + 1656).equals(e.getMessage()));
-        }
-    }
-
-    @Test
-    public void cRemoveCatalogItemSuccessfully(){
-        try {
-            assertNotNull("Item should be found here", store1.getItem(item1.getItemID()));
-            CatalogItem item = storeFacade.removeItemFromStore(store1.getStoreID(), item1.getItemID());
-            assertNull("Item shouldn't be found here", store1.getItem(item1.getItemID()));
-            assertNotNull("Should return non null object", item);
+            Map<CatalogItem, Boolean> items1 = store1.getCatalog("item2", SearchBy.ITEM_NAME, new HashMap<>());
+            Map<CatalogItem, Boolean> items2 = store2.getCatalog("category2", SearchBy.ITEM_NAME, new HashMap<>());
+            Map<CatalogItem, Boolean> items3 = store3.getCatalog("item2", SearchBy.ITEM_NAME, new HashMap<>());
+            Map<CatalogItem, Boolean> fromAllStores = storeFacade.getCatalog("item2", SearchBy.ITEM_NAME, new HashMap<>());
+            assertTrue("Store 1 should return 1 items", items1.keySet().size()==1);
+            assertTrue("Store 2 should return 0 items", items2.keySet().size()==0);
+            assertTrue("Store 3 should return 0 items", items3.keySet().size()==0);
+            assertTrue("All stores together should return 2 items", fromAllStores.keySet().size()==2);
         } catch (Exception e) {
             fail(e.getMessage());
         }
     }
-
     @Test
-    public void dRemoveCatalogItemUnsuccessfully(){
+    public void getSearchedItemsByItemCategory(){
         try {
-            assertNull("Item shouldn't be found here", store1.getItem(item1.getItemID()));
-            CatalogItem item = storeFacade.removeItemFromStore(store1.getStoreID(), item1.getItemID());
-            assertNull("Returned item should be null" ,item);
+            Map<CatalogItem, Boolean> items1 = store1.getCatalog("category2", SearchBy.CATEGORY, new HashMap<>());
+            Map<CatalogItem, Boolean> items2 = store2.getCatalog("item2", SearchBy.CATEGORY, new HashMap<>());
+            Map<CatalogItem, Boolean> items3 = store3.getCatalog("category2", SearchBy.CATEGORY, new HashMap<>());
+            Map<CatalogItem, Boolean> fromAllStores = storeFacade.getCatalog("category2", SearchBy.CATEGORY, new HashMap<>());
+            assertTrue("Store 1 should return 1 items", items1.keySet().size()==1);
+            assertTrue("Store 2 should return 0 items", items2.keySet().size()==0);
+            assertTrue("Store 3 should return 0 items", items3.keySet().size()==0);
+            assertTrue("All stores together should return 2 items", fromAllStores.keySet().size()==2);
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
+    }
+    @Test
+    public void getSearchedItemsByKeywords(){
+        try {
+            Map<CatalogItem, Boolean> items1 = store1.getCatalog("item2", SearchBy.KEY_WORD, new HashMap<>());
+            Map<CatalogItem, Boolean> items2 = store2.getCatalog("cateGORY2, category3", SearchBy.KEY_WORD, new HashMap<>());
+            Map<CatalogItem, Boolean> items3 = store3.getCatalog("item1, category1", SearchBy.KEY_WORD, new HashMap<>());
+            Map<CatalogItem, Boolean> fromAllStores = storeFacade.getCatalog("ITeM4, cAtEgOrY1", SearchBy.KEY_WORD, new HashMap<>());
+            assertTrue("Store 1 should return 1 items", items1.keySet().size()==1);
+            assertTrue("Store 2 should return 1 items", items2.keySet().size()==2);
+            assertTrue("Store 3 should return 0 items", items3.keySet().size()==0);
+            assertTrue("All stores together should return 3 items", fromAllStores.keySet().size()==3);
         } catch (Exception e) {
             fail(e.getMessage());
         }
