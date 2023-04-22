@@ -117,7 +117,7 @@ public interface Bridge {
      * @param itemId
      * @param amount
      */
-    void addItemAmount(int storeId, int itemId, int amount);
+    void addItemAmount(int storeId, int itemId, int amount) throws Exception;
 
 
     /**
@@ -422,7 +422,7 @@ public interface Bridge {
      * @param id
      * @return list of messages
      */
-    List<MessageService> watchNotReadMessages(int id);
+    List<MessageService> watchNotReadMessages(int id) throws Exception;
 
 
 }

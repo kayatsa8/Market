@@ -60,10 +60,6 @@ public class UserFacade {
             userDAO.addUser(tempUser);
             //add to cash
             users.put(tempUser.getId(), tempUser);
-
-            //There is one in the constructor, if you want to put it here, you need to do user.setMailBox(...)
-            //NotificationHub.getInstance().registerToMailService(tempUser);
-
             return tempUser.getId();
         }
         else {
@@ -172,7 +168,8 @@ public class UserFacade {
 
     //only called from system manager after other user associations removed
     public void removeUser(RegisteredUser userToRemove) throws Exception {
-        users.remove(userToRemove.getUsername());
+        //users.remove(userToRemove.getUsername());
+        users.remove(userToRemove.getId());
         userDAO.removeUser(userToRemove);
     }
 

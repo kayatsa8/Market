@@ -146,12 +146,13 @@ public abstract class ProjectTest {
         return id;
     }
 
-
-
-    public int addItemToStoreForTests(int storeId, String name, int price, String category, int amount){
-        int id = addCatalogItem(storeId, name, price, category);
-        addItemAmount(storeId, id, amount);
-        return id;
+    public int addItemToStoreForTests(int storeId, String name, int price, String category, int amount)
+    {
+        try {
+            int id = addCatalogItem(storeId, name, price, category);
+            addItemAmount(storeId, id, amount);
+            return id;
+        } catch (Exception e) { return -1; }
     }
 
 
@@ -253,11 +254,13 @@ public abstract class ProjectTest {
         return this.bridge.getPersonalHistory(userId);
     }
 
-    protected void addItemAmount(int storeId, int itemId, int amount) {
+    protected void addItemAmount(int storeId, int itemId, int amount) throws Exception
+    {
         this.bridge.addItemAmount(storeId, itemId, amount);
     }
 
-    protected List<MessageService> watchNotReadMessages(int id){
+    protected List<MessageService> watchNotReadMessages(int id) throws Exception
+    {
         return this.bridge.watchNotReadMessages(id);
     }
 
