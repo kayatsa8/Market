@@ -1,5 +1,6 @@
 package ServiceLayer;
 
+import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.Receipts.Receipt.Receipt;
@@ -8,7 +9,6 @@ import Globals.SearchBy;
 import Globals.SearchFilter;
 
 import BusinessLayer.Log;
-import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.Market;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.CatalogItem;
@@ -21,66 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-/*
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 88675fc4d69b5c10d6950cbe0d6bbe328f6c83c6
-getSellingHistory               int storeId, int userId
-
-askForSupply                    int userId, List<TestItemInfo> items, String supplyService
-
-rankAStore                      int userId, int storeId, int rank
-getStoreRank                    int userId, int storeId
-rankAnItemInStore               int userId, int storeId, int itemId, int rank
-getItemRank                     int userId, int storeId, int itemId
-<<<<<<< HEAD
-=======
-getStoreInfo(storeId)                                       int storeId
-getStoreInfoAsStoreManager(storeId, userId)                 int storeId, int userId
-searchItems(itemName, filters)                              String itemName, List<String> filters
-=======
-getSellingHistory               int storeId, int userId
->>>>>>> 15e08e8 (Most of shopping service)
-
-askForSupply                    int userId, List<TestItemInfo> items, String supplyService
-
-<<<<<<< HEAD
-addItemToStore(storeId, itemName, price)                    int storeId, String itemName, int price
-removeItemFromStore(storeId, itemId)                        int storeId, int itemId
-updateItemName(storeId, itemId, newName)                    int storeId, int itemId, String newName
-
-getSellingHistory(storeId, userId)                          int storeId, int userId
-
-createStore(userId)                                         int userId
-reopenStore(userId, storeId)                                int userId, int storeId
-closeStore(userId, storeId)                                 int userId, int storeId
-closeStorePermanently(storeManagerId, storeId)              int storeManagerId, int storeId
-
-askForSupply(userId, items, supplyService)                  int userId, List<TestItemInfo> items, String supplyService
-
-checkIfStoreOwner(userId, storeId)                          int userId, int storeId
-checkIfStoreManager(userId, storeId)                        int userId, int storeId
-
-rankAStore(userId, storeId, rank)                           int userId, int storeId, int rank
-getStoreRank(userId, storeId)                               int userId, int storeId
-rankAnItemInStore(userId, storeId, itemId, rank)            int userId, int storeId, int itemId, int rank
-getItemRank(userId, storeId, itemId)                        int userId, int storeId, int itemId
-
-getRequestsOfStore(ownerManagerId, storeId)                 int ownerManagerId, int storeId
->>>>>>> 9b37986 (resolving rebase conflicts)
-=======
-rankAStore                      int userId, int storeId, int rank
-getStoreRank                    int userId, int storeId
-rankAnItemInStore               int userId, int storeId, int itemId, int rank
-getItemRank                     int userId, int storeId, int itemId
->>>>>>> 15e08e8 (Most of shopping service)
-=======
->>>>>>> 88675fc4d69b5c10d6950cbe0d6bbe328f6c83c6
- */
-
 public class ShoppingService {
+
     private static final Logger log = Log.log;
     private final Market market;
 
@@ -166,26 +108,31 @@ public class ShoppingService {
         }
     }
 
-    public HashMap<CatalogItemService, CartItemInfoService> getItemsInBasket(int userID, String storeName) throws Exception {
-        HashMap<CatalogItemService, CartItemInfoService> map = new HashMap<>();
-        HashMap<CatalogItem, CartItemInfo> items = market.getItemsInBasket(userID, storeName);
-
-        for(CatalogItem item : items.keySet()){
-            map.putIfAbsent(new CatalogItemService(item, true), new CartItemInfoService(items.get(item)));
-        }
-
-        return map;
+    public HashMap<CatalogItem, CartItemInfo> getItemsInBasket(int userID, String storeName) throws Exception {
+        return market.getItemsInBasket(userID, storeName);
     }
 
-    public void buyCart(int userID, String deliveryAddress) throws Exception {
-        market.buyCart(userID, deliveryAddress);
+    public Result buyCart(int userID, String address) throws Exception {
+        try {
+            market.buyCart(userID, address);
+            return new Result<>(false, true);
+        } catch (Exception e) {
+            log.info("Cart could not be purchased");
+            return new Result<>(true, e.getMessage());
+        }
     }
 
     /**
      * empties the cart
      */
-    public void emptyCart(int userID) {
-        market.emptyCart(userID);
+    public Result emptyCart(int userID) {
+        try {
+            market.emptyCart(userID);
+            return new Result<>(false, true);
+        } catch (Exception e) {
+            log.info("Cart could not be emptied");
+            return new Result<>(true, e.getMessage());
+        }
     }
     public Result<StoreService> getStoreInfo(int storeID) {
         try {

@@ -148,9 +148,9 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public boolean logOut(String name, String pass) {
+    public boolean logOut(int userID) {
         if(real != null){
-            return real.logOut(name, pass);
+            return real.logOut(userID);
         }
         return true;
     }

@@ -12,7 +12,6 @@ import java.util.List;
 public class StoreMailbox extends Mailbox{
 
     private final Store owner;
-    private boolean available;
 
     public StoreMailbox(Store _owner){
         owner = _owner;
@@ -43,20 +42,6 @@ public class StoreMailbox extends Mailbox{
         String content = "You can view the message in the store's mailbox";
 
         return new Message(ownerID, id, title, content);
-    }
-
-    public void setMailboxAsUnavailable(){
-        available = false;
-        Log.log.info("The mailbox of " + ownerID + " was marked as unavailable.");
-    }
-
-    public void setMailboxAsAvailable(){
-        available = true;
-        Log.log.info("The mailbox of " + ownerID + " was marked as available.");
-    }
-
-    public boolean isAvailable(){
-        return available;
     }
 
     public void sendMessage(int receiverID, String title, String content){

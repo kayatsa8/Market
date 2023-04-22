@@ -4,9 +4,11 @@ import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.Receipts.Receipt.Receipt;
+import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
+import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.SystemManager;
 import BusinessLayer.Users.UserFacade;
 import Globals.FilterValue;
@@ -33,6 +35,7 @@ public class Market {
             instance = new Market();
             instance.createFirstAdmin();
         }
+        instance.userFacade.setGuest();
         return instance;
     }
 
@@ -48,7 +51,7 @@ public class Market {
         return systemManagerMap;
     }
 
-    private void createFirstAdmin() {
+    private void createFirstAdmin() throws Exception {
         userFacade.createAdmin();
     }
 
@@ -64,36 +67,38 @@ public class Market {
        return userFacade.logIn(username, pass);
     }
 
+    public boolean logout(int userID) throws Exception {
+        return userFacade.logout(userID);
+    }
+
     public void systemStart() {
         userFacade.systemStart();
     }
 
-    public void logout(String userName, String pass) {
-        userFacade.logout(userName, pass);
-    }
-
-    public void addOwner(int userID, int userToAddID, int storeID) {
+    public void addOwner(int userID, int userToAddID, int storeID) throws Exception {
         userFacade.addOwner(userID, userToAddID, storeID);
     }
 
-    public void addManager(int userID, int userToAdd, int storeID) {
+    public void addManager(int userID, int userToAdd, int storeID) throws Exception {
         userFacade.addManager(userID, userToAdd, storeID);
     }
 
-    public void removeOwner(int userID, int userToRemove, int storeID) {
+    public void removeOwner(int userID, int userToRemove, int storeID) throws Exception {
         userFacade.removeOwner(userID, userToRemove, storeID);
     }
 
-    public void removeManager(int userID, int userToRemove, int storeID) {
+    public void removeManager(int userID, int userToRemove, int storeID) throws Exception {
         userFacade.removeManager(userID, userToRemove, storeID);
     }
 
     public boolean closeStorePermanently(int userID, int storeID) throws Exception
      {
+         //@TODO check if this doesnt break tests
         if (isAdmin(userID)) {
-            //SystemManager systemManager = systemManagerMap.get(userID);
-            //systemManager.closeStorePermanently(storeFacade.getStore(storeID));
-            return storeFacade.closeStorePermanently(storeID);
+            SystemManager systemManager = systemManagerMap.get(userID);
+            systemManager.closeStorePermanently(storeFacade.getStore(storeID));
+//            return storeFacade.closeStorePermanently(storeID);
+            return true;
         }
         else {
             throw new RuntimeException("Only admin can close stores permanently");
@@ -107,14 +112,13 @@ public class Market {
     public void removeUser(int userID, int userToRemove) throws Exception {
         if (isAdmin(userID)) {
             SystemManager systemManager = systemManagerMap.get(userID);
-            systemManager.removeUser(userFacade.getUser(userToRemove));
+            systemManager.removeUser(userFacade.getRegisteredUser(userToRemove));
         }
         else
             throw new RuntimeException("Only System admin can remove a user");
     }
 
-    public int addStore(int founderID, String name)
-    {
+    public int addStore(int founderID, String name) throws Exception {
         Store store = storeFacade.addStore(founderID, name);
         userFacade.addStore(founderID, store);
         return store.getStoreID();
@@ -152,7 +156,7 @@ public class Market {
      *
      * @return List<String> @TODO maybe should be of some kind of object?
      */
-    public List<String> getStoresOfBaskets(int userID) {
+    public List<String> getStoresOfBaskets(int userID) throws Exception {
         return userFacade.getStoresOfBaskets(userID);
     }
 
@@ -160,14 +164,14 @@ public class Market {
         return userFacade.getItemsInBasket(userID, storeName);
     }
 
-    public Cart buyCart(int userID, String deliveryAddress) throws Exception {
-        return userFacade.buyCart(userID, deliveryAddress);
+    public Cart buyCart(int userID, String address) throws Exception {
+        return userFacade.buyCart(userID, address);
     }
 
     /**
      * empties the cart
      */
-    public Cart emptyCart(int userID) {
+    public Cart emptyCart(int userID) throws Exception {
         return userFacade.emptyCart(userID);
     }
 
@@ -209,6 +213,14 @@ public class Market {
     public Boolean closeStore(int userID, int storeID) throws Exception
     {
         return storeFacade.closeStore(userID, storeID);
+    }
+
+    public void addManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) throws Exception {
+        userFacade.addManagerPermission(userID, storeID, manager, permission);
+    }
+
+    public void removeManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) throws Exception {
+        userFacade.removeManagerPermission(userID, storeID, manager, permission);
     }
 
     public boolean sendMessage(int senderID, int receiverID, String title, String content){

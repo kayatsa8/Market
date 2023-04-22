@@ -1,9 +1,10 @@
 package BusinessLayer.Users;
 
 import BusinessLayer.CartAndBasket.Cart;
+import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
-import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.Receipts.ReceiptHandler;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 
@@ -12,9 +13,10 @@ import java.util.List;
 
 public abstract class User {
     protected Cart cart;
-
-    public User() {
-        this.cart = new Cart();
+    protected ReceiptHandler receiptHandler;
+    public User(int id) {
+        this.cart = new Cart(id);
+        this.receiptHandler = new ReceiptHandler();
     }
 
     public Cart getCart() {
@@ -50,8 +52,8 @@ public abstract class User {
         return cart.getItemsInBasket(storeName);
     }
 
-    public Cart buyCart(String deliveryAddress) throws Exception {
-        cart.buyCart(new PurchaseClient(), new SupplyClient(), deliveryAddress);
+    public Cart buyCart(String address) throws Exception {
+        cart.buyCart(new PurchaseClient(), new SupplyClient(), address);
         return cart;
     }
 

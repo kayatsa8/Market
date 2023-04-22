@@ -6,8 +6,6 @@ import BusinessLayer.NotificationSystem.Repositories.MailboxesRepository;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Users.RegisteredUser;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 
 /**
  * In order to register to the notification system:
@@ -15,21 +13,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class NotificationHub {
 
+    private static final Object instanceLock = new Object();
     // class attributes
     private static NotificationHub instance = null;
-    private static final Object instanceLock = new Object();
-    // class methods
-    public static NotificationHub getInstance(){
-        synchronized (instanceLock){
-            if(instance == null){
-                instance = new NotificationHub();
-            }
-        }
-        return instance;
-    }
-
-
-
     // fields
     //private final ConcurrentHashMap<Integer, Mailbox> mailboxes; // <ID, Mailbox>
     private final MailboxesRepository mailboxes;
@@ -41,9 +27,23 @@ public class NotificationHub {
         Log.log.info("The notification hub has started successfully.");
     }
 
+    // class methods
+    public static NotificationHub getInstance() {
+        synchronized (instanceLock) {
+            if (instance == null) {
+                instance = new NotificationHub();
+            }
+        }
+        return instance;
+    }
+
+    public MailboxesRepository getMailboxes() {
+        return mailboxes;
+    }
+
     public UserMailbox registerToMailService(RegisteredUser user) throws Exception {
         int userID = user.getId();
-        if(isRegistered(userID)){
+        if (isRegistered(userID)) {
             Log.log.warning("ERROR: NotificationHub::registerToMailService: the user " + userID + " is already registered!");
             throw new Exception("NotificationHub::registerToMailService: the user " + userID + " is already registered!");
         }
@@ -57,7 +57,7 @@ public class NotificationHub {
 
     public StoreMailbox registerToMailService(Store store) throws Exception {
         int storeID = store.getStoreID();
-        if(isRegistered(storeID)){
+        if (isRegistered(storeID)) {
             Log.log.warning("NotificationHub::registerToMailService: the store " + storeID + " is already registered!");
             throw new Exception("NotificationHub::registerToMailService: the store " + storeID + " is already registered!");
         }
@@ -65,12 +65,12 @@ public class NotificationHub {
         mailboxes.putIfAbsent(storeID, mailbox);
 
         Log.log.info("NotificationHub::registerToMailService: store " + store.getStoreID()
-                        + " is registered to notification service");
+                + " is registered to notification service");
         return mailbox;
     }
 
     public void removeFromService(int ID) throws Exception {
-        if(!isRegistered(ID)){
+        if (!isRegistered(ID)) {
             Log.log.warning("NotificationHub::removeFromService: the given ID " + ID + " is not of a registered user or store!");
             throw new Exception("NotificationHub::removeFromService: the given ID " + ID + " is not of a registered user or store!");
         }
@@ -78,11 +78,11 @@ public class NotificationHub {
         mailboxes.remove(ID);
     }
 
-    public boolean isRegistered(int ID){
+    public boolean isRegistered(int ID) {
         return mailboxes.containsKey(ID);
     }
 
-    public void passMessage(Message message) throws Exception{
+    public void passMessage(Message message) throws Exception {
         validatePassedMessage(message);
 
         Mailbox mailbox = mailboxes.get(message.getReceiverID());
@@ -92,23 +92,23 @@ public class NotificationHub {
     }
 
     private void validatePassedMessage(Message message) throws Exception {
-        if(message == null){
+        if (message == null) {
             throw new Exception("NotificationHub::passMessage: given message is null");
         }
 
-        if(!isRegistered(message.getSenderID())){
+        if (!isRegistered(message.getSenderID())) {
             throw new Exception("NotificationHub::passMessage: the sender is not registered!");
         }
 
-        if(!isRegistered(message.getReceiverID())){
+        if (!isRegistered(message.getReceiverID())) {
             throw new Exception("NotificationHub::passMessage: the receiver is not registered!");
         }
 
-        if(message.getTitle() == null || message.getTitle().isBlank()){
+        if (message.getTitle() == null || message.getTitle().isBlank()) {
             throw new Exception("NotificationHub::passMessage: the title of the message is invalid!");
         }
 
-        if(message.getContent() == null || message.getContent().isBlank()){
+        if (message.getContent() == null || message.getContent().isBlank()) {
             throw new Exception("NotificationHub::passMessage: the content of the message is invalid!");
         }
     }
