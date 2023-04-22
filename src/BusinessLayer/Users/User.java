@@ -5,8 +5,6 @@ import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
 import BusinessLayer.Receipts.ReceiptHandler;
-import BusinessLayer.Cart;
-import BusinessLayer.Stores.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 

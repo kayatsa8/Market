@@ -17,12 +17,12 @@ public class NotificationHubTests {
     }
 
     @Test
-    public void registerUserToService(){
-        RegisteredUser user = new RegisteredUser("user1", "123456", 1111);
+    public void registerUserToService() throws Exception {
+        RegisteredUser user = new RegisteredUser("user1", "123456", 1112);
 
         try{
             assertNotNull(user.getMailbox());
-            hub.removeFromService(1111);
+            hub.removeFromService(1112);
             assertFalse("The user is still registered", hub.isRegistered(user.getId()));
         }
         catch(Exception e){
@@ -55,9 +55,9 @@ public class NotificationHubTests {
 
     @Test
     public void passMessage() throws Exception {
-        RegisteredUser user1 = new RegisteredUser("user1", "123456789", 1111);
-        RegisteredUser user2 = new RegisteredUser("user2", "123456789", 2222);
-        RegisteredUser user3 = new RegisteredUser("user3", "123456789", 3333);
+        RegisteredUser user1 = new RegisteredUser("user1", "123456789", 5111);
+        RegisteredUser user2 = new RegisteredUser("user2", "123456789", 5222);
+        RegisteredUser user3 = new RegisteredUser("user3", "123456789", 5333);
 
         Mailbox mailbox1 = user1.getMailbox();
         Mailbox mailbox2 = user2.getMailbox();

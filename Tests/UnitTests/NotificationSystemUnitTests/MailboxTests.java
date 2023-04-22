@@ -27,9 +27,9 @@ public class MailboxTests {
 
     @Test
     public void send_receiveMessage() throws Exception {
-        RegisteredUser user1 = new RegisteredUser("user1", "123456789", 1111);
-        RegisteredUser user2 = new RegisteredUser("user2", "123456789", 2222);
-        RegisteredUser user3 = new RegisteredUser("user3", "123456789", 3333);
+        RegisteredUser user1 = new RegisteredUser("user1", "123456789", 6111);
+        RegisteredUser user2 = new RegisteredUser("user2", "123456789", 6222);
+        RegisteredUser user3 = new RegisteredUser("user3", "123456789", 6333);
 
         Mailbox mailbox1 = user1.getMailbox();
         Mailbox mailbox2 = user2.getMailbox();
@@ -53,8 +53,8 @@ public class MailboxTests {
 
     @Test
     public void markMessageAsRead() throws Exception {
-        RegisteredUser user1 = new RegisteredUser("user1", "123456789", 1111);
-        RegisteredUser user2 = new RegisteredUser("user2", "123456789", 2222);
+        RegisteredUser user1 = new RegisteredUser("user1", "123456789", 7111);
+        RegisteredUser user2 = new RegisteredUser("user2", "123456789", 7222);
 
         Mailbox mailbox1 = user1.getMailbox();
         Mailbox mailbox2 = user2.getMailbox();
@@ -75,8 +75,8 @@ public class MailboxTests {
 
     @Test
     public void markMessageAsNotRead() throws Exception {
-        RegisteredUser user1 = new RegisteredUser("user1", "123456789", 1111);
-        RegisteredUser user2 = new RegisteredUser("user2", "123456789", 2222);
+        RegisteredUser user1 = new RegisteredUser("user1", "123456789", 8111);
+        RegisteredUser user2 = new RegisteredUser("user2", "123456789", 8222);
 
         Mailbox mailbox1 = user1.getMailbox();
         Mailbox mailbox2 = user2.getMailbox();

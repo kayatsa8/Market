@@ -4,6 +4,7 @@ import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.NotificationSystem.UserMailbox;
+import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.StorePermissions.StoreManager;
 import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Store;
@@ -31,6 +32,7 @@ public class RegisteredUser extends User {
         this.storesIOwn = new HashMap<>();
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();
+        this.isLoggedIn = true;
         try {
             this.mailbox = NotificationHub.getInstance().registerToMailService(this);
         } catch (Exception e) {}

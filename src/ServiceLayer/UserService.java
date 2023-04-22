@@ -13,7 +13,7 @@ public class UserService {
     private static final Logger log = Log.log;
     private final Market market;
 
-    public UserService() {
+    public UserService() throws Exception {
         market = Market.getInstance();
     }
 

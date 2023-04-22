@@ -26,7 +26,7 @@ public class ShoppingService {
     private static final Logger log = Log.log;
     private final Market market;
 
-    public ShoppingService() {
+    public ShoppingService() throws Exception {
         market = Market.getInstance();
     }
 

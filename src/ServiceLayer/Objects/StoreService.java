@@ -22,10 +22,6 @@ public class StoreService {
         return false;
     }
 
-    public String getStoreName(){
-        return storeName;
-    }
-
     public int getStoreId() {
         return storeID;
     }

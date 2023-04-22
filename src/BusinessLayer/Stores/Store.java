@@ -45,39 +45,8 @@ public class Store {
     private Map<Integer, Auction> auctions;
     private Map<Integer, Lottery> lotteries;
     private ReceiptHandler receiptHandler;
-    private List<Integer> storeOwners;
-    private List<Integer> storeManagers;
-    public List<Integer> getStoreOwners() {
-        return storeOwners;
-    }
-    public List<Integer> getStoreManagers() {
-        return storeManagers;
-    }
-    public CatalogItem getItem(int itemID)
-    {
-        return items.get(itemID);
-    }
-    public int getItemAmount(int itemID)
-    {
-        return itemsAmounts.get(itemID);
-    }
-    public int getStoreID() {
-        return storeID;
-    }
-    public String getStoreName() {
-        return storeName;
-    }
-    public void setStoreName(String storeName) {
-        this.storeName = storeName;
-    }
-    public Discount getDiscount(int discountID)
-    {
-        return discounts.get(discountID);
-    }
-    public ReceiptHandler getReceiptHandler() { return receiptHandler; }
-    public int getFounderID() {
-        return founderID;
-    }
+    private List<StoreOwner> storeOwners;
+    private List<StoreManager> storeManagers;
 
     public Store(int storeID, int founderID, String name) {
         this.storeID = storeID;

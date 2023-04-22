@@ -3,6 +3,7 @@ package BusinessLayer;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Message;
+import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.CatalogItem;
@@ -24,19 +25,22 @@ public class Market {
     private UserFacade userFacade;
     private StoreFacade storeFacade;
     private Map<Integer, SystemManager> systemManagerMap;
+    private static final Object instanceLock = new Object();
     private Market() {
         systemManagerMap = new HashMap<>();
         userFacade = new UserFacade();
         storeFacade = new StoreFacade();
     }
 
-    public static Market getInstance() {
-        if (instance == null) {
-            instance = new Market();
-            instance.createFirstAdmin();
+    public static Market getInstance() throws Exception {
+        synchronized (instanceLock) {
+            if (instance == null) {
+                instance = new Market();
+                instance.createFirstAdmin();
+            }
+            instance.userFacade.setGuest();
+            return instance;
         }
-        instance.userFacade.setGuest();
-        return instance;
     }
 
     public UserFacade getUserFacade() {
@@ -93,11 +97,9 @@ public class Market {
 
     public boolean closeStorePermanently(int userID, int storeID) throws Exception
      {
-         //@TODO check if this doesnt break tests
         if (isAdmin(userID)) {
             SystemManager systemManager = systemManagerMap.get(userID);
             systemManager.closeStorePermanently(storeFacade.getStore(storeID));
-//            return storeFacade.closeStorePermanently(storeID);
             return true;
         }
         else {
@@ -119,7 +121,6 @@ public class Market {
     }
 
     public int addStore(int founderID, String name) throws Exception {
-    {
         //bc of two-way dependency: store is created with only founder ID then when founder receives store pointer he adds himself to owner list
         Store store = storeFacade.addStore(founderID, name);
         userFacade.addStore(founderID, store);
@@ -230,7 +231,7 @@ public class Market {
             storeFacade.sendMessage(senderID, receiverID, title, content);
             return true;
         }
-        if(userFacade.isUserExists(senderID)){
+        if(userFacade.userExists(senderID)){
             userFacade.sendMessage(senderID, receiverID, title, content);
             return true;
         }
@@ -242,7 +243,7 @@ public class Market {
         if(storeFacade.isStoreExists(ID)){
             storeFacade.markMessageAsRead(ID, message);
         }
-        if(userFacade.isUserExists(ID)){
+        if(userFacade.userExists(ID)){
             userFacade.markMessageAsRead(ID, message);
         }
     }
@@ -251,7 +252,7 @@ public class Market {
         if(storeFacade.isStoreExists(ID)){
             storeFacade.markMessageAsNotRead(ID, message);
         }
-        if(userFacade.isUserExists(ID)){
+        if(userFacade.userExists(ID)){
             userFacade.markMessageAsNotRead(ID, message);
         }
     }
@@ -260,7 +261,7 @@ public class Market {
         if(storeFacade.isStoreExists(ID)){
             return storeFacade.watchNotReadMessages(ID);
         }
-        if(userFacade.isUserExists(ID)){
+        if(userFacade.userExists(ID)){
             return userFacade.watchNotReadMessages(ID);
         }
 
@@ -271,7 +272,7 @@ public class Market {
         if(storeFacade.isStoreExists(ID)){
             return storeFacade.watchNotReadMessages(ID);
         }
-        if(userFacade.isUserExists(ID)){
+        if(userFacade.userExists(ID)){
             return userFacade.watchReadMessages(ID);
         }
 
@@ -282,7 +283,7 @@ public class Market {
         if(storeFacade.isStoreExists(ID)){
             return storeFacade.watchSentMessages(ID);
         }
-        if(userFacade.isUserExists(ID)){
+        if(userFacade.userExists(ID)){
             return userFacade.watchSentMessages(ID);
         }
 

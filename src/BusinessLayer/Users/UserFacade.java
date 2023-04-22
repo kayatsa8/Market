@@ -2,11 +2,9 @@ package BusinessLayer.Users;
 
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.Log;
-import BusinessLayer.NotificationSystem.Message;
-import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
-import BusinessLayer.Stores.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
@@ -33,7 +31,7 @@ public class UserFacade {
         userID = userDAO.getMaxID() + 1;
     }
 
-    private int getNewId() {
+    private synchronized int getNewId() {
         return userID++;
     }
 
@@ -42,9 +40,9 @@ public class UserFacade {
     }
 
     public void createAdmin() throws Exception {
-        RegisteredUser admin = new RegisteredUser(adminName, adminName, 1000000, true);
+        RegisteredUser admin = new RegisteredUser(adminName, adminName, getNewId(), true);
 //        userDAO.addUser(admin);
-        users.put(0, admin);
+        users.put(admin.getId(), admin);
     }
 
     public RegisteredUser getUserByName(String userName) throws Exception {
@@ -54,6 +52,10 @@ public class UserFacade {
             }
         }
         throw new Exception("No user exists with name " + userName);
+    }
+
+    public boolean userExists(int ID){
+        return users.containsKey(ID);
     }
 
     public User getUser(int userID) {
@@ -255,5 +257,29 @@ public class UserFacade {
     public void removeManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) throws Exception {
         RegisteredUser user = getLoggedInUser(userID);
         user.removeManagerPermission(storeID, manager, permission);
+    }
+
+    public void sendMessage(int senderID, int receiverID, String title, String content){
+        users.get(senderID).sendMessage(receiverID, title, content);
+    }
+
+    public void markMessageAsRead(int userID, Message message) throws Exception {
+        users.get(userID).markMessageAsRead(message);
+    }
+
+    public void markMessageAsNotRead(int userID, Message message) throws Exception {
+        users.get(userID).markMessageAsNotRead(message);
+    }
+
+    public List<Message> watchNotReadMessages(int userID){
+        return users.get(userID).watchNotReadMessages();
+    }
+
+    public List<Message> watchReadMessages(int userID){
+        return users.get(userID).watchReadMessages();
+    }
+
+    public List<Message> watchSentMessages(int userID){
+        return users.get(userID).watchSentMessages();
     }
 }

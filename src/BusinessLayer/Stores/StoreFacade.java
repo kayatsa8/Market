@@ -154,9 +154,7 @@ public class StoreFacade {
         throw new Exception("Store ID " + storeID + " does not exist");
     }
 
-    public boolean isStoreExists(int storeID)
-    {
-    private boolean isStoreExists(int storeID) {
+    public boolean isStoreExists(int storeID) {
         return stores.containsKey(storeID);
     }
 
