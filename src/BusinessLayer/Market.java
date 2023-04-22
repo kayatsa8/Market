@@ -119,6 +119,8 @@ public class Market {
     }
 
     public int addStore(int founderID, String name) throws Exception {
+    {
+        //bc of two-way dependency: store is created with only founder ID then when founder receives store pointer he adds himself to owner list
         Store store = storeFacade.addStore(founderID, name);
         userFacade.addStore(founderID, store);
         return store.getStoreID();

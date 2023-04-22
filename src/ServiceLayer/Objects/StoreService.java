@@ -36,4 +36,8 @@ public class StoreService {
             return null;
         return new CatalogItemService(item, store.getItemAmount(id)>0);
     }
+
+    public String getStoreName() {
+        return storeName;
+    }
 }

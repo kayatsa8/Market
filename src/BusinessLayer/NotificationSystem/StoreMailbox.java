@@ -4,10 +4,11 @@ import BusinessLayer.Log;
 import BusinessLayer.NotificationSystem.Repositories.NotReadMessagesRepository;
 import BusinessLayer.NotificationSystem.Repositories.ReadMessagesRepository;
 import BusinessLayer.NotificationSystem.Repositories.SentMessagesRepository;
+import BusinessLayer.StorePermissions.StoreEmployees;
 import BusinessLayer.Stores.Store;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class StoreMailbox extends Mailbox{
 
@@ -24,8 +25,8 @@ public class StoreMailbox extends Mailbox{
 
     @Override
     public void notifyOwner() throws Exception {
-        List<Integer> IDs = owner.getStoreOwners();
-        IDs.addAll(owner.getStoreManagers());
+        List<Integer> IDs = owner.getStoreOwners().stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
+        IDs.addAll(owner.getStoreManagers().stream().map(StoreEmployees::getUserID).toList());
         NotificationHub hub = NotificationHub.getInstance();
         Message notificationMessage;
 

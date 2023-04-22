@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class StorePermissionsTest {
+public class StoreEmployeesTest {
     RegisteredUser user1;
     RegisteredUser user2;
     RegisteredUser user3;
@@ -47,7 +47,7 @@ public class StorePermissionsTest {
         assertTrue(parent.getUsername() + " should have " + child.getUsername() + " as ownerIDefined",
                 ownership2.getOwnersIDefined().contains(child));
         assertTrue(store.getStoreName() + " should have " + child.getUsername() + "'s id as in owners",
-                store.getStoreOwners().contains(child.getId()));
+                store.getStoreOwners().contains(child.getStoreIOwn(store.getStoreID())));
     }
 
     private void ensureManagerWithParent(RegisteredUser child, RegisteredUser parent, Store store) {
