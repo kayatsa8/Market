@@ -2,9 +2,10 @@ package BusinessLayer.Users;
 
 import BusinessLayer.Cart;
 import BusinessLayer.Log;
+import BusinessLayer.Market;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
-import BusinessLayer.StorePermissions.StoreOwner;
+import BusinessLayer.Stores.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
@@ -22,12 +23,16 @@ public class UserFacade {
     //    private Map<String, RegisteredUser> users;
     private Map<Integer, RegisteredUser> users;
     private UserDAO userDAO;
-
+    private User guest;
     public UserFacade() {
 //        users = new HashMap<>();
         users = new HashMap<>();
         userDAO = new UserDAO();
         userID = userDAO.getMaxID() + 1;
+    }
+
+    public void setGuest() {
+        guest = new Guest();
     }
 
     private int getNewId() {
@@ -49,8 +54,26 @@ public class UserFacade {
         throw new Exception("No user exists with name " + userName);
     }
 
-    public RegisteredUser getUser(int userID) {
+    public User getUser(int userID) {
+        if (userID != Market.GUEST_USER_ID) {
+            return users.get(userID);
+        }
+        return this.guest;
+    }
+
+    public RegisteredUser getRegisteredUser(int userID) throws Exception {
+        if (userID== Market.GUEST_USER_ID) {
+            throw new Exception("This is the guest user ID, not registered user");
+        }
         return users.get(userID);
+    }
+
+    public RegisteredUser getLoggedInUser(int userID) throws Exception {
+        RegisteredUser user = users.get(userID);
+        if (user.isLoggedIn()) {
+            return user;
+        }
+        throw new Exception("User " + user.getUsername() + "is not logged in");
     }
 
     public int registerUser(String username, String password) throws Exception {
@@ -99,10 +122,19 @@ public class UserFacade {
             throw new Exception("incorrect user name");
         if (!user.getPassword().equals(password))
             throw new Exception("incorrect password");
+        user.logIn();
         return user.getId();
     }
 
-    public boolean logOut(String username) {
+    public boolean logout(String username) throws Exception {
+        if (username == null)
+            throw new Exception("username or password is Null");
+        RegisteredUser user = getUserByName(username);
+        if (user == null)
+            throw new Exception("incorrect user name");
+        if (!user.isLoggedIn())
+            throw new Exception("User " + username + " is not logged in so cannot log out");
+        user.logout();
         return true;
     }
 
@@ -113,7 +145,6 @@ public class UserFacade {
     public void loadUsers() {
         HashMap<Integer, RegisteredUser> dbUsersMap = UserDAO.getAllUsers();
         for (Map.Entry<Integer, RegisteredUser> entry : dbUsersMap.entrySet()) {
-            Integer id = entry.getKey();
             RegisteredUser user = entry.getValue();
             //TODO load User's Cart
             //user.setCart(cartDBO.getCart(name));
@@ -122,45 +153,41 @@ public class UserFacade {
 
     }
 
-    public void logout(String userName, String pass) {
-        //TODO sessions and all
-    }
-
-    public void addOwner(int userID, int userToAddID, int storeID) {
-        RegisteredUser currUser = getUser(userID);
-        RegisteredUser newOwner = getUser(userToAddID);
+    public void addOwner(int userID, int userToAddID, int storeID) throws Exception {
+        RegisteredUser currUser = getLoggedInUser(userID);
+        RegisteredUser newOwner = getRegisteredUser(userToAddID);
         if (currUser == null || newOwner == null) {
             throw new RuntimeException("User does not exist");
         }
         currUser.addOwner(newOwner, storeID);
     }
 
-    public void addStore(int founderID, Store store) {
-        RegisteredUser currUser = getUser(founderID);
+    public void addStore(int founderID, Store store) throws Exception {
+        RegisteredUser currUser = getLoggedInUser(founderID);
         currUser.addStore(store);
     }
 
-    public void addManager(int userID, int userToAdd, int storeID) {
-        RegisteredUser currUser = getUser(userID);
-        RegisteredUser newManager = getUser(userToAdd);
+    public void addManager(int userID, int userToAdd, int storeID) throws Exception {
+        RegisteredUser currUser = getLoggedInUser(userID);
+        RegisteredUser newManager = getRegisteredUser(userToAdd);
         if (currUser == null || newManager == null) {
             throw new RuntimeException("User does not exist");
         }
         currUser.addManager(newManager, storeID);
     }
 
-    public void removeOwner(int userID, int userToRemove, int storeID) {
-        RegisteredUser currUser = getUser(userID);
-        RegisteredUser ownerToRemove = getUser(userToRemove);
+    public void removeOwner(int userID, int userToRemove, int storeID) throws Exception {
+        RegisteredUser currUser = getLoggedInUser(userID);
+        RegisteredUser ownerToRemove = getRegisteredUser(userToRemove);
         if (currUser == null || ownerToRemove == null) {
             throw new RuntimeException("User does not exist");
         }
         currUser.removeOwner(ownerToRemove, storeID);
     }
 
-    public void removeManager(int userID, int userToRemove, int storeID) {
-        RegisteredUser currUser = getUser(userID);
-        RegisteredUser managerToRemove = getUser(userToRemove);
+    public void removeManager(int userID, int userToRemove, int storeID) throws Exception {
+        RegisteredUser currUser = getLoggedInUser(userID);
+        RegisteredUser managerToRemove = getRegisteredUser(userToRemove);
         if (currUser == null || managerToRemove == null) {
             throw new RuntimeException("User does not exist");
         }
@@ -169,7 +196,7 @@ public class UserFacade {
 
     //only called from system manager after other user associations removed
     public void removeUser(RegisteredUser userToRemove) throws Exception {
-        users.remove(userToRemove.getUsername());
+        users.remove(userToRemove.getId());
         userDAO.removeUser(userToRemove);
     }
 
@@ -178,15 +205,15 @@ public class UserFacade {
     }
 
     public Cart addItemToCart(int userID, Store store, CatalogItem item, int quantity) throws Exception {
-        return getUser(userID).addItemToCart(store, item, quantity);
+        return getLoggedInUser(userID).addItemToCart(store, item, quantity);
     }
 
     public Cart removeItemFromCart(int userID, int storeID, int itemID) throws Exception {
-        return getUser(userID).removeItemFromCart(storeID, itemID);
+        return getLoggedInUser(userID).removeItemFromCart(storeID, itemID);
     }
 
     public Cart changeItemQuantityInCart(int userID, int storeID, int itemID, int quantity) throws Exception {
-        return getUser(userID).changeItemQuantityInCart(storeID, itemID, quantity);
+        return getLoggedInUser(userID).changeItemQuantityInCart(storeID, itemID, quantity);
     }
 
     /**
@@ -195,32 +222,32 @@ public class UserFacade {
      *
      * @return List<String> @TODO maybe should be of some kind of object?
      */
-    public List<String> getStoresOfBaskets(int userID) {
-        return getUser(userID).getStoresOfBaskets();
+    public List<String> getStoresOfBaskets(int userID) throws Exception {
+        return getLoggedInUser(userID).getStoresOfBaskets();
     }
 
-    public HashMap<CatalogItem, Integer> getItemsInBasket(int userID, String storeName) throws Exception {
-        return getUser(userID).getItemsInBasket(storeName);
+    public HashMap<CatalogItem, CartItemInfo> getItemsInBasket(int userID, String storeName) throws Exception {
+        return getLoggedInUser(userID).getItemsInBasket(storeName);
     }
 
     public Cart buyCart(int userID) throws Exception {
-        return getUser(userID).buyCart();
+        return getLoggedInUser(userID).buyCart();
     }
 
     /**
      * empties the cart
      */
-    public Cart emptyCart(int userID) {
-        return getUser(userID).emptyCart();
+    public Cart emptyCart(int userID) throws Exception {
+        return getLoggedInUser(userID).emptyCart();
     }
 
-    public void addManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) {
-        RegisteredUser user = getUser(userID);
+    public void addManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) throws Exception {
+        RegisteredUser user = getLoggedInUser(userID);
         user.addManagerPermission(storeID, manager, permission);
     }
 
-    public void removeManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) {
-        RegisteredUser user = getUser(userID);
+    public void removeManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) throws Exception {
+        RegisteredUser user = getLoggedInUser(userID);
         user.removeManagerPermission(storeID, manager, permission);
     }
 }

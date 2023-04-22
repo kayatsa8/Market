@@ -35,7 +35,7 @@ public class Cart {
      * a constructor for not registered user
      */
     public Cart(){
-        userID = 999999; // a convention
+        userID = Market.GUEST_USER_ID; // a convention
         baskets = new BasketsRepository();
         Log.log.info("A new cart was created for a guest user");
     }

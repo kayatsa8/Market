@@ -7,26 +7,18 @@ import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-public class RegisteredUser extends User{
+public class RegisteredUser extends User {
     private String username;
     private String password;
     private int id;
     private UserDAO userDAO;
-
-    public Map<Integer, StoreOwner> getStoresIOwn() {
-        return storesIOwn;
-    }
-
-    public Map<Integer, StoreManager> getStoresIManage() {
-        return storesIManage;
-    }
-
     private Map<Integer, StoreOwner> storesIOwn;
     private Map<Integer, StoreManager> storesIManage;
     private SystemManager systemManager;
-
+    private boolean isLoggedIn;
     public RegisteredUser(String username, String pass, int id) {
         this.username = username;
         this.password = pass;
@@ -35,6 +27,7 @@ public class RegisteredUser extends User{
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();
         this.cart = new Cart(id);
+        this.isLoggedIn = true;
     }
 
     public RegisteredUser(String username, String pass, int id, boolean isAdmin) {
@@ -48,6 +41,18 @@ public class RegisteredUser extends User{
         if (isAdmin) {
             systemManager = new SystemManager(this);
         }
+    }
+
+    public Map<Integer, StoreOwner> getStoresIOwn() {
+        return storesIOwn;
+    }
+
+    public Map<Integer, StoreManager> getStoresIManage() {
+        return storesIManage;
+    }
+
+    public boolean isLoggedIn() {
+        return isLoggedIn;
     }
 
     public int getId() {
@@ -67,11 +72,11 @@ public class RegisteredUser extends User{
     }
 
     private boolean isAdmin() {
-        return systemManager==null;
+        return systemManager == null;
     }
 
     private boolean ownsStore(int storeID) {
-        return (storesIOwn.get(storeID)!=null);
+        return (storesIOwn.get(storeID) != null);
     }
 
     public StoreManager getStoreIManage(int storeID) {
@@ -79,17 +84,17 @@ public class RegisteredUser extends User{
     }
 
     private boolean managesStore(int storeID) {
-        return (storesIManage.get(storeID)!=null);
+        return (storesIManage.get(storeID) != null);
     }
 
     public void addStore(Store store) {
         storesIOwn.put(store.getStoreID(), new StoreOwner(this.getId(), store));
     }
 
-    public void addOwner(RegisteredUser newOwner, int storeID) throws RuntimeException{
+    public void addOwner(RegisteredUser newOwner, int storeID) throws RuntimeException {
         //ensure I am an owner
         StoreOwner storeOwnership = getStoreIOwn(storeID);
-        if (storeOwnership==null) {
+        if (storeOwnership == null) {
             throw new RuntimeException("User is not a store owner");
         }
         //check if newOwner is already an owner or manager//TODO can user be both?
@@ -110,7 +115,7 @@ public class RegisteredUser extends User{
     public void addManager(RegisteredUser newManager, int storeID) {
         //ensure I am an owner
         StoreOwner storeOwnership = getStoreIOwn(storeID);
-        if (storeOwnership==null) {
+        if (storeOwnership == null) {
             throw new RuntimeException("User is not a store owner");
         }
         if (newManager.ownsStore(storeID)) {
@@ -130,7 +135,7 @@ public class RegisteredUser extends User{
 
     public void removeOwner(RegisteredUser ownerToRemove, int storeID) {
         StoreOwner storeOwnership = getStoreIOwn(storeID);
-        if (storeOwnership==null) {
+        if (storeOwnership == null) {
             throw new RuntimeException("User is not a store owner");
         }
         if (!ownerToRemove.ownsStore(storeID)) {
@@ -147,7 +152,7 @@ public class RegisteredUser extends User{
 
     public void removeManager(RegisteredUser managerToRemove, int storeID) {
         StoreOwner storeOwnership = getStoreIOwn(storeID);
-        if (storeOwnership==null) {
+        if (storeOwnership == null) {
             throw new RuntimeException("User is not a store owner");
         }
         if (!managerToRemove.managesStore(storeID)) {
@@ -168,7 +173,7 @@ public class RegisteredUser extends User{
 
     public void addManagerPermission(int storeID, RegisteredUser manager, StoreActionPermissions permission) {
         StoreOwner storeOwnership = getStoreIOwn(storeID);
-        if (storeOwnership==null) {
+        if (storeOwnership == null) {
             throw new RuntimeException("User is not a store owner");
         }
         if (!manager.managesStore(storeID)) {
@@ -179,7 +184,7 @@ public class RegisteredUser extends User{
 
     public void removeManagerPermission(int storeID, RegisteredUser manager, StoreActionPermissions permission) {
         StoreOwner storeOwnership = getStoreIOwn(storeID);
-        if (storeOwnership==null) {
+        if (storeOwnership == null) {
             throw new RuntimeException("User is not a store owner");
         }
         if (!manager.managesStore(storeID)) {
@@ -188,4 +193,11 @@ public class RegisteredUser extends User{
         storeOwnership.removeManagerPermission(manager, permission);
     }
 
+    public void logIn() {
+        this.isLoggedIn = true;
+    }
+
+    public void logout() {
+        this.isLoggedIn = false;
+    }
 }

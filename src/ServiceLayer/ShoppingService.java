@@ -1,5 +1,6 @@
 package ServiceLayer;
 
+import BusinessLayer.Stores.CartItemInfo;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -107,19 +108,31 @@ public class ShoppingService {
         }
     }
 
-    public HashMap<CatalogItem, Integer> getItemsInBasket(int userID, String storeName) throws Exception {
+    public HashMap<CatalogItem, CartItemInfo> getItemsInBasket(int userID, String storeName) throws Exception {
         return market.getItemsInBasket(userID, storeName);
     }
 
-    public void buyCart(int userID) throws Exception {
-        market.buyCart(userID);
+    public Result buyCart(int userID) throws Exception {
+        try {
+            market.buyCart(userID);
+            return new Result<>(false, true);
+        } catch (Exception e) {
+            log.info("Cart could not be purchased");
+            return new Result<>(true, e.getMessage());
+        }
     }
 
     /**
      * empties the cart
      */
-    public void emptyCart(int userID) {
-        market.emptyCart(userID);
+    public Result emptyCart(int userID) {
+        try {
+            market.emptyCart(userID);
+            return new Result<>(false, true);
+        } catch (Exception e) {
+            log.info("Cart could not be emptied");
+            return new Result<>(true, e.getMessage());
+        }
     }
     public Result<StoreService> getStoreInfo(int storeID) {
         try {

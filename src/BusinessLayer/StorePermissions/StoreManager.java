@@ -25,7 +25,6 @@ public class StoreManager extends StorePermissions{
         return this.storeActionPermissions.remove(permission);
     }
 
-    @Override
     protected boolean hasPermission(StoreActionPermissions permission) {
         return this.storeActionPermissions.contains(permission);
     }

@@ -42,9 +42,9 @@ public class UserService {
         }
     }
 
-    public Result<Boolean> logout(String userName, String pass) {
+    public Result<Boolean> logout(String userName) {
         try {
-            market.logout(userName,pass);
+            market.logout(userName);
             log.info("Logout succeeded");
             return new Result<>(false, null);//login == true,isErr==false
         } catch (Exception e) {

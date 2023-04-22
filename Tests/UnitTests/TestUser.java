@@ -50,9 +50,9 @@ public class TestUser {
             fail("should not pass this test : password incorrect");
         } catch (Exception e) {
             assertTrue("Test passed\nException thrown:"+e.getMessage(),true);
-
         }
     }
+
     @Test
     public void registerShouldFailPassNull(){
         try {
