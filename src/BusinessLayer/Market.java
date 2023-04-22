@@ -211,7 +211,7 @@ public class Market {
     }
 
     public void addManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) {
-        userFacade.addManagerPermission(userID, storeID, manager, permission);
+        userFacade.addManagerPermission(userID, storeID, manager, permission);//
     }
 
     public void removeManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) {
