@@ -48,7 +48,7 @@ public class UserService {
         try {
             market.logout(userName,pass);
             log.info("Logout succeeded");
-            return new Result<>(false, null);//login == true,isErr==false
+            return new Result<>(false, true);//login == true,isErr==false
         } catch (Exception e) {
             log.info("Logout failed");
             return new Result<>(true, e.getMessage());//login==false

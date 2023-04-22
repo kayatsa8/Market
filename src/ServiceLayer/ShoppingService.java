@@ -359,10 +359,10 @@ public class ShoppingService {
         List<Message> messages = market.watchNotReadMessages(storeID);
 
         if(messages == null){
-            return new Result<List<MessageService>>(false, "Error");
+            return new Result<>(true, "Error");
         }
         else{
-            return new Result<List<MessageService>>(true, messageListToMessageServiceList(messages));
+            return new Result<>(false, messageListToMessageServiceList(messages));
         }
     }
 

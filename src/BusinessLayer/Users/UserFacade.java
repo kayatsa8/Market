@@ -60,7 +60,10 @@ public class UserFacade {
             userDAO.addUser(tempUser);
             //add to cash
             users.put(tempUser.getId(), tempUser);
-            NotificationHub.getInstance().registerToMailService(tempUser);
+
+            //There is one in the constructor, if you want to put it here, you need to do user.setMailBox(...)
+            //NotificationHub.getInstance().registerToMailService(tempUser);
+
             return tempUser.getId();
         }
         else {
