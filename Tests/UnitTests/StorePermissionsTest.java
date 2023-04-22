@@ -1,9 +1,12 @@
 //package UnitTests;
 //
+//import BusinessLayer.Market;
 //import BusinessLayer.StorePermissions.StoreManager;
 //import BusinessLayer.StorePermissions.StoreOwner;
 //import BusinessLayer.Stores.Store;
+//import BusinessLayer.Stores.StoreFacade;
 //import BusinessLayer.Users.RegisteredUser;
+//import BusinessLayer.Users.UserFacade;
 //import org.junit.Before;
 //import org.junit.Test;
 //
@@ -16,12 +19,15 @@
 //    RegisteredUser user4;
 //    RegisteredUser user5;
 //    RegisteredUser user6;
+//    Market market;
+//    UserFacade userFacade;
+//    StoreFacade storeFacade;
 //    Store store1;
 //    Store store2;
 //
 //    @Before
 //    public void setUp() throws Exception {
-//        user1 = new RegisteredUser("testUser", "testPass", 1);
+//        user1 = new RegisteredUser("testUser",  "testPass", 1);
 //        user2 = new RegisteredUser("testUser2", "testPass", 2);
 //        user3 = new RegisteredUser("testUser3", "testPass", 3);
 //        user4 = new RegisteredUser("testUser4", "testPass", 4);

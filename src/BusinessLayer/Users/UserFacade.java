@@ -71,7 +71,7 @@ public class UserFacade {
 
     private boolean checkPassword(String password) throws Exception {
         if (password == null)
-            throw new Exception("Password cant be null");
+            throw new Exception("Password can't be null");
         if (password.length() < MIN_PASS_LENGTH)
             throw new Exception("Password too short! Must be at least 6 chars");
         return true;
@@ -79,7 +79,7 @@ public class UserFacade {
 
     private boolean checkUserName(String userName) throws Exception {
         if (userName == null) {
-            throw new Exception("Password cant be null");
+            throw new Exception("User name can't be null");
         }
         for (RegisteredUser user : users.values()) {
             if (user.getUsername().equals(userName)) {
