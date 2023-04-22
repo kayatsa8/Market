@@ -214,12 +214,6 @@ public class RealBridge implements Bridge{
         return null;
     }
 
-    @Override
-    public List<String> getNotifications(int userId) {
-        //return this.facade.getNotifications(userId)
-        /** */
-        return null;
-    }
 
     @Override
     public List<ReceiptService> getPersonalHistory(int userId) {
@@ -243,6 +237,15 @@ public class RealBridge implements Bridge{
         return handleBoolResult(result);
     }
 
+    @Override
+    public List<MessageService> watchNotReadMessages(int id) {
+        Result<List<MessageService>> result = shoppingService.watchNotReadMessages(id);
+        if(result.isError()){
+            System.out.println(result.getMessage());
+            return null;
+        }
+        return result.getValue();
+    }
 
 
 
@@ -271,7 +274,6 @@ public class RealBridge implements Bridge{
 
     @Override
     public boolean sendMsg(int senderId, int receiverId, String msg) {
-        //return this.facade.sendMsg(senderId, receiverId, msg);
         /** NotForVersion1 */
         return false;
     }
@@ -384,6 +386,7 @@ public class RealBridge implements Bridge{
         //return this.facade.getRequestsOfStore(ownerManagerId, storeId);
         return null;
     }
+
 
 
     @Override
