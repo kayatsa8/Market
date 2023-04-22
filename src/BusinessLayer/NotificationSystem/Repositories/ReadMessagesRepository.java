@@ -27,7 +27,12 @@ public class ReadMessagesRepository {
     }
 
     public boolean contains(Message message){
-        return readMessages.contains(message);
+        for(Message m : readMessages){
+            if(m.equals(message)){
+                return true;
+            }
+        }
+        return false;
         //TODO: DAO
     }
 

@@ -1,10 +1,9 @@
-package BusinessLayer;
+package BusinessLayer.CartAndBasket;
 
 import BusinessLayer.CartAndBasket.Repositories.Carts.BasketsRepository;
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
-import BusinessLayer.Receipts.ReceiptHandler;
-import BusinessLayer.Stores.CartItemInfo;
+import BusinessLayer.Log;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 
@@ -35,7 +34,7 @@ public class Cart {
      * a constructor for not registered user
      */
     public Cart(){
-        userID = Market.GUEST_USER_ID; // a convention
+        userID = 999999; // a convention
         baskets = new BasketsRepository();
         Log.log.info("A new cart was created for a guest user");
     }
