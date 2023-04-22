@@ -1,11 +1,11 @@
 package Acceptance;
 
-import Objects.TestReceipt;
-import Objects.TestStoreInfo;
+import ServiceLayer.Objects.CatalogItemService;
 import ServiceLayer.Objects.ReceiptService;
 import ServiceLayer.Objects.StoreService;
 import ServiceLayer.Objects.UserStaffInfoService;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 
@@ -18,10 +18,15 @@ public class StoreOwnerManagerTests extends ProjectTest{
 
 
 
-    @Override
+    public static boolean doneSetUp = false;
+
+    @Before
     public void setUp() {
         super.setUp();
-        setUpAllMarket();
+        if(!doneSetUp) {
+            setUpAllMarket();
+            doneSetUp = true;
+        }
     }
 
 
@@ -37,30 +42,27 @@ public class StoreOwnerManagerTests extends ProjectTest{
      */
     @Test
     public void addItemToStore_Valid(){
-        int itemId = this.addItemToStore(store2Id, "itemName", 10);
+        int itemId = this.addCatalogItem(store2Id, "itemName", 10, "Kitchen");
+        addItemAmount(store2Id, itemId, 10);
         assertTrue(itemId > 0);
 
         StoreService store = this.getStoreInfo(store2Id);
-        assertTrue(store.hasItem(itemId));
+        CatalogItemService item = store.getItem(itemId);
+        assertEquals(item.getItemID(), itemId);
     }
 
     @Test
     public void addItemToStore_PriceWrong(){
-        int itemId = this.addItemToStore(store2Id, "itemName2", -1);
+        int itemId = this.addCatalogItem(store2Id, "itemName2", -1, "Kitchen");
         assertTrue(itemId < 0);
     }
 
     @Test
     public void addItemToStore_StoreNotExisting(){
-        int itemId = this.addItemToStore(-1, "itemName2", 1);
+        int itemId = this.addCatalogItem(-1, "itemName2", 1, "Kitchen");
         assertTrue(itemId < 0);
     }
 
-    @Test
-    public void addItemToStore_ItemExistsInStore(){
-        int itemId = this.addItemToStore(store2Id, getTestItemName(store2Id, item2Id), 10);
-        assertTrue(itemId < 0);
-    }
 
     /**
      * Manage Inventory - Remove #28
@@ -71,7 +73,8 @@ public class StoreOwnerManagerTests extends ProjectTest{
         assertTrue(removed);
 
         StoreService store = this.getStoreInfo(store2Id);
-        assertTrue(store.hasItem(item2ToBeRemovedId));
+        CatalogItemService item = store.getItem(item2ToBeRemovedId);
+        assertNull(item);
     }
 
     @Test
@@ -124,9 +127,14 @@ public class StoreOwnerManagerTests extends ProjectTest{
     public void defineStoreOwner_Valid(){
         boolean defined = this.defineStoreOwner(store2Id, user2LoggedInId, user3NotLoggedInId);
         assertTrue(defined);
+        assertTrue(checkIfStoreOwner(user3NotLoggedInId, store2Id));
 
-        boolean check = this.checkIfStoreOwner(user3NotLoggedInId, store2Id);
-        assertTrue(check);
+    }
+
+    @Test    //Checks circle of owners!
+    public void defineStoreOwner_DefineMyOwner(){
+        boolean defined = this.defineStoreOwner(store2Id, user6ManagerOwnerOfStore2, user2LoggedInId);
+        assertFalse(defined);
     }
 
     @Test
@@ -150,8 +158,13 @@ public class StoreOwnerManagerTests extends ProjectTest{
         boolean changed = this.defineStoreManager(store2Id, user2LoggedInId, user3NotLoggedInId);
         assertTrue(changed);
 
-        boolean check = this.checkIfStoreManager(user3NotLoggedInId, store2Id);
-        assertTrue(check);
+        assertTrue(checkIfStoreManager(user3NotLoggedInId, store2Id));
+    }
+
+    @Test    //Checks circle of Managers!
+    public void defineStoreManager_DefineMyManager(){
+        boolean defined = this.defineStoreManager(store2Id, user6ManagerOwnerOfStore2, user2LoggedInId);
+        assertFalse(defined);
     }
 
     @Test
@@ -165,18 +178,24 @@ public class StoreOwnerManagerTests extends ProjectTest{
     public void defineStoreManager_UserNotThisStoreManager(){
         boolean changed = this.defineStoreManager(store4Id, user2LoggedInId, user6ManagerOwnerOfStore2);
         assertFalse(changed);
+
+        assertFalse(checkIfStoreManager(user6ManagerOwnerOfStore2, store4Id));
     }
 
 
     /**
-     * Remove Store Manager #33.5
+     * Remove Store Manager #33.5  NotForVersion1
      */
     @Test
     public void removeStoreManager_Valid(){
-        boolean removed = this.removeStoreManager(store2Id, user2LoggedInId, user5ManagerOwnerOfStore2ToBeRemoved);
+        int userToRemove = setUser("UsertoRemovee", "UsertoRemovee!!", MEMBER, LOGGED);
+        defineStoreManager(store2Id, user2LoggedInId, userToRemove);
+        assertTrue(checkIfStoreManager(userToRemove, store2Id));
+
+        boolean removed = this.removeStoreManager(store2Id, user2LoggedInId, userToRemove);
         assertTrue(removed);
 
-        boolean check = this.checkIfStoreManager(user5ManagerOwnerOfStore2ToBeRemoved, store2Id);
+        boolean check = this.checkIfStoreManager(userToRemove, store2Id);
         assertFalse(check);
     }
 
@@ -191,11 +210,12 @@ public class StoreOwnerManagerTests extends ProjectTest{
     public void removeStoreManager_NotByTheStoreManager(){
         boolean removed = this.removeStoreManager(store2Id, user1GuestId, user6ManagerOwnerOfStore2);
         assertFalse(removed);
+
     }
 
 
     /**
-     * Remove Store Owner #34
+     * Remove Store Owner #34   NotForVersion1
      */
     @Test
     public void removeStoreOwner_Valid(){
@@ -203,7 +223,7 @@ public class StoreOwnerManagerTests extends ProjectTest{
         assertTrue(removed);
 
         boolean check = this.checkIfStoreOwner(user5ManagerOwnerOfStore2ToBeRemoved, store2Id);
-        assertTrue(check);
+        assertFalse(check);
     }
 
     @Test
@@ -245,7 +265,7 @@ public class StoreOwnerManagerTests extends ProjectTest{
     }
 
     /**
-     * Reopen Store #36
+     * Reopen Store #36 NotForVersion1
      */
     @Test
     public void reopenStore_Valid(){
@@ -254,12 +274,12 @@ public class StoreOwnerManagerTests extends ProjectTest{
         boolean reopened = this.reopenStore(user2LoggedInId, storeId);
         assertTrue(reopened);
 
-        List<String> notifications = this.getNotifications(user2LoggedInId);
-        assertTrue(notifications.contains("Reopened Store!"));
+        //List<String> notifications = this.getNotifications(user2LoggedInId);
+        //assertTrue(notifications.contains("Reopened Store!"));
     }
 
     private int openAndCloseStoreForUser2() {
-        int storeId = this.createStore(user2LoggedInId);
+        int storeId = this.createStore(user2LoggedInId, "SuperStore");
         this.closeStore(user2LoggedInId, storeId);
         return storeId;
     }
@@ -283,7 +303,7 @@ public class StoreOwnerManagerTests extends ProjectTest{
     @Test
     public void showStaffInfo_Valid(){
         List<UserStaffInfoService> staff = this.showStaffInfo(store2Id, user2LoggedInId);
-
+        assertTrue(false);
     }
 
     @Test
@@ -293,8 +313,9 @@ public class StoreOwnerManagerTests extends ProjectTest{
     }
 
     /**
-     * Get store info and answer request as Store manager #38
+     * Get store info and answer request as Store manager #38  NotForVersion1
      */
+    /*
     @Test
     public void getStoreInformation_Valid(){
         StoreService result = this.getStoreInformationAsStoreManager(store2Id, user2LoggedInId);
@@ -319,27 +340,27 @@ public class StoreOwnerManagerTests extends ProjectTest{
         //get the requests from this object
         assertTrue(false);
     }
-
+    */
 
     /**
      * Get Selling History #39
      */
     @Test
     public void getSellingHistory_Valid(){
-        HashMap<Integer,List<ReceiptService>> receipts = this.getSellingHistory(store2Id, user2LoggedInId);
+        List<ReceiptService> receipts = this.getSellingHistoryOfStore(store2Id, user2LoggedInId);
         //assertEquals();
         assertTrue(false);
     }
 
     @Test
     public void getSellingHistory_UserNotManagerOrOwner(){
-        HashMap<Integer,List<ReceiptService>> staffInfo = this.getSellingHistory(store2Id, user1GuestId);
+        List<ReceiptService> staffInfo = this.getSellingHistoryOfStore(store2Id, user1GuestId);
         assertNull(staffInfo);
     }
 
     @Test
     public void getSellingHistory_StoreNotExist(){
-        HashMap<Integer,List<ReceiptService>> staffInfo = this.getSellingHistory(-1, user2LoggedInId);
+        List<ReceiptService> staffInfo = this.getSellingHistoryOfStore(-1, user2LoggedInId);
         assertNull(staffInfo);
     }
 

@@ -22,4 +22,16 @@ public class CartService {
         //get the basket I have for this storeId
         return null;
     }
+
+    public boolean isEmpty(){
+        boolean found = true;
+        if(baskets.isEmpty())
+            return found;
+        for(BasketService basketService : baskets){
+            if(!basketService.isEmpty()){
+                found = false;
+            }
+        }
+        return found;
+    }
 }

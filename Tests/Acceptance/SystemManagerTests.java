@@ -1,8 +1,8 @@
 package Acceptance;
 
-import Objects.TestReceipt;
 import ServiceLayer.Objects.ReceiptService;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -13,11 +13,16 @@ import static org.junit.Assert.*;
 public class SystemManagerTests extends ProjectTest{
 
 
-    @Override
+    public static boolean doneSetUp = false;
+
+    @Before
     public void setUp() {
         super.setUp();
-        setUpAllMarket();
-        butCartUser2Store4();
+        if(!doneSetUp) {
+            setUpAllMarket();
+            butCartUser2Store4();
+            doneSetUp = true;
+        }
     }
 
 
@@ -32,8 +37,9 @@ public class SystemManagerTests extends ProjectTest{
     }
 
     /**
-     * Close Store permanently #40
+     * Close Store permanently #40  NotForVersion1
      */
+    /*
     @Test
     public void closeStorePermanently_Valid(){
         boolean closed = this.closeStorePermanently(user7SystemManagerId, store2ClosedId);
@@ -53,18 +59,18 @@ public class SystemManagerTests extends ProjectTest{
     public void closeStorePermanently_NotSystemManager(){
         boolean closed = this.closeStorePermanently(user1GuestId, store2ClosedId);
         assertFalse(closed);
-    }
+    }*/
 
     /**
-     * remove registeredUser #41
+     * remove registeredUser #41   NotForVersion1
      */
-    @Test
+    /*@Test
     public void removeRegisteredUser_Valid(){
         boolean removed = this.removeRegisterdUser(user7SystemManagerId, user4LoggedInId);
         assertTrue(removed);
         boolean check = this.checkIfStoreOwner(user4LoggedInId, store4Id);
         assertTrue(check);
-        boolean login = this.loginUser(user4LoggedInId, "User4!");
+        boolean login = this.loginUser("User4", "User4!");
         assertFalse(login);
     }
 
@@ -78,12 +84,12 @@ public class SystemManagerTests extends ProjectTest{
     public void removeRegisteredUser_NotValidManager(){
         boolean removed = this.removeRegisterdUser(user1GuestId, user4LoggedInId);
         assertFalse(removed);
-    }
+    }*/
 
     /**
-     * get information and answer request #42
+     * get information and answer request #42   NotForVersion1
      */
-    @Test
+    /*@Test
     public void answerComplaints_Valid(){
         this.sendComplaint(user4LoggedInId, "Complaint! important Very");
         HashMap<Integer, String> complaint = new HashMap<>();
@@ -121,7 +127,7 @@ public class SystemManagerTests extends ProjectTest{
 
         HashMap<Integer, List<String>> complaints = this.getMsgs(user1GuestId);
         assertNull(complaints.get(user7SystemManagerId));
-    }
+    }*/
 
     /**
      * Get Selling History #43
@@ -129,29 +135,29 @@ public class SystemManagerTests extends ProjectTest{
     @Test
     public void getSellingHistoryOfStore_Valid(){
         //Change to receipt
-        HashMap<Integer,List<ReceiptService>> receipts = this.getSellingHistoryOfStore(user7SystemManagerId, store2Id);
+        List<ReceiptService> receipts = this.getSellingHistoryOfStore(user7SystemManagerId, store2Id);
         assertNotNull(receipts);
         //assertEquals(receipts.get(0).getItems().get(0).getName(), "Tomato");
     }
 
     @Test
     public void getSellingHistoryOfStore_WrongStore(){
-        HashMap<Integer,List<ReceiptService>> receipts = this.getSellingHistoryOfStore(user7SystemManagerId, -1);
+        List<ReceiptService> receipts = this.getSellingHistoryOfStore(user7SystemManagerId, -1);
         assertNull(receipts);
     }
 
     @Test
     public void getSellingHistoryOfUser_Valid(){
         //Change to receipt
-        HashMap<Integer,List<TestReceipt>> receipts = this.getSellingHistoryOfUser(user7SystemManagerId, user2LoggedInId);
+        HashMap<Integer,List<ReceiptService>> receipts = this.getSellingHistoryOfUser(user7SystemManagerId, user2LoggedInId);
         assertNotNull(receipts);
         //assertEquals(receipts.get(0).getItems().get(0).getName(), "Tomato");
     }
 
     /**
-     * get system activity #44
+     * get system activity #44   NotForVersion1
      */
-    @Test
+    /*@Test
     public void getUsersTraffic_Valid(){
         HashMap<Integer, String> result = this.getUsersTraffic(user7SystemManagerId);
         assertNotNull(result);
@@ -181,6 +187,6 @@ public class SystemManagerTests extends ProjectTest{
         assertTrue(result < 0);
     }
 
-
+    */
 
 }

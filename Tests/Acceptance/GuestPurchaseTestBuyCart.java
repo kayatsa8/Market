@@ -1,16 +1,23 @@
 package Acceptance;
 
+import ServiceLayer.Objects.CartService;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class GuestPurchaseTestBuyCart extends ProjectTest{
 
 
-    @Override
+    public static boolean doneSetUp = false;
+
+    @Before
     public void setUp() {
         super.setUp();
-        setUpAllMarket();
+        if(!doneSetUp) {
+            setUpAllMarket();
+            doneSetUp = true;
+        }
     }
 
 
@@ -27,6 +34,12 @@ public class GuestPurchaseTestBuyCart extends ProjectTest{
     public void buyCartValid(){
         boolean added = this.buyCart(user1GuestId, "PaymentDetails");
         assertTrue(added);
+
+        CartService afterCart = this.getCart(user1GuestId);
+        //assertTrue(afterCart.isEmpty());
+
+        //check if cartService has isEmpty() func
+        assertTrue(false);
     }
 
     @Test
