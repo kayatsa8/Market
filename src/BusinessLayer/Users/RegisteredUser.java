@@ -39,9 +39,9 @@ public class RegisteredUser extends User{
         this.userDAO = new UserDAO();
         this.cart = new Cart(id);
 
-        //try {
-        //    this.mailbox = NotificationHub.getInstance().registerToMailService(this);
-        //} catch (Exception e) {}
+        try {
+            this.mailbox = NotificationHub.getInstance().registerToMailService(this);
+        } catch (Exception e) {}
     }
 
     public RegisteredUser(String username, String pass, int id, boolean isAdmin) {
