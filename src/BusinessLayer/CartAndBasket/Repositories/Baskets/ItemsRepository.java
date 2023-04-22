@@ -1,6 +1,6 @@
 package BusinessLayer.CartAndBasket.Repositories.Baskets;
 
-import BusinessLayer.CartAndBasket.Basket;
+import BusinessLayer.Basket;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;

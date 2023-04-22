@@ -2,6 +2,8 @@ package BusinessLayer.StorePermissions;
 
 import BusinessLayer.Stores.Store;
 
+import java.util.Collection;
+
 public abstract class StorePermissions {
     private int userID;
     private int parentID;

@@ -50,12 +50,4 @@ public class Receipt {
     public boolean hasKeyId(int ownerId) {
         return collection.hasKeyId(ownerId);
     }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public int getOwnerId() {
-        return ownerId;
-    }
 }

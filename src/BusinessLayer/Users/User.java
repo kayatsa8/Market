@@ -1,9 +1,7 @@
 package BusinessLayer.Users;
 
-import BusinessLayer.CartAndBasket.Cart;
-import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
-import BusinessLayer.ExternalSystems.Supply.SupplyClient;
-import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.Cart;
+import BusinessLayer.Stores.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 
@@ -50,8 +48,8 @@ public abstract class User {
         return cart.getItemsInBasket(storeName);
     }
 
-    public Cart buyCart(String deliveryAddress) throws Exception {
-        cart.buyCart(new PurchaseClient(), new SupplyClient(), deliveryAddress);
+    public Cart buyCart() throws Exception {
+//        cart.buyCart();
         return cart;
     }
 

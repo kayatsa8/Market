@@ -22,9 +22,9 @@ public class StoreMailboxTests {
     @Test
     public void notifyOwner() throws Exception {
         RegisteredUser user = new RegisteredUser("user1", "123456", 1111);
-        Store store = new Store(456, user.getId(), "store1");
-        Mailbox temp = user.getMailbox();
-        Mailbox mailbox = store.getMailBox();
+        Store store = new Store(456, 1111, "store1");
+        Mailbox temp = hub.registerToMailService(user);
+        Mailbox mailbox = hub.registerToMailService(store);
 
 //        try{
 //            mailbox.notifyOwner();
@@ -36,16 +36,16 @@ public class StoreMailboxTests {
 
         assertTrue(true); // for now, because it is not implemented
 
-        hub.removeFromService(store.getStoreID());
-        hub.removeFromService(user.getId());
+        hub.removeFromService(456);
+        hub.removeFromService(1111);
     }
 
     @Test
     public void availability() throws Exception {
         RegisteredUser user = new RegisteredUser("user1", "123456", 1111);
         Store store = new Store(456, 1111, "store1");
-        Mailbox temp = user.getMailbox();
-        StoreMailbox mailbox = store.getMailBox();
+        Mailbox temp = hub.registerToMailService(user);
+        StoreMailbox mailbox = hub.registerToMailService(store);
 
         assertTrue("The store's mailbox is not available", mailbox.isAvailable());
 
@@ -55,8 +55,8 @@ public class StoreMailboxTests {
         mailbox.setMailboxAsAvailable();
         assertTrue("The store is not available", mailbox.isAvailable());
 
-        hub.removeFromService(store.getStoreID());
-        hub.removeFromService(user.getId());
+        hub.removeFromService(456);
+        hub.removeFromService(1111);
     }
 
 }

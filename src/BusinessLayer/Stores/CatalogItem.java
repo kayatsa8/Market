@@ -40,7 +40,7 @@ public class CatalogItem {
         return itemName.equals(item.itemName)
                 && price == item.price
                 && itemID == item.itemID
-                && category.equals(item.category);
+                && category == item.category;
     }
 
     public String setName(String newName) {

@@ -21,7 +21,7 @@ public class UserMailboxTests {
     @Test
     public void notifyOwner() throws Exception {
         RegisteredUser user1 = new RegisteredUser("user1", "123456789", 1111);
-        UserMailbox mailbox1 = user1.getMailbox();
+        UserMailbox mailbox1 = hub.registerToMailService(user1);
 
 //        try{
 //            mailbox1.notifyOwner();
@@ -33,7 +33,7 @@ public class UserMailboxTests {
 
         assertTrue(true); // for now, because it is not implemented
 
-        hub.removeFromService(user1.getId());
+        hub.removeFromService(1111);
     }
 
 

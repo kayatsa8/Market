@@ -11,8 +11,7 @@ public class PaymentProxyService {
 
 
     public boolean pay(int userId, double creditNumber) {
-        //for testing
-        return creditNumber > 0 ;
+        return true;
     }
 
 

@@ -1,7 +1,7 @@
 package ServiceLayer.Objects;
 
-import BusinessLayer.CartAndBasket.Basket;
-import BusinessLayer.CartAndBasket.Cart;
+import BusinessLayer.Basket;
+import BusinessLayer.Cart;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,22 +19,7 @@ public class CartService {
 
 
     public BasketService getBasketOfStore(int storeId){
-        for(BasketService basket: baskets){
-            if(basket.getStoreId() == storeId)
-                return basket;
-        }
+        //get the basket I have for this storeId
         return null;
-    }
-
-    public boolean isEmpty(){
-        boolean found = true;
-        if(baskets.isEmpty())
-            return found;
-        for(BasketService basketService : baskets){
-            if(!basketService.isEmpty()){
-                found = false;
-            }
-        }
-        return found;
     }
 }

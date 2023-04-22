@@ -1,13 +1,10 @@
 package Bridge;
 
-import Globals.FilterValue;
-import Globals.SearchBy;
-import Globals.SearchFilter;
+import Objects.*;
 import ServiceLayer.Objects.*;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ProxyBridge implements Bridge{
 
@@ -28,9 +25,9 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public boolean loginUser(String name, String password) {
+    public boolean loginUser(int id, String password) {
         if(real != null){
-            return real.loginUser(name, password);
+            return real.loginUser(id, password);
         }
         return true;
     }
@@ -60,20 +57,20 @@ public class ProxyBridge implements Bridge{
 
 
     @Override
-    public List<CatalogItemService> searchItems(String keywords, SearchBy searchBy, Map<SearchFilter, FilterValue> filters) {
+    public List<CatalogItemService> searchItems(String itemName, List<String> filters) {
         if(real != null){
-            return real.searchItems(keywords, searchBy, filters);
+            return real.searchItems(itemName, filters);
         }
         return null;
     }
 
 
     @Override
-    public CartService addItemToBasket(int userId, int storeId, int itemId, int amount) {
+    public boolean addItemToBasket(int userId, int storeId, int itemId, int amount) {
         if(real != null){
             return real.addItemToBasket(userId, storeId, itemId, amount);
         }
-        return null;
+        return true;
     }
 
     @Override
@@ -93,18 +90,11 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public  CatalogItemService addCatalogItem(int storeId, String itemName, int price, String category) {
+    public int addItemToStore(int storeId, String itemName, int price) {
         if(real != null){
-            return real.addCatalogItem(storeId, itemName, price, category);
+            return real.addItemToStore(storeId, itemName, price);
         }
-        return null;
-    }
-
-    @Override
-    public void addItemAmount(int storeId, int itemId, int amount) {
-        if(real != null){
-            real.addItemAmount(storeId, itemId, amount);
-        }
+        return -1;
     }
 
     @Override
@@ -116,11 +106,11 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public String changeItemName(int storeId, int itemId, String newName) {
+    public boolean changeItemName(int storeId, int itemId, String newName) {
         if(real != null){
             return real.changeItemName(storeId, itemId, newName);
         }
-        return "Not removed";
+        return false;
     }
 
     @Override
@@ -132,7 +122,7 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public List<ReceiptService> getSellingHistoryOfStoreForManager(int storeId, int userId) {
+    public HashMap<Integer, List<ReceiptService>> getSellingHistoryOfStoreForManager(int storeId, int userId) {
         if(real != null){
             return real.getSellingHistoryOfStoreForManager(storeId, userId);
         }
@@ -148,17 +138,17 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public boolean logOut(String name, String pass) {
+    public boolean logOut(int userId) {
         if(real != null){
-            return real.logOut(name, pass);
+            return real.logOut(userId);
         }
         return true;
     }
 
     @Override
-    public int createStore(int userId, String name) {
+    public int createStore(int userId) {
         if(real != null){
-            return real.createStore(userId, name);
+            return real.createStore(userId);
         }
         return -1;
     }
@@ -213,7 +203,7 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public boolean askForSupply(int userId, List<CatalogItemService> items, String supplyService) {
+    public boolean askForSupply(int userId, List<TestItemInfo> items, String supplyService) {
         if(real != null){
             return real.askForSupply(userId, items, supplyService);
         }
@@ -292,7 +282,7 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public HashMap<Integer, List<ReceiptService>> getSellingHistoryOfUserForManager(int managerId, int userId) {
+    public HashMap<Integer, List<TestReceipt>> getSellingHistoryOfUserForManager(int managerId, int userId) {
         if(real != null){
             return real.getSellingHistoryOfUserForManager(managerId, userId);
         }
@@ -331,6 +321,21 @@ public class ProxyBridge implements Bridge{
         return false;
     }
 
+    @Override
+    public List<String> getNotifications(int userId) {
+        if(real != null){
+            return real.getNotifications(userId);
+        }
+        return null;
+    }
+
+    @Override
+    public boolean makeAComplaint(int userId, String complaint) {
+        if(real != null){
+            return real.makeAComplaint(userId, complaint);
+        }
+        return false;
+    }
 
     @Override
     public boolean rankAStore(int userId, int storeId, int rank) {
@@ -365,7 +370,7 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public List<ReceiptService> getPersonalHistory(int userId) {
+    public HashMap<Integer, List<ReceiptService>> getPersonalHistory(int userId) {
         if(real != null){
             return real.getPersonalHistory(userId);
         }
@@ -397,12 +402,12 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public List<MessageService> watchNotReadMessages(int id) {
-        if(real != null)
-            return real.watchNotReadMessages(id);
-        return null;
+    public boolean checkIfVisitor(int userId) {
+        if(real != null){
+            return real.checkIfVisitor(userId);
+        }
+        return false;
     }
-
 
     @Override
     public boolean checkIfLoggedIn(int userId) {

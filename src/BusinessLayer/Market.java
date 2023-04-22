@@ -1,12 +1,11 @@
 package BusinessLayer;
 
-import BusinessLayer.CartAndBasket.Cart;
-import BusinessLayer.CartAndBasket.CartItemInfo;
-import BusinessLayer.NotificationSystem.Message;
-import BusinessLayer.Receipts.Receipt.Receipt;
+import BusinessLayer.StorePermissions.StoreActionPermissions;
+import BusinessLayer.Stores.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
+import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.SystemManager;
 import BusinessLayer.Users.UserFacade;
 import Globals.FilterValue;
@@ -19,6 +18,7 @@ import java.util.Map;
 
 public class Market {
     private static Market instance;
+    public static final int GUEST_USER_ID = 999999;
     private UserFacade userFacade;
     private StoreFacade storeFacade;
     private Map<Integer, SystemManager> systemManagerMap;
@@ -33,6 +33,7 @@ public class Market {
             instance = new Market();
             instance.createFirstAdmin();
         }
+        instance.userFacade.setGuest();
         return instance;
     }
 
@@ -64,36 +65,38 @@ public class Market {
        return userFacade.logIn(username, pass);
     }
 
+    public boolean logout(String username) throws Exception {
+        return userFacade.logout(username);
+    }
+
     public void systemStart() {
         userFacade.systemStart();
     }
 
-    public void logout(String userName, String pass) {
-        userFacade.logout(userName, pass);
-    }
-
-    public void addOwner(int userID, int userToAddID, int storeID) {
+    public void addOwner(int userID, int userToAddID, int storeID) throws Exception {
         userFacade.addOwner(userID, userToAddID, storeID);
     }
 
-    public void addManager(int userID, int userToAdd, int storeID) {
+    public void addManager(int userID, int userToAdd, int storeID) throws Exception {
         userFacade.addManager(userID, userToAdd, storeID);
     }
 
-    public void removeOwner(int userID, int userToRemove, int storeID) {
+    public void removeOwner(int userID, int userToRemove, int storeID) throws Exception {
         userFacade.removeOwner(userID, userToRemove, storeID);
     }
 
-    public void removeManager(int userID, int userToRemove, int storeID) {
+    public void removeManager(int userID, int userToRemove, int storeID) throws Exception {
         userFacade.removeManager(userID, userToRemove, storeID);
     }
 
     public boolean closeStorePermanently(int userID, int storeID) throws Exception
      {
+         //@TODO check if this doesnt break tests
         if (isAdmin(userID)) {
-            //SystemManager systemManager = systemManagerMap.get(userID);
-            //systemManager.closeStorePermanently(storeFacade.getStore(storeID));
-            return storeFacade.closeStorePermanently(storeID);
+            SystemManager systemManager = systemManagerMap.get(userID);
+            systemManager.closeStorePermanently(storeFacade.getStore(storeID));
+//            return storeFacade.closeStorePermanently(storeID);
+            return true;
         }
         else {
             throw new RuntimeException("Only admin can close stores permanently");
@@ -107,14 +110,13 @@ public class Market {
     public void removeUser(int userID, int userToRemove) throws Exception {
         if (isAdmin(userID)) {
             SystemManager systemManager = systemManagerMap.get(userID);
-            systemManager.removeUser(userFacade.getUser(userToRemove));
+            systemManager.removeUser(userFacade.getRegisteredUser(userToRemove));
         }
         else
             throw new RuntimeException("Only System admin can remove a user");
     }
 
-    public int addStore(int founderID, String name)
-    {
+    public int addStore(int founderID, String name) throws Exception {
         Store store = storeFacade.addStore(founderID, name);
         userFacade.addStore(founderID, store);
         return store.getStoreID();
@@ -152,7 +154,7 @@ public class Market {
      *
      * @return List<String> @TODO maybe should be of some kind of object?
      */
-    public List<String> getStoresOfBaskets(int userID) {
+    public List<String> getStoresOfBaskets(int userID) throws Exception {
         return userFacade.getStoresOfBaskets(userID);
     }
 
@@ -160,14 +162,14 @@ public class Market {
         return userFacade.getItemsInBasket(userID, storeName);
     }
 
-    public Cart buyCart(int userID, String deliveryAddress) throws Exception {
-        return userFacade.buyCart(userID, deliveryAddress);
+    public Cart buyCart(int userID) throws Exception {
+        return userFacade.buyCart(userID);
     }
 
     /**
      * empties the cart
      */
-    public Cart emptyCart(int userID) {
+    public Cart emptyCart(int userID) throws Exception {
         return userFacade.emptyCart(userID);
     }
 
@@ -211,96 +213,11 @@ public class Market {
         return storeFacade.closeStore(userID, storeID);
     }
 
-    public boolean sendMessage(int senderID, int receiverID, String title, String content){
-        if(storeFacade.isStoreExists(senderID)){
-            storeFacade.sendMessage(senderID, receiverID, title, content);
-            return true;
-        }
-        if(userFacade.isUserExists(senderID)){
-            userFacade.sendMessage(senderID, receiverID, title, content);
-            return true;
-        }
-
-        return false;
+    public void addManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) throws Exception {
+        userFacade.addManagerPermission(userID, storeID, manager, permission);
     }
 
-    public void markMessageAsRead(int ID, Message message) throws Exception {
-        if(storeFacade.isStoreExists(ID)){
-            storeFacade.markMessageAsRead(ID, message);
-        }
-        if(userFacade.isUserExists(ID)){
-            userFacade.markMessageAsRead(ID, message);
-        }
-    }
-
-    public void markMessageAsNotRead(int ID, Message message) throws Exception {
-        if(storeFacade.isStoreExists(ID)){
-            storeFacade.markMessageAsNotRead(ID, message);
-        }
-        if(userFacade.isUserExists(ID)){
-            userFacade.markMessageAsNotRead(ID, message);
-        }
-    }
-
-    public List<Message> watchNotReadMessages(int ID){
-        if(storeFacade.isStoreExists(ID)){
-            return storeFacade.watchNotReadMessages(ID);
-        }
-        if(userFacade.isUserExists(ID)){
-            return userFacade.watchNotReadMessages(ID);
-        }
-
-        return null;
-    }
-
-    public List<Message> watchReadMessages(int ID){
-        if(storeFacade.isStoreExists(ID)){
-            return storeFacade.watchNotReadMessages(ID);
-        }
-        if(userFacade.isUserExists(ID)){
-            return userFacade.watchReadMessages(ID);
-        }
-
-        return null;
-    }
-
-    public List<Message> watchSentMessages(int ID){
-        if(storeFacade.isStoreExists(ID)){
-            return storeFacade.watchSentMessages(ID);
-        }
-        if(userFacade.isUserExists(ID)){
-            return userFacade.watchSentMessages(ID);
-        }
-
-        return null;
-    }
-
-    public boolean setMailboxAsUnavailable(int storeID){
-        if(storeFacade.isStoreExists(storeID)){
-            storeFacade.setMailboxAsUnavailable(storeID);
-            return true;
-        }
-
-        return false;
-    }
-
-    public boolean setMailboxAsAvailable(int storeID){
-        if(storeFacade.isStoreExists(storeID)){
-            storeFacade.setMailboxAsAvailable(storeID);
-            return true;
-        }
-
-        return false;
-    }
-
-    public void addItemAmount(int storeID, int itemID, int amountToAdd)
-    {
-        storeFacade.addItemAmount(storeID, itemID, amountToAdd);
-    }
-
-    public List<Receipt> getSellingHistoryOfStoreForManager(int storeId, int userId) throws Exception {
-        if(storeFacade.checkIfStoreManager(userId, storeId) || isAdmin(userId))
-            return storeFacade.getStore(storeId).getReceiptHandler().getAllReceipts();
-        return null;
+    public void removeManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) throws Exception {
+        userFacade.removeManagerPermission(userID, storeID, manager, permission);
     }
 }

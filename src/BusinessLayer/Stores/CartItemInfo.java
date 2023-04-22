@@ -1,4 +1,4 @@
-package BusinessLayer.CartAndBasket;
+package BusinessLayer.Stores;
 
 public class CartItemInfo {
 

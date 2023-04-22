@@ -31,9 +31,9 @@ public class MailboxTests {
         RegisteredUser user2 = new RegisteredUser("user2", "123456789", 2222);
         RegisteredUser user3 = new RegisteredUser("user3", "123456789", 3333);
 
-        Mailbox mailbox1 = user1.getMailbox();
-        Mailbox mailbox2 = user2.getMailbox();
-        Mailbox mailbox3 = user3.getMailbox();
+        Mailbox mailbox1 = hub.registerToMailService(user1);
+        Mailbox mailbox2 = hub.registerToMailService(user2);
+        Mailbox mailbox3 = hub.registerToMailService(user3);
 
         Message message1 = new Message(user1.getId(), user2.getId(), "title1", "message1");
 
@@ -45,9 +45,9 @@ public class MailboxTests {
         // Bad case
         assertFalse("The message was found in different mailbox!", mailbox3.watchNotReadMessages().contains(message1));
 
-        hub.removeFromService(user1.getId());
-        hub.removeFromService(user2.getId());
-        hub.removeFromService(user3.getId());
+        hub.removeFromService(1111);
+        hub.removeFromService(2222);
+        hub.removeFromService(3333);
 
     }
 
@@ -56,8 +56,8 @@ public class MailboxTests {
         RegisteredUser user1 = new RegisteredUser("user1", "123456789", 1111);
         RegisteredUser user2 = new RegisteredUser("user2", "123456789", 2222);
 
-        Mailbox mailbox1 = user1.getMailbox();
-        Mailbox mailbox2 = user2.getMailbox();
+        Mailbox mailbox1 = hub.registerToMailService(user1);
+        Mailbox mailbox2 = hub.registerToMailService(user2);
 
         Message message1 = new Message(user1.getId(), user2.getId(), "title1", "message1");
 
@@ -68,8 +68,8 @@ public class MailboxTests {
         assertTrue("The message was not passed to read list", mailbox2.watchReadMessages().contains(message1));
         assertFalse("The message was not removed from the not-read list", mailbox2.watchNotReadMessages().contains(message1));
 
-        hub.removeFromService(user1.getId());
-        hub.removeFromService(user2.getId());
+        hub.removeFromService(1111);
+        hub.removeFromService(2222);
 
     }
 
@@ -78,8 +78,8 @@ public class MailboxTests {
         RegisteredUser user1 = new RegisteredUser("user1", "123456789", 1111);
         RegisteredUser user2 = new RegisteredUser("user2", "123456789", 2222);
 
-        Mailbox mailbox1 = user1.getMailbox();
-        Mailbox mailbox2 = user2.getMailbox();
+        Mailbox mailbox1 = hub.registerToMailService(user1);
+        Mailbox mailbox2 = hub.registerToMailService(user2);
 
         Message message1 = new Message(user1.getId(), user2.getId(), "title1", "message1");
 
@@ -92,8 +92,8 @@ public class MailboxTests {
         assertTrue("The message is not in not-read lis", mailbox2.watchNotReadMessages().contains(message1));
         assertFalse("The message was not removed from read list", mailbox2.watchReadMessages().contains(message1));
 
-        hub.removeFromService(user1.getId());
-        hub.removeFromService(user2.getId());
+        hub.removeFromService(1111);
+        hub.removeFromService(2222);
     }
 
 

@@ -23,7 +23,7 @@ public class SystemManager {
     {
         //remove all owners -> will automatically remove all managers
         int founderID = store.getFounderID();
-        RegisteredUser founder = userFacade.getUser(founderID);
+        RegisteredUser founder = userFacade.getRegisteredUser(founderID);
         myUser.closeStore(founder, store.getStoreID());
         storeFacade.closeStorePermanently(store.getStoreID());
     }
@@ -46,9 +46,9 @@ public class SystemManager {
             storeId = ownership.getStoreID();
             store = storeFacade.getStore(storeId);
             founderId = store.getFounderID();
-            founder = userFacade.getUser(founderId);
+            founder = userFacade.getRegisteredUser(founderId);
             parentUserId = founder.getStoreIOwn(storeId).findChild(userToRemove);
-            parentUser = userFacade.getUser(parentUserId);
+            parentUser = userFacade.getRegisteredUser(parentUserId);
             if (userToRemove.getId()==founderId) {
                 parentUser.getStoreIOwn(storeId).closeStore();
                 storeFacade.closeStorePermanently(storeId);

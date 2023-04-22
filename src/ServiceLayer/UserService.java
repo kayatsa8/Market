@@ -2,11 +2,9 @@ package ServiceLayer;
 
 import BusinessLayer.Log;
 import BusinessLayer.Market;
-import BusinessLayer.NotificationSystem.Message;
-import ServiceLayer.Objects.MessageService;
+import BusinessLayer.StorePermissions.StoreActionPermissions;
+import BusinessLayer.Users.RegisteredUser;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 public class UserService {
@@ -44,11 +42,11 @@ public class UserService {
         }
     }
 
-    public Result<Boolean> logout(String userName, String pass) {
+    public Result<Boolean> logout(String userName) {
         try {
-            market.logout(userName,pass);
+            market.logout(userName);
             log.info("Logout succeeded");
-            return new Result<>(false, true);//login == true,isErr==false
+            return new Result<>(false, null);//login == true,isErr==false
         } catch (Exception e) {
             log.info("Logout failed");
             return new Result<>(true, e.getMessage());//login==false
@@ -114,94 +112,24 @@ public class UserService {
         }
     }
 
-    public Result<Boolean> sendMessage(int userID, int receiverID, String title, String content){
-        boolean answer = market.sendMessage(userID, receiverID, title, content);
-
-        if(answer){
-            return new Result<Boolean>(false, "Success");
-        }
-        else{
-            return new Result<Boolean>(true, "Failure");
-        }
-    }
-
-    public Result<Boolean> markMessageAsRead(int userID, MessageService messageService){
-        try{
-            Message message = new Message(messageService);
-
-            market.markMessageAsRead(userID, message);
-
-            return new Result<Boolean>(false, "Success");
-        }
-        catch(Exception e){
-            return new Result<Boolean>(true, e.getMessage());
+    public Result addManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) {
+        try {
+            market.addManagerPermission(userID, storeID, manager, permission);
+            return new Result<>(false, true);
+        } catch (Exception e) {
+            log.info("failed to add permission");
+            return new Result<>(true, e.getMessage());
         }
     }
 
-    public Result<Boolean> markMessageAsNotRead(int userID, MessageService messageService){
-        try{
-            Message message = new Message(messageService);
-
-            market.markMessageAsNotRead(userID, message);
-
-            return new Result<Boolean>(false, "Success");
-        }
-        catch(Exception e){
-            return new Result<Boolean>(true, e.getMessage());
+    public Result removeManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) {
+        try {
+            market.removeManagerPermission(userID, storeID, manager, permission);
+            return new Result<>(false, true);
+        } catch (Exception e) {
+            log.info("failed to remove permission");
+            return new Result<>(true, e.getMessage());
         }
     }
-
-    public Result<List<MessageService>> watchNotReadMessages(int userID){
-        List<MessageService> messageServices;
-        List<Message> messages = market.watchNotReadMessages(userID);
-
-        if(messages == null){
-            return new Result<>(true, "Failure");
-        }
-
-        messageServices = messageListToMessageServiceList(messages);
-
-        return new Result<>(false, messageServices);
-
-    }
-
-    private List<MessageService> messageListToMessageServiceList(List<Message> messages){
-        List<MessageService> toReturn = new ArrayList<>();
-
-        for(Message message : messages){
-            toReturn.add(new MessageService(message));
-        }
-
-        return toReturn;
-    }
-
-    public Result<List<MessageService>> watchReadMessages(int userID){
-        List<MessageService> messageServices;
-        List<Message> messages = market.watchReadMessages(userID);
-
-        if(messages == null){
-            return new Result<>(true, "Failure");
-        }
-
-        messageServices = messageListToMessageServiceList(messages);
-
-        return new Result<>(false, messageServices);
-
-    }
-
-    public Result<List<MessageService>> watchSentMessages(int userID){
-        List<MessageService> messageServices;
-        List<Message> messages = market.watchSentMessages(userID);
-
-        if(messages == null){
-            return new Result<>(true, "Failure");
-        }
-
-        messageServices = messageListToMessageServiceList(messages);
-
-        return new Result<>(false, messageServices);
-
-    }
-
 
 }

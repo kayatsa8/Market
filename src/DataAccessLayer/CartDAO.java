@@ -1,7 +1,8 @@
 package DataAccessLayer;
 
-import BusinessLayer.CartAndBasket.Basket;
-import BusinessLayer.CartAndBasket.Cart;
+import BusinessLayer.Basket;
+import BusinessLayer.Cart;
+import BusinessLayer.Stores.CatalogItem;
 
 import java.util.concurrent.ConcurrentHashMap;
 

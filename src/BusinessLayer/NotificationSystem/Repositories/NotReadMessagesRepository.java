@@ -28,12 +28,7 @@ public class NotReadMessagesRepository {
     }
 
     public boolean contains(Message message){
-        for(Message m : notReadMessages){
-            if(m.equals(message)){
-                return true;
-            }
-        }
-        return false;
+        return notReadMessages.contains(message);
         //TODO: DAO
     }
 
