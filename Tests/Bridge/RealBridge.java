@@ -165,8 +165,8 @@ public class RealBridge implements Bridge{
     }
 
     @Override
-    public boolean logOut(String userName, String password) {
-        Result<Boolean> result = this.userService.logout(userName, password);
+    public boolean logOut(int userID) {
+        Result<Boolean> result = this.userService.logout(userID);
         return handleBoolResult(result);
     }
 

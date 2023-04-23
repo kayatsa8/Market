@@ -76,6 +76,10 @@ public class TestUser {
     @Test
     public void logInShouldPass(){
         try {
+            try {
+                userFacade.logout(id1);
+            }
+            catch (Exception ignored) {}
             userFacade.logIn(userName1,goodPass1);
             assertTrue("logIn succeeded",true);
         } catch (Exception e) {

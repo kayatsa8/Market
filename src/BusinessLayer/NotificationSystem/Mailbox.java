@@ -10,6 +10,7 @@ import java.util.List;
 
 public abstract class Mailbox {
     protected int ownerID;
+    protected boolean available;
     protected NotReadMessagesRepository notReadMessages;
     protected ReadMessagesRepository readMessages;
     protected SentMessagesRepository sentMessages;
@@ -89,6 +90,20 @@ public abstract class Mailbox {
 
     public List<Message> watchSentMessages(){
         return new ArrayList<>(sentMessages.getMessages());
+    }
+
+    public void setMailboxAsUnavailable(){
+        available = false;
+        Log.log.info("The mailbox of " + ownerID + " was marked as unavailable.");
+    }
+
+    public void setMailboxAsAvailable(){
+        available = true;
+        Log.log.info("The mailbox of " + ownerID + " was marked as available.");
+    }
+
+    public boolean isAvailable(){
+        return available;
     }
 
 }

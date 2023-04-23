@@ -6,7 +6,7 @@ import BusinessLayer.Users.RegisteredUser;
 import java.util.HashSet;
 import java.util.Set;
 
-public class StoreOwner extends StorePermissions {
+public class StoreOwner extends StoreEmployees {
     private Set<RegisteredUser> ownersIDefined;
     private Set<RegisteredUser> managersIDefined;
 
@@ -15,6 +15,7 @@ public class StoreOwner extends StorePermissions {
      */
     public StoreOwner(int userID, Store store) {
         super(userID, userID, store);
+        store.addOwner(this);
         this.ownersIDefined = new HashSet<>();
         this.managersIDefined = new HashSet<>();
     }
@@ -39,14 +40,14 @@ public class StoreOwner extends StorePermissions {
 
     public void addOwner(RegisteredUser newOwner) {
         ownersIDefined.add(newOwner);
-        newOwner.addStoreOwnership(this);
-        this.getStore().addOwner(newOwner.getId());
+        StoreOwner owner = newOwner.addStoreOwnership(this);
+        this.getStore().addOwner(owner);
     }
 
     public void addManager(RegisteredUser newManager) {
         managersIDefined.add(newManager);
         newManager.addStoreManagership(this);
-        this.getStore().addManager(newManager.getId());
+        this.getStore().addManager(newManager.getStoreIManage(getStoreID()));
     }
 
     public void removeOwner(RegisteredUser ownerToRemove) {
@@ -59,21 +60,21 @@ public class StoreOwner extends StorePermissions {
         StoreOwner ownership = ownerToRemove.getStoreIOwn(this.getStoreID());
         ownership.destruct();
         this.ownersIDefined.remove(ownerToRemove);
-        this.getStore().removeOwner(ownerToRemove.getId());
+        this.getStore().removeOwner(ownership);
         ownerToRemove.removeOwnership(this.getStoreID());
     }
 
     private void destruct() {
         StoreOwner ownership;
         for (RegisteredUser manager : managersIDefined) {
+            this.getStore().removeManager(manager.getStoreIManage(getStoreID()));
             manager.removeManagership(this.getStoreID());
-            this.getStore().removeManager(manager.getId());
         }
         for (RegisteredUser owner : ownersIDefined) {
             ownership = owner.getStoreIOwn(this.getStoreID());
             ownership.destruct();
+            this.getStore().removeOwner(owner.getStoreIOwn(getStoreID()));
             owner.removeOwnership(this.getStoreID());
-            this.getStore().removeOwner(owner.getId());
         }
 
     }
@@ -82,9 +83,9 @@ public class StoreOwner extends StorePermissions {
         if (!managersIDefined.contains(managerToRemove)) {
             throw new RuntimeException("This user is not the one who defined this owner");
         }
+        this.getStore().removeManager(managerToRemove.getStoreIManage(getStoreID()));
         managerToRemove.removeManagership(this.getStoreID());
         managersIDefined.remove(managerToRemove);
-        this.getStore().removeManager(managerToRemove.getId());
     }
 
     public void closeStore() {
@@ -111,5 +112,23 @@ public class StoreOwner extends StorePermissions {
             }
         }
         return res;
+    }
+
+    public void addManagerPermission(RegisteredUser manager, StoreActionPermissions permission) {
+        if (!managersIDefined.contains(manager)) {
+            throw new RuntimeException("This user is not the one who defined this owner");
+        }
+        manager.getStoreIManage(this.getStoreID()).addPermission(permission);
+    }
+
+    public void removeManagerPermission(RegisteredUser manager, StoreActionPermissions permission) {
+        if (!managersIDefined.contains(manager)) {
+            throw new RuntimeException("This user is not the one who defined this owner");
+        }
+        manager.getStoreIManage(this.getStoreID()).removePermission(permission);
+    }
+
+    public boolean hasPermission(StoreActionPermissions permission) {
+        return true;
     }
 }

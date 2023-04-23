@@ -1,6 +1,7 @@
 package DataAccessLayer;
 
 import BusinessLayer.Users.RegisteredUser;
+import BusinessLayer.Users.UserFacade;
 
 import java.util.HashMap;
 
@@ -27,7 +28,8 @@ public class UserDAO {
     }
 
     public int getMaxID() {
-        return 1000000;
+        //temp like this, in future change using db and change var in UF to private
+        return UserFacade.userID;
     }
 
     public void removeManagership(int id, int storeID) {

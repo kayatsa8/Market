@@ -33,10 +33,10 @@ public class ItemsManagementTests {
         int id6 = market.register("userName6", "password6");
         int id7 = market.register("userName7", "password7");
         int id8 = market.register("userName8", "password8");
-        founder1 = userFacade.getUser(id5);
-        storeOwner1 = userFacade.getUser(id6);
-        storeManager1 = userFacade.getUser(id7);
-        noRole = userFacade.getUser(id8);
+        founder1 = userFacade.getRegisteredUser(id5);
+        storeOwner1 = userFacade.getRegisteredUser(id6);
+        storeManager1 = userFacade.getRegisteredUser(id7);
+        noRole = userFacade.getRegisteredUser(id8);
         int storeID = market.addStore(founder1.getId(), "storeName1");
         store1 = market.getStoreInfo(storeID);
         market.addOwner(founder1.getId(), id6, storeID);
