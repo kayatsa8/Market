@@ -111,9 +111,15 @@ public class StoreEmployeesTest {
     }
 
     private void removeOwnerSetup() {
-        user4.addOwner(user5, store2.getStoreID());
-        user4.addOwner(user2, store2.getStoreID());
-        user5.addOwner(user3, store2.getStoreID());
+        if (user2.getStoreIOwn(store2.getStoreID())==null) {
+            user4.addOwner(user2, store2.getStoreID());
+        }
+        if (user5.getStoreIOwn(store2.getStoreID())==null) {
+            user4.addOwner(user5, store2.getStoreID());
+        }
+        if (user3.getStoreIOwn(store2.getStoreID())==null) {
+            user5.addOwner(user3, store2.getStoreID());
+        }
         //if these fail then the test will be obsolete
         ensureOwnershipWithParent(user5, user4, store2);
         ensureOwnershipWithParent(user2, user4, store2);
