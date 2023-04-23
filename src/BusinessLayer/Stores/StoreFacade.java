@@ -53,6 +53,8 @@ public class StoreFacade {
         Store store = getStore(storeID);
         if (store == null)
             throw new Exception("No store with ID: " + storeID);
+        if (itemPrice <= 0)
+            throw new Exception("Item price has to be positive but is " + itemPrice);
         categoryPool.add(itemCategory);
         return store.addCatalogItem(itemsIDs++, itemName, itemPrice, itemCategory);
     }
