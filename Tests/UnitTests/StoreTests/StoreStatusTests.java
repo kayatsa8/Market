@@ -1,6 +1,7 @@
 package UnitTests.StoreTests;
 
 import BusinessLayer.Market;
+import BusinessLayer.StorePermissions.StoreEmployees;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Stores.StoreStatus;
@@ -11,7 +12,10 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import static org.junit.Assert.*;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -34,10 +38,10 @@ public class StoreStatusTests {
         int id2 = market.register("userName2", "password2");
         int id3 = market.register("userName3", "password3");
         int id4 = market.register("userName4", "password4");
-        founder1 = userFacade.getUser(id1);
-        storeOwner1 = userFacade.getUser(id2);
-        storeManager1 = userFacade.getUser(id3);
-        noRole = userFacade.getUser(id4);
+        founder1 = userFacade.getRegisteredUser(id1);
+        storeOwner1 = userFacade.getRegisteredUser(id2);
+        storeManager1 = userFacade.getRegisteredUser(id3);
+        noRole = userFacade.getRegisteredUser(id4);
         int storeID = market.addStore(founder1.getId(), "storeName1");
         store1 = market.getStoreInfo(storeID);
         market.addOwner(founder1.getId(), id2, storeID);
@@ -80,12 +84,12 @@ public class StoreStatusTests {
             if (store1.getStoreStatus() != StoreStatus.OPEN)
                 throw new Exception("store should start as OPEN");
             Set<Integer> ownersAndManagersBefore = new HashSet<>();
-            ownersAndManagersBefore.addAll(store1.getStoreOwners());
-            ownersAndManagersBefore.addAll(store1.getStoreManagers());
+            ownersAndManagersBefore.addAll(store1.getStoreOwners().stream().map(StoreEmployees::getUserID).collect(Collectors.toList()));
+            ownersAndManagersBefore.addAll(store1.getStoreManagers().stream().map(StoreEmployees::getUserID).collect(Collectors.toList()));
             boolean success = store1.closeStore(founder1.getId());
             Set<Integer> ownersAndManagersAfter = new HashSet<>();
-            ownersAndManagersAfter.addAll(store1.getStoreOwners());
-            ownersAndManagersAfter.addAll(store1.getStoreManagers());
+            ownersAndManagersAfter.addAll(store1.getStoreOwners().stream().map(StoreEmployees::getUserID).collect(Collectors.toList()));
+            ownersAndManagersAfter.addAll(store1.getStoreManagers().stream().map(StoreEmployees::getUserID).collect(Collectors.toList()));
             if (!(ownersAndManagersBefore.equals(ownersAndManagersAfter)))
                 success = false;
             assertTrue("Store should be CLOSE", store1.getStoreStatus()==StoreStatus.CLOSE);
@@ -141,12 +145,12 @@ public class StoreStatusTests {
             if (store1.getStoreStatus() != StoreStatus.CLOSE)
                 throw new Exception("store should closed by now");
             Set<Integer> ownersAndManagersBefore = new HashSet<>();
-            ownersAndManagersBefore.addAll(store1.getStoreOwners());
-            ownersAndManagersBefore.addAll(store1.getStoreManagers());
+            ownersAndManagersBefore.addAll(store1.getStoreOwners().stream().map(StoreEmployees::getUserID).collect(Collectors.toList()));
+            ownersAndManagersBefore.addAll(store1.getStoreManagers().stream().map(StoreEmployees::getUserID).collect(Collectors.toList()));
             boolean success = store1.reopenStore(founder1.getId());
             Set<Integer> ownersAndManagersAfter = new HashSet<>();
-            ownersAndManagersAfter.addAll(store1.getStoreOwners());
-            ownersAndManagersAfter.addAll(store1.getStoreManagers());
+            ownersAndManagersAfter.addAll(store1.getStoreOwners().stream().map(StoreEmployees::getUserID).collect(Collectors.toList()));
+            ownersAndManagersAfter.addAll(store1.getStoreManagers().stream().map(StoreEmployees::getUserID).collect(Collectors.toList()));
             if (!(ownersAndManagersBefore.equals(ownersAndManagersAfter)))
                 success = false;
             assertTrue("Store should be OPEN", store1.getStoreStatus()==StoreStatus.OPEN);
