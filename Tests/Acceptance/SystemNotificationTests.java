@@ -32,7 +32,8 @@ public class SystemNotificationTests extends ProjectTest{
      * Live Notification #5
      */
     @Test
-    public void getLiveNotification(){
+    public void getLiveNotification() throws Exception
+    {
         closeStore(user2LoggedInId, store2Id);
 
         List<MessageService> notifications = watchNotReadMessages(user2LoggedInId);

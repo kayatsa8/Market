@@ -62,7 +62,8 @@ public class GuestPurchaseTests extends ProjectTest{
      * Search items #12
      */
     @Test
-    public void searchItemsByItemName_Valid(){
+    public void searchItemsByKeyWord_Valid() throws Exception
+    {
         addItemToStoreForTests(store2Id, "Bread", 10, "Kitchen", 10);
         addItemToStoreForTests(store2Id, "Bread2", 10, "Kitchen", 10);
         addItemToStoreForTests(store2Id, "Meat2", 10, "Kitchen", 10);
@@ -132,7 +133,8 @@ public class GuestPurchaseTests extends ProjectTest{
 
 
     @Test
-    public void searchItemsByFilter_Valid(){
+    public void searchItemsByFilter_Valid() throws Exception
+    {
         addItemToStoreForTests(store2Id, "Bread", 10, "Clothing", 10);
         addItemToStoreForTests(store2Id, "Bread2", 10, "Kitchen", 10);
         addItemToStoreForTests(store2Id, "Meat2", 10, "Sports", 10);
@@ -176,7 +178,8 @@ public class GuestPurchaseTests extends ProjectTest{
     }
 
     @Test
-    public void addToBasketNegativeAmount(){
+    public void addToBasketNegativeAmount() throws Exception
+    {
         int item12Id = addItemToStoreForTests(store2Id, "Name11", 10, "Kitchen", 100);
         CartService cart = this.addItemToBasket(user2LoggedInId, store2Id, item12Id, -9);
         if(cart == null)
@@ -188,7 +191,8 @@ public class GuestPurchaseTests extends ProjectTest{
     }
 
     @Test
-    public void addToBasketItemNotInStore(){
+    public void addToBasketItemNotInStore() throws Exception
+    {
         addItemToStoreForTests(store4Id, "NameDD",10, "Kitchen", 10);
         CartService cart = this.addItemToBasket(user2LoggedInId, store2Id, store4Id, 10);
         if(cart == null)

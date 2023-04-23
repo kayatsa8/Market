@@ -51,7 +51,7 @@ public class StoreEmployeesTest {
         assertTrue(parent.getUsername() + " should have " + child.getUsername() + " as ownerIDefined",
                 ownership2.getOwnersIDefined().contains(child));
         assertTrue(store.getStoreName() + " should have " + child.getUsername() + "'s id as in owners",
-                store.getStoreOwners().contains(child.getStoreIOwn(store.getStoreID())));
+                store.getStoreOwners().contains(child.getId()));
     }
 
     private void ensureManagerWithParent(RegisteredUser child, RegisteredUser parent, Store store) {
@@ -102,67 +102,38 @@ public class StoreEmployeesTest {
 
     @Test
     public void addOwner() {
-        try {
-            user2.addOwner(user1, store1.getStoreID());
-            fail("Should not allow to add owner if you aren't owner");
-        } catch (RuntimeException e) {
-        }
+        assertThrows("Should not allow to add owner if you aren't owner",
+                RuntimeException.class, () -> user2.addOwner(user1, store1.getStoreID()));
         user1.addOwner(user2, store1.getStoreID());
         ensureOwnershipWithParent(user2, user1, store1);
-        try {
-            user1.addOwner(user2, store1.getStoreID());
-            fail("Should not allow to add owner if user is already owner");
-        } catch (RuntimeException e) {
-        }
+        assertThrows("Should not allow to add owner if user is already owner",
+                RuntimeException.class, () -> user1.addOwner(user2, store1.getStoreID()));
     }
 
     @Test
     public void addManager() {
-        try {
-            user3.addManager(user1, store1.getStoreID());
-            fail("Should not allow to add manager if you aren't owner");
-        } catch (RuntimeException e) {
-        }
+        assertThrows("Should not allow to add manager if you aren't owner",
+                RuntimeException.class, () -> user3.addManager(user1, store1.getStoreID()));
         user1.addManager(user3, store1.getStoreID());
         ensureManagerWithParent(user3, user1, store1);
-        try {
-            user1.addOwner(user3, store1.getStoreID());
-            fail("Should not allow to add manager if user is already manager");
-        } catch (RuntimeException e) {
-        }
+        assertThrows("Should not allow to add manager if user is already manager",
+                RuntimeException.class, () -> user1.addOwner(user3, store1.getStoreID()));
     }
 
     @Test
     public void removeOwner() {
-        try {
-            user1.removeOwner(user4, store2.getStoreID());
-            fail("Should not allow to remove owner if you aren't owner");
-        } catch (RuntimeException e) {
-        }
-        try {
-            user4.removeOwner(user1, store2.getStoreID());
-            fail("Should not allow to remove user that isnt owner");
-        } catch (RuntimeException e) {
-        }
+        assertThrows("Should not allow to remove owner if you aren't owner",
+                RuntimeException.class, () -> user1.removeOwner(user4, store2.getStoreID()));
+        assertThrows("Should not allow to remove user that isnt owner",
+                RuntimeException.class, () -> user4.removeOwner(user1, store2.getStoreID()));
 
         removeOwnerSetup();
-
-        try {
-            user4.removeOwner(user4, store2.getStoreID());
-            fail("Should not allow to remove yourself if you are founder");
-        } catch (RuntimeException e) {
-        }
-        try {
-            user4.removeOwner(user1, store2.getStoreID());
-            fail("Should not be able to remove owner you did not define, even if 'grandchild'");
-        } catch (RuntimeException e) {
-        }
-        try {
-            user5.removeOwner(user2, store2.getStoreID());
-            fail("Should not be able to remove owner you did not define");
-        } catch (RuntimeException e) {
-
-        }
+        assertThrows("Should not allow to remove yourself if you are founder",
+                RuntimeException.class, () -> user4.removeOwner(user4, store2.getStoreID()));
+        assertThrows("Should not be able to remove owner you did not define, even if 'grandchild'",
+                RuntimeException.class, () -> user4.removeOwner(user1, store2.getStoreID()));
+        assertThrows("Should not be able to remove owner you did not define",
+                RuntimeException.class, () -> user5.removeOwner(user2, store2.getStoreID()));
         user4.removeOwner(user5, store2.getStoreID());
         //ensure user5 and user1 are no longer owners
         assertNull("user5 should no longer be an owner in stores he owns", user5.getStoreIOwn(store2.getStoreID()));
@@ -176,11 +147,8 @@ public class StoreEmployeesTest {
 
     @Test
     public void removeManager() {
-        try {
-            user1.removeManager(user4, store2.getStoreID());
-            fail("Should not allow to remove manager if you aren't owner");
-        } catch (RuntimeException e) {
-        }
+        assertThrows("Should not allow to remove manager if you aren't owner",
+                RuntimeException.class, () -> user1.removeManager(user4, store2.getStoreID()));
         removeManagerSetup(user4);
         user4.removeManager(user1, store2.getStoreID());
         //should only affect user1

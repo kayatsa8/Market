@@ -170,17 +170,19 @@ public class ShoppingService {
     }
 
 
-    public void addItemAmount(int storeId, int itemId, int amount){
+    public void addItemAmount(int storeId, int itemId, int amount) throws Exception
+    {
         market.addItemAmount(storeId, itemId, amount);
     }
 
 
-    public Result<String> removeItemFromStore(int storeID, int itemID)
+    public Result<CatalogItemService> removeItemFromStore(int storeID, int itemID)
     {
         try {
-            market.removeItemFromStore(storeID, itemID);
+            CatalogItem item = market.removeItemFromStore(storeID, itemID);
+            CatalogItemService catalogItemService = new CatalogItemService(item, false);
             log.info("Removed item from store");
-            return new Result<>(false, "Item removed");
+            return new Result<>(false, catalogItemService);
         } catch (Exception e) {
             log.info("Failed to remove item from store");
             return new Result<>(true, e.getMessage());
@@ -270,7 +272,8 @@ public class ShoppingService {
         }
     }
 
-    public Result<Boolean> sendMessage(int storeID, int receiverID, String title, String content){
+    public Result<Boolean> sendMessage(int storeID, int receiverID, String title, String content) throws Exception
+    {
         boolean response = market.sendMessage(storeID, receiverID, title, content);
 
         if(response){
@@ -302,7 +305,8 @@ public class ShoppingService {
         }
     }
 
-    public Result<List<MessageService>> watchNotReadMessages(int storeID){
+    public Result<List<MessageService>> watchNotReadMessages(int storeID) throws Exception
+    {
         List<Message> messages = market.watchNotReadMessages(storeID);
 
         if(messages == null){
@@ -323,7 +327,8 @@ public class ShoppingService {
         return toReturn;
     }
 
-    public Result<List<MessageService>> watchReadMessages(int storeID){
+    public Result<List<MessageService>> watchReadMessages(int storeID) throws Exception
+    {
         List<Message> messages = market.watchReadMessages(storeID);
 
         if(messages == null){
@@ -334,7 +339,8 @@ public class ShoppingService {
         }
     }
 
-    public Result<List<MessageService>> watchSentMessages(int storeID){
+    public Result<List<MessageService>> watchSentMessages(int storeID) throws Exception
+    {
         List<Message> messages = market.watchSentMessages(storeID);
 
         if(messages == null){
@@ -345,7 +351,8 @@ public class ShoppingService {
         }
     }
 
-    public Result<Boolean> setMailboxAsUnavailable(int storeID){
+    public Result<Boolean> setMailboxAsUnavailable(int storeID) throws Exception
+    {
         boolean answer = market.setMailboxAsUnavailable(storeID);
 
         if(answer){
@@ -356,7 +363,8 @@ public class ShoppingService {
         }
     }
 
-    public Result<Boolean> setMailboxAsAvailable(int storeID){
+    public Result<Boolean> setMailboxAsAvailable(int storeID) throws Exception
+    {
         boolean answer = market.setMailboxAsAvailable(storeID);
 
         if(answer){

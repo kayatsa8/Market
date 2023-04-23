@@ -31,7 +31,8 @@ public class ConcurrencyTests extends ProjectTest{
      * 2 Users trying to buy the last item available
      */
     @Test
-    public void twoUsersBuyingLastItem(){
+    public void twoUsersBuyingLastItem() throws Exception
+    {
         //Store2 as only 1 item21 !!
         int item21Id = addItemToStoreForTests(store2Id, "Item2222222", 10, "Kitchen", 1);
 
@@ -81,9 +82,7 @@ public class ConcurrencyTests extends ProjectTest{
     @Test
     public void buyingAndDeletingTheSameTime(){
         int item22Id = addItemToStoreForTests(store2Id, "Item221", 10, "Kitchen", 10);
-
         addItemToBasket(user4LoggedInId, store2Id, item22Id, 1);
-
         Thread thread1 = new Thread("User2") {
             public void run(){
                 user4Bought = buyCart(user4LoggedInId, "Details");

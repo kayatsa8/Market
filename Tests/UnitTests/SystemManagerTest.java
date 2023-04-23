@@ -73,13 +73,15 @@ public class SystemManagerTest {
 
         }
         try {
-            market.closeStorePermanently(adminID, storeToDelete);
+            boolean success = market.closeStorePermanently(adminID, storeToDelete);
+            assertTrue("Store closed permanently", success);
         }
         catch (Exception e) {
             fail(e.getMessage()+" caused us to fail to close store");
         }
         assertEquals("Store should have been removed from store facade", PERMANENTLY_CLOSE, sf.getStore(storeToDelete).getStoreStatus());
         assertNull("User should not see anymore that he owns the store", user.getStoreIOwn(storeToDelete));
+        assertTrue("Store should remove all owners and managers", sf.getStore(storeToDelete).getStoreOwners().isEmpty() && sf.getStore(storeToDelete).getStoreManagers().isEmpty());
     }
 
     @Test

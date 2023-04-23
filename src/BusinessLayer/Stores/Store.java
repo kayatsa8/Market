@@ -150,14 +150,14 @@ public class Store {
     }
 
     private boolean sameCategory(CatalogItem item, String keywords) {
-        return item.getCategory().equals(keywords);
+        return (item.getCategory().toLowerCase()).equals(keywords.toLowerCase());
     }
 
     private boolean sameName(CatalogItem item, String keywords) {
-        return item.getItemName().equals(keywords);
+        return (item.getItemName().toLowerCase()).equals(keywords.toLowerCase());
     }
 
-    private boolean belongsToSearch(CatalogItem item, String keywords, SearchBy searchBy) throws Exception {
+    public boolean belongsToSearch(CatalogItem item, String keywords, SearchBy searchBy) throws Exception {
         switch (searchBy) {
             case CATEGORY -> {
                 return sameCategory(item, keywords);
@@ -169,12 +169,13 @@ public class Store {
                 {
                     String[] keys = keywords.split(",");
                     for (String key : keys) {
+                        key = key.strip();
                         if (sameCategory(item, key) || sameName(item, key)) {
                             return true;
                         }
                     }
+                    return false;
                 }
-                throw new Exception("Search by " + searchBy + "is invalid");
             }
         }
         throw new Exception("Search by " + searchBy + "is invalid");
@@ -226,9 +227,10 @@ public class Store {
         storeMailBox.sendMessageToList(sendToList, "New purchase", "User " + userID + " made a purchase in store " + storeName + " where you are one of the owners");
         log.info("A basket was bought at store " + storeID);
     }
-
-    public boolean saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems) throws Exception {
-        if (checkIfItemsInStock(basketItems)) {
+    public synchronized boolean saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems) throws Exception
+    {
+        if (checkIfItemsInStock(basketItems))
+        {
             int itemID;
             int itemAmountToSave;
             double itemDiscountPercent;
@@ -246,8 +248,9 @@ public class Store {
             throw new Exception("Not enough items in stock");
         }
     }
-
-    private boolean checkIfItemsInStock(List<CartItemInfo> basketItems) {
+    
+    public boolean checkIfItemsInStock(List<CartItemInfo> basketItems)
+    {
         int itemID;
         int itemAmountToSave;
         int itemCurrentAmount;
@@ -261,8 +264,8 @@ public class Store {
         }
         return true;
     }
-
-    private double getItemDiscountsPercent(int itemID) //return: [0,1]
+    
+    public double getItemDiscountsPercent(int itemID) //return: [0,1]
     {
         double pricePercent = 1;
         for (Discount discount : discounts.values()) {
@@ -272,8 +275,10 @@ public class Store {
         }
         return 1 - pricePercent;
     }
-
-    private void saveItemAmount(int itemID, int amountToSave) {
+    
+    public void saveItemAmount(int itemID, int amountToSave)
+    {
+        int itemAmountToSave = amountToSave;
         int itemCurrentAmount = itemsAmounts.get(itemID);
         int itemCurrentSavedAmount = savedItemsAmounts.get(itemID);
         if ((itemCurrentAmount - amountToSave >= 0) && (itemCurrentSavedAmount + amountToSave >= 0)) {
@@ -293,7 +298,8 @@ public class Store {
         }
     }
 
-    private boolean checkIfItemsSaved(List<CartItemInfo> basketItems) {
+    public boolean checkIfItemsSaved(List<CartItemInfo> basketItems)
+    {
         int itemID;
         int itemAmountToRemoveFromSaved;
         int itemCurrentSavedAmount;
@@ -339,7 +345,8 @@ public class Store {
         log.info("Added amount by " + amountToAdd + " for item " + itemID + " at store " + storeID);
     }
 
-    private void addSavedItemAmount(int itemID, int amountToRemove) {
+    public void addSavedItemAmount(int itemID, int amountToRemove)
+    {
         int currentAmountSaved = savedItemsAmounts.get(itemID);
         savedItemsAmounts.put(itemID, currentAmountSaved + amountToRemove);
     }
@@ -491,14 +498,15 @@ public class Store {
         }
         return false;
     }
-
-    public boolean reopenStore(int userID) throws Exception {
-        if (!getOwnerIDs().contains(userID))
-            throw new Exception("User is not allowed to open store");
+    
+    public boolean reopenStore(int userID) throws Exception
+    {
+        if (userID != founderID)
+            throw new Exception("Only the founder of the store can open it");
         if (storeStatus == OPEN) {
             return false;
         } else if (storeStatus == PERMANENTLY_CLOSE) {
-            throw new Exception("Store is permanently closed and cannot be opened");
+            throw new Exception("Store is permanently close and cannot change its status to open");
         } else {
             storeStatus = OPEN;
             List<StoreEmployees> storeOwnersAndManagers = new ArrayList<>();
@@ -519,10 +527,11 @@ public class Store {
     private List<Integer> getManagerIDs() {
         return storeManagers.stream().map(StoreEmployees::getUserID).toList();
     }
-
-    public boolean closeStore(int userID) throws Exception {
-        if (!getOwnerIDs().contains(userID))
-            throw new Exception("User is not allowed to close store");
+    
+    public boolean closeStore(int userID) throws Exception
+    {
+        if (userID != founderID)
+            throw new Exception("Only the founder of the store can close it");
         if (storeStatus == CLOSE) {
             return false;
         } else if (storeStatus == PERMANENTLY_CLOSE) {
@@ -542,7 +551,7 @@ public class Store {
 
     public boolean closeStorePermanently() throws Exception {
         if (storeStatus == PERMANENTLY_CLOSE) {
-            throw new Exception("Store is already permanently closed");
+            return false;
         } else {
             storeStatus = PERMANENTLY_CLOSE;
             List<StoreEmployees> storeOwnersAndManagers = new ArrayList<>();
@@ -551,6 +560,8 @@ public class Store {
             List<Integer> sendToList = storeOwnersAndManagers.stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
             storeMailBox.sendMessageToList(sendToList, "Store closed permanently", "Store " + storeName + " has closed permanently");
             storeMailBox.setMailboxAsUnavailable();
+            storeOwners = new ArrayList<>();
+            storeManagers = new ArrayList<>();
             log.info("Store " + storeID + " is permanently closed");
             return true;
         }
@@ -574,7 +585,10 @@ public class Store {
         this.storeOwners.remove(owner);
     }
 
-    public void removeItemFromStore(int itemID) throws Exception {
+    public CatalogItem removeItemFromStore(int itemID) throws Exception
+    {
+        if (getItem(itemID) == null)
+            return null;
         if (savedItemsAmounts.get(itemID) > 0)
             throw new Exception("Someone is in the middle of a purchase with this item, please try again in a few seconds");
         else
@@ -587,7 +601,7 @@ public class Store {
             throw new Exception("Someone participates in an auction for this item, please try again when the auction ends");
         else
             removeItemAuctions(itemID);
-        removeItem(itemID);
+        return removeItem(itemID);
     }
 
     private void removeItemAuctions(int itemID) {
@@ -628,9 +642,10 @@ public class Store {
         return false;
     }
 
-    private void removeItem(int itemID) {
+    private CatalogItem removeItem(int itemID)
+    {
         itemsAmounts.remove(itemID);
-        items.remove(itemID);
+        return items.remove(itemID);
     }
 
     public String updateItemName(int itemID, String newName) throws Exception {

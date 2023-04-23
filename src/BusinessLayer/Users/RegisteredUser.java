@@ -108,7 +108,7 @@ public class RegisteredUser extends User {
         }
         //check if newOwner is already an owner or manager//TODO can user be both?
         if (newOwner.ownsStore(storeID)) {
-            throw new RuntimeException("User already owns store");
+            throw new RuntimeException("User " + newOwner.username + " already owns store " + storeID);
         }
         if (newOwner.managesStore(storeID)) {
             throw new RuntimeException("User already manages store");

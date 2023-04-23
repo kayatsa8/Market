@@ -183,14 +183,14 @@ public class Market {
         return storeFacade.getStore(storeID);
     }
 
-    public CatalogItem addItemToStore(int storeID, String itemName, double itemPrice, String itemCategory)
+    public CatalogItem addItemToStore(int storeID, String itemName, double itemPrice, String itemCategory) throws Exception
     {
         return storeFacade.addCatalogItem(storeID, itemName, itemPrice, itemCategory);
     }
 
-    public void removeItemFromStore(int storeID, int itemID) throws Exception
+    public CatalogItem removeItemFromStore(int storeID, int itemID) throws Exception
     {
-        storeFacade.removeItemFromStore(storeID, itemID);
+        return storeFacade.removeItemFromStore(storeID, itemID);
     }
 
     public String updateItemName(int storeID, int itemID, String newName) throws Exception
@@ -226,7 +226,7 @@ public class Market {
         userFacade.removeManagerPermission(userID, storeID, manager, permission);
     }
 
-    public boolean sendMessage(int senderID, int receiverID, String title, String content){
+    public boolean sendMessage(int senderID, int receiverID, String title, String content) throws Exception{
         if(storeFacade.isStoreExists(senderID)){
             storeFacade.sendMessage(senderID, receiverID, title, content);
             return true;
@@ -257,7 +257,8 @@ public class Market {
         }
     }
 
-    public List<Message> watchNotReadMessages(int ID){
+    public List<Message> watchNotReadMessages(int ID) throws Exception
+    {
         if(storeFacade.isStoreExists(ID)){
             return storeFacade.watchNotReadMessages(ID);
         }
@@ -268,7 +269,8 @@ public class Market {
         return null;
     }
 
-    public List<Message> watchReadMessages(int ID){
+    public List<Message> watchReadMessages(int ID) throws Exception
+    {
         if(storeFacade.isStoreExists(ID)){
             return storeFacade.watchNotReadMessages(ID);
         }
@@ -279,7 +281,8 @@ public class Market {
         return null;
     }
 
-    public List<Message> watchSentMessages(int ID){
+    public List<Message> watchSentMessages(int ID) throws Exception
+    {
         if(storeFacade.isStoreExists(ID)){
             return storeFacade.watchSentMessages(ID);
         }
@@ -290,7 +293,8 @@ public class Market {
         return null;
     }
 
-    public boolean setMailboxAsUnavailable(int storeID){
+    public boolean setMailboxAsUnavailable(int storeID) throws Exception
+    {
         if(storeFacade.isStoreExists(storeID)){
             storeFacade.setMailboxAsUnavailable(storeID);
             return true;
@@ -299,7 +303,8 @@ public class Market {
         return false;
     }
 
-    public boolean setMailboxAsAvailable(int storeID){
+    public boolean setMailboxAsAvailable(int storeID) throws Exception
+    {
         if(storeFacade.isStoreExists(storeID)){
             storeFacade.setMailboxAsAvailable(storeID);
             return true;
@@ -308,7 +313,7 @@ public class Market {
         return false;
     }
 
-    public void addItemAmount(int storeID, int itemID, int amountToAdd)
+    public void addItemAmount(int storeID, int itemID, int amountToAdd) throws Exception
     {
         storeFacade.addItemAmount(storeID, itemID, amountToAdd);
     }
