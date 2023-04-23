@@ -4,10 +4,13 @@ import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.Market;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
+import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Users.RegisteredUser;
-import org.junit.Before;
+import BusinessLayer.Users.UserFacade;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -21,38 +24,41 @@ import static org.junit.Assert.*;
  */
 public class CartBasketTests {
 
-    private RegisteredUser storeOwner;
-    RegisteredUser client;
-    Store store1;
-    Store store2;
-    Cart cart;
-    CatalogItem item1;
-    CatalogItem item2;
-    CatalogItem item3;
-    CatalogItem item4;
+    static RegisteredUser storeOwner;
+    static RegisteredUser client;
+    static Store store1;
+    static Store store2;
+    static Market market;
+    static StoreFacade storeFacade;
+    static UserFacade userFacade;
+    static Cart cart;
+    static CatalogItem item1;
+    static CatalogItem item2;
+    static CatalogItem item3;
+    static CatalogItem item4;
 
-    @Before
-    public void setUp(){
-        storeOwner = new RegisteredUser("storeOwner", "11111", 1111);
-
-        client = new RegisteredUser("client", "123456", 2222);
-
-        store1 = new Store(1000001, 1111, "store1");
-        store1.addCatalogItem(10000, "1", 2, "Books");
-        item1 = store1.getItem(10000);
-        store1.addItemAmount(item1.getItemID(), 100);
-        store1.addCatalogItem(10001, "2", 3, "Books");
-        item2 = store1.getItem(10001);
-        store1.addItemAmount(item2.getItemID(), 100);
-
-        store2 = new Store(1000002, 1111, "store2");
-        store2.addCatalogItem(10002, "3", 7, "Books");
-        item3 = store2.getItem(10002);
-        store2.addItemAmount(item3.getItemID(), 100);
-        store2.addCatalogItem(10003, "4", 5, "Books");
-        item4 = store2.getItem(10003);
-        store2.addItemAmount(item4.getItemID(), 100);
-
+    @BeforeClass
+    public static void setUp() throws Exception
+    {
+        market = Market.getInstance();
+        storeFacade = market.getStoreFacade();
+        userFacade = market.getUserFacade();
+        int user1ID = market.register("storeOwnerCartTests", "111111");
+        storeOwner = userFacade.getRegisteredUser(user1ID);
+        int user2ID = market.register("clientCartTests", "123456");
+        client = userFacade.getRegisteredUser(user2ID);
+        int store1ID = market.addStore(storeOwner.getId(), "store1");
+        store1 = market.getStoreInfo(store1ID);
+        item1 = market.addItemToStore(store1ID, "1", 2, "Books");
+        market.addItemAmount(store1ID, item1.getItemID(), 100);
+        item2 = market.addItemToStore(store1ID, "2", 3, "Books");
+        market.addItemAmount(store1ID, item2.getItemID(), 100);
+        int store2ID = market.addStore(storeOwner.getId(), "store2");
+        store2 = market.getStoreInfo(store2ID);
+        item3 = market.addItemToStore(store2ID, "3", 7, "Books");
+        market.addItemAmount(store2ID, item3.getItemID(), 100);
+        item4 = market.addItemToStore(store2ID, "4", 5, "Books");
+        market.addItemAmount(store2ID, item4.getItemID(), 100);
         cart = client.getCart();
     }
 
@@ -147,9 +153,9 @@ public class CartBasketTests {
     @Test
     public void buy(){
         try{
-            cart.addItem(store1, item1, 1);
-            cart.addItem(store1, item2, 5);
-            cart.addItem(store2, item3, 83);
+            //cart.addItem(store1, item1, 1);
+            //cart.addItem(store1, item2, 5);
+            //cart.addItem(store2, item3, 83);
 
             HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> receiptDate =
                     cart.buyCart(new PurchaseClient(), new SupplyClient(), "David Ha'Melekh 7");

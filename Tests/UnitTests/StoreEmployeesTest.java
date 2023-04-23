@@ -5,7 +5,10 @@ import BusinessLayer.NotificationSystem.Mailbox;
 import BusinessLayer.StorePermissions.StoreManager;
 import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Store;
+import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Users.RegisteredUser;
+import BusinessLayer.Users.User;
+import BusinessLayer.Users.UserFacade;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -19,22 +22,46 @@ public class StoreEmployeesTest {
     static RegisteredUser user4;
     static RegisteredUser user5;
     static RegisteredUser user6;
+    static StoreFacade storeFacade;
+    static UserFacade userFacade;
     static Store store1;
     static Store store2;
 
     @BeforeClass
     public static void setUp() throws Exception {
-        Market market = Market.getInstance();
-        user1 = market.getUserFacade().getRegisteredUser(market.register("testUser", "testPass"));
-        user2 = market.getUserFacade().getRegisteredUser(market.register("testUser2", "testPass"));
-        user3 = market.getUserFacade().getRegisteredUser(market.register("testUser3", "testPass"));
-        user4 = market.getUserFacade().getRegisteredUser(market.register("testUser4", "testPass"));
-        user5 = market.getUserFacade().getRegisteredUser(market.register("testUser5", "testPass"));
-        user6 = market.getUserFacade().getRegisteredUser(market.register("testUser6", "testPass"));
-        store1 = new Store(1, 1, "store1");
-        user1.getStoresIOwn().put(store1.getStoreID(), new StoreOwner(user1.getId(), store1)); //doing it manually to be independent of createStore function
-        store2 = new Store(2, 4, "store2");
-        user4.getStoresIOwn().put(store2.getStoreID(), new StoreOwner(user4.getId(), store2));
+        //Market market = Market.getInstance();
+        storeFacade = new StoreFacade();
+        userFacade = new UserFacade();
+        //user1 = market.getUserFacade().getRegisteredUser(market.register("testUser", "testPass"));
+        //user2 = market.getUserFacade().getRegisteredUser(market.register("testUser2", "testPass"));
+        //user3 = market.getUserFacade().getRegisteredUser(market.register("testUser3", "testPass"));
+        //user4 = market.getUserFacade().getRegisteredUser(market.register("testUser4", "testPass"));
+        //user5 = market.getUserFacade().getRegisteredUser(market.register("testUser5", "testPass"));
+        //user6 = market.getUserFacade().getRegisteredUser(market.register("testUser6", "testPass"));
+        int user1ID = userFacade.registerUser("testUser1", "testPass");
+        int user2ID = userFacade.registerUser("testUser2", "testPass");
+        int user3ID = userFacade.registerUser("testUser3", "testPass");
+        int user4ID = userFacade.registerUser("testUser4", "testPass");
+        int user5ID = userFacade.registerUser("testUser5", "testPass");
+        int user6ID = userFacade.registerUser("testUser6", "testPass");
+        user1 = userFacade.getRegisteredUser(user1ID);
+        user2 = userFacade.getRegisteredUser(user2ID);
+        user3 = userFacade.getRegisteredUser(user3ID);
+        user4 = userFacade.getRegisteredUser(user4ID);
+        user5 = userFacade.getRegisteredUser(user5ID);
+        user6 = userFacade.getRegisteredUser(user6ID);
+        //store1 = new Store(1, 1, "store1");
+        store1 = storeFacade.addStore(user1ID, "store1");
+        userFacade.addStore(user1ID, store1);
+        //user1.getStoresIOwn().put(store1.getStoreID(), new StoreOwner(user1.getId(), store1));
+        StoreOwner storeOwner1 = new StoreOwner(user1ID, store1);
+        user1.getStoresIOwn().put(store1.getStoreID(), storeOwner1);
+        //store2 = new Store(2, 4, "store2");
+        store2 = storeFacade.addStore(user4ID, "store2");
+        userFacade.addStore(user4ID, store2);
+        //user4.getStoresIOwn().put(store2.getStoreID(), new StoreOwner(user4.getId(), store2));
+        StoreOwner storeOwner2 = new StoreOwner(user4ID, store2);
+        user4.getStoresIOwn().put(store2.getStoreID(), storeOwner2);
     }
 
 //    @After

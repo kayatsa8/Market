@@ -18,7 +18,7 @@ public class UserFacade {
     private static final Logger log = Log.log;
     private final static int MIN_PASS_LENGTH = 6;
     private final static String adminName = "admin";
-    public static int userID;
+    public static int userID = 1000000;
     //    private Map<String, RegisteredUser> users;
     private Map<Integer, RegisteredUser> users;
     private UserDAO userDAO;
