@@ -38,7 +38,7 @@ public class RegisteredUserTests extends ProjectTest{
      */
     @Test
     public void logout_Valid(){
-        boolean loggedOut = this.logOut("User4RegisteredUserTests", "User4!");
+        boolean loggedOut = this.logOut(user4LoggedInId);
         assertTrue(loggedOut);
 
         boolean check = this.loginUser("User4RegisteredUserTests", "User4!");
@@ -47,7 +47,7 @@ public class RegisteredUserTests extends ProjectTest{
 
     @Test
     public void logOut_UserNotLoggedIn(){
-        boolean loggedOut = this.logOut("User3RegisteredUserTests", "User3!");
+        boolean loggedOut = this.logOut(user3NotLoggedInId);
         assertFalse(loggedOut);
     }
 
@@ -153,27 +153,25 @@ public class RegisteredUserTests extends ProjectTest{
     /**
      * Get Personal history purchase #22
      */
-     @Test
-    public void getPersonalHistory_Valid(){
-         List<ReceiptService> history = this.getPersonalHistory(user2LoggedInId);
-         assertNotNull(history);
-         assertFalse(true);
-
-         //assertTrue(history.get(0) );
-    }
+//     @Test
+//    public void getPersonalHistory_Valid(){
+//         List<ReceiptService> history = this.getPersonalHistory(user2LoggedInId);
+//         assertNotNull(history);
+//         assertFalse(true);
+//
+//         //assertTrue(history.get(0) );
+//    }
 
     @Test
     public void getPersonalHistory_NoHistory(){
         List<ReceiptService> history = this.getPersonalHistory(user1GuestId);
         assertNull(history);
-        assertFalse(true);
     }
 
     @Test
     public void getPersonalHistory_NotLoggedIn(){
         List<ReceiptService> history = this.getPersonalHistory(user3NotLoggedInId);
         assertNull(history);
-        assertFalse(true);
     }
 
     /**
@@ -193,6 +191,15 @@ public class RegisteredUserTests extends ProjectTest{
         assertNull(info);
     }
 
+    //personal history need to be above
+     @Test
+    public void getPersonalHistory_Valid(){
+         List<ReceiptService> history = this.getPersonalHistory(user2LoggedInId);
+         assertNotNull(history);
+         assertFalse(true);
+
+         //assertTrue(history.get(0) );
+    }
 
     @Test
     public void changePassword_Valid(){

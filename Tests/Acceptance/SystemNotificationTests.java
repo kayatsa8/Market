@@ -63,23 +63,28 @@ public class SystemNotificationTests extends ProjectTest{
      * delayed Notifications #6
      */
     @Test
-    public void delayedNotifications_Valid() throws Exception
-    {
-        logOut("User4", "User4!!");
+    public void delayedNotifications_Valid(){
+        logOut(user4LoggedInId);
 
         this.closeStore(user4LoggedInId, store4Id);
         loginUser("User4", "User4!");
 
-        List<MessageService> notifications = watchNotReadMessages(user4LoggedInId);
-
-        boolean foundClosed = false;
-        for(MessageService msg: notifications) {
-            if (msg.getTitle().equals("Store closed")){
-                foundClosed = true;
-                break;
+        List<MessageService> notifications = null;
+        try {
+            notifications = watchNotReadMessages(user4LoggedInId);
+            boolean foundClosed = false;
+            for(MessageService msg: notifications) {
+                if (msg.getTitle().equals("Store closed")){
+                    foundClosed = true;
+                    break;
+                }
             }
+            assertTrue(foundClosed);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        assertTrue(foundClosed);
+
+
     }
 
 

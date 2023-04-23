@@ -95,8 +95,9 @@ public class RealBridge implements Bridge{
     @Override
     public boolean buyCart(int userId, String deliveryAddress) {
         try {
-            shoppingService.buyCart(userId, deliveryAddress);
-
+            Result result = shoppingService.buyCart(userId, deliveryAddress);
+            if(result.isError())
+                return false;
             //temp fix, I need it to return boolean
             return shoppingService.getCart(userId).getValue().isEmpty();
         } catch (Exception e) {
@@ -165,8 +166,8 @@ public class RealBridge implements Bridge{
     }
 
     @Override
-    public boolean logOut(String userName, String password) {
-        Result<Boolean> result = this.userService.logout(userName, password);
+    public boolean logOut(int userID) {
+        Result<Boolean> result = this.userService.logout(userID);
         return handleBoolResult(result);
     }
 

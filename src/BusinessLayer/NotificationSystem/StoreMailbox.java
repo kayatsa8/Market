@@ -4,15 +4,15 @@ import BusinessLayer.Log;
 import BusinessLayer.NotificationSystem.Repositories.NotReadMessagesRepository;
 import BusinessLayer.NotificationSystem.Repositories.ReadMessagesRepository;
 import BusinessLayer.NotificationSystem.Repositories.SentMessagesRepository;
+import BusinessLayer.StorePermissions.StoreEmployees;
 import BusinessLayer.Stores.Store;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class StoreMailbox extends Mailbox{
 
     private final Store owner;
-    private boolean available;
 
     public StoreMailbox(Store _owner){
         owner = _owner;
@@ -25,8 +25,8 @@ public class StoreMailbox extends Mailbox{
 
     @Override
     public void notifyOwner() throws Exception {
-        List<Integer> IDs = owner.getStoreOwners();
-        IDs.addAll(owner.getStoreManagers());
+        List<Integer> IDs = owner.getStoreOwners().stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
+        IDs.addAll(owner.getStoreManagers().stream().map(StoreEmployees::getUserID).toList());
         NotificationHub hub = NotificationHub.getInstance();
         Message notificationMessage;
 
@@ -43,20 +43,6 @@ public class StoreMailbox extends Mailbox{
         String content = "You can view the message in the store's mailbox";
 
         return new Message(ownerID, id, title, content);
-    }
-
-    public void setMailboxAsUnavailable(){
-        available = false;
-        Log.log.info("The mailbox of " + ownerID + " was marked as unavailable.");
-    }
-
-    public void setMailboxAsAvailable(){
-        available = true;
-        Log.log.info("The mailbox of " + ownerID + " was marked as available.");
-    }
-
-    public boolean isAvailable(){
-        return available;
     }
 
     public void sendMessage(int receiverID, String title, String content){

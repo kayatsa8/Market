@@ -1,6 +1,7 @@
 package UnitTests;
 
 import BusinessLayer.Market;
+import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.UserFacade;
@@ -40,8 +41,8 @@ public class SystemManagerTest {
         try {
             user1 = market.register(user1Name, user1Name+user1Name);
             user2 = market.register(user2Name, user2Name+user2Name);
-            user = market.getUserFacade().getUser(user1);
-            secondUser = market.getUserFacade().getUser(user2);
+            user = market.getUserFacade().getRegisteredUser(user1);
+            secondUser = market.getUserFacade().getRegisteredUser(user2);
             store1 = market.addStore(user.getId(), "test store 1");
             store2 = market.addStore(user.getId(), "test store 2");
             store3 = market.addStore(secondUser.getId(), "test store 3");
@@ -64,14 +65,19 @@ public class SystemManagerTest {
     @Test
     public void closeStorePermanently() {
         int storeToDelete = store1;
-        assertThrows("Only admin should be able to close store permanently", RuntimeException.class,
-                ()->market.closeStorePermanently(user1, storeToDelete));
+        try {
+            market.closeStorePermanently(user1, storeToDelete);
+            fail("Only admin should be able to close store");
+        }
+        catch (Exception e) {
+
+        }
         try {
             boolean success = market.closeStorePermanently(adminID, storeToDelete);
             assertTrue("Store closed permanently", success);
         }
         catch (Exception e) {
-            assertTrue(e.getMessage()+" caused us to fail to close store permanently", false);
+            fail(e.getMessage()+" caused us to fail to close store");
         }
         assertEquals("Store should have been removed from store facade", PERMANENTLY_CLOSE, sf.getStore(storeToDelete).getStoreStatus());
         assertNull("User should not see anymore that he owns the store", user.getStoreIOwn(storeToDelete));
@@ -81,14 +87,19 @@ public class SystemManagerTest {
     @Test
     public void removeUser() {
         int[] storeToDelete = {store1, store2};
+        try {
+            market.removeUser(user1, user2);
+            fail("Only admin should be able to remove user");
+        }
+        catch (Exception e) {
 
-        assertThrows("Only admin should be able to remove user", RuntimeException.class,
-                ()->market.removeUser(user1, user2));
+        }
         try {
             market.removeUser(adminID, user1);
         }
         catch (Exception e) {
-            assertTrue(e.getMessage()+" caused us to fail to remove user", false);
+            fail(e.getMessage() + " caused us to fail to remove user");
+
         }
         for (int store : storeToDelete)
             assertEquals("User's Store should be closed permanently because he is founder", PERMANENTLY_CLOSE, sf.getStore(store).getStoreStatus());

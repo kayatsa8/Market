@@ -25,7 +25,7 @@ public abstract class ProjectTest {
     public void setUp() {
         if(bridge == null)
             this.bridge = Driver.getBridge();
-        user7SystemManagerId = 10000;
+        user7SystemManagerId = 1000001;
         //setUpExternalSystems();
     }
     protected static int user7SystemManagerId = -1;
@@ -143,6 +143,9 @@ public abstract class ProjectTest {
         if(logged == LOGGED){
             loginUser(userName, password);
         }
+        else if(logged == NOT_LOGGED){
+            logOut(id);
+        }
         return id;
     }
 
@@ -220,8 +223,8 @@ public abstract class ProjectTest {
         return this.bridge.showStaffInfo(storeId, userId);
     }
 
-    protected boolean logOut(String userName, String password) {
-        return this.bridge.logOut(userName, password);
+    protected boolean logOut(int userID) {
+        return this.bridge.logOut(userID);
     }
 
     protected int createStore(int userId, String storeName) {

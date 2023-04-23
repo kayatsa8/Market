@@ -164,11 +164,10 @@ public interface Bridge {
 
     /**
      * logout from system, save cart for this user
-     * @param userName
-     * @param password
+     * @param userID
      * @return true if logged out successful
      */
-    boolean logOut(String userName, String password);
+    boolean logOut(int userID);
 
     /**
      * creates a store and puts userId as store founder

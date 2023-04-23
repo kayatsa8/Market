@@ -54,7 +54,6 @@ public class GuestVisitorTests extends ProjectTest{
         this.exitSystem(user1GuestId);
         CartService cart = this.getCart(user1GuestId);
         assertNull(cart);
-        assertTrue(false);  //getCart not implemented yet
     }
 
     @Test

@@ -1,38 +1,36 @@
 //package UnitTests;
 //
 //import BusinessLayer.Market;
+//import BusinessLayer.NotificationSystem.Mailbox;
 //import BusinessLayer.StorePermissions.StoreManager;
 //import BusinessLayer.StorePermissions.StoreOwner;
 //import BusinessLayer.Stores.Store;
-//import BusinessLayer.Stores.StoreFacade;
 //import BusinessLayer.Users.RegisteredUser;
-//import BusinessLayer.Users.UserFacade;
 //import org.junit.Before;
+//import org.junit.BeforeClass;
 //import org.junit.Test;
 //
 //import static org.junit.Assert.*;
 //
-//public class StorePermissionsTest {
-//    RegisteredUser user1;
-//    RegisteredUser user2;
-//    RegisteredUser user3;
-//    RegisteredUser user4;
-//    RegisteredUser user5;
-//    RegisteredUser user6;
-//    Market market;
-//    UserFacade userFacade;
-//    StoreFacade storeFacade;
-//    Store store1;
-//    Store store2;
+//public class StoreEmployeesTest {
+//    static RegisteredUser user1;
+//    static RegisteredUser user2;
+//    static RegisteredUser user3;
+//    static RegisteredUser user4;
+//    static RegisteredUser user5;
+//    static RegisteredUser user6;
+//    static Store store1;
+//    static Store store2;
 //
-//    @Before
-//    public void setUp() throws Exception {
-//        user1 = new RegisteredUser("testUser",  "testPass", 1);
-//        user2 = new RegisteredUser("testUser2", "testPass", 2);
-//        user3 = new RegisteredUser("testUser3", "testPass", 3);
-//        user4 = new RegisteredUser("testUser4", "testPass", 4);
-//        user5 = new RegisteredUser("testUser5", "testPass", 5);
-//        user6 = new RegisteredUser("testUser6", "testPass", 6);
+//    @BeforeClass
+//    public static void setUp() throws Exception {
+//        Market market = Market.getInstance();
+//        user1 = market.getUserFacade().getRegisteredUser(market.register("testUser", "testPass"));
+//        user2 = market.getUserFacade().getRegisteredUser(market.register("testUser2", "testPass"));
+//        user3 = market.getUserFacade().getRegisteredUser(market.register("testUser3", "testPass"));
+//        user4 = market.getUserFacade().getRegisteredUser(market.register("testUser4", "testPass"));
+//        user5 = market.getUserFacade().getRegisteredUser(market.register("testUser5", "testPass"));
+//        user6 = market.getUserFacade().getRegisteredUser(market.register("testUser6", "testPass"));
 //        store1 = new Store(1, 1, "store1");
 //        user1.getStoresIOwn().put(store1.getStoreID(), new StoreOwner(user1.getId(), store1)); //doing it manually to be independent of createStore function
 //        store2 = new Store(2, 4, "store2");

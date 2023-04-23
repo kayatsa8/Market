@@ -22,10 +22,6 @@ public class StoreService {
         return false;
     }
 
-    public String getStoreName(){
-        return storeName;
-    }
-
     public int getStoreId() {
         return storeID;
     }
@@ -35,5 +31,9 @@ public class StoreService {
         if(item == null)
             return null;
         return new CatalogItemService(item, store.getItemAmount(id)>0);
+    }
+
+    public String getStoreName() {
+        return storeName;
     }
 }

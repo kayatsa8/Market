@@ -22,12 +22,12 @@ public class StoreFacade {
         this.itemsIDs = 0;
     }
 
-    public Store addStore(int founderID, String name)
-    {
+    public Store addStore(int founderID, String name) {
         Store newStore = new Store(storesIDs, founderID, name);
         stores.put(storesIDs++, newStore);
         return newStore;
     }
+
     public void setStoreName(int storeID, String storeName) throws Exception
     {
         Store store = getStore(storeID);
@@ -35,10 +35,12 @@ public class StoreFacade {
             throw new Exception("No store with ID: " + storeID);
         store.setStoreName(storeName);
     }
-    public Store getStore(int storeID)
-    {
+
+
+    public Store getStore(int storeID) {
         return stores.get(storeID);
     }
+
     public CatalogItem getItem(int storeID, int itemID) throws Exception
     {
         Store store = getStore(storeID);
@@ -124,20 +126,20 @@ public class StoreFacade {
             throw new Exception("No store with ID: " + storeID);
         return store.counterOffer(bidID, replierUserID, counterOffer);
     }
-    public boolean reopenStore(int userID, int storeID) throws Exception
-    {
+
+    public boolean reopenStore(int userID, int storeID) throws Exception {
         if (isStoreExists(storeID))
             return getStore(storeID).reopenStore(userID);
         throw new Exception("Store ID " + storeID + " does not exist");
     }
-    public boolean closeStore(int userID, int storeID) throws Exception
-    {
+
+    public boolean closeStore(int userID, int storeID) throws Exception {
         if (isStoreExists(storeID))
             return getStore(storeID).closeStore(userID);
         throw new Exception("Store ID " + storeID + " does not exist");
     }
-    public boolean closeStorePermanently(int storeID) throws Exception
-    {
+
+    public boolean closeStorePermanently(int storeID) throws Exception {
         if (isStoreExists(storeID))
             return getStore(storeID).closeStorePermanently();
         throw new Exception("Store ID " + storeID + " does not exist");
@@ -201,24 +203,19 @@ public class StoreFacade {
         return store.updateItemName(itemID, newName);
     }
 
-    public Boolean checkIfStoreOwner(int userID, int storeID) throws Exception
-    {
-        if (isStoreExists(storeID))
-        {
+    public Boolean checkIfStoreOwner(int userID, int storeID) throws Exception {
+        if (isStoreExists(storeID)) {
             return getStore(storeID).checkIfStoreOwner(userID);
         }
         throw new Exception("Store ID " + storeID + " does not exist");
     }
 
-    public boolean isStoreExists(int storeID)
-    {
+    public boolean isStoreExists(int storeID) {
         return stores.containsKey(storeID);
     }
 
-    public Boolean checkIfStoreManager(int userID, int storeID) throws Exception
-    {
-        if (isStoreExists(storeID))
-        {
+    public Boolean checkIfStoreManager(int userID, int storeID) throws Exception {
+        if (isStoreExists(storeID)) {
             return getStore(storeID).checkIfStoreManager(userID);
         }
         throw new Exception("Store ID " + storeID + " does not exist");

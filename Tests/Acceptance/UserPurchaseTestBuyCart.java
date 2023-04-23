@@ -36,15 +36,18 @@ public class UserPurchaseTestBuyCart extends ProjectTest{
      */
     @Test
     public void buyCartValid(){
-        boolean added = this.buyCart(user4LoggedInId, "PaymentDetails");
-        assertTrue(added);
+        int userId = buyCartForTests();
 
-        CartService afterCart = this.getCart(user4LoggedInId);
+        CartService afterCart = this.getCart(userId);
         assertTrue(afterCart.isEmpty());
 
-        List<ReceiptService> receipts = this.getSellingHistoryOfStore(user5ManagerOfStore2ToBeRemoved, store2Id);
-        assertTrue(false);
+        List<ReceiptService> receipts = this.getSellingHistoryOfStore(user7SystemManagerId, store2Id);
+
+        assertTrue(receipts.get(0).hasItem(userId, item1Added));
+        assertTrue(receipts.get(0).hasItem(userId, item2Added));
+
     }
+
 
     @Test
     public void buyCartWrongPaymentDetails(){
@@ -54,11 +57,21 @@ public class UserPurchaseTestBuyCart extends ProjectTest{
 
     @Test
     public void buyCartUserNotLoggedIn(){
+        logOut(user3NotLoggedInId);
         boolean added = this.buyCart(user3NotLoggedInId, "PaymentDetails");
         assertFalse(added);
-        assertTrue(false);
     }
 
+
+    private int buyCartForTests() {
+        int id = setUser("UserUserPutrchase", "User44", MEMBER, LOGGED);
+        item1Added = addItemToStoreForTests(store2Id, "Itemanme", 10, "Kitchen", 10);
+        item2Added = addItemToStoreForTests(store2Id, "Itemname2", 10, "Kitchen", 10);
+        addItemsToUserForTests(id, store2Id, item1Added);
+        addItemsToUserForTests(id, store2Id, item2Added);
+        buyCart(id, "AA");
+        return id;
+    }
 
 
 
@@ -78,7 +91,8 @@ public class UserPurchaseTestBuyCart extends ProjectTest{
     protected static int item2Id = -1;              //item2 in store2
     protected static int item2ToBeRemovedId = -1;
     protected static int item4Id = -1;
-
+    protected static int item1Added = -1;
+    protected static int item2Added = -1;
 
     /**
      * User1: Guest, Not logged In

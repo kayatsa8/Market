@@ -13,7 +13,7 @@ public class UserService {
     private static final Logger log = Log.log;
     private final Market market;
 
-    public UserService() {
+    public UserService() throws Exception {
         market = Market.getInstance();
     }
 
@@ -44,9 +44,9 @@ public class UserService {
         }
     }
 
-    public Result<Boolean> logout(String userName, String pass) {
+    public Result<Boolean> logout(int userID) {
         try {
-            market.logout(userName,pass);
+            market.logout(userID);
             log.info("Logout succeeded");
             return new Result<>(false, true);//login == true,isErr==false
         } catch (Exception e) {

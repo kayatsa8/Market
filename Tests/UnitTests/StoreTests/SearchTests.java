@@ -36,10 +36,10 @@ public class SearchTests {
         int id10 = market.register("userName10", "password10");
         int id11 = market.register("userName11", "password11");
         int id12 = market.register("userName12", "password12");
-        founder1 = userFacade.getUser(id9);
-        storeOwner1 = userFacade.getUser(id10);
-        storeManager1 = userFacade.getUser(id11);
-        noRole = userFacade.getUser(id12);
+        founder1 = userFacade.getRegisteredUser(id9);
+        storeOwner1 = userFacade.getRegisteredUser(id10);
+        storeManager1 = userFacade.getRegisteredUser(id11);
+        noRole = userFacade.getRegisteredUser(id12);
         int storeID1 = market.addStore(founder1.getId(), "storeName1");
         store1 = market.getStoreInfo(storeID1);
         int storeID2 = market.addStore(founder1.getId(), "storeName2");

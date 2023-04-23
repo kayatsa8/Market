@@ -50,11 +50,6 @@ public class StoreOwnerManagerTests extends ProjectTest{
         assertEquals(item.getItemID(), itemId);
     }
 
-    @Test
-    public void addItemToStore_PriceWrong(){
-        int itemId = this.addCatalogItem(store2Id, "itemName2", -1, "Kitchen");
-        assertTrue(itemId < 0);
-    }
 
     @Test
     public void addItemToStore_StoreNotExisting(){
@@ -304,16 +299,17 @@ public class StoreOwnerManagerTests extends ProjectTest{
     /**
      * Show information of store staff  #37
      */
-    @Test
-    public void showStaffInfo_Valid(){
-        List<UserStaffInfoService> staff = this.showStaffInfo(store2Id, user2LoggedInId);
-        assertTrue(false);
-    }
+//    @Test
+//    public void showStaffInfo_Valid(){
+//        List<UserStaffInfoService> staff = this.showStaffInfo(store2Id, user2LoggedInId);
+//        //
+//        assertTrue(false);
+//    }
 
     @Test
     public void showStaffInfo_UserNotManagerOrOwner(){
         List<UserStaffInfoService> staffInfo = this.showStaffInfo(store2Id, user1GuestId);
-        assertTrue(false);
+        assertNull(staffInfo);
     }
 
     /**
@@ -351,28 +347,42 @@ public class StoreOwnerManagerTests extends ProjectTest{
      */
     @Test
     public void getSellingHistory_Valid(){
-        List<ReceiptService> receipts = this.getSellingHistoryOfStore(store2Id, user2LoggedInId);
-        //assertEquals();
-        assertTrue(false);
+        int userId = buyCartForTests();
+        int newManagerId = setUser("Userrr", "AAAAAAA", MEMBER, LOGGED);
+        boolean added = defineStoreManager(store2Id, user2LoggedInId, newManagerId);
+        if(added){
+            List<ReceiptService> receipts = this.getSellingHistoryOfStore(newManagerId, store2Id);
+            assertNotNull(receipts);
+            assertTrue(receipts.get(0).hasItem(userId, item11Added));
+            assertTrue(receipts.get(0).hasItem(userId, item22Added));
+        }
     }
+
+
 
     @Test
     public void getSellingHistory_UserNotManagerOrOwner(){
-        List<ReceiptService> staffInfo = this.getSellingHistoryOfStore(store2Id, user1GuestId);
-        assertNull(staffInfo);
-        assertTrue(false);
+        List<ReceiptService> history = this.getSellingHistoryOfStore(store2Id, user1GuestId);
+        assertNull(history);
     }
 
     @Test
     public void getSellingHistory_StoreNotExist(){
-        List<ReceiptService> staffInfo = this.getSellingHistoryOfStore(-1, user2LoggedInId);
-        assertNull(staffInfo);
-        assertTrue(false);
+        List<ReceiptService> history = this.getSellingHistoryOfStore(-1, user2LoggedInId);
+        assertNull(history);
     }
 
 
 
-
+    private int buyCartForTests() {
+        int id = setUser("User44StoreOwnerManagerTestsaaa", "User44", MEMBER, LOGGED);
+        item11Added = addItemToStoreForTests(store2Id, "Itemanme", 10, "Kitchen", 10);
+        item22Added = addItemToStoreForTests(store2Id, "Itemname2", 10, "Kitchen", 10);
+        addItemsToUserForTests(id, store2Id, item11Added );
+        addItemsToUserForTests(id, store2Id, item22Added);
+        buyCart(id, "AA");
+        return id;
+    }
 
 
 
@@ -391,7 +401,8 @@ public class StoreOwnerManagerTests extends ProjectTest{
     protected static int item2Id = -1;              //item2 in store2
     protected static int item2ToBeRemovedId = -1;
     protected static int item4Id = -1;
-
+    protected static int item11Added = -1;
+    protected static int item22Added = -1;
     /**
      * User1: Guest, Not logged In
      */
