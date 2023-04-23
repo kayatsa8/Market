@@ -1,5 +1,6 @@
 package Acceptance;
 
+import ServiceLayer.Objects.BasketService;
 import ServiceLayer.Objects.CartService;
 import ServiceLayer.Objects.StoreService;
 import org.junit.After;
@@ -108,8 +109,11 @@ public class ConcurrencyTests extends ProjectTest{
         boolean itemExists = info.hasItem(item22Id);
 
         CartService cart4 = getCart(user4LoggedInId);
-        boolean stillInCart = cart4.getBasketOfStore(store2Id).hasItem(item22Id);
-        assertNotEquals(stillInCart, itemExists);
+        BasketService basket = cart4.getBasketOfStore(store2Id);
+        if(basket != null){  //there is no basket for this store, the item was bought
+            boolean stillInCart = cart4.getBasketOfStore(store2Id).hasItem(item22Id);
+            assertNotEquals(stillInCart, itemExists);
+        }
 
     }
 

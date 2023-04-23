@@ -171,7 +171,7 @@ public class UserFacade {
         currUser.addStore(store);
     }
 
-    public void addManager(int userID, int userToAdd, int storeID) throws Exception {
+    public synchronized void addManager(int userID, int userToAdd, int storeID) throws Exception {
         RegisteredUser currUser = getLoggedInUser(userID);
         RegisteredUser newManager = getRegisteredUser(userToAdd);
         if (currUser == null || newManager == null) {

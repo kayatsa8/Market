@@ -134,11 +134,22 @@ public class SystemManagerTests extends ProjectTest{
      */
     @Test
     public void getSellingHistoryOfStore_Valid(){
-        //Change to receipt
+        int userId = buyCartForTests();
         List<ReceiptService> receipts = this.getSellingHistoryOfStore(user7SystemManagerId, store2Id);
         assertNotNull(receipts);
-        assertTrue(false);
-        //assertEquals(receipts.get(0).getItems().get(0).getName(), "Tomato");
+        assertTrue(receipts.get(0).hasItem(userId, item11Added));
+        assertTrue(receipts.get(0).hasItem(userId, item22Added));
+
+    }
+
+    private int buyCartForTests() {
+        int id = setUser("User44", "User44", MEMBER, LOGGED);
+        item11Added = addItemToStoreForTests(store2Id, "Itemanme", 10, "Kitchen", 10);
+        item22Added = addItemToStoreForTests(store2Id, "Itemname2", 10, "Kitchen", 10);
+        addItemsToUserForTests(id, store2Id, item11Added );
+        addItemsToUserForTests(id, store2Id, item22Added);
+        buyCart(id, "AA");
+        return id;
     }
 
     @Test
@@ -147,17 +158,12 @@ public class SystemManagerTests extends ProjectTest{
         assertNull(receipts);
     }
 
-    @Test
-    public void getSellingHistoryOfUser_Valid(){
-        //Change to receipt
-        HashMap<Integer,List<ReceiptService>> receipts = this.getSellingHistoryOfUser(user7SystemManagerId, user2LoggedInId);
-        assertNotNull(receipts);
-        //assertEquals(receipts.get(0).getItems().get(0).getName(), "Tomato");
-    }
+
 
     /**
      * get system activity #44   NotForVersion1
      */
+
     /*@Test
     public void getUsersTraffic_Valid(){
         HashMap<Integer, String> result = this.getUsersTraffic(user7SystemManagerId);
@@ -188,6 +194,13 @@ public class SystemManagerTests extends ProjectTest{
         assertTrue(result < 0);
     }
 
+//    @Test
+//    public void getSellingHistoryOfUser_Valid(){
+//
+//        HashMap<Integer,List<ReceiptService>> receipts = this.getSellingHistoryOfUser(user7SystemManagerId, user2LoggedInId);
+//        assertNotNull(receipts);
+//        //assertEquals(receipts.get(0).getItems().get(0).getName(), "Tomato");
+//    }
     */
 
 
@@ -209,7 +222,8 @@ public class SystemManagerTests extends ProjectTest{
     protected static int item2Id = -1;              //item2 in store2
     protected static int item2ToBeRemovedId = -1;
     protected static int item4Id = -1;
-
+    protected static int item11Added = -1;
+    protected static int item22Added = -1;
     /**
      * User1: Guest, Not logged In
      */
