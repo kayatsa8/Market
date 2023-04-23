@@ -1,29 +1,51 @@
 package UnitTests.NotificationSystemUnitTests;
 
+import BusinessLayer.Market;
 import BusinessLayer.NotificationSystem.Mailbox;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.NotificationSystem.StoreMailbox;
 import BusinessLayer.Stores.Store;
+import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Users.RegisteredUser;
+import BusinessLayer.Users.UserFacade;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 
 
 public class StoreMailboxTests {
-    private NotificationHub hub;
+    static NotificationHub hub;
+    static Market market;
+    static UserFacade userFacade;
+    static StoreFacade storeFacade;
+    static RegisteredUser user1;
+    static RegisteredUser user2;
+    static Store store1;
+    static Store store2;
 
-    @Before
-    public void setUp(){
+
+    @BeforeClass
+    public static void setUp() throws Exception
+    {
         hub = NotificationHub.getInstance();
+        market = Market.getInstance();
+        userFacade = market.getUserFacade();
+        storeFacade = market.getStoreFacade();
+        int user1ID = market.register("user1", "123456");
+        user1 = userFacade.getRegisteredUser(user1ID);
+        int store1ID = market.addStore(user1.getId(), "store1");
+        store1 = market.getStoreInfo(store1ID);
+        int user2ID = market.register("user2", "123456");
+        user2 = userFacade.getRegisteredUser(user2ID);
+        int store2ID = market.addStore(user1.getId(), "store2");
+        store2 = market.getStoreInfo(store2ID);
     }
 
     @Test
     public void notifyOwner() throws Exception {
-        RegisteredUser user = new RegisteredUser("user1", "123456", 1111);
-        Store store = new Store(456, user.getId(), "store1");
-        Mailbox mailbox = hub.getMailboxes().get(user.getId());
+        Mailbox mailbox = hub.getMailboxes().get(user1.getId());
 
 //        try{
 //            mailbox.notifyOwner();
@@ -35,15 +57,13 @@ public class StoreMailboxTests {
 
         assertTrue(true); // for now, because it is not implemented
 
-        hub.removeFromService(store.getStoreID());
-        hub.removeFromService(user.getId());
+        hub.removeFromService(store1.getStoreID());
+        hub.removeFromService(user1.getId());
     }
 
     @Test
     public void availability() throws Exception {
-        RegisteredUser user = new RegisteredUser("user1", "123456", 1112);
-        Store store = new Store(457, 1112, "store1");
-        Mailbox mailbox = hub.getMailboxes().get(store.getStoreID());
+        Mailbox mailbox = hub.getMailboxes().get(store2.getStoreID());
 
         assertTrue("The store's mailbox is not available", mailbox.isAvailable());
 
@@ -53,8 +73,8 @@ public class StoreMailboxTests {
         mailbox.setMailboxAsAvailable();
         assertTrue("The store is not available", mailbox.isAvailable());
 
-        hub.removeFromService(457);
-        hub.removeFromService(1112);
+        hub.removeFromService(store2.getStoreID());
+        hub.removeFromService(user2.getId());
     }
 
 }

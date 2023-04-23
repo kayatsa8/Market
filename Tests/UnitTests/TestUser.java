@@ -1,4 +1,5 @@
 package UnitTests;
+import BusinessLayer.Market;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.Users.UserFacade;
 import org.junit.After;
@@ -8,6 +9,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 public class TestUser {
+    static Market market;
     static String goodPass1="ab123456";
     static String badPass1="123";
     static String userName1="avi1";
@@ -18,7 +20,8 @@ public class TestUser {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        userFacade=new UserFacade();
+        market = Market.getInstance();
+        userFacade=market.getUserFacade();
         id1=userFacade.registerUser(userName1,goodPass1);
     }
 

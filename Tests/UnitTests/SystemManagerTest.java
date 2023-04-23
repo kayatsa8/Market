@@ -18,8 +18,8 @@ import static org.junit.Assert.*;
 
 public class SystemManagerTest {
     static Market market;
-    static String user1Name = "user1";
-    static String user2Name = "user2";
+    static String user1Name = "user1A";
+    static String user2Name = "user2A";
     static String adminName = "admin";
     static RegisteredUser user;
     static RegisteredUser secondUser;

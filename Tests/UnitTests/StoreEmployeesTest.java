@@ -5,7 +5,10 @@ import BusinessLayer.NotificationSystem.Mailbox;
 import BusinessLayer.StorePermissions.StoreManager;
 import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Store;
+import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Users.RegisteredUser;
+import BusinessLayer.Users.User;
+import BusinessLayer.Users.UserFacade;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -19,27 +22,32 @@ public class StoreEmployeesTest {
     static RegisteredUser user4;
     static RegisteredUser user5;
     static RegisteredUser user6;
+    static StoreFacade storeFacade;
+    static UserFacade userFacade;
+    static Market market;
     static Store store1;
     static Store store2;
 
     @BeforeClass
     public static void setUp() throws Exception {
         Market market = Market.getInstance();
-        user1 = market.getUserFacade().getRegisteredUser(market.register("testUser", "testPass"));
-        user2 = market.getUserFacade().getRegisteredUser(market.register("testUser2", "testPass"));
-        user3 = market.getUserFacade().getRegisteredUser(market.register("testUser3", "testPass"));
-        user4 = market.getUserFacade().getRegisteredUser(market.register("testUser4", "testPass"));
-        user5 = market.getUserFacade().getRegisteredUser(market.register("testUser5", "testPass"));
-        user6 = market.getUserFacade().getRegisteredUser(market.register("testUser6", "testPass"));
-        store1 = new Store(1, 1, "store1");
-        user1.getStoresIOwn().put(store1.getStoreID(), new StoreOwner(user1.getId(), store1)); //doing it manually to be independent of createStore function
-        store2 = new Store(2, 4, "store2");
-        user4.getStoresIOwn().put(store2.getStoreID(), new StoreOwner(user4.getId(), store2));
+        storeFacade = market.getStoreFacade();
+        userFacade = market.getUserFacade();
+        user1 = userFacade.getRegisteredUser(market.register("testUser1", "testPass"));
+        user2 = userFacade.getRegisteredUser(market.register("testUser2", "testPass"));
+        user3 = userFacade.getRegisteredUser(market.register("testUser3", "testPass"));
+        user4 = userFacade.getRegisteredUser(market.register("testUser4", "testPass"));
+        user5 = userFacade.getRegisteredUser(market.register("testUser5", "testPass"));
+        user6 = userFacade.getRegisteredUser(market.register("testUser6", "testPass"));
+        int store1ID = market.addStore(user1.getId(), "store1");
+        store1 = market.getStoreInfo(store1ID);
+        StoreOwner storeOwner1 = new StoreOwner(user1.getId(), store1); //Why new and not addOwner method???
+        user1.getStoresIOwn().put(store1.getStoreID(), storeOwner1);
+        int store2ID = market.addStore(user4.getId(), "store2");
+        store2 = market.getStoreInfo(store2ID);
+        StoreOwner storeOwner2 = new StoreOwner(user4.getId(), store2); //Why new and not addOwner method???
+        user4.getStoresIOwn().put(store2.getStoreID(), storeOwner2);
     }
-
-//    @After
-//    public void tearDown() throws Exception {
-//    }
 
     private void ensureOwnershipWithParent(RegisteredUser child, RegisteredUser parent, Store store) {
         StoreOwner ownership1 = child.getStoresIOwn().get(store.getStoreID());
