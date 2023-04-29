@@ -35,7 +35,7 @@ public class UserPurchaseTestBuyCart extends ProjectTest{
      * Buy cart #15
      */
     @Test
-    public void buyCartValid(){
+    public void buyCart_Valid(){
         int userId = buyCartForTests();
 
         CartService afterCart = this.getCart(userId);
@@ -50,18 +50,37 @@ public class UserPurchaseTestBuyCart extends ProjectTest{
 
 
     @Test
-    public void buyCartWrongPaymentDetails(){
+    public void buyCart_WrongPaymentDetails(){
+        //TODO when adding the address and paying method check this tests, currently its the same as wrong supply.
         boolean added = this.buyCart(user4LoggedInId, "");
         assertFalse(added);
     }
 
     @Test
-    public void buyCartUserNotLoggedIn(){
+    public void buyCart_WrongSupplyDetails(){
+        boolean added = this.buyCart(user4LoggedInId, "");
+        assertFalse(added);
+    }
+
+
+    @Test
+    public void buyCart_UserNotLoggedIn(){
         logOut(user3NotLoggedInId);
         boolean added = this.buyCart(user3NotLoggedInId, "PaymentDetails");
         assertFalse(added);
     }
 
+    @Test
+    public void buyCart_NotEnoughItemsInStore(){
+        int id = setUser("UserUserPutrchase2", "User44", MEMBER, LOGGED);
+        int itemAdded1 = addItemToStoreForTests(store2Id, "Itemanme", 10, "Kitchen", 10);
+        int itemAdded2 = addItemToStoreForTests(store2Id, "Itemname2", 10, "Kitchen", 10);
+        //addItemsToUserForTests(id, store2Id, item1Added);
+        addItemToBasket(id, store2Id, itemAdded2, 100);
+        addItemToBasket(id, store2Id, itemAdded1, 100);
+        boolean added = this.buyCart(id, "AA");
+        assertFalse(added);
+    }
 
     private int buyCartForTests() {
         int id = setUser("UserUserPutrchase", "User44", MEMBER, LOGGED);
@@ -82,7 +101,6 @@ public class UserPurchaseTestBuyCart extends ProjectTest{
     protected static int user4LoggedInId = -1;      //logged in, have items in carts
     protected static int user5ManagerOfStore2ToBeRemoved = -1; //Owner/Manager of store2, to be removed positioned  by user2
     protected static int user6OwnerOfStore2 = -1;            //Owner/Manager of store2, positioned by user2
-    protected static int userNotExistId = -1;
     protected static int store2Id = -1;             //store is open
     protected static int store2ClosedId = -1;
     protected static int store4Id = -1;
@@ -160,18 +178,6 @@ public class UserPurchaseTestBuyCart extends ProjectTest{
         addItemsToUserForTests(user4LoggedInId, store2Id, item1Id);
         addItemsToUserForTests(user4LoggedInId, store4Id, item4Id);
     }
-
-
-    protected void setUpBuyUser4() {
-        if(user2LoggedInId == -1)
-            setUpUser2();
-        if(user4LoggedInId == -1)
-            setUpUser4();
-
-        addItemsToUserForTests(user4LoggedInId, store2Id, item2Id);
-        buyCart(user4LoggedInId, "paypal");
-    }
-
 
 
 }
