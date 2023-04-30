@@ -10,7 +10,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 
 @PageTitle("About")
-@Route(value = "about", layout = MainLayout.class)
+@Route(value = "client", layout = MainLayout.class)
 public class ClientView extends VerticalLayout {
 
     public ClientView() {
