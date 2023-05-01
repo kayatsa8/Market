@@ -25,8 +25,8 @@ public class NotificationHubTests {
     static Store store1;
 
     @BeforeClass
-    public static void setUp() throws Exception
-    {
+    public static void setUp() throws Exception {
+        NotificationHub.testMode = false;
         hub = NotificationHub.getInstance();
         market = Market.getInstance();
         userFacade = market.getUserFacade();

@@ -16,13 +16,16 @@ public class NotificationHub {
     private static final Object instanceLock = new Object();
     // class attributes
     private static NotificationHub instance = null;
+
+    public static boolean testMode = false;
+
     // fields
     //private final ConcurrentHashMap<Integer, Mailbox> mailboxes; // <ID, Mailbox>
     private final MailboxesRepository mailboxes;
 
 
     // object methods
-    private NotificationHub() {
+    protected NotificationHub() {
         mailboxes = new MailboxesRepository();
         Log.log.info("The notification hub has started successfully.");
     }
@@ -30,8 +33,13 @@ public class NotificationHub {
     // class methods
     public static NotificationHub getInstance() {
         synchronized (instanceLock) {
-            if (instance == null) {
-                instance = new NotificationHub();
+            if(!testMode){
+                if (instance == null) {
+                    instance = new NotificationHub();
+                }
+            }
+            else{
+                return new NotificationHubForTests();
             }
         }
         return instance;

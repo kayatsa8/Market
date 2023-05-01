@@ -5,6 +5,7 @@ import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Market;
+import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
@@ -38,8 +39,8 @@ public class CartBasketTests {
     static CatalogItem item4;
 
     @BeforeClass
-    public static void setUp() throws Exception
-    {
+    public static void setUp() throws Exception {
+        NotificationHub.testMode = true;
         market = Market.getInstance();
         storeFacade = market.getStoreFacade();
         userFacade = market.getUserFacade();
