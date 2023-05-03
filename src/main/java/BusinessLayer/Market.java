@@ -112,8 +112,15 @@ public class Market {
     }
 
     public void removeUser(int userID, int userToRemove) throws Exception {
+
         if (isAdmin(userID)) {
+            if(!systemManagerMap.containsKey(userID))
+                throw new Exception("systemManagerMap cant find userID");
             SystemManager systemManager = systemManagerMap.get(userID);
+            if (systemManager==null)
+                throw new Exception("systemManager is Null");
+            if (userFacade.getRegisteredUser(userToRemove)==null)
+                throw new Exception("userToRemove is null!");
             systemManager.removeUser(userFacade.getRegisteredUser(userToRemove));
         }
         else
