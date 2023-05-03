@@ -11,6 +11,7 @@ import BusinessLayer.Receipts.ReceiptHandler;
 import BusinessLayer.StorePermissions.StoreManager;
 import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.StorePermissions.StoreEmployees;
+import BusinessLayer.Stores.Policies.Compositions.NumericCompositions.NumericComponent;
 import BusinessLayer.Stores.Policies.Discounts.Conditional;
 import BusinessLayer.Stores.Policies.Discounts.Discount;
 import BusinessLayer.Stores.Policies.Discounts.Hidden;
@@ -19,7 +20,6 @@ import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
 
-import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -187,8 +187,8 @@ public class Store {
         log.info("Added new visible discount to item " + itemID + " at store " + storeID);
     }
 
-    public void addConditionalDiscount(Map<Integer, Integer> itemsIDsToAmounts, double percent, Calendar endOfSale) {
-        Discount conditionalDiscount = new Conditional(itemsIDsToAmounts, percent, endOfSale);
+    public void addConditionalDiscount(NumericComponent numericComponent) {
+        Discount conditionalDiscount = new Conditional(numericComponent);
         discounts.put(discountsIDs++, conditionalDiscount);
         log.info("Added new conditional discount at store " + storeID);
     }
@@ -232,13 +232,10 @@ public class Store {
         {
             int itemID;
             int itemAmountToSave;
-            double itemDiscountPercent;
             for (CartItemInfo cartItemInfo : basketItems) {
                 itemID = cartItemInfo.getItemID();
                 itemAmountToSave = cartItemInfo.getAmount();
                 saveItemAmount(itemID, itemAmountToSave);
-                itemDiscountPercent = getItemDiscountsPercent(itemID);
-                cartItemInfo.setPercent(itemDiscountPercent);
             }
             log.info("Items was saved for upcoming purchase at store " + storeID);
             return true;
@@ -264,17 +261,40 @@ public class Store {
         return true;
     }
     
-    public double getItemDiscountsPercent(int itemID) //return: [0,1]
+    public void updateBasket(List<CartItemInfo> basketItems, List<String> coupons) //update the items of the basket after any change of the basket
     {
-        double pricePercent = 1;
-        for (Discount discount : discounts.values()) {
-            if (discount.getItemsIDs().contains(itemID)) {
-                pricePercent = pricePercent * (1 - discount.getDiscountToItem());
+        updateBasketPrices(basketItems);
+        List<List<CartItemInfo>> tempBaskets = new ArrayList<>();
+        for (Discount discount : discounts.values()) //get separate basket for each discount
+        {
+            tempBaskets.add(discount.updateBasket(basketItems, coupons));
+        }
+        for(int i=0; i<basketItems.size(); i++) //set the original basket to the first temp basket
+        {
+            basketItems.get(i).setPercent(tempBaskets.get(1).get(i).getPercent());
+        }
+        for(int i=1; i<tempBaskets.size(); i++) //skipping the first temp basket and apply all discount together in the original basket
+        {
+            List<CartItemInfo> tempBasket = tempBaskets.get(i);
+            for(int j=0; j<basketItems.size(); j++)
+            {
+                double originalItemPercent = basketItems.get(j).getPercent();
+                double tempItemPercent = tempBasket.get(j).getPercent();
+                basketItems.get(j).setPercent(tempItemPercent * (1 - originalItemPercent) + originalItemPercent);
+                /// 40% discount + 30% discount = 58% discount (30% from (100-40=60) is 18, plus 40% = 58%)
+                ///(because 0.3*(1-0.4)+0.4 = 0.58 => 58%)
             }
         }
-        return 1 - pricePercent;
     }
-    
+
+    private void updateBasketPrices(List<CartItemInfo> basketItems)
+    {
+        for (CartItemInfo item : basketItems)
+        {
+            item.setOriginalPrice(getItem(item.getItemID()).getPrice());
+        }
+    }
+
     public void saveItemAmount(int itemID, int amountToSave)
     {
         int itemAmountToSave = amountToSave;
