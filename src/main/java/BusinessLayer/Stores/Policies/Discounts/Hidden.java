@@ -1,43 +1,51 @@
 package BusinessLayer.Stores.Policies.Discounts;
 
+import BusinessLayer.CartAndBasket.CartItemInfo;
+
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
-public class Hidden extends Discount{
+public class Hidden implements Discount{
 
     private int itemId;
+    private double percent;
+    private Calendar endOfSale;
     private String coupon;
 
-    public Hidden(int itemId, double discount, Calendar endOfSale, String coupon){
+    public Hidden(int itemId, double percent, Calendar endOfSale, String coupon){
         super();
         this.itemId = itemId;
         this.coupon = coupon;
-    }
-
-    public List<Integer> getItemsIDs()
-    {
-        List<Integer> item = new ArrayList<>();
-        item.add(itemId);
-        return item;
-    }
-
-    @Override
-    public double getDiscountToItem() {
-        if(isExpired())
-        {
-            return 0;
-        }
-        return getPercent();
-    }
-
-    public boolean isExpired() {
-        Calendar now = Calendar.getInstance();
-        return now.after(getExpiringDate());
+        this.percent = percent;
+        this.endOfSale = endOfSale;
     }
 
     public boolean couponValid(String coupon){
         return coupon == this.coupon;
+    }
+
+    @Override
+    public List<CartItemInfo> updateBasket(List<CartItemInfo> basketItems, List<String> coupons) {
+        List<CartItemInfo> copyBasket = new ArrayList<>();
+        for (CartItemInfo item: basketItems)
+        {
+            copyBasket.add(new CartItemInfo(item));
+        }
+        boolean couponIsValid = false;
+        for (String currCoupon : coupons)
+        {
+            if (couponValid(currCoupon))
+            {
+                couponIsValid = true;
+            }
+        }
+        for (CartItemInfo item : copyBasket) {
+            if (item.getItemID() == itemId && couponIsValid)
+                item.setPercent(percent);
+            else
+                item.setPercent(0);
+        }
+        return copyBasket;
     }
 }

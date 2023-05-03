@@ -26,7 +26,7 @@ public class CartItemInfo {
     public double getOriginalPrice() { return originalPrice; }
     public void setPercent(double percent) { this.percent = percent; }
     public double getFinalPrice() { return originalPrice*amount*(1-percent); }
-
+    public void setOriginalPrice(double newPrice) { originalPrice = newPrice; }
     public void setAmount(int _amount){
         amount = _amount;
     }

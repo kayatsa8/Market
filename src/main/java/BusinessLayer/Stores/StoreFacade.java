@@ -1,6 +1,7 @@
 package BusinessLayer.Stores;
 
 import BusinessLayer.NotificationSystem.Message;
+import BusinessLayer.Stores.Policies.Compositions.NumericCompositions.NumericComponent;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -153,12 +154,12 @@ public class StoreFacade {
             throw new Exception("No store with ID: " + storeID);
         store.addVisibleDiscount(itemID, percent, endOfSale);
     }
-    public void addConditionalDiscount(int storeID, Map<Integer, Integer> itemsIDsToAmounts, double percent, Calendar endOfSale) throws Exception
+    public void addConditionalDiscount(int storeID, NumericComponent numericComponent) throws Exception
     {
         Store store = getStore(storeID);
         if (store == null)
             throw new Exception("No store with ID: " + storeID);
-        store.addConditionalDiscount(itemsIDsToAmounts, percent, endOfSale);
+        store.addConditionalDiscount(numericComponent);
     }
     public void addHiddenDiscount(int storeID, int itemID, double percent, String coupon, Calendar endOfSale) throws Exception
     {

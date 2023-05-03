@@ -1,32 +1,20 @@
 package BusinessLayer.Stores.Policies.Discounts;
 
-import java.util.Calendar;
+import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.Stores.Policies.Compositions.NumericCompositions.NumericComponent;
+
 import java.util.List;
-import java.util.Map;
 
-public class Conditional extends Discount{
+public class Conditional implements Discount{
 
-    private Map<Integer, Integer> itemsIDsToAmount;
-    public Conditional(Map<Integer, Integer> itemsIDsToAmount, double discount, Calendar endOfSale){
-        super();
-        this.itemsIDsToAmount = itemsIDsToAmount;
+    private NumericComponent numericComponent;
+
+    public Conditional(NumericComponent numericComponent){
+        this.numericComponent = numericComponent;
     }
 
-    public List<Integer> getItemsIDs()
-    {
-        return itemsIDsToAmount.keySet().stream().toList();
-    }
     @Override
-    public double getDiscountToItem() {
-        if(isExpired())
-        {
-            return 0;
-        }
-        return getPercent();
-    }
-
-    public boolean isExpired() {
-        Calendar now = Calendar.getInstance();
-        return now.after(getExpiringDate());
+    public List<CartItemInfo> updateBasket(List<CartItemInfo> basketItems, List<String> coupons) {
+        return numericComponent.updateBasket(basketItems);
     }
 }
