@@ -1,10 +1,14 @@
 package PresentationLayer.views;
 
 
+import PresentationLayer.views.clients.ClientView;
 import PresentationLayer.views.storeManagement.StoreManagementView;
 import PresentationLayer.components.appnav.AppNav;
 import PresentationLayer.components.appnav.AppNavItem;
 import PresentationLayer.views.loginAndRegister.LoginAndRegisterView;
+import PresentationLayer.views.systemManagement.SystemManagementView;
+import ServiceLayer.ShoppingService;
+import ServiceLayer.UserService;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.html.Footer;
@@ -22,6 +26,8 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 public class MainLayout extends AppLayout {
 
     private H2 viewTitle;
+    public UserService userService;
+    public ShoppingService shoppingService;
 
     public MainLayout() {
         setPrimarySection(Section.DRAWER);
@@ -40,7 +46,7 @@ public class MainLayout extends AppLayout {
     }
 
     private void addDrawerContent() {
-        H1 appName = new H1("Shuk");
+        H1 appName = new H1("Shefa Isaschar");
         appName.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
         Header header = new Header(appName);
 
@@ -54,8 +60,10 @@ public class MainLayout extends AppLayout {
         // For documentation, visit https://github.com/vaadin/vcf-nav#readme
         AppNav nav = new AppNav();
 
-        nav.addItem(new AppNavItem("Hello World", LoginAndRegisterView.class, LineAwesomeIcon.GLOBE_SOLID.create()));
-        nav.addItem(new AppNavItem("About", StoreManagementView.class, LineAwesomeIcon.FILE.create()));
+        nav.addItem(new AppNavItem("Explore Market", ClientView.class, LineAwesomeIcon.SHOPPING_CART_SOLID.create()));
+        nav.addItem(new AppNavItem("Login/Register", LoginAndRegisterView.class, LineAwesomeIcon.PERSON_BOOTH_SOLID.create()));
+        nav.addItem(new AppNavItem("Store Management", StoreManagementView.class, LineAwesomeIcon.TRUCK_LOADING_SOLID.create()));
+        nav.addItem(new AppNavItem("System Management", SystemManagementView.class, LineAwesomeIcon.WRENCH_SOLID.create()));
 
         return nav;
     }

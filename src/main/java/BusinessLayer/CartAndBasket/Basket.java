@@ -98,7 +98,7 @@ public class Basket {
     }
 
     private CatalogItem makeCopyOfCatalogItem(CatalogItem item){
-        return new CatalogItem(item.getItemID(), item.getItemName(), item.getPrice(), item.getCategory());
+        return new CatalogItem(item.getItemID(), item.getItemName(), item.getPrice(), item.getCategory(), item.getStoreName(), item.getItemID());
     }
 
     public void saveItems() throws Exception{

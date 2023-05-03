@@ -1,16 +1,14 @@
 package BusinessLayer.Stores;
 
-import java.util.*;
-
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Log;
 import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.NotificationSystem.StoreMailbox;
 import BusinessLayer.Receipts.ReceiptHandler;
+import BusinessLayer.StorePermissions.StoreEmployees;
 import BusinessLayer.StorePermissions.StoreManager;
 import BusinessLayer.StorePermissions.StoreOwner;
-import BusinessLayer.StorePermissions.StoreEmployees;
 import BusinessLayer.Stores.Policies.Discounts.Conditional;
 import BusinessLayer.Stores.Policies.Discounts.Discount;
 import BusinessLayer.Stores.Policies.Discounts.Hidden;
@@ -204,7 +202,7 @@ public class Store {
     }
 
     public CatalogItem addCatalogItem(int itemID, String itemName, double itemPrice, String itemCategory) {
-        CatalogItem newItem = new CatalogItem(itemID, itemName, itemPrice, itemCategory);
+        CatalogItem newItem = new CatalogItem(itemID, itemName, itemPrice, itemCategory, this.storeName, this.storeID);
         itemsAmounts.put(itemID, 0);
         items.put(itemID, newItem);
         savedItemsAmounts.put(itemID, 0);
