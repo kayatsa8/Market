@@ -2,6 +2,7 @@ package ServiceLayer.Objects;
 
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
+import BusinessLayer.Stores.StoreStatus;
 
 public class StoreService {
 
@@ -35,5 +36,21 @@ public class StoreService {
 
     public String getStoreName() {
         return storeName;
+    }
+
+    public String getStoreStatus(){
+        StoreStatus status = store.getStoreStatus();
+        switch (status){
+            case OPEN -> {
+                return "Open";
+            }
+            case CLOSE -> {
+                return "Close";
+            }
+            case PERMANENTLY_CLOSE -> {
+                return "Permanently close";
+            }
+        }
+        return "";
     }
 }
