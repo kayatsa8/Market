@@ -16,6 +16,7 @@ import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -322,5 +323,9 @@ public class Market {
         if(storeFacade.checkIfStoreManager(userId, storeId) || isAdmin(userId))
             return storeFacade.getStore(storeId).getReceiptHandler().getAllReceipts();
         return null;
+    }
+
+    public ArrayList<Store> getAllStores() {
+        return storeFacade.getAllStores();
     }
 }

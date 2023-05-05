@@ -134,6 +134,26 @@ public class ShoppingService {
             return new Result<>(true, e.getMessage());
         }
     }
+
+
+    public Result<ArrayList<StoreService>> getAllStoresInfo() {
+        try {
+            ArrayList<Store> allStores = market.getAllStores();
+            ArrayList<StoreService> storeServices = new ArrayList<>();
+            for (Store store : allStores) {
+                storeServices.add(new StoreService(store));
+            }
+            log.info("Stores information received successfully");
+            return new Result<>(false, storeServices);
+        }
+        catch (Exception e){
+            log.info("Stores information not received");
+            return new Result<>(true, e.getMessage());
+        }
+
+    }
+
+
     public Result<StoreService> getStoreInfo(int storeID) {
         try {
             Store store = market.getStoreInfo(storeID);
@@ -393,4 +413,6 @@ public class ShoppingService {
         }
         return result;
     }
+
+
 }

@@ -286,4 +286,8 @@ public class StoreFacade {
             throw new Exception("No store with ID: " + storeID);
         store.setMailboxAsAvailable();
     }
+
+    public ArrayList<Store> getAllStores() {
+        return new ArrayList<>(stores.values());
+    }
 }
