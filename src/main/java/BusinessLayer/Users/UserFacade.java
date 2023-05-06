@@ -280,7 +280,12 @@ public class UserFacade {
         return users.get(userID).watchSentMessages();
     }
 
-    public ArrayList<RegisteredUser> getAllRegisteredUsers() {
-        return new ArrayList<>(users.values());
+    public Map<Integer, RegisteredUser> getAllRegisteredUsers() {
+        return  users;
+    }
+
+
+    public ArrayList<Integer> getStoresIdsIOwn(int ownerId) throws Exception {
+        return new ArrayList<>(getRegisteredUser(ownerId).getStoresIOwn().keySet());
     }
 }

@@ -47,11 +47,11 @@ public class UserInfoService {
         this.storesIManage.add(storeId);
     }
 
-    public void removeStoresIOwn(int storeId) {
+    public void removeStoresIOwn(Integer storeId) {
         this.storesIOwn.remove(storeId);
     }
 
-    public void removeStoresIManage(int storeId) {
+    public void removeStoresIManage(Integer storeId) {
         this.storesIManage.remove(storeId);
     }
 

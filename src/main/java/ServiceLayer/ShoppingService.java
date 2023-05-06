@@ -136,12 +136,12 @@ public class ShoppingService {
     }
 
 
-    public Result<ArrayList<StoreService>> getAllStoresInfo() {
+    public Result<Map<Integer, StoreService>> getAllStoresInfo() {
         try {
-            ArrayList<Store> allStores = market.getAllStores();
-            ArrayList<StoreService> storeServices = new ArrayList<>();
-            for (Store store : allStores) {
-                storeServices.add(new StoreService(store));
+            Map<Integer, Store> allStores = market.getAllStores();
+            Map<Integer, StoreService> storeServices = new HashMap<>();
+            for (Map.Entry<Integer, Store> entry: allStores.entrySet()) {
+                storeServices.put(entry.getKey(), new StoreService(entry.getValue()));
             }
             log.info("Stores information received successfully");
             return new Result<>(false, storeServices);
@@ -151,6 +151,22 @@ public class ShoppingService {
             return new Result<>(true, e.getMessage());
         }
 
+    }
+
+    public Result<Map<Integer, StoreService>> getStoresIOwn(int ownerId) {
+        try {
+            Map<Integer, Store> allStores = market.getStoresIOwn(ownerId);
+            Map<Integer, StoreService> storeServices = new HashMap<>();
+            for (Map.Entry<Integer, Store> entry: allStores.entrySet()) {
+                storeServices.put(entry.getKey(), new StoreService(entry.getValue()));
+            }
+            log.info("Stores information received successfully");
+            return new Result<>(false, storeServices);
+        }
+        catch (Exception e){
+            log.info("Stores information not received");
+            return new Result<>(true, e.getMessage());
+        }
     }
 
 
@@ -413,6 +429,7 @@ public class ShoppingService {
         }
         return result;
     }
+
 
 
 }

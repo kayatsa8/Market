@@ -287,7 +287,7 @@ public class StoreFacade {
         store.setMailboxAsAvailable();
     }
 
-    public ArrayList<Store> getAllStores() {
-        return new ArrayList<>(stores.values());
+    public Map<Integer, Store> getAllStores() {
+        return stores;
     }
 }

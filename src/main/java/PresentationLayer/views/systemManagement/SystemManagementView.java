@@ -21,8 +21,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @PageTitle("About")
 @Route(value = "admin", layout = MainLayout.class)
@@ -32,6 +32,7 @@ public class SystemManagementView extends VerticalLayout {
     ShoppingService shoppingService;
     private int systemManagerId = 1000000;
     private Grid<StoreService> grid;
+    private Map<Integer, StoreService> stores;
 
     public SystemManagementView() {
         setSpacing(false);
@@ -53,12 +54,13 @@ public class SystemManagementView extends VerticalLayout {
         }
         setSpacing(false);
 
-        Result<ArrayList<StoreService>> storesRes = shoppingService.getAllStoresInfo();
+        Result<Map<Integer, StoreService>> storesRes = shoppingService.getAllStoresInfo();
         if (storesRes.isError()) {
             add("Problem getting catalog :(");
         }
         else {
-            Grid<StoreService> grid = createGrid(storesRes.getValue());
+            stores = storesRes.getValue();
+            Grid<StoreService> grid = createGrid();
             //add(grid);
             //add another grid of users and show info about them?
             //add grid of notifications? maybe do another screen of notification?
@@ -73,11 +75,11 @@ public class SystemManagementView extends VerticalLayout {
     }
 
 
-    private Grid<StoreService> createGrid(ArrayList<StoreService> storesList) {
+    private Grid<StoreService> createGrid() {
 
         grid = new Grid<>();
         Editor<StoreService> editor = grid.getEditor();
-        grid.setItems(storesList);
+        grid.setItems(stores.values());
 
         grid.addColumn(StoreService::getStoreId).setHeader("ID").setSortable(true);
         grid.addColumn(StoreService::getStoreName).setHeader("Name").setSortable(true);
@@ -168,7 +170,13 @@ public class SystemManagementView extends VerticalLayout {
             }
             else{
                 if(result.getValue()){
+
+                    //TODO check if its working!!
                     printSuccess("Closed Store");
+
+                    StoreService curr = shoppingService.getStoreInfo(chosenId).getValue();
+                    stores.replace(chosenId, curr);
+                    grid.getDataProvider().refreshItem(curr);
                 }
                 else{
                     printError("Something went wrong");

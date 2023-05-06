@@ -8,7 +8,9 @@ import ServiceLayer.Objects.MessageService;
 import ServiceLayer.Objects.UserInfoService;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class UserService {
@@ -210,13 +212,12 @@ public class UserService {
     }
 
 
-    public Result<ArrayList<UserInfoService>> getAllRegisteredUsers() {
+    public Result<Map<Integer, UserInfoService>> getAllRegisteredUsers() {
         try{
-            ArrayList<RegisteredUser> users = market.getAllRegisteredUsers();
-            ArrayList<UserInfoService> usersService = new ArrayList<>();
-
-            for(RegisteredUser user : users){
-                usersService.add(new UserInfoService(user));
+            Map<Integer, RegisteredUser> users = market.getAllRegisteredUsers();
+            Map<Integer, UserInfoService> usersService = new HashMap<>();
+            for(Map.Entry<Integer, RegisteredUser> user : users.entrySet()){
+                usersService.put(user.getKey(), new UserInfoService(user.getValue()));
             }
             log.info("Users information received successfully");
             return new Result<>(false, usersService);

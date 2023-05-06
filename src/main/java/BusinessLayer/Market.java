@@ -324,11 +324,20 @@ public class Market {
         return null;
     }
 
-    public ArrayList<Store> getAllStores() {
+    public Map<Integer, Store> getAllStores() {
         return storeFacade.getAllStores();
     }
 
-    public ArrayList<RegisteredUser> getAllRegisteredUsers() {
+    public Map<Integer, RegisteredUser> getAllRegisteredUsers() {
         return userFacade.getAllRegisteredUsers();
+    }
+
+    public Map<Integer, Store> getStoresIOwn(int ownerId) throws Exception {
+        ArrayList<Integer> storesIds = userFacade.getStoresIdsIOwn(ownerId);
+        Map<Integer, Store> result = new HashMap<>();
+        for(Integer storeId: storesIds){
+            result.put(storeId, storeFacade.getStore(storeId));
+        }
+        return result;
     }
 }
