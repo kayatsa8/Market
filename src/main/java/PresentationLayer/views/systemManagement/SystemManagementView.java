@@ -58,6 +58,11 @@ public class SystemManagementView extends VerticalLayout {
         else {
             Grid<StoreService> grid = createGrid(storesRes.getValue());
             //add(grid);
+
+
+            //add another grid of users and show info about them?
+            //add grid of notifications? maybe do another screen of notification?
+
         }
 
 
@@ -83,9 +88,6 @@ public class SystemManagementView extends VerticalLayout {
 
         HorizontalLayout footer = addButtons(grid);
         add(grid, footer);
-
-        //add another grid of users and show info about them?
-        //add grid of notifications? maybe do another screen of notification?
 
         return grid;
 
