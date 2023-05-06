@@ -186,6 +186,27 @@ public class GuestPurchaseTests extends ProjectTest{
         }
     }
 
+    @Test
+    public void addToBasketStoreNotExists() throws Exception
+    {
+        CartService cart = this.addItemToBasket(user2LoggedInId, -1, 1, 10);
+        if(cart == null)
+            assertNull(cart);
+        else{
+            boolean added = cart.getBasketOfStore(store2Id).hasItem(item2Id);
+            assertFalse(added);
+        }
+    }
+
+    @Test
+    public void addToBasket_AlreadyInCart(){
+        int newItemId = addItemToStoreForTests(store4Id, "NameDDD",10, "Kitchen", 10);
+        this.addItemToBasket(user4LoggedInId, store4Id, newItemId, 5);
+        CartService cart = this.addItemToBasket(user4LoggedInId, store4Id, newItemId, 5);
+
+        assertNull(cart);
+    }
+
     /**
      * Show cart #14
      */

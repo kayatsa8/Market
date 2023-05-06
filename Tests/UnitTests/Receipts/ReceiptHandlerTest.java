@@ -30,11 +30,12 @@ public class ReceiptHandlerTest {
 
         items = new HashMap<>();
         HashMap<CatalogItem, CartItemInfo> itemsAndAmounts1 = new HashMap<>();
-        itemsAndAmounts1.put(new CatalogItem(11, "item11", 20, "Books"), new CartItemInfo(11, 20, 0.2, 10));
-        itemsAndAmounts1.put(new CatalogItem(12, "item12", 20, "Books"), new CartItemInfo(12, 20, 0.2, 10));
+        //(int itemID ,String itemName, double price, String category, String storeName, int storeID)
+        itemsAndAmounts1.put(new CatalogItem(11, "item11", 20, "Books","name1",  store1ID), new CartItemInfo(11, 20, 0.2, 10));
+        itemsAndAmounts1.put(new CatalogItem(12, "item12", 20, "Books","name1",  store1ID), new CartItemInfo(12, 20, 0.2, 10));
         HashMap<CatalogItem, CartItemInfo> itemsAndAmounts2 = new HashMap<>();
-        itemsAndAmounts2.put(new CatalogItem(21, "item21", 20, "Books"), new CartItemInfo(21, 20, 0.2, 10));
-        itemsAndAmounts2.put(new CatalogItem(22, "item22", 20, "Books"), new CartItemInfo(22, 20, 0.2, 10));
+        itemsAndAmounts2.put(new CatalogItem(21, "item21", 20, "Books", "name2", store2ID), new CartItemInfo(21, 20, 0.2, 10));
+        itemsAndAmounts2.put(new CatalogItem(22, "item22", 20, "Books", "name2", store2ID), new CartItemInfo(22, 20, 0.2, 10));
         items.put(store1ID, itemsAndAmounts1);
         items.put(store2ID, itemsAndAmounts2);
 

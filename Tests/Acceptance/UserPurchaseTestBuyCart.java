@@ -51,7 +51,7 @@ public class UserPurchaseTestBuyCart extends ProjectTest{
 
     @Test
     public void buyCart_WrongPaymentDetails(){
-        //TODO when adding the address and paying method check this tests, currently its the same as wrong supply.
+        //TODO when adding the address and paying method check this tests.
         boolean added = this.buyCart(user4LoggedInId, "");
         assertFalse(added);
     }
