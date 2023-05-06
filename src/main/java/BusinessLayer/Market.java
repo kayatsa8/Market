@@ -3,7 +3,6 @@ package BusinessLayer;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Message;
-import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.CatalogItem;
@@ -327,5 +326,9 @@ public class Market {
 
     public ArrayList<Store> getAllStores() {
         return storeFacade.getAllStores();
+    }
+
+    public ArrayList<RegisteredUser> getAllRegisteredUsers() {
+        return userFacade.getAllRegisteredUsers();
     }
 }

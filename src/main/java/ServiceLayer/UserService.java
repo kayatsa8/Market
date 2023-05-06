@@ -3,7 +3,9 @@ package ServiceLayer;
 import BusinessLayer.Log;
 import BusinessLayer.Market;
 import BusinessLayer.NotificationSystem.Message;
+import BusinessLayer.Users.RegisteredUser;
 import ServiceLayer.Objects.MessageService;
+import ServiceLayer.Objects.UserInfoService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -208,4 +210,20 @@ public class UserService {
     }
 
 
+    public Result<ArrayList<UserInfoService>> getAllRegisteredUsers() {
+        try{
+            ArrayList<RegisteredUser> users = market.getAllRegisteredUsers();
+            ArrayList<UserInfoService> usersService = new ArrayList<>();
+
+            for(RegisteredUser user : users){
+                usersService.add(new UserInfoService(user));
+            }
+            log.info("Users information received successfully");
+            return new Result<>(false, usersService);
+        }
+        catch (Exception e){
+            log.info("Users information not received");
+            return new Result<>(true, e.getMessage());
+        }
+    }
 }

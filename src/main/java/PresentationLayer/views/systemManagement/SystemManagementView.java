@@ -58,8 +58,6 @@ public class SystemManagementView extends VerticalLayout {
         else {
             Grid<StoreService> grid = createGrid(storesRes.getValue());
             //add(grid);
-
-
             //add another grid of users and show info about them?
             //add grid of notifications? maybe do another screen of notification?
 
@@ -132,8 +130,7 @@ public class SystemManagementView extends VerticalLayout {
         if(chosenId != -1){
             Result<List<ReceiptService>> result = shoppingService.getSellingHistoryOfStoreForManager(chosenId, systemManagerId);
             if(result.isError()){
-                //TODO should print to screen error
-                add("Error in get receipts!");
+                printError("Error in get receipts!");
             }
             else{
                 //TODO should print to screen The receipts!
@@ -149,26 +146,43 @@ public class SystemManagementView extends VerticalLayout {
 
             Result<Boolean> result = shoppingService.closeStorePermanently(systemManagerId, chosenId);
             if(result.isError()){
-                //TODO should print to screen error
-                add("Error in close store permanently");
+                printError("Error in close store permanently");
             }
             else{
-                //TODO should print to screen success or fail!
+                if(result.getValue()){
+                    printSuccess("Closed Store");
+                }
+                else{
+                    printError("Something went wrong");
+                }
                 System.out.println(result.getValue());
             }
         }
     }
 
+
     private int getIdOfSelectedRow(Grid<StoreService> grid) {
         List<StoreService> stores = grid.getSelectedItems().stream().toList();
         if(stores.size() > 1){
-            //TODO should print to screen error
-            add("Chosen More than one!");
+            printError("Chosen More than one!");
+            return -1;
+        }
+        else if(stores.size() == 0){
+            printError("You need to choose a User!");
             return -1;
         }
         else{
             return stores.get(0).getStoreId();
         }
+    }
+
+
+    private void printError(String errorMsg) {
+        //How I print to screen?
+    }
+
+    private void printSuccess(String closedStore) {
+        //How I print to screen?
     }
 
 

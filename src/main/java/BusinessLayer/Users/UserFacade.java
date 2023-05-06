@@ -9,6 +9,7 @@ import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -277,5 +278,9 @@ public class UserFacade {
 
     public List<Message> watchSentMessages(int userID){
         return users.get(userID).watchSentMessages();
+    }
+
+    public ArrayList<RegisteredUser> getAllRegisteredUsers() {
+        return new ArrayList<>(users.values());
     }
 }
