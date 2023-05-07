@@ -206,9 +206,16 @@ public class ShoppingService {
     }
 
 
-    public void addItemAmount(int storeId, int itemId, int amount) throws Exception
+    public Result<Boolean> addItemAmount(int storeId, int itemId, int amount)
     {
-        market.addItemAmount(storeId, itemId, amount);
+        try {
+            boolean res = market.addItemAmount(storeId, itemId, amount);
+            //Yonatan added boolean, don't delete
+            return new Result<>(true, res);
+        } catch (Exception e) {
+            log.info("Failed to add amount of item to store");
+            return new Result<>(true, e.getMessage());
+        }
     }
 
 
