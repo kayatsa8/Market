@@ -313,9 +313,11 @@ public class Market {
         return false;
     }
 
-    public void addItemAmount(int storeID, int itemID, int amountToAdd) throws Exception
+
+    //Yonatan added boolean, don't delete
+    public boolean addItemAmount(int storeID, int itemID, int amountToAdd) throws Exception
     {
-        storeFacade.addItemAmount(storeID, itemID, amountToAdd);
+        return storeFacade.addItemAmount(storeID, itemID, amountToAdd);
     }
 
     public List<Receipt> getSellingHistoryOfStoreForManager(int storeId, int userId) throws Exception {
