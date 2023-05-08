@@ -211,7 +211,7 @@ public class ShoppingService {
         try {
             boolean res = market.addItemAmount(storeId, itemId, amount);
             //Yonatan added boolean, don't delete
-            return new Result<>(true, res);
+            return new Result<>(false, res);
         } catch (Exception e) {
             log.info("Failed to add amount of item to store");
             return new Result<>(true, e.getMessage());

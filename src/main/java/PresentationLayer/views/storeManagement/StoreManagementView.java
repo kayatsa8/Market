@@ -9,10 +9,12 @@ import ServiceLayer.ShoppingService;
 import ServiceLayer.UserService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.grid.editor.Editor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
@@ -97,16 +99,17 @@ public class StoreManagementView extends VerticalLayout {
 
         GridContextMenu<StoreService> menu = storesGrid.addContextMenu();
         menu.setOpenOnClick(true);
-        menu.addItem("View Items Of Store", event -> { /**/ });
-        menu.addItem("Add Item", event ->  addItemDialog());
-        menu.addItem("Add Amount to Item", event -> addAmountToItemDialog() );
-        menu.addItem("Remove Item", event -> removeItemDialog());
-        menu.addItem("Change Item Name", event ->  changeNameDialog());
+        menu.addItem("View Items Of Store", event -> viewItemsDialog() );
+//        menu.addItem("Add Item", event ->  addItemDialog());
+//        menu.addItem("Add Amount to Item", event -> addAmountToItemDialog() );
+//        menu.addItem("Remove Item", event -> removeItemDialog());
+//        menu.addItem("Change Item Name", event ->  changeNameDialog());
+        menu.addItem("Close Store", event -> closeStoreDialog());  //only store founder
+        menu.addItem("Open Store", event -> openStoreDialog());   //only store founder
+
 
         //TODO
         menu.addItem("Determine Store policy", event -> {});
-        menu.addItem("Close Store", event -> {});  //only store founder
-        menu.addItem("Open Store", event -> {});   //only store founder
         menu.addItem("Get Staff Info", event -> {});  //Requirement 4.11
         menu.addItem("Get Store History", event -> {});  //Requirement 4.13
 
@@ -114,6 +117,7 @@ public class StoreManagementView extends VerticalLayout {
         add(storesGrid);
 
     }
+
 
     private void createUserGrid() {
 
@@ -303,11 +307,27 @@ public class StoreManagementView extends VerticalLayout {
         }
     }
 
+    private int getItemIdOfSelectedRow(Grid<CatalogItemService> itemsGrid) {
+        List<CatalogItemService> items = itemsGrid.getSelectedItems().stream().toList();
+        if(items.size() > 1){
+            printError("Chosen More than one!");
+            return -1;
+        }
+        else if(items.size() == 0){
+            printError("You need to choose an Item!");
+            return -1;
+        }
+        else{
+            return items.get(0).getItemID();
+        }
+    }
 
 
-    private void addItemDialog() {
+
+    private void addItemDialog(Grid<CatalogItemService> itemsGrid) {
         Dialog dialog = new Dialog();
-
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
         dialog.setHeaderTitle("Add Item");
 
         TextField itemNameField = new TextField("Item Name");
@@ -325,7 +345,7 @@ public class StoreManagementView extends VerticalLayout {
         Button saveButton = new Button("Add", e -> {
             dialog.close();
             addItemToStoreAction(getStoreIdOfSelectedRow(storesGrid), itemNameField.getValue(),
-                                    itemPriceField.getValue(), itemCategoryField.getValue());
+                                    itemPriceField.getValue(), itemCategoryField.getValue(), itemsGrid);
         });
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
@@ -339,15 +359,18 @@ public class StoreManagementView extends VerticalLayout {
     }
 
 
-    private void addAmountToItemDialog() {
+    private void addAmountToItemDialog(Grid<CatalogItemService> itemsGrid) {
         Dialog dialog = new Dialog();
-
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
         dialog.setHeaderTitle("Add Item amount");
-        IntegerField itemIdField = new IntegerField("Item ID");
+
         IntegerField itemAmountField = new IntegerField("Item Amount");
         itemAmountField.setMin(0);
 
-        VerticalLayout dialogLayout = new VerticalLayout(itemIdField, itemAmountField);
+        //VerticalLayout dialogLayout = new VerticalLayout(itemIdField, itemAmountField);
+        VerticalLayout dialogLayout = new VerticalLayout(itemAmountField);
+
         dialogLayout.setPadding(false);
         dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
         dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
@@ -356,8 +379,8 @@ public class StoreManagementView extends VerticalLayout {
 
         Button saveButton = new Button("Add", e -> {
             dialog.close();
-            addItemAmountAction(getStoreIdOfSelectedRow(storesGrid), itemIdField.getValue(),
-                    itemAmountField.getValue());
+            addItemAmountAction(getStoreIdOfSelectedRow(storesGrid), getItemIdOfSelectedRow(itemsGrid),
+                    itemAmountField.getValue(), itemsGrid);
         });
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
@@ -372,13 +395,14 @@ public class StoreManagementView extends VerticalLayout {
     }
 
 
-    private void removeItemDialog() {
+    private void removeItemDialog(Grid<CatalogItemService> itemsGrid) {
         Dialog dialog = new Dialog();
-
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
         dialog.setHeaderTitle("Remove Item");
-        IntegerField itemIdField = new IntegerField("Item ID");
+        // itemIdField = new IntegerField("Item ID");
 
-        VerticalLayout dialogLayout = new VerticalLayout(itemIdField);
+        VerticalLayout dialogLayout = new VerticalLayout();
         dialogLayout.setPadding(false);
         dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
         dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
@@ -387,7 +411,7 @@ public class StoreManagementView extends VerticalLayout {
 
         Button saveButton = new Button("Remove", e -> {
             dialog.close();
-            removeItemAction(getStoreIdOfSelectedRow(storesGrid), itemIdField.getValue());
+            removeItemAction(getStoreIdOfSelectedRow(storesGrid), getItemIdOfSelectedRow(itemsGrid), itemsGrid);
         });
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
@@ -402,15 +426,15 @@ public class StoreManagementView extends VerticalLayout {
     }
 
 
-    private void changeNameDialog() {
+    private void changeNameDialog(Grid<CatalogItemService> itemsGrid) {
         Dialog dialog = new Dialog();
-
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
         dialog.setHeaderTitle("Change Item Name");
 
-        IntegerField itemIdField = new IntegerField("Item ID");
         TextField itemNewNameField = new TextField("New Name");
 
-        VerticalLayout dialogLayout = new VerticalLayout(itemIdField, itemNewNameField);
+        VerticalLayout dialogLayout = new VerticalLayout(itemNewNameField);
         dialogLayout.setPadding(false);
         dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
         dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
@@ -419,7 +443,7 @@ public class StoreManagementView extends VerticalLayout {
 
         Button saveButton = new Button("Update", e -> {
             dialog.close();
-            changeItemNameAction(getStoreIdOfSelectedRow(storesGrid), itemIdField.getValue(), itemNewNameField.getValue());
+            changeItemNameAction(getStoreIdOfSelectedRow(storesGrid),getItemIdOfSelectedRow(itemsGrid) , itemNewNameField.getValue(), itemsGrid);
         });
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
@@ -433,7 +457,89 @@ public class StoreManagementView extends VerticalLayout {
     }
 
 
-    private void changeItemNameAction(int storeId, int itemId, String newName) {
+    private void openStoreDialog() {
+        ConfirmDialog dialog = new ConfirmDialog();
+        dialog.setHeader("Open Store?");
+        dialog.setText("Are you sure you want to reopen this store?");
+
+        dialog.setCancelable(true);
+        dialog.addCancelListener(event -> printError("Canceled"));
+
+        dialog.setConfirmText("Open");
+        dialog.setConfirmButtonTheme("error primary");
+        dialog.addConfirmListener(event -> reOpenStoreAction(getStoreIdOfSelectedRow(storesGrid), ownerId));
+
+        add(dialog);
+        dialog.open();
+
+    }
+
+
+    private void closeStoreDialog() {
+        ConfirmDialog dialog = new ConfirmDialog();
+        dialog.setHeader("Close Store?");
+        dialog.setText("Are you sure you want to close this store?");
+
+        dialog.setCancelable(true);
+        dialog.addCancelListener(event -> printError("Canceled"));
+
+        dialog.setConfirmText("Close");
+        dialog.setConfirmButtonTheme("error primary");
+        dialog.addConfirmListener(event -> closeStoreAction(getStoreIdOfSelectedRow(storesGrid), ownerId));
+
+        add(dialog);
+        dialog.open();
+    }
+
+
+
+    private void viewItemsDialog() {
+
+        Grid<CatalogItemService> itemsGrid = new Grid<>();
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Store Items");
+        Div div = new Div();
+        div.add(itemsGrid);
+        dialog.add(div);
+        dialog.setWidth("1000px");
+
+        int storeId = getStoreIdOfSelectedRow(storesGrid);
+        itemsGrid.setItems(storesIOwn.get(storeId).getItems());
+        itemsGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+
+        itemsGrid.addColumn(CatalogItemService:: getItemID).setHeader("ID").setSortable(true);
+        itemsGrid.addColumn(CatalogItemService:: getItemName).setHeader("Name").setSortable(true);
+        itemsGrid.addColumn(CatalogItemService:: getCategory).setHeader("Category").setSortable(true);
+        itemsGrid.addColumn(CatalogItemService:: getAmount).setHeader("Amount").setSortable(true);
+        itemsGrid.addColumn(CatalogItemService:: getPrice).setHeader("price").setSortable(true);
+
+
+        GridContextMenu<CatalogItemService> menu = itemsGrid.addContextMenu();
+        menu.setOpenOnClick(true);
+
+        menu.addItem("Add Amount to Item", event -> addAmountToItemDialog(itemsGrid) );
+        menu.addItem("Remove Item", event -> removeItemDialog(itemsGrid));
+        menu.addItem("Change Item Name", event ->  changeNameDialog(itemsGrid));
+
+
+        Button addItem = new Button("Add Item", e -> {
+            addItemDialog(itemsGrid);
+        });
+        Button cancelButton = new Button("exit", e -> dialog.close());
+        dialog.getFooter().add(addItem, cancelButton);
+
+
+        add(dialog);
+        dialog.open();
+        //dialog.add(itemsGrid);
+        dialog.add(menu);
+
+    }
+
+
+    private void changeItemNameAction(int storeId, int itemId, String newName, Grid<CatalogItemService> itemsGrid) {
         if(storeId != -1){
             Result<String> result = shoppingService.updateItemName(storeId, itemId, newName);
 
@@ -441,8 +547,9 @@ public class StoreManagementView extends VerticalLayout {
                 printError("Error in update Item Name");
             }
             else{
-                if(result.getValue().contains("Changed item name from")){
+                if(result.getMessage().contains("Changed item name from")){
                     printSuccess("Item Name Updated Successfully");
+                    refreshItemFromBusiness(storeId, itemId, itemsGrid);
                 }
                 else{
                     printError("Something went wrong");
@@ -452,7 +559,7 @@ public class StoreManagementView extends VerticalLayout {
     }
 
 
-    private void removeItemAction(int storeId, int itemId) {
+    private void removeItemAction(int storeId, int itemId, Grid<CatalogItemService> itemsGrid) {
         if(storeId != -1){
             Result<CatalogItemService> result = shoppingService.removeItemFromStore(storeId, itemId);
 
@@ -462,6 +569,8 @@ public class StoreManagementView extends VerticalLayout {
             else{
                 if(result.getValue() != null){
                     printSuccess("Item removed Successfully");
+                    refreshItemFromBusiness(storeId, itemId, itemsGrid);
+
                 }
                 else{
                     printError("Something went wrong");
@@ -471,7 +580,7 @@ public class StoreManagementView extends VerticalLayout {
     }
 
 
-    private void addItemAmountAction(int storeId, int itemId, int amount) {
+    private void addItemAmountAction(int storeId, int itemId, int amount, Grid<CatalogItemService> itemsGrid) {
         if(storeId != -1){
             Result<Boolean> result = shoppingService.addItemAmount(storeId, itemId, amount);
 
@@ -481,6 +590,7 @@ public class StoreManagementView extends VerticalLayout {
             else{
                 if(result.getValue()){
                     printSuccess("Amount of Item added Successfully");
+                    refreshItemFromBusiness(storeId, itemId, itemsGrid);
                 }
                 else{
                     printError("Something went wrong");
@@ -490,7 +600,8 @@ public class StoreManagementView extends VerticalLayout {
     }
 
 
-    private void addItemToStoreAction(int storeId, String itemName, Double price, String category) {
+
+    private void addItemToStoreAction(int storeId, String itemName, Double price, String category, Grid<CatalogItemService> itemsGrid) {
         if(storeId != -1){
             Result<CatalogItemService> result = shoppingService.addItemToStore(storeId, itemName, price, category);
 
@@ -500,12 +611,71 @@ public class StoreManagementView extends VerticalLayout {
             else{
                 if(result.getValue() != null){
                     printSuccess("Item added Successfully");
+                    refreshItemFromBusiness(storeId, result.getValue().getItemID(), itemsGrid);
                 }
                 else{
                     printError("Something went wrong");
                 }
             }
         }
+    }
+
+
+    private void reOpenStoreAction(int storeId, int userId) {
+        if(storeId != -1){
+            Result<Boolean> result = shoppingService.reopenStore(userId, storeId);
+
+            if(result.isError()){
+                printError("Error in reopen Store");
+            }
+            else{
+                if(result.getValue()){
+                    printSuccess("Store reOpened Successfully");
+
+                    refreshStoreFromBusiness(storeId);
+                }
+                else{
+                    printError("Something went wrong");
+                }
+            }
+        }
+    }
+
+    private void closeStoreAction(int storeId, int userId) {
+        if(storeId != -1){
+            Result<Boolean> result = shoppingService.closeStore(userId, storeId);
+
+            if(result.isError()){
+                printError("Error in close Store");
+            }
+            else{
+                if(result.getValue()){
+                    printSuccess("Store closed Successfully");
+
+                    refreshStoreFromBusiness(storeId);
+                }
+                else{
+                    printError("Something went wrong");
+                }
+            }
+        }
+    }
+
+    private void refreshStoreFromBusiness(int storeId) {
+        StoreService curr = shoppingService.getStoreInfo(storeId).getValue();
+        storesIOwn.replace(storeId, curr);
+        //storesGrid.getDataProvider().refreshItem(curr);
+        storesGrid.getDataProvider().refreshAll();
+    }
+
+
+    private void refreshItemFromBusiness(int storeId, int itemId, Grid<CatalogItemService> itemsGrid) {
+        StoreService currStore = shoppingService.getStoreInfo(storeId).getValue();
+        storesIOwn.replace(storeId, currStore);
+
+        itemsGrid.setItems(currStore.getItems());
+        itemsGrid.getDataProvider().refreshAll();
+        storesGrid.getDataProvider().refreshAll();
     }
 
 
