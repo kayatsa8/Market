@@ -4,6 +4,7 @@ import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.Receipts.Receipt.Receipt;
+import BusinessLayer.Receipts.ReceiptItem.ReceiptItem;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -15,10 +16,7 @@ import BusinessLayer.Stores.CatalogItem;
 
 import ServiceLayer.Objects.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class ShoppingService {
@@ -419,6 +417,20 @@ public class ShoppingService {
     }
 
     public Result<List<ReceiptService>> getSellingHistoryOfStoreForManager(int storeId, int userId) {
+//
+//
+//        //for testing
+//        List<ReceiptService> receiptServices = new ArrayList<>();
+//        Receipt receipt1 = new Receipt(10, 1, Calendar.getInstance());
+//        Receipt receipt2 = new Receipt(11, 2, Calendar.getInstance());
+//        List<ReceiptItem> items = new ArrayList<>();
+//        items.add(new ReceiptItem(1, "name", 20, 12, 13));
+//        items.add(new ReceiptItem(2, "name2", 30, 12, 13));
+//        receipt1.addItems(1, items);
+//        receipt1.addItems(100002, items);
+//        receiptServices.add(new ReceiptService(receipt1));
+//        receiptServices.add(new ReceiptService(receipt2));
+//        return new Result<>(false, receiptServices);
 
         try {
             List<Receipt> result = market.getSellingHistoryOfStoreForManager(storeId, userId);

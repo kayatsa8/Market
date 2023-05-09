@@ -69,4 +69,8 @@ public class ReceiptItemCollection implements ItemCollectionI<ReceiptItem> {
     public boolean hasKeyId(int ownerId) {
         return items.containsKey(ownerId);
     }
+
+    public Map<Integer, ArrayList<ReceiptItem>> getAllItems() {
+        return items;
+    }
 }
