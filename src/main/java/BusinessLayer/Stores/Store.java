@@ -11,11 +11,17 @@ import BusinessLayer.Receipts.ReceiptHandler;
 import BusinessLayer.StorePermissions.StoreManager;
 import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.StorePermissions.StoreEmployees;
-import BusinessLayer.Stores.Policies.Compositions.NumericCompositions.NumericComponent;
-import BusinessLayer.Stores.Policies.Discounts.Conditional;
+import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.LogicalComponent;
+import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.LogicalComposites;
+import BusinessLayer.Stores.Policies.Conditions.NumericCompositions.*;
 import BusinessLayer.Stores.Policies.Discounts.Discount;
-import BusinessLayer.Stores.Policies.Discounts.Hidden;
-import BusinessLayer.Stores.Policies.Discounts.Visible;
+import BusinessLayer.Stores.Policies.Discounts.DiscountScopes.CategoryDiscount;
+import BusinessLayer.Stores.Policies.Discounts.DiscountScopes.DiscountScope;
+import BusinessLayer.Stores.Policies.Discounts.DiscountScopes.ItemsDiscount;
+import BusinessLayer.Stores.Policies.Discounts.DiscountScopes.StoreDiscount;
+import BusinessLayer.Stores.Policies.Discounts.DiscountsTypes.Conditional;
+import BusinessLayer.Stores.Policies.Discounts.DiscountsTypes.Hidden;
+import BusinessLayer.Stores.Policies.Discounts.DiscountsTypes.Visible;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -181,22 +187,116 @@ public class Store {
         throw new Exception("Search by " + searchBy + "is invalid");
     }
 
-    public void addVisibleDiscount(int itemID, double percent, Calendar endOfSale) {
-        Discount visibleDiscount = new Visible(itemID, percent, endOfSale);
-        discounts.put(discountsIDs++, visibleDiscount);
-        log.info("Added new visible discount to item " + itemID + " at store " + storeID);
+    public void addVisibleItemsDiscount(List<Integer> itemsIDs, double percent, Calendar endOfSale) {
+        DiscountScope discountScope = new ItemsDiscount(itemsIDs);
+        Discount discount = new Visible(discountsIDs, percent, endOfSale, discountScope);
+        discounts.put(discountsIDs++, discount);
+        log.info("Added new visible discount at store " + storeID);
     }
-
-    public void addConditionalDiscount(NumericComponent numericComponent) {
-        Discount conditionalDiscount = new Conditional(numericComponent);
-        discounts.put(discountsIDs++, conditionalDiscount);
+    public void addVisibleCategoryDiscount(String category, double percent, Calendar endOfSale) {
+        DiscountScope discountScope = new CategoryDiscount(category);
+        Discount discount = new Visible(discountsIDs, percent, endOfSale, discountScope);
+        discounts.put(discountsIDs++, discount);
+        log.info("Added new visible discount at store " + storeID);
+    }
+    public void addVisibleStoreDiscount(double percent, Calendar endOfSale) {
+        DiscountScope discountScope = new StoreDiscount();
+        Discount discount = new Visible(discountsIDs, percent, endOfSale, discountScope);
+        discounts.put(discountsIDs++, discount);
+        log.info("Added new visible discount at store " + storeID);
+    }
+    public void addConditionalItemsDiscount(double percent, Calendar endOfSale, List<Integer> itemsIDs) {
+        DiscountScope discountScope = new ItemsDiscount(itemsIDs);
+        Discount discount = new Conditional(discountsIDs, percent, endOfSale, discountScope);
+        discounts.put(discountsIDs++, discount);
+        log.info("Added new conditional discount at store " + storeID);
+    }
+    public void addConditionalCategoryDiscount(double percent, Calendar endOfSale, String category) {
+        DiscountScope discountScope = new CategoryDiscount(category);
+        Discount discount = new Conditional(discountsIDs, percent, endOfSale, discountScope);
+        discounts.put(discountsIDs++, discount);
+        log.info("Added new conditional discount at store " + storeID);
+    }
+    public void addConditionalStoreDiscount(double percent, Calendar endOfSale) {
+        DiscountScope discountScope = new StoreDiscount();
+        Discount discount = new Conditional(discountsIDs, percent, endOfSale, discountScope);
+        discounts.put(discountsIDs++, discount);
         log.info("Added new conditional discount at store " + storeID);
     }
 
-    public void addHiddenDiscount(int itemID, double percent, String coupon, Calendar endOfSale) {
-        Discount hiddenDiscount = new Hidden(itemID, percent, endOfSale, coupon);
-        discounts.put(discountsIDs++, hiddenDiscount);
-        log.info("Added new hidden discount to item " + itemID + " at store " + storeID);
+    public void addHiddenItemsDiscount(List<Integer> itemsIDs, double percent, String coupon, Calendar endOfSale) {
+        DiscountScope discountScope = new ItemsDiscount(itemsIDs);
+        Discount discount = new Hidden(discountsIDs, percent, endOfSale, coupon, discountScope);
+        discounts.put(discountsIDs++, discount);
+        log.info("Added new hidden discount at store " + storeID);
+    }
+    public void addHiddenCategoryDiscount(String category, double percent, String coupon, Calendar endOfSale) {
+        DiscountScope discountScope = new CategoryDiscount(category);
+        Discount discount = new Hidden(discountsIDs, percent, endOfSale, coupon, discountScope);
+        discounts.put(discountsIDs++, discount);
+        log.info("Added new hidden discount at store " + storeID);
+    }
+    public void addHiddenStoreDiscount(double percent, String coupon, Calendar endOfSale) {
+        DiscountScope discountScope = new StoreDiscount();
+        Discount discount = new Hidden(discountsIDs, percent, endOfSale, coupon, discountScope);
+        discounts.put(discountsIDs++, discount);
+        log.info("Added new hidden discount at store " + storeID);
+    }
+
+
+    public String addPriceRule(int discountID, double minimumPrice)
+    {
+        Conditional discount = (Conditional) getDiscount(discountID);
+        return discount.addPriceRule(minimumPrice);
+    }
+    public String addQuantityRule(int discountID, Map<Integer, Integer> itemsAmounts)
+    {
+        Conditional discount = (Conditional) getDiscount(discountID);
+        return discount.addQuantityRule(itemsAmounts);
+    }
+    public String addComposite(int discountID, LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs) throws Exception
+    {
+        Conditional discount = (Conditional) getDiscount(discountID);
+        return discount.addComposite(logicalComposite, logicalComponentsIDs);
+    }
+    public String finishConditionalDiscountBuilding(int discountID) throws Exception
+    {
+        Conditional discount = (Conditional) getDiscount(discountID);
+        return discount.finish();
+    }
+    public void wrapDiscounts(List<Integer> discountsIDsToWrap, NumericComposites numericCompositeEnum) throws Exception
+    {
+        List<Discount> discountsToWrap = new ArrayList<>();
+        for (Integer discountID : discountsIDsToWrap)
+        {
+            discountsToWrap.add(getDiscount(discountID));
+        }
+        NumericComposite myNumericComposite = null;
+        switch (numericCompositeEnum)
+        {
+            case ADD:
+            {
+                myNumericComposite = new Add(discountsIDs, discountsToWrap);
+                break;
+            }
+            case MAX:
+            {
+                myNumericComposite = new Max(discountsIDs, discountsToWrap);
+                break;
+            }
+            case MIN:
+            {
+                myNumericComposite = new Min(discountsIDs, discountsToWrap);
+                break;
+            }
+        }
+        if (myNumericComposite == null)
+            throw new Exception("The numeric composite is unrecognized");
+        for (Integer discountID: discountsIDsToWrap)
+        {
+            discounts.remove(discountID);
+        }
+        discounts.put(discountsIDs++, myNumericComposite);
     }
 
     public StoreStatus getStoreStatus() {
@@ -226,25 +326,54 @@ public class Store {
         storeMailBox.sendMessageToList(sendToList, "New purchase", "User " + userID + " made a purchase in store " + storeName + " where you are one of the owners");
         log.info("A basket was bought at store " + storeID);
     }
-    public synchronized boolean saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems) throws Exception
+    public synchronized boolean saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems, List<String> coupons) throws Exception
     {
         if (checkIfItemsInStock(basketItems))
         {
+            if (checkIfBasketPriceChanged(basketItems, coupons))
+            {
+                updateBasket(basketItems, coupons);
+                log.warning("Trying to buy a basket in store: " + storeName + ", but item price or discount changed/removed/added");
+                throw new Exception("One or more of the items or discounts in store : " + storeName + " that affect the basket have been changed");
+            }
             int itemID;
             int itemAmountToSave;
-            for (CartItemInfo cartItemInfo : basketItems) {
+            for (CartItemInfo cartItemInfo : basketItems)
+            {
                 itemID = cartItemInfo.getItemID();
                 itemAmountToSave = cartItemInfo.getAmount();
                 saveItemAmount(itemID, itemAmountToSave);
             }
             log.info("Items was saved for upcoming purchase at store " + storeID);
             return true;
-        } else {
+        }
+        else
+        {
             log.warning("Items wasn't saved for upcoming purchase at store " + storeID + " due to lack of items");
             throw new Exception("Not enough items in stock");
         }
     }
-    
+
+    private boolean checkIfBasketPriceChanged(List<CartItemInfo> basketItems, List<String> coupons)
+    {
+        List<CartItemInfo> copyBasketItems = new ArrayList<>();
+        for (CartItemInfo item : basketItems)
+        {
+            copyBasketItems.add(new CartItemInfo(item));
+        }
+        updateBasket(copyBasketItems, coupons);
+        for (int i=0; i<basketItems.size(); i++)
+        {
+            CartItemInfo item = basketItems.get(i);
+            CartItemInfo copyItem = copyBasketItems.get(i);
+            if ((item.getOriginalPrice() != copyItem.getOriginalPrice()) || (item.getPercent() != copyItem.getPercent()))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public boolean checkIfItemsInStock(List<CartItemInfo> basketItems)
     {
         int itemID;

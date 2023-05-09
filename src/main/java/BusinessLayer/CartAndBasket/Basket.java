@@ -16,8 +16,6 @@ public class Basket {
     private boolean itemsSaved; // true if the store saves the items inside the basket for the user
     private SavedItemsRepository savedItems;
 
-
-
     //methods
     public Basket(Store _store){
         store = _store;
@@ -26,23 +24,29 @@ public class Basket {
         savedItems = new SavedItemsRepository();
     }
 
-    public void addItem(CatalogItem item, int quantity) throws Exception {
+    public void addItem(CatalogItem item, int quantity, List<String> coupons) throws Exception {
         validateAddItem(item, quantity);
 
         items.putIfAbsent(item.getItemID(), new ItemWrapper(item, quantity));
 
         releaseItems();
+        List<CartItemInfo> tempBasketItems = getItemsInfo();
+        store.updateBasket(tempBasketItems, coupons);
+        //updateBasketByCartItemInfoList(tempBasketItems);
     }
 
-    public void changeItemQuantity(int itemID, int quantity) throws Exception {
+    public void changeItemQuantity(int itemID, int quantity, List<String> coupons) throws Exception {
         validateChangeItemQuantity(itemID, quantity);
 
         items.get(itemID).info.setAmount(quantity);
 
         releaseItems();
+        List<CartItemInfo> tempBasketItems = getItemsInfo();
+        store.updateBasket(tempBasketItems, coupons);
+        //updateBasketByCartItemInfoList(tempBasketItems);
     }
 
-    public void removeItem(int itemID) throws Exception {
+    public void removeItem(int itemID, List<String> coupons) throws Exception {
         if(!items.containsKey(itemID)){
             //LOG
             throw new Exception("ERROR: Basket::removeItemFromCart: no such item in basket!");
@@ -51,6 +55,9 @@ public class Basket {
         items.remove(itemID);
 
         releaseItems();
+        List<CartItemInfo> tempBasketItems = getItemsInfo();
+        store.updateBasket(tempBasketItems, coupons);
+        //updateBasketByCartItemInfoList(tempBasketItems);
     }
 
     private void validateAddItem(CatalogItem item, int quantity) throws Exception {
@@ -101,11 +108,11 @@ public class Basket {
         return new CatalogItem(item.getItemID(), item.getItemName(), item.getPrice(), item.getCategory());
     }
 
-    public void saveItems() throws Exception{
+    public void saveItems(List<String> coupons) throws Exception{
         savedItems.set(getItemsInfo());
 
         try{
-            store.saveItemsForUpcomingPurchase(getItemsInfo());
+            store.saveItemsForUpcomingPurchase(getItemsInfo(), coupons);
             itemsSaved = true;
         }
         catch(Exception e){
@@ -208,7 +215,7 @@ public class Basket {
 
         public ItemWrapper(CatalogItem _item, int quantity){
             item = _item;
-            info = new CartItemInfo(item.getItemID(), quantity, 0, item.getPrice());
+            info = new CartItemInfo(item.getItemID(), quantity, item.getPrice(), _item.getCategory(), _item.getItemName());
         }
     }
 
