@@ -704,7 +704,7 @@ public class StoreManagementView extends VerticalLayout {
     }
 
 
-
+//
     private void addItemToStoreAction(int storeId, String itemName, Double price, String category, Grid<CatalogItemService> itemsGrid) {
         if(storeId != -1 || price == null){
             Result<CatalogItemService> result = shoppingService.addItemToStore(storeId, itemName, price, category);
