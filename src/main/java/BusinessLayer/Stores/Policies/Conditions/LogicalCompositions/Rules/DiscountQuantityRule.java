@@ -1,15 +1,16 @@
-package BusinessLayer.Stores.Policies.Rules;
+package BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.Rules;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
 
 import java.util.List;
 import java.util.Map;
 
-public class DiscountQuantityRule implements Rule{
+public class DiscountQuantityRule extends Rule{
 
     private Map<Integer, Integer> itemsAmounts;
-    public DiscountQuantityRule(Map<Integer, Integer> itemsAmounts)
+    public DiscountQuantityRule(Map<Integer, Integer> itemsAmounts, int id)
     {
+        super(id);
         this.itemsAmounts = itemsAmounts;
     }
 
@@ -43,5 +44,17 @@ public class DiscountQuantityRule implements Rule{
             }
         }
         return false;
+    }
+
+    @Override
+    public String toString()
+    {
+        String result = "";
+        for (Map.Entry<Integer, Integer> itemAmount : itemsAmounts.entrySet()) {
+            result += ", " + itemAmount.getValue() + " of item ID " + itemAmount.getKey();
+        }
+        if (result.length()>1)
+            result = result.substring(2);
+        return  "(Basket must contain at least: " + result + ")";
     }
 }
