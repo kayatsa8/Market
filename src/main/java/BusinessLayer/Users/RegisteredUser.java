@@ -24,24 +24,22 @@ public class RegisteredUser extends User {
     private Map<Integer, StoreManager> storesIManage;
     private SystemManager systemManager;
     private boolean isLoggedIn;
-    public RegisteredUser(String username, String pass, int id) {
+    public RegisteredUser(String username, String pass, int id) throws Exception {
         super(id);
         this.username = username;
-        this.password = pass;
+        this.password = Password.hashPassword(pass);
         this.id = id;
         this.storesIOwn = new HashMap<>();
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();
         this.isLoggedIn = true;
-        try {
-            this.mailbox = NotificationHub.getInstance().registerToMailService(this);
-        } catch (Exception e) {}
+        this.mailbox = NotificationHub.getInstance().registerToMailService(this);
     }
 
     public RegisteredUser(String username, String pass, int id, boolean isAdmin) throws Exception {
         super(id);
         this.username = username;
-        this.password = pass;
+        this.password = Password.hashPassword(pass);
         this.id = id;
         this.storesIOwn = new HashMap<>();
         this.storesIManage = new HashMap<>();
