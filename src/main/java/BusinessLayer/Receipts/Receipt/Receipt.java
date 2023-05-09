@@ -3,9 +3,7 @@ package BusinessLayer.Receipts.Receipt;
 import BusinessLayer.Receipts.ReceiptItem.ReceiptItem;
 import BusinessLayer.Receipts.ReceiptItem.ReceiptItemCollection;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class Receipt {
 
@@ -57,5 +55,9 @@ public class Receipt {
 
     public int getOwnerId() {
         return ownerId;
+    }
+
+    public Map<Integer, ArrayList<ReceiptItem>> getAllItems(){
+        return collection.getAllItems();
     }
 }
