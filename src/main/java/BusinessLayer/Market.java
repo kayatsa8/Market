@@ -3,7 +3,6 @@ package BusinessLayer;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Message;
-import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.CatalogItem;
@@ -16,6 +15,7 @@ import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,8 +112,15 @@ public class Market {
     }
 
     public void removeUser(int userID, int userToRemove) throws Exception {
+
         if (isAdmin(userID)) {
+            if(!systemManagerMap.containsKey(userID))
+                throw new Exception("systemManagerMap cant find userID");
             SystemManager systemManager = systemManagerMap.get(userID);
+            if (systemManager==null)
+                throw new Exception("systemManager is Null");
+            if (userFacade.getRegisteredUser(userToRemove)==null)
+                throw new Exception("userToRemove is null!");
             systemManager.removeUser(userFacade.getRegisteredUser(userToRemove));
         }
         else
@@ -313,14 +320,33 @@ public class Market {
         return false;
     }
 
-    public void addItemAmount(int storeID, int itemID, int amountToAdd) throws Exception
+
+    //Yonatan added boolean, don't delete
+    public boolean addItemAmount(int storeID, int itemID, int amountToAdd) throws Exception
     {
-        storeFacade.addItemAmount(storeID, itemID, amountToAdd);
+        return storeFacade.addItemAmount(storeID, itemID, amountToAdd);
     }
 
     public List<Receipt> getSellingHistoryOfStoreForManager(int storeId, int userId) throws Exception {
         if(storeFacade.checkIfStoreManager(userId, storeId) || isAdmin(userId))
             return storeFacade.getStore(storeId).getReceiptHandler().getAllReceipts();
         return null;
+    }
+
+    public Map<Integer, Store> getAllStores() {
+        return storeFacade.getAllStores();
+    }
+
+    public Map<Integer, RegisteredUser> getAllRegisteredUsers() {
+        return userFacade.getAllRegisteredUsers();
+    }
+
+    public Map<Integer, Store> getStoresIOwn(int ownerId) throws Exception {
+        ArrayList<Integer> storesIds = userFacade.getStoresIdsIOwn(ownerId);
+        Map<Integer, Store> result = new HashMap<>();
+        for(Integer storeId: storesIds){
+            result.put(storeId, storeFacade.getStore(storeId));
+        }
+        return result;
     }
 }

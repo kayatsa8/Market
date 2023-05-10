@@ -29,6 +29,8 @@ public class SystemManager {
     }
 
     public void removeUser(RegisteredUser userToRemove) throws Exception {
+        if (userToRemove==null)
+            throw new Exception("UserToRemove is NULL!");
         removeStoreAssociations(userToRemove);
         userFacade.removeUser(userToRemove);
     }

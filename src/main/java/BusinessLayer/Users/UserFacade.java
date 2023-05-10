@@ -9,6 +9,7 @@ import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +70,10 @@ public class UserFacade {
         if (userID== Guest.GUEST_USER_ID) {
             throw new Exception("This is the guest user ID, not registered user");
         }
+        if (users==null)
+            throw new Exception("users is Null");
+        if (!users.containsKey(userID))
+            throw new Exception("user "+userID+" not found");
         return users.get(userID);
     }
 
@@ -123,7 +128,7 @@ public class UserFacade {
         RegisteredUser user = getUserByName(username);
         if (user == null)
             throw new Exception("incorrect user name");
-        if (!user.getPassword().equals(password))
+        if (!Password.verifyPassword(password,user.getPassword()))
             throw new Exception("incorrect password");
         if (user.isLoggedIn())
             throw new Exception("User is already logged in");
@@ -277,5 +282,14 @@ public class UserFacade {
 
     public List<Message> watchSentMessages(int userID){
         return users.get(userID).watchSentMessages();
+    }
+
+    public Map<Integer, RegisteredUser> getAllRegisteredUsers() {
+        return  users;
+    }
+
+
+    public ArrayList<Integer> getStoresIdsIOwn(int ownerId) throws Exception {
+        return new ArrayList<>(getRegisteredUser(ownerId).getStoresIOwn().keySet());
     }
 }

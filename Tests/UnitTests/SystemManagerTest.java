@@ -85,16 +85,12 @@ public class SystemManagerTest {
     }
 
     @Test
-    public void removeUser() {
+    public void removeUserShouldPass() {
         int[] storeToDelete = {store1, store2};
         try {
-            market.removeUser(user1, user2);
-            fail("Only admin should be able to remove user");
-        }
-        catch (Exception e) {
+            if (market==null)
+                fail("market is null!");
 
-        }
-        try {
             market.removeUser(adminID, user1);
         }
         catch (Exception e) {
@@ -106,6 +102,18 @@ public class SystemManagerTest {
         assertEquals("Store 3 should not have been permanently closed bc user was not founder", OPEN, sf.getStore(store3).getStoreStatus());
         assertNull("User should not be in userfacade any more", uf.getUser(user1));
         //ensure traces of user are gone in store
+
+    }
+    @Test
+    public void removeUserShouldFail() {
+        int[] storeToDelete = {store1, store2};
+        try {
+            market.removeUser(user1, user2);
+            fail("Only admin should be able to remove user");
+        }
+        catch (Exception e) {
+            assertTrue(e.getMessage() + " caused us to fail to remove user",true);
+        }
 
     }
 }
