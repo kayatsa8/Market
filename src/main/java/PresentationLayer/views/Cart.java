@@ -1,10 +1,11 @@
-package PresentationLayer.views.systemManagement;
+package PresentationLayer.views;
 
 import PresentationLayer.views.MainLayout;
 import ServiceLayer.Objects.ReceiptService;
 import ServiceLayer.Objects.StoreService;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
+import ServiceLayer.UserService;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
@@ -24,17 +25,17 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 import java.util.List;
 import java.util.Map;
 
-@PageTitle("About")
-@Route(value = "admin", layout = MainLayout.class)
-public class SystemManagementView extends VerticalLayout {
+@PageTitle("Cart")
+@Route(value = "cart", layout = MainLayout.class)
+public class Cart extends VerticalLayout {
 
 
     ShoppingService shoppingService;
-    private int systemManagerId = 1000000;
+    UserService userService;
     private Grid<StoreService> grid;
     private Map<Integer, StoreService> stores;
 
-    public SystemManagementView() {
+    public Cart() {
         setSpacing(false);
 
         H2 header = new H2("Stores in Market:");
@@ -115,9 +116,6 @@ public class SystemManagementView extends VerticalLayout {
         ConfirmDialog dialog = addConfirmationDialog(); //pop up screen for confirmation
         closePermButton.addClickListener(e -> dialog.open());
 
-        storeReceiptsButton.addClickListener((ComponentEventListener<ClickEvent<Button>>)
-                buttonClickEvent -> getStoreReceipts());
-
         HorizontalLayout footer = new HorizontalLayout(closePermButton, storeReceiptsButton);
         //footer.getStyle().set("flex-wrap", "wrap");
         setPadding(false);
@@ -135,52 +133,9 @@ public class SystemManagementView extends VerticalLayout {
 
         dialog.setConfirmText("Delete");
         dialog.setConfirmButtonTheme("error primary");
-        dialog.addConfirmListener(event -> closeStorePermanently());  //This is what it does when pressed delete
         return dialog;
     }
 
-
-    private void getStoreReceipts() {
-        int chosenId = getIdOfSelectedRow();
-
-        if(chosenId != -1){
-            Result<List<ReceiptService>> result = shoppingService.getSellingHistoryOfStoreForManager(chosenId, systemManagerId);
-            if(result.isError()){
-                printError("Error in get receipts!");
-            }
-            else{
-                //TODO should print to screen The receipts!
-                System.out.println(result.getValue());
-            }
-        }
-    }
-
-
-    private void closeStorePermanently() {
-        int chosenId = getIdOfSelectedRow();
-        if( chosenId!= -1){
-
-            Result<Boolean> result = shoppingService.closeStorePermanently(systemManagerId, chosenId);
-            if(result.isError()){
-                printError("Error in close store permanently");
-            }
-            else{
-                if(result.getValue()){
-
-                    //TODO check if its working!!
-                    printSuccess("Closed Store");
-
-                    StoreService curr = shoppingService.getStoreInfo(chosenId).getValue();
-                    stores.replace(chosenId, curr);
-                    grid.getDataProvider().refreshItem(curr);
-                }
-                else{
-                    printError("Something went wrong");
-                }
-                System.out.println(result.getValue());
-            }
-        }
-    }
 
 
     private int getIdOfSelectedRow() {

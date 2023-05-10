@@ -50,10 +50,6 @@ public class StoreManagementView extends VerticalLayout {
     public StoreManagementView() {
         setSpacing(false);
 
-        Image img = new Image("images/empty-plant.png", "placeholder plant");
-        img.setWidth("200px");
-        add(img);
-
         H2 header = new H2("Store Owner/Manager View");
         header.addClassNames(Margin.Top.XLARGE, Margin.Bottom.MEDIUM);
         add(header);
