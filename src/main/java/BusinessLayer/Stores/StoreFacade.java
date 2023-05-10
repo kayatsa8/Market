@@ -1,6 +1,8 @@
 package BusinessLayer.Stores;
 
 import BusinessLayer.NotificationSystem.Message;
+import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.LogicalComposites;
+import BusinessLayer.Stores.Policies.Conditions.NumericCompositions.NumericComposites;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -149,27 +151,109 @@ public class StoreFacade {
             return getStore(storeID).closeStorePermanently();
         throw new Exception("Store ID " + storeID + " does not exist");
     }
-    public void addVisibleDiscount(int storeID, int itemID, double percent, Calendar endOfSale) throws Exception
+
+    public void addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale) throws Exception
     {
         Store store = getStore(storeID);
         if (store == null)
             throw new Exception("No store with ID: " + storeID);
-        store.addVisibleDiscount(itemID, percent, endOfSale);
+        store.addVisibleItemsDiscount(itemsIDs, percent, endOfSale);
     }
-    public void addConditionalDiscount(int storeID, Map<Integer, Integer> itemsIDsToAmounts, double percent, Calendar endOfSale) throws Exception
+    public void addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale) throws Exception
     {
         Store store = getStore(storeID);
         if (store == null)
             throw new Exception("No store with ID: " + storeID);
-        store.addConditionalDiscount(itemsIDsToAmounts, percent, endOfSale);
+        store.addVisibleCategoryDiscount(category, percent, endOfSale);
     }
-    public void addHiddenDiscount(int storeID, int itemID, double percent, String coupon, Calendar endOfSale) throws Exception
+    public void addVisibleStoreDiscount(int storeID, double percent, Calendar endOfSale) throws Exception
     {
         Store store = getStore(storeID);
         if (store == null)
             throw new Exception("No store with ID: " + storeID);
-        store.addHiddenDiscount(itemID, percent, coupon, endOfSale);
+        store.addVisibleStoreDiscount(percent, endOfSale);
     }
+    public void addConditionalItemsDiscount(int storeID, double percent, Calendar endOfSale, List<Integer> itemsIDs) throws Exception
+    {
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        store.addConditionalItemsDiscount(percent, endOfSale, itemsIDs);
+    }
+    public void addConditionalCategoryDiscount(int storeID, double percent, Calendar endOfSale, String category) throws Exception
+    {
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        store.addConditionalCategoryDiscount(percent, endOfSale, category);
+    }
+    public void addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale) throws Exception
+    {
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        store.addConditionalStoreDiscount(percent, endOfSale);
+    }
+    public void addHiddenItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, String coupon, Calendar endOfSale) throws Exception
+    {
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        store.addHiddenItemsDiscount(itemsIDs, percent, coupon, endOfSale);
+    }
+    public void addHiddenCategoryDiscount(int storeID, String category, double percent, String coupon, Calendar endOfSale) throws Exception
+    {
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        store.addHiddenCategoryDiscount(category, percent, coupon, endOfSale);
+    }
+    public void addHiddenStoreDiscount(int storeID, double percent, String coupon, Calendar endOfSale) throws Exception
+    {
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        store.addHiddenStoreDiscount(percent, coupon, endOfSale);
+    }
+
+
+    public String addPriceRule(int storeID, int discountID, double minimumPrice) throws Exception
+    {
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        return store.addPriceRule(discountID, minimumPrice);
+    }
+    public String addQuantityRule(int storeID, int discountID, Map<Integer, Integer> itemsAmounts) throws Exception
+    {
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        return store.addQuantityRule(discountID, itemsAmounts);
+    }
+    public String addComposite(int storeID, int discountID, LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs) throws Exception
+    {
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        return store.addComposite(discountID, logicalComposite, logicalComponentsIDs);
+    }
+    public String finishConditionalDiscountBuilding(int storeID, int discountID) throws Exception
+    {
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        return store.finishConditionalDiscountBuilding(discountID);
+    }
+    public void wrapDiscounts(int storeID, List<Integer> discountsIDsToWrap, NumericComposites numericCompositeEnum) throws Exception
+    {
+        Store store = getStore(storeID);
+        if (store == null)
+            throw new Exception("No store with ID: " + storeID);
+        store.wrapDiscounts(discountsIDsToWrap, numericCompositeEnum);
+    }
+
+
 
     public Map<CatalogItem, Boolean> getCatalog() {
         Map<CatalogItem, Boolean> res = new HashMap<>();

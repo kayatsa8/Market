@@ -1,4 +1,5 @@
 /out/
-.idea/
-Market.iml
+/target/
 /frontend/
+/.idea/
+Market.iml

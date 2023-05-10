@@ -15,9 +15,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Cart {
 
     //fields
-
     private final int userID;
     private final BasketsRepository baskets;
+    private List<String> coupons;
+
 
     //methods
     /**
@@ -27,6 +28,7 @@ public class Cart {
     public Cart(int _userID){
         userID = _userID;
         baskets = new BasketsRepository();
+        coupons = new ArrayList<>();
         Log.log.info("A new cart was created for user " + userID);
     }
 
@@ -41,7 +43,7 @@ public class Cart {
 
     public void addItem(Store store, CatalogItem item, int quantity) throws Exception {
         baskets.putIfAbsent(store.getStoreID(), new Basket(store));
-        baskets.get(store.getStoreID()).addItem(item, quantity);
+        baskets.get(store.getStoreID()).addItem(item, quantity, coupons);
 
         Log.log.info("The item " + item.getItemID() + " of store " +
                 store.getStoreID() + " was added (" + quantity + " unites)");
@@ -53,7 +55,7 @@ public class Cart {
             throw new Exception("Cart::removeItemFromCart: the store " + storeID + " was not found!");
         }
 
-        baskets.get(storeID).removeItem(itemID);
+        baskets.get(storeID).removeItem(itemID, coupons);
         Log.log.info("The item " + itemID + " of store " + storeID + " was removed from the cart");
     }
 
@@ -63,7 +65,7 @@ public class Cart {
             throw new Exception("Cart::changeItemQuantityInCart: the store " + storeID + " was not found!");
         }
 
-        baskets.get(storeID).changeItemQuantity(itemID, quantity);
+        baskets.get(storeID).changeItemQuantity(itemID, quantity, coupons);
         Log.log.info("The quantity of item " + itemID + "was changed");
     }
 
@@ -112,7 +114,7 @@ public class Cart {
         HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> receiptData = new HashMap<>();
 
         for(Basket basket : baskets.values()){
-            basket.saveItems();
+            basket.saveItems(coupons);
         }
         Log.log.info("Items of cart " + userID + " are saved");
 
