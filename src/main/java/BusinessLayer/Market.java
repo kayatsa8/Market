@@ -3,7 +3,6 @@ package BusinessLayer;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Message;
-import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.CatalogItem;
@@ -18,10 +17,7 @@ import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
 
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Market {
     private static Market instance;
@@ -323,15 +319,34 @@ public class Market {
         return false;
     }
 
-    public void addItemAmount(int storeID, int itemID, int amountToAdd) throws Exception
+
+    //Yonatan added boolean, don't delete
+    public boolean addItemAmount(int storeID, int itemID, int amountToAdd) throws Exception
     {
-        storeFacade.addItemAmount(storeID, itemID, amountToAdd);
+        return storeFacade.addItemAmount(storeID, itemID, amountToAdd);
     }
 
     public List<Receipt> getSellingHistoryOfStoreForManager(int storeId, int userId) throws Exception {
         if(storeFacade.checkIfStoreManager(userId, storeId) || isAdmin(userId))
             return storeFacade.getStore(storeId).getReceiptHandler().getAllReceipts();
         return null;
+    }
+
+    public Map<Integer, Store> getAllStores() {
+        return storeFacade.getAllStores();
+    }
+
+    public Map<Integer, RegisteredUser> getAllRegisteredUsers() {
+        return userFacade.getAllRegisteredUsers();
+    }
+
+    public Map<Integer, Store> getStoresIOwn(int ownerId) throws Exception {
+        ArrayList<Integer> storesIds = userFacade.getStoresIdsIOwn(ownerId);
+        Map<Integer, Store> result = new HashMap<>();
+        for(Integer storeId: storesIds){
+            result.put(storeId, storeFacade.getStore(storeId));
+        }
+        return result;
     }
 
     public void addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale) throws Exception

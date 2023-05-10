@@ -3,15 +3,27 @@ package BusinessLayer.Stores;
 public class CatalogItem {
     private String itemName;
     private double price;
+
+    public String getStoreName() {
+        return storeName;
+    }
+
+    public int getStoreID() {
+        return storeID;
+    }
+
     private int itemID;
     private String category;
-
-    public CatalogItem(int itemID ,String itemName, double price, String category)
+    private String storeName;
+    private int storeID;
+    public CatalogItem(int itemID ,String itemName, double price, String category, String storeName, int storeID)
     {
         this.itemID = itemID;
         this.itemName = itemName;
         this.category = category;
         this.price = price;
+        this.storeName = storeName;
+        this.storeID = storeID;
     }
 
     public String getItemName()

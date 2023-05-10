@@ -1,12 +1,17 @@
 package PresentationLayer.views;
 
 
+import PresentationLayer.views.clients.ClientView;
 import PresentationLayer.views.storeManagement.StoreManagementView;
 import PresentationLayer.components.appnav.AppNav;
 import PresentationLayer.components.appnav.AppNavItem;
 import PresentationLayer.views.loginAndRegister.LoginAndRegisterView;
+import PresentationLayer.views.systemManagement.SystemManagementView;
+import ServiceLayer.ShoppingService;
+import ServiceLayer.UserService;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
@@ -16,12 +21,16 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
+import static org.vaadin.lineawesome.LineAwesomeIcon.SHOPPING_CART_SOLID;
+
 /**
  * The main view is a top-level placeholder for other views.
  */
 public class MainLayout extends AppLayout {
 
     private H2 viewTitle;
+    public UserService userService;
+    public ShoppingService shoppingService;
 
     public MainLayout() {
         setPrimarySection(Section.DRAWER);
@@ -36,11 +45,14 @@ public class MainLayout extends AppLayout {
         viewTitle = new H2();
         viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
 
-        addToNavbar(true, toggle, viewTitle);
+        Button cartButton = new Button("My Cart", SHOPPING_CART_SOLID.create());
+        cartButton.getStyle().set("margin-left", "auto");
+        cartButton.getStyle().set("padding", "15px");
+        addToNavbar(true, toggle, viewTitle, cartButton);
     }
 
     private void addDrawerContent() {
-        H1 appName = new H1("Shuk");
+        H1 appName = new H1("Shefa Isaschar");
         appName.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
         Header header = new Header(appName);
 
@@ -54,8 +66,10 @@ public class MainLayout extends AppLayout {
         // For documentation, visit https://github.com/vaadin/vcf-nav#readme
         AppNav nav = new AppNav();
 
-        nav.addItem(new AppNavItem("Hello World", LoginAndRegisterView.class, LineAwesomeIcon.GLOBE_SOLID.create()));
-        nav.addItem(new AppNavItem("About", StoreManagementView.class, LineAwesomeIcon.FILE.create()));
+        nav.addItem(new AppNavItem("Explore Market", ClientView.class, SHOPPING_CART_SOLID.create()));
+        nav.addItem(new AppNavItem("Login/Register", LoginAndRegisterView.class, LineAwesomeIcon.PERSON_BOOTH_SOLID.create()));
+        nav.addItem(new AppNavItem("Store Management", StoreManagementView.class, LineAwesomeIcon.TRUCK_LOADING_SOLID.create()));
+        nav.addItem(new AppNavItem("System Management", SystemManagementView.class, LineAwesomeIcon.WRENCH_SOLID.create()));
 
         return nav;
     }

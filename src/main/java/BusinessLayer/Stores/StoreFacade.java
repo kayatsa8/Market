@@ -67,12 +67,15 @@ public class StoreFacade {
             throw new Exception("No store with ID: " + storeID);
         return store.getItemAmount(itemID);
     }
-    public void addItemAmount(int storeID, int itemID, int amountToAdd) throws Exception
+    public boolean addItemAmount(int storeID, int itemID, int amountToAdd) throws Exception
     {
         Store store = getStore(storeID);
         if (store == null)
             throw new Exception("No store with ID: " + storeID);
         store.addItemAmount(itemID, amountToAdd);
+
+        //Yonatan added it, don't delete
+        return true;
     }
     public void addBid(int storeID, int itemID, int userID, double offeredPrice) throws Exception
     {
@@ -369,5 +372,9 @@ public class StoreFacade {
         if (store == null)
             throw new Exception("No store with ID: " + storeID);
         store.setMailboxAsAvailable();
+    }
+
+    public Map<Integer, Store> getAllStores() {
+        return stores;
     }
 }

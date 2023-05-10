@@ -4,6 +4,7 @@ import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.Receipts.Receipt.Receipt;
+import BusinessLayer.Receipts.ReceiptItem.ReceiptItem;
 import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Policies.Conditions.NumericCompositions.NumericComposites;
 import Globals.FilterValue;
@@ -133,6 +134,42 @@ public class ShoppingService {
             return new Result<>(true, e.getMessage());
         }
     }
+
+
+    public Result<Map<Integer, StoreService>> getAllStoresInfo() {
+        try {
+            Map<Integer, Store> allStores = market.getAllStores();
+            Map<Integer, StoreService> storeServices = new HashMap<>();
+            for (Map.Entry<Integer, Store> entry: allStores.entrySet()) {
+                storeServices.put(entry.getKey(), new StoreService(entry.getValue()));
+            }
+            log.info("Stores information received successfully");
+            return new Result<>(false, storeServices);
+        }
+        catch (Exception e){
+            log.info("Stores information not received");
+            return new Result<>(true, e.getMessage());
+        }
+
+    }
+
+    public Result<Map<Integer, StoreService>> getStoresIOwn(int ownerId) {
+        try {
+            Map<Integer, Store> allStores = market.getStoresIOwn(ownerId);
+            Map<Integer, StoreService> storeServices = new HashMap<>();
+            for (Map.Entry<Integer, Store> entry: allStores.entrySet()) {
+                storeServices.put(entry.getKey(), new StoreService(entry.getValue()));
+            }
+            log.info("Stores information received successfully");
+            return new Result<>(false, storeServices);
+        }
+        catch (Exception e){
+            log.info("Stores information not received");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+
     public Result<StoreService> getStoreInfo(int storeID) {
         try {
             Store store = market.getStoreInfo(storeID);
@@ -169,9 +206,16 @@ public class ShoppingService {
     }
 
 
-    public void addItemAmount(int storeId, int itemId, int amount) throws Exception
+    public Result<Boolean> addItemAmount(int storeId, int itemId, int amount)
     {
-        market.addItemAmount(storeId, itemId, amount);
+        try {
+            boolean res = market.addItemAmount(storeId, itemId, amount);
+            //Yonatan added boolean, don't delete
+            return new Result<>(false, res);
+        } catch (Exception e) {
+            log.info("Failed to add amount of item to store");
+            return new Result<>(true, e.getMessage());
+        }
     }
 
 
@@ -375,6 +419,20 @@ public class ShoppingService {
     }
 
     public Result<List<ReceiptService>> getSellingHistoryOfStoreForManager(int storeId, int userId) {
+//
+//
+//        //for testing
+//        List<ReceiptService> receiptServices = new ArrayList<>();
+//        Receipt receipt1 = new Receipt(10, 1, Calendar.getInstance());
+//        Receipt receipt2 = new Receipt(11, 2, Calendar.getInstance());
+//        List<ReceiptItem> items = new ArrayList<>();
+//        items.add(new ReceiptItem(1, "name", 20, 12, 13));
+//        items.add(new ReceiptItem(2, "name2", 30, 12, 13));
+//        receipt1.addItems(1, items);
+//        receipt1.addItems(100002, items);
+//        receiptServices.add(new ReceiptService(receipt1));
+//        receiptServices.add(new ReceiptService(receipt2));
+//        return new Result<>(false, receiptServices);
 
         try {
             List<Receipt> result = market.getSellingHistoryOfStoreForManager(storeId, userId);
