@@ -58,7 +58,7 @@ public class Conditional extends DiscountType {
             LogicalComponent logicalComponent = getLogicalComponentByIDFromInProgressList(logicalComponentID);
             if (logicalComponent == null)
             {
-                throw new Exception("Can't find rule with id: " + logicalComponentID + " in dicount of id: " + getDiscountID());
+                throw new Exception("Can't find logical component with id: " + logicalComponentID + " in discount of id: " + getDiscountID());
             }
             logicalComponents.add(logicalComponent);
         }
@@ -108,7 +108,7 @@ public class Conditional extends DiscountType {
     }
     private void removeLogicalComponentsFromInProgressList(List<Integer> logicalComponentsIDs) {
         List<Integer> indicesToRemove = new ArrayList<>();
-        for (int i=0; i<inProgressList.size(); i++)
+        for (int i = 0; i < inProgressList.size(); i++)
         {
             LogicalComponent logicalComponent = inProgressList.get(i);
             for (Integer logicalComponentID : logicalComponentsIDs)

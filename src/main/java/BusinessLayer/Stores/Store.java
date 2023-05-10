@@ -330,12 +330,12 @@ public class Store {
     {
         if (checkIfItemsInStock(basketItems))
         {
-            if (checkIfBasketPriceChanged(basketItems, coupons))
+            /*if (checkIfBasketPriceChanged(basketItems, coupons))
             {
                 updateBasket(basketItems, coupons);
                 log.warning("Trying to buy a basket in store: " + storeName + ", but item price or discount changed/removed/added");
                 throw new Exception("One or more of the items or discounts in store : " + storeName + " that affect the basket have been changed");
-            }
+            }*/
             int itemID;
             int itemAmountToSave;
             for (CartItemInfo cartItemInfo : basketItems)
@@ -362,7 +362,7 @@ public class Store {
             copyBasketItems.add(new CartItemInfo(item));
         }
         updateBasket(copyBasketItems, coupons);
-        for (int i=0; i<basketItems.size(); i++)
+        for (int i = 0; i<basketItems.size(); i++)
         {
             CartItemInfo item = basketItems.get(i);
             CartItemInfo copyItem = copyBasketItems.get(i);
@@ -393,25 +393,34 @@ public class Store {
     public void updateBasket(List<CartItemInfo> basketItems, List<String> coupons) //update the items of the basket after any change of the basket
     {
         updateBasketPrices(basketItems);
+        if (discounts.size() == 0 || basketItems.size() == 0)
+        {
+            for (CartItemInfo item : basketItems) {
+                item.setPercent(0);
+            }
+            return;
+        }
         List<List<CartItemInfo>> tempBaskets = new ArrayList<>();
         for (Discount discount : discounts.values()) //get separate basket for each discount
         {
             tempBaskets.add(discount.updateBasket(basketItems, coupons));
         }
-        for(int i=0; i<basketItems.size(); i++) //set the original basket to the first temp basket
+        for(int i = 0; i<basketItems.size(); i++) //set the original basket to the first temp basket
         {
-            basketItems.get(i).setPercent(tempBaskets.get(1).get(i).getPercent());
+            basketItems.get(i).setPercent(tempBaskets.get(0).get(i).getPercent());
         }
-        for(int i=1; i<tempBaskets.size(); i++) //skipping the first temp basket and apply all discount together in the original basket
+        if (tempBaskets.size()>1)
         {
-            List<CartItemInfo> tempBasket = tempBaskets.get(i);
-            for(int j=0; j<basketItems.size(); j++)
+            for (int i = 1; i < tempBaskets.size(); i++) //skipping the first temp basket and apply all discount together in the original basket
             {
-                double originalItemPercent = basketItems.get(j).getPercent();
-                double tempItemPercent = tempBasket.get(j).getPercent();
-                basketItems.get(j).setPercent(tempItemPercent * (1 - originalItemPercent) + originalItemPercent);
-                /// 40% discount + 30% discount = 58% discount (30% from (100-40=60) is 18, plus 40% = 58%)
-                ///(because 0.3*(1-0.4)+0.4 = 0.58 => 58%)
+                List<CartItemInfo> tempBasket = tempBaskets.get(i);
+                for (int j = 0; j < basketItems.size(); j++) {
+                    double originalItemPercent = basketItems.get(j).getPercent();
+                    double tempItemPercent = tempBasket.get(j).getPercent();
+                    basketItems.get(j).setPercent(tempItemPercent * (1 - originalItemPercent) + originalItemPercent);
+                    /// 40% discount + 30% discount = 58% discount (30% from (100-40=60) is 18, plus 40% = 58%)
+                    ///(because 0.3*(1-0.4)+0.4 = 0.58 => 58%)
+                }
             }
         }
     }

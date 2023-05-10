@@ -22,6 +22,16 @@ public abstract class NumericComposite extends Discount
     public List<CartItemInfo> updateBasket(List<CartItemInfo> basketItems, List<String> coupons)
     {
         List<List<CartItemInfo>> tempBaskets = new ArrayList<>();
+        if (getDiscounts().size() == 0)
+        {
+            List<CartItemInfo> emptyBasket = new ArrayList<>();
+            for (CartItemInfo item : basketItems)
+            {
+                item.setPercent(0);
+                emptyBasket.add(new CartItemInfo(item));
+            }
+            return emptyBasket;
+        }
         for (Discount numericComponent: getDiscounts())
         {
             tempBaskets.add(numericComponent.updateBasket(basketItems, coupons));

@@ -16,15 +16,18 @@ public class Add extends NumericComposite
     protected List<CartItemInfo> updateBasketByNumericComposite(List<List<CartItemInfo>> tempBaskets)
     {
         List<CartItemInfo> result = tempBaskets.get(0);
-        for(int j = 1; j < tempBaskets.size(); j++)
+        if (tempBaskets.size() > 1)
         {
-            List<CartItemInfo> items = tempBaskets.get(j);
-            for (int i=0; i<result.size(); i++)
+            for (int j = 1; j < tempBaskets.size(); j++)
             {
-                CartItemInfo currentItem = result.get(i);
-                double currentPercent = currentItem.getPercent();
-                double addPercent = items.get(i).getPercent();
-                currentItem.setPercent(currentPercent + addPercent); //This line is the main logic of the class
+                List<CartItemInfo> items = tempBaskets.get(j);
+                for (int i = 0; i < result.size(); i++)
+                {
+                    CartItemInfo currentItem = result.get(i);
+                    double currentPercent = currentItem.getPercent();
+                    double addPercent = items.get(i).getPercent();
+                    currentItem.setPercent(currentPercent + addPercent); //This line is the main logic of the class
+                }
             }
         }
         return result;
