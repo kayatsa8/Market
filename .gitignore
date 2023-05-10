@@ -1,4 +1,8 @@
 /out/
+/target/
+/frontend/
+/.idea/
+Market.iml
 /target/classes/PresentationLayer/Application.class
 /target/classes/PresentationLayer/components/appnav/AppNav.class
 /target/classes/PresentationLayer/components/appnav/AppNavItem.class

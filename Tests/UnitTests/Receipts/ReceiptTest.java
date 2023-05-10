@@ -25,9 +25,9 @@ public class ReceiptTest {
     public void setUp(){
         receipt = new Receipt(1, 1000, Calendar.getInstance());
         receiptId = receipt.getId();
-        item1FromStore1 = new ReceiptItem(1, "item1", 20, 100);
-        item2FromStore1 = new ReceiptItem(2, "item12", 20, 100);
-        item2FromStore2 = new ReceiptItem(2, "item2", 20, 1000);
+        item1FromStore1 = new ReceiptItem(1, "item1", 20, 100, 15);
+        item2FromStore1 = new ReceiptItem(2, "item12", 20, 100, 15);
+        item2FromStore2 = new ReceiptItem(2, "item2", 20, 1000, 900);
 
         ArrayList<ReceiptItem> items = new ArrayList<>();
         items.add(item2FromStore1);

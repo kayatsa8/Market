@@ -2,14 +2,15 @@ package UnitTests.Receipts;
 
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.Receipts.ReceiptHandler;
+import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
-import BusinessLayer.Stores.Category;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -22,21 +23,29 @@ public class ReceiptHandlerTest {
     private int store2ID = 2;
     private int userId = 1;
     private int receipt1Id = 1;
-    private HashMap<Integer,HashMap<CatalogItem, Integer>> items;
+    private Map<Integer, Map<CatalogItem, CartItemInfo>> items;
     @Before
     public void setUp() throws Exception {
         handler = new ReceiptHandler();
 
         items = new HashMap<>();
-        HashMap<CatalogItem, Integer> itemsAndAmounts1 = new HashMap<>();
-        itemsAndAmounts1.put(new CatalogItem(11, "item11", 20, Category.Books), 20);
-        itemsAndAmounts1.put(new CatalogItem(12, "item12", 20, Category.Books), 20);
-        HashMap<CatalogItem, Integer> itemsAndAmounts2 = new HashMap<>();
-        itemsAndAmounts2.put(new CatalogItem(21, "item21", 20, Category.Books), 20);
-        itemsAndAmounts2.put(new CatalogItem(22, "item22", 20, Category.Books), 20);
+        HashMap<CatalogItem, CartItemInfo> itemsAndAmounts1 = new HashMap<>();
+        CartItemInfo item1 = new CartItemInfo(11, 20, 10, "Books", "item11");
+        CartItemInfo item2 = new CartItemInfo(12, 20, 10, "Books", "item12");
+        CartItemInfo item3 = new CartItemInfo(21, 20, 10, "Books", "item21");
+        CartItemInfo item4 = new CartItemInfo(22, 20, 10, "Books", "item22");
+        item1.setPercent(0.2);
+        item2.setPercent(0.2);
+        item3.setPercent(0.2);
+        item4.setPercent(0.2);
+
+        itemsAndAmounts1.put(new CatalogItem(11, "item11", 20, "Books"), item1);
+        itemsAndAmounts1.put(new CatalogItem(12, "item12", 20, "Books"), item2);
+        HashMap<CatalogItem, CartItemInfo> itemsAndAmounts2 = new HashMap<>();
+        itemsAndAmounts2.put(new CatalogItem(21, "item21", 20, "Books"), item3);
+        itemsAndAmounts2.put(new CatalogItem(22, "item22", 20, "Books"), item4);
         items.put(store1ID, itemsAndAmounts1);
         items.put(store2ID, itemsAndAmounts2);
-
     }
 
     @After
