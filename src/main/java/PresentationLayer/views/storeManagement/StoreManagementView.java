@@ -1,5 +1,6 @@
 package PresentationLayer.views.storeManagement;
 
+import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Policies.Conditions.NumericCompositions.NumericComposites;
 import PresentationLayer.views.MainLayout;
 import ServiceLayer.Objects.*;
@@ -27,6 +28,7 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
@@ -357,6 +359,38 @@ public class StoreManagementView extends VerticalLayout {
         }
     }
 
+
+    private List<Integer> getMultiIdsOfSelectedItemsInItemsDiscount(Grid<CatalogItemService> catalogItemGrid) {
+        List<CatalogItemService> itemsIds = catalogItemGrid.getSelectedItems().stream().toList();
+        if(itemsIds.size() == 0){
+            printError("You need to choose at least 1 item!");
+            return null;
+        }
+        else{
+            List<Integer> ids = new ArrayList<>();
+            for(CatalogItemService catalogItemService: itemsIds){
+                ids.add(catalogItemService.getItemID());
+            }
+            return ids;
+        }
+    }
+
+
+    private List<Integer> getMultiIdsOfSelectedRules(Grid<RuleService> rulesGrid) {
+        List<RuleService> rules = rulesGrid.getSelectedItems().stream().toList();
+        if(rules.size() == 0){
+            printError("You need to choose at least 1 Rule!");
+            return null;
+        }
+        else{
+            List<Integer> ids = new ArrayList<>();
+            for(RuleService ruleService: rules){
+                ids.add(ruleService.getId());
+            }
+            return ids;
+        }
+    }
+
     private void addItemDialog(Grid<CatalogItemService> itemsGrid) {
         Dialog dialog = new Dialog();
         dialog.setDraggable(true);
@@ -638,7 +672,6 @@ public class StoreManagementView extends VerticalLayout {
 
 
         Button createButton = new Button("Create New Discount", e -> createNewDiscountDialog(storeId, discountsGrid));  //for testing
-
         dialog.getFooter().add(createButton);                                                //for testing
         add(dialog);                                                                         //for testing
         dialog.open();                                                                       //for testing
@@ -675,8 +708,6 @@ public class StoreManagementView extends VerticalLayout {
 
 
     private void createNewDiscountDialog(int storeId, Grid<DiscountService> discountsGrid) {
-        //Open new dialog of new Discount (?with combo Boxes?)
-
         Dialog dialog = new Dialog();
         dialog.setDraggable(true);
         dialog.setResizable(true);
@@ -687,11 +718,22 @@ public class StoreManagementView extends VerticalLayout {
 
         //calendar percent buttons and fields!!
         DatePicker datePicker = setDateButton();
-        NumberField percentField = new NumberField("Enter Percentage Of Discount");
+        NumberField percentField = new NumberField("Percentage Of Discount");
         percentField.setMin(0);
+        percentField.setValue((double) 0);
+
 
         Div divItemsDiscounts = new Div();
-        //TODO Enter Map of IDs
+        //showItems
+        Div itemsDiv = new Div();
+        Grid<CatalogItemService> itemsGrid = new Grid<>();
+        itemsDiv.add(new Paragraph("Select all the items you want for a discount"));
+        itemsDiv.add(itemsGrid);
+        itemsDiv.setHeight("200");
+
+        setItemsGridForDiscounts(itemsGrid, storeId);
+
+        divItemsDiscounts.add(itemsDiv);
 
         Div divCategoryDiscount = new Div();
         TextField categoryField = new TextField("Category");
@@ -705,17 +747,30 @@ public class StoreManagementView extends VerticalLayout {
         tabSheet.add("Store Discount", divStoreDiscount);
 
         Button visible = new Button("Create Visible", e-> {
-            visibleDiscountTypeAction(convertToCalender(datePicker.getValue()), tabSheet.getSelectedIndex(), categoryField, storeId, percentField.getValue());
+            List<Integer> itemsIds = new ArrayList<>();
+            if(tabSheet.getSelectedIndex() == 0) {
+                itemsIds = getMultiIdsOfSelectedItemsInItemsDiscount(itemsGrid);
+            }
+            visibleDiscountTypeAction(convertToCalender(datePicker.getValue()), tabSheet.getSelectedIndex(), categoryField, storeId, percentField.getValue(), discountsGrid, itemsIds);
+            dialog.close();
             refreshDiscountsFromBusiness(storeId, discountsGrid);
         });
         Button conditional = new Button("Create Conditional", e-> {
-            conditionalDiscountTypeAction(convertToCalender(datePicker.getValue()), tabSheet.getSelectedIndex(), categoryField, storeId, percentField.getValue());
-            //TODO go to new Screen to create the rules!! createNewRules()
+            List<Integer> itemsIds = new ArrayList<>();
+            if(tabSheet.getSelectedIndex() == 0) {
+                itemsIds = getMultiIdsOfSelectedItemsInItemsDiscount(itemsGrid);
+            }
+            conditionalDiscountTypeAction(convertToCalender(datePicker.getValue()), tabSheet.getSelectedIndex(), categoryField, storeId, percentField.getValue(), discountsGrid, itemsIds);
+            dialog.close();
             refreshDiscountsFromBusiness(storeId, discountsGrid);
         });
         Button hidden = new Button("Create Hidden", e-> {
-            String coupon = "" ;     //TODO getCouponCode(); //create a new dialog to get the coupon
-            hiddenDiscountTypeAction(coupon, convertToCalender(datePicker.getValue()), tabSheet.getSelectedIndex(), categoryField, storeId, percentField.getValue());
+            List<Integer> itemsIds = new ArrayList<>();
+            if(tabSheet.getSelectedIndex() == 0) {
+                itemsIds = getMultiIdsOfSelectedItemsInItemsDiscount(itemsGrid);
+            }
+            getCouponDialog(convertToCalender(datePicker.getValue()), tabSheet.getSelectedIndex(), categoryField, storeId, percentField.getValue(), discountsGrid, itemsIds) ;
+            dialog.close();
             refreshDiscountsFromBusiness(storeId, discountsGrid);
         });
         Button cancelButton = new Button("exit", e -> dialog.close());
@@ -727,6 +782,43 @@ public class StoreManagementView extends VerticalLayout {
         add(dialog);
         dialog.open();
 
+    }
+
+    private void setItemsGridForDiscounts(Grid<CatalogItemService> itemsGrid, int storeId) {
+        itemsGrid.setItems(storesIOwn.get(storeId).getItems());
+        itemsGrid.setSelectionMode(Grid.SelectionMode.MULTI);
+        itemsGrid.addColumn(CatalogItemService:: getItemID).setHeader("ID").setSortable(true);
+        itemsGrid.addColumn(CatalogItemService:: getItemName).setHeader("Name").setSortable(true);
+        itemsGrid.addColumn(CatalogItemService:: getCategory).setHeader("Category").setSortable(true);
+        //itemsGrid.addColumn(CatalogItemService:: getAmount).setHeader("Amount").setSortable(true);
+        itemsGrid.addColumn(CatalogItemService:: getPrice).setHeader("price").setSortable(true);
+    }
+
+    private void getCouponDialog(Calendar calendar, int selectedIndex, TextField categoryField, int storeId, Double percent, Grid<DiscountService> discountsGrid, List<Integer> itemsIds) {
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Discounts");
+        dialog.setWidth("1000px");
+
+        TextField couponField = new TextField("Enter Coupon here");
+        couponField.setMinLength(0);
+
+        Button Addbutton = new Button("Add Coupon",e -> {
+            if(couponField.getValue().length() == 0){
+                printError("Enter a coupon please");
+            }
+            else{
+                hiddenDiscountTypeAction(couponField.getValue(), calendar,selectedIndex, categoryField, storeId, percent, discountsGrid, itemsIds);
+                dialog.close();
+            }
+        });
+        Button cancelButton = new Button("exit", e -> dialog.close());
+
+        dialog.add(couponField);
+        dialog.getFooter().add(Addbutton, cancelButton);
+        add(dialog);
+        dialog.open();
     }
 
     private Calendar convertToCalender(LocalDate localDate) {
@@ -745,6 +837,7 @@ public class StoreManagementView extends VerticalLayout {
         Locale locale = new Locale("en", "US");
         DatePicker datePicker = new DatePicker("Select a date:");
         datePicker.setLocale(locale);
+        datePicker.setValue(LocalDate.now().plusDays(7));
         return datePicker;
     }
 
@@ -752,7 +845,7 @@ public class StoreManagementView extends VerticalLayout {
     final int CATEGORY = 1;
     final int STORE = 2;
 
-    private void hiddenDiscountTypeAction(String coupon, Calendar calendar, int selectedIndex, TextField categoryField, int storeId, Double percent) {
+    private void hiddenDiscountTypeAction(String coupon, Calendar calendar, int selectedIndex, TextField categoryField, int storeId, Double percent, Grid<DiscountService> discountsGrid, List<Integer> itemsIds) {
         if(calendar == null)
             printError("Enter Date please!");
         else if(percent == null)
@@ -762,19 +855,19 @@ public class StoreManagementView extends VerticalLayout {
         else {
             Result<Boolean> result = null;
             switch (selectedIndex) {
-                case ITEMS:
-                    //need to send to service the Map from the input
-                    //Result<Boolean> result = shoppingService.addHiddenItemsDiscount()
-                    break;
-                case CATEGORY:
-                    if(categoryField.getValue() != null){
+                case ITEMS -> {
+                    if(itemsIds.size() == 0)
+                        printError("Enter Ids please!");
+                    else
+                        result = shoppingService.addHiddenItemsDiscount(storeId, itemsIds, percent, coupon, calendar);
+                }
+                case CATEGORY -> {
+                    if (categoryField.getValue() != null) {
                         String category = categoryField.getValue();
                         result = shoppingService.addHiddenCategoryDiscount(storeId, category, percent, coupon, calendar);
                     }
-                    break;
-                case STORE:
-                    result = shoppingService.addHiddenStoreDiscount(storeId, percent, coupon, calendar);
-                    break;
+                }
+                case STORE -> result = shoppingService.addHiddenStoreDiscount(storeId, percent, coupon, calendar);
             }
             if(result == null)
                 printError("Something went wrong");
@@ -786,11 +879,55 @@ public class StoreManagementView extends VerticalLayout {
             }
             else{
                 printSuccess("Added discount successfully");
+                refreshDiscountsFromBusiness(storeId, discountsGrid);
             }
         }
     }
 
-    private void conditionalDiscountTypeAction(Calendar calendar, int selectedIndex, TextField categoryField, int storeId, Double percent) {
+    private void conditionalDiscountTypeAction(Calendar calendar, int selectedIndex, TextField categoryField, int storeId, Double percent, Grid<DiscountService> discountsGrid, List<Integer> itemsIds) {
+        if(calendar == null)
+            printError("Enter Date please!");
+        else if(percent == null)
+            printError("Enter percent please!");
+        else if(storeId == -1)
+            printError("Something went wrong");
+        else {
+            int discountId = 0;  //TODO get the ID Amir created in Business, should return in all the function below Result<Integer>
+            Result<Boolean> result = null;
+            switch (selectedIndex) {
+                case ITEMS ->{
+                    if(itemsIds.size() == 0)
+                        printError("Enter Ids please!");
+                    else
+                        result = shoppingService.addConditionalItemsDiscount(storeId, percent, calendar, itemsIds);
+                }
+                case CATEGORY -> {
+                    if (categoryField.getValue() != null) {
+                        String category = categoryField.getValue();
+                        result = shoppingService.addConditionalCategoryDiscount(storeId, percent, calendar, category);
+                    }
+                }
+                case STORE -> result = shoppingService.addConditionalStoreDiscount(storeId, percent, calendar);
+            }
+            if(result == null)
+                printError("Something went wrong");
+            else if(result.isError()){
+                printError(result.getMessage());
+            }
+            else if(!result.getValue()){
+                printError("Error in adding discount");
+            }
+            else{
+                printSuccess("Added discount successfully");
+                //uncomment this
+                //refreshDiscountsFromBusiness(storeId, discountsGrid);
+                createBewRulesDialog(discountsGrid, discountId);
+            }
+        }
+    }
+
+
+    private void visibleDiscountTypeAction(Calendar calendar, int selectedIndex, TextField categoryField, int storeId, Double percent, Grid<DiscountService> discountsGrid, List<Integer> itemsIds) {
         if(calendar == null)
             printError("Enter Date please!");
         else if(percent == null)
@@ -800,19 +937,19 @@ public class StoreManagementView extends VerticalLayout {
         else {
             Result<Boolean> result = null;
             switch (selectedIndex) {
-                case ITEMS:
-                    //need to send to service the Map from the input
-                    //Result<Boolean> result = shoppingService.addConditionalItemsDiscount()
-                    break;
-                case CATEGORY:
-                    //if(categoryField.getValue() != null){
-                    //    String category = categoryField.getValue();
-                    //Result<Boolean> result = shoppingService.addConditionalCategoryDiscount()
-                    //}
-                    break;
-                case STORE:
-                    //Result<Boolean> result = shoppingService.addConditionalStoreDiscount()
-                    break;
+                case ITEMS -> {
+                    if(itemsIds.size() == 0)
+                        printError("Enter Ids please!");
+                    else
+                        result = shoppingService.addVisibleItemsDiscount(storeId, itemsIds, percent, calendar);
+                }
+                case CATEGORY -> {
+                    if (categoryField.getValue() != null) {
+                        String category = categoryField.getValue();
+                        result = shoppingService.addVisibleCategoryDiscount(storeId, category, percent, calendar);
+                    }
+                }
+                case STORE -> result = shoppingService.addVisibleStoreDiscount(storeId, percent, calendar);
             }
             if(result == null)
                 printError("Something went wrong");
@@ -824,50 +961,10 @@ public class StoreManagementView extends VerticalLayout {
             }
             else{
                 printSuccess("Added discount successfully");
+                refreshDiscountsFromBusiness(storeId, discountsGrid);
             }
         }
     }
-
-    private void visibleDiscountTypeAction(Calendar calendar, int selectedIndex, TextField categoryField, int storeId, Double percent) {
-        if(calendar == null)
-            printError("Enter Date please!");
-        else if(percent == null)
-            printError("Enter percent please!");
-        else if(storeId == -1)
-            printError("Something went wrong");
-        else {
-            Result<Boolean> result = null;
-            switch (selectedIndex) {
-                case ITEMS:
-                    //need to send to service the Map from the input
-                    //Result<Boolean> result = shoppingService.addVisibleItemsDiscount();
-                    break;
-                case CATEGORY:
-                    //if(categoryField.getValue() != null){
-                    //    String category = categoryField.getValue();
-                    //Result<Boolean> result = shoppingService.addVisibleCategoryDiscount(storeId, category, )
-                    //}
-                    break;
-                case STORE:
-                    //Result<Boolean> result = shoppingService.addVisibleStoreDiscount(storeId, );
-                    break;
-            }
-            if(result == null)
-                printError("Something went wrong");
-            else if(result.isError()){
-                printError(result.getMessage());
-            }
-            else if(!result.getValue()){
-                printError("Error in adding discount");
-            }
-            else{
-                printSuccess("Added discount successfully");
-            }
-        }
-    }
-
-
-
 
 
     private void viewReceiptItemsAction(Grid<ReceiptService> receiptsGrid, List<ReceiptService> receipts, int receiptId) {
@@ -971,7 +1068,7 @@ public class StoreManagementView extends VerticalLayout {
 
 
     private void addItemToStoreAction(int storeId, String itemName, Double price, String category, Grid<CatalogItemService> itemsGrid) {
-        if(storeId != -1 || price == null){
+        if(storeId != -1 && price != null){
             Result<CatalogItemService> result = shoppingService.addItemToStore(storeId, itemName, price, category);
 
             if(result.isError()){
@@ -1051,6 +1148,244 @@ public class StoreManagementView extends VerticalLayout {
             }
         }
 
+    }
+
+
+
+
+    private void createBewRulesDialog(Grid<DiscountService> discountsGrid2, int discountId) {
+        Grid<RuleService> rulesGrid = new Grid<>();
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Rules");
+        Div div = new Div();
+        div.add(rulesGrid);
+        dialog.add(div);
+        dialog.setWidth("1000px");
+
+        int storeId = getStoreIdOfSelectedRow(storesGrid);
+
+        rulesGrid.setItems(new ArrayList<>());
+        rulesGrid.setSelectionMode(Grid.SelectionMode.MULTI);
+        rulesGrid.addColumn(RuleService::getInfo).setHeader("Rule");
+
+
+        Button priceRuleButton = new Button("new Price Rule", e-> newPriceRuleDialog(discountId, storeId, rulesGrid));
+        Button quantityRuleButton = new Button("new Quantity Rule", e-> newQuantityRuleDialog(discountId, storeId, rulesGrid));
+        Button andButton = new Button("And", e-> ruleCompositeAction(discountId, rulesGrid, storeId, LogicalComposites.AND));  //in the function get the ids selected
+        Button orButton = new Button("Or", e-> ruleCompositeAction(discountId, rulesGrid, storeId, LogicalComposites.OR));     //in the function get the ids selected
+        Button finishButton = new Button("Finish", e-> {
+            boolean errorOccurred = finishCompositeAction(discountId, storeId);
+            if(!errorOccurred)
+                dialog.close();
+        });
+
+        dialog.getFooter().add(priceRuleButton, quantityRuleButton, andButton, orButton, finishButton);
+        add(dialog);
+        dialog.open();
+
+    }
+
+    private boolean finishCompositeAction(int discountId, int storeId) {
+        boolean errorOccurred = false;
+        if(storeId != -1){
+            Result<String> result = shoppingService.finishConditionalDiscountBuilding(storeId, discountId);
+            if(result.isError()){
+                printError(result.getMessage());
+                errorOccurred = true;
+            }
+            else{
+                if(result.getMessage().contains("Percent is")){
+                    printSuccess("Rule Finished!");
+                }
+                else{
+                    printError("Something went wrong");
+                    errorOccurred = true;
+                }
+            }
+        }
+        return errorOccurred;
+    }
+
+    private void ruleCompositeAction(int discountId, Grid<RuleService> rulesGrid, int storeId, LogicalComposites logicalComposite) {
+        List<Integer> ids = getMultiIdsOfSelectedRules(rulesGrid);
+        if( ids == null || ids.size() < 2){
+            printError("You didn't choose enough Rules");
+        }
+        else if(storeId != -1){
+            Result<RuleService> result = shoppingService.addComposite(storeId,discountId, logicalComposite, ids);
+            if(result.isError()){
+                printError(result.getMessage());
+            }
+            else{
+                if(result.getValue() != null){
+                    printSuccess("Rule added Successfully");
+                    changeRulesListInScreen(result.getValue(), ids, rulesGrid);
+                }
+                else{
+                    printError("Something went wrong");
+                }
+            }
+        }
+    }
+
+
+    private void newPriceRuleDialog(int discountId, int storeId, Grid<RuleService> rulesGrid) {
+
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("New Price Rule");
+
+        NumberField minPriceField = new NumberField("Minimum Price");
+        minPriceField.setMin(0);
+
+        VerticalLayout dialogLayout = new VerticalLayout(minPriceField);
+
+        dialogLayout.setPadding(false);
+        dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+        dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
+
+        dialog.add(dialogLayout);
+
+        Button createButton = new Button("Create", e -> {
+
+            RuleService newRule = addPriceRuleAction(minPriceField.getValue(), discountId, storeId);
+            changeRulesListInScreen(newRule, new ArrayList<>(), rulesGrid);
+            if(newRule != null)
+                dialog.close();
+        });
+
+        createButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        Button cancelButton = new Button("Cancel", e -> dialog.close());
+        dialog.getFooter().add(cancelButton, createButton);
+
+        add(dialog);
+        dialog.open();
+
+    }
+
+    private RuleService addPriceRuleAction(Double price, int discountId, int storeId) {
+        RuleService resultRule = null;
+        if(storeId != -1 && price != null){
+            Result<RuleService> result = shoppingService.addPriceRule(storeId, discountId, price);
+
+            if(result.isError()){
+                printError(result.getMessage());
+            }
+            else{
+                if(result.getValue() != null){
+                    printSuccess("Price Rule added Successfully");
+                    resultRule = result.getValue();
+                }
+                else{
+                    printError("Something went wrong");
+                }
+            }
+        }
+        return resultRule;
+    }
+
+    private void newQuantityRuleDialog(int discountId, int storeId, Grid<RuleService> rulesGrid) {
+
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("New Quantity Rule");
+        dialog.setWidth("800px");
+        //showItems
+        Div itemsDiv = new Div();
+        Grid<CatalogItemService> itemsGrid = new Grid<>();
+        itemsDiv.add(new Paragraph("Items of Store"));
+        itemsDiv.add(itemsGrid);
+        setItemsGridForDiscounts(itemsGrid, storeId);
+        itemsGrid.setSelectionMode(Grid.SelectionMode.NONE);
+
+        Map<Integer, Integer> idsToAmounts = new HashMap<>();
+        Paragraph paragraph = new Paragraph("Map of Items: ");
+        TextField textField = new TextField("ID, Amount");
+        Button addButton = getMapFromUser(idsToAmounts, textField, paragraph);
+
+        dialog.add(itemsDiv, paragraph, textField, addButton);
+
+        Button createButton = new Button("Create", e -> {
+
+            RuleService newRule = addQuantityRuleAction(idsToAmounts, storeId, discountId);
+            changeRulesListInScreen(newRule, new ArrayList<>(), rulesGrid);
+            if(newRule != null)
+                dialog.close();
+        });
+
+        createButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        Button cancelButton = new Button("Cancel", e -> dialog.close());
+        dialog.getFooter().add(cancelButton, createButton);
+
+        add(dialog);
+        dialog.open();
+    }
+
+    private RuleService addQuantityRuleAction(Map<Integer, Integer> idsToAmounts, int storeId, int discountId) {
+        RuleService resultRule = null;
+        if( idsToAmounts.size() == 0){
+            printError("You didn't added nothing to the list");
+        }
+        else if(storeId != -1){
+            Result<RuleService> result = shoppingService.addQuantityRule(storeId, discountId, idsToAmounts);
+            if(result.isError()){
+                printError(result.getMessage());
+            }
+            else{
+                if(result.getValue() != null){
+                    printSuccess("Quantity Rule added Successfully");
+                    resultRule = result.getValue();
+                }
+                else{
+                    printError("Something went wrong");
+                }
+            }
+        }
+        return resultRule;
+    }
+
+    private Button getMapFromUser(Map<Integer, Integer> idsToAmounts, TextField textField, Paragraph paragraph) {
+        textField.setHelperText("Enter an ID a ',' and amount");
+        return new Button("Add Id,Amount", e->{
+
+            if(textField.getValue() == null){
+                printError("Enter an ID and Amount please");
+            }
+            else{
+                String res = textField.getValue().replace(" ","");
+                int secondIndex = res.indexOf(',', res.indexOf(',') + 1);
+                if(!res.contains(",")){
+                    printError("You didn't enter a ','");
+                }
+                else if(secondIndex != -1){
+                    printError("You entered too many values");
+                }
+                else {
+                    String[] resSplit = res.split(",");
+                    try{
+                        idsToAmounts.put(Integer.parseInt(resSplit[0]), Integer.parseInt(resSplit[1]));
+                        paragraph.add(resSplit[0] + ":" + resSplit[1]+ "   ");
+                    }catch (Exception e1){
+                        printError("You didn't enter number!");
+                    }
+                }
+            }
+        });
+    }
+
+    private void changeRulesListInScreen(RuleService newRule, List<Integer> toRemoveIds, Grid<RuleService> rulesGrid) {
+        if(newRule != null){
+            ListDataProvider dataProvider = (ListDataProvider) rulesGrid.getDataProvider();
+            List<RuleService> rules = new ArrayList<>(dataProvider.getItems());
+            rules.add(newRule);
+            rules.removeIf(ruleService -> toRemoveIds.contains(ruleService.getId()));
+            rulesGrid.setItems(rules);
+            rulesGrid.getDataProvider().refreshAll();
+        }
     }
 
 
