@@ -71,6 +71,7 @@ public class Market {
     }
 
     public boolean logout(int userID) throws Exception {
+
         return userFacade.logout(userID);
     }
 

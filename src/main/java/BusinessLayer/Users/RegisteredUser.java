@@ -1,6 +1,5 @@
 package BusinessLayer.Users;
 
-import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.NotificationSystem.UserMailbox;
@@ -26,6 +25,7 @@ public class RegisteredUser extends User {
     private boolean isLoggedIn;
     public RegisteredUser(String username, String pass, int id) throws Exception {
         super(id);
+
         this.username = username;
         this.password = Password.hashPassword(pass);
         this.id = id;
