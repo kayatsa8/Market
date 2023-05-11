@@ -1,54 +1,34 @@
-package BusinessLayer.NotificationSystem;
-
+package BusinessLayer.NotificationSystem.TestVersions;
 
 import BusinessLayer.Log;
-import BusinessLayer.NotificationSystem.Repositories.MailboxesRepository;
+import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Users.RegisteredUser;
 
 
-/**
- * In order to register to the notification system:
- * NotificationHub.getInstance().registerToMailService(this);
- */
-public class NotificationHub {
 
-    private static final Object instanceLock = new Object();
-    // class attributes
-    private static NotificationHub instance = null;
+public class NotificationHubTestVersion {
 
-    // fields
-    //private final ConcurrentHashMap<Integer, Mailbox> mailboxes; // <ID, Mailbox>
-    private final MailboxesRepository mailboxes;
+    private final MailboxesRepositoryTestVersion mailboxes;
 
 
-    // object methods
-    private NotificationHub() {
-        mailboxes = new MailboxesRepository();
+
+    public NotificationHubTestVersion(){
+        mailboxes = new MailboxesRepositoryTestVersion();
         Log.log.info("The notification hub has started successfully.");
     }
 
-    // class methods
-    public static NotificationHub getInstance() {
-        synchronized (instanceLock) {
-            if (instance == null) {
-                instance = new NotificationHub();
-            }
-        }
-        return instance;
-    }
-
-    public MailboxesRepository getMailboxes() {
+    public MailboxesRepositoryTestVersion getMailboxes() {
         return mailboxes;
     }
 
-    public UserMailbox registerToMailService(RegisteredUser user) throws Exception {
+    public UserMailboxTestVersion registerToMailService(RegisteredUser user) throws Exception {
         int userID = user.getId();
         if (isRegistered(userID)) {
             Log.log.warning("ERROR: NotificationHub::registerToMailService: the user " + userID + " is already registered!");
             throw new Exception("NotificationHub::registerToMailService: the user " + userID + " is already registered!");
         }
-        UserMailbox mailbox = new UserMailbox(user);
+        UserMailboxTestVersion mailbox = new UserMailboxTestVersion(user);
         mailboxes.putIfAbsent(userID, mailbox);
 
         Log.log.info("NotificationHub::registerToMailService: user "
@@ -56,13 +36,13 @@ public class NotificationHub {
         return mailbox;
     }
 
-    public StoreMailbox registerToMailService(Store store) throws Exception {
+    public StoreMailboxTestVersion registerToMailService(Store store) throws Exception {
         int storeID = store.getStoreID();
         if (isRegistered(storeID)) {
             Log.log.warning("NotificationHub::registerToMailService: the store " + storeID + " is already registered!");
             throw new Exception("NotificationHub::registerToMailService: the store " + storeID + " is already registered!");
         }
-        StoreMailbox mailbox = new StoreMailbox(store);
+        StoreMailboxTestVersion mailbox = new StoreMailboxTestVersion(store);
         mailboxes.putIfAbsent(storeID, mailbox);
 
         Log.log.info("NotificationHub::registerToMailService: store " + store.getStoreID()
@@ -86,7 +66,7 @@ public class NotificationHub {
     public void passMessage(Message message) throws Exception {
         validatePassedMessage(message);
 
-        Mailbox mailbox = mailboxes.get(message.getReceiverID());
+        MailBoxTestVersion mailbox = mailboxes.get(message.getReceiverID());
         mailbox.receiveMessage(message);
 
         Log.log.info("A message passed from " + message.getSenderID() + " to " + message.getReceiverID());

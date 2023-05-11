@@ -36,9 +36,7 @@ public class MailboxTests {
     static RegisteredUser user7;
 
     @BeforeClass
-    public static void setUp() throws Exception
-    {
-        NotificationHub.testMode = false;
+    public static void setUp() throws Exception {
         hub = NotificationHub.getInstance();
         market = Market.getInstance();
         userFacade = market.getUserFacade();

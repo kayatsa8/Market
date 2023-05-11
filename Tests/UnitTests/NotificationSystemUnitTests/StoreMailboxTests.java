@@ -28,7 +28,6 @@ public class StoreMailboxTests {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        NotificationHub.testMode = false;
         hub = NotificationHub.getInstance();
         market = Market.getInstance();
         userFacade = market.getUserFacade();

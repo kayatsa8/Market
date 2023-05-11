@@ -40,7 +40,6 @@ public class CartBasketTests {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        NotificationHub.testMode = true;
         market = Market.getInstance();
         storeFacade = market.getStoreFacade();
         userFacade = market.getUserFacade();
