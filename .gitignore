@@ -5,3 +5,6 @@
 Market.iml
 *.js
 *.class
+*.ts
+*.html
+*.json
