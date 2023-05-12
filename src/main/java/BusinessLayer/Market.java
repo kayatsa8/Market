@@ -407,4 +407,12 @@ public class Market {
     {
         storeFacade.wrapDiscounts(storeID, discountsIDsToWrap, numericCompositeEnum);
     }
+
+    public Map<RegisteredUser, Set<Integer>> getAllOwnersIDefined(int ownerId) throws Exception {
+        return userFacade.getAllOwnersIDefined(ownerId);
+    }
+
+    public Map<RegisteredUser, Set<Integer>> getAllManagersIDefined(int ownerId) throws Exception {
+        return userFacade.getAllManagersIDefined(ownerId);
+    }
 }

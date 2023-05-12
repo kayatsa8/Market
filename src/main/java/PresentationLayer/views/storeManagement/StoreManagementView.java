@@ -23,6 +23,7 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
@@ -50,6 +51,9 @@ public class StoreManagementView extends VerticalLayout {
     private Map<Integer, StoreService> storesIOwn;
     IntegerField storeIdField;
     Grid<UserInfoService> userGrid;
+    Grid<UserInfoService> ownersIDefinedGrid;
+    Grid<UserInfoService> managersIDefinedGrid;
+
     Grid<StoreService> storesGrid;
 
 
@@ -72,58 +76,85 @@ public class StoreManagementView extends VerticalLayout {
         Result<Map<Integer, UserInfoService>> usersRes = userService.getAllRegisteredUsers();
         Result<Map<Integer, StoreService>> storesIOwnRes = shoppingService.getStoresIOwn(ownerId);
 
-
         if (usersRes.isError() || storesIOwnRes.isError()) {
             printError("Problem accrued");
         }
         else {
+            TabSheet mainTabSheet = new TabSheet();
             users = usersRes.getValue();
             storesIOwn = storesIOwnRes.getValue();
-            add(new Paragraph("Users available"));
-            createUserGrid();
-            add(new Paragraph("Stores I Own"));
 
-            createStoresGrid();
+            Div storesDiv = new Div();
+            Div usersDiv = new Div();
+
+            createUserGrid(usersDiv);
+
+            createStoresGrid(storesDiv);
+            Tab userTab = new Tab("Users");
+            userTab.setEnabled(isStoreOwner(ownerId));
+
+            mainTabSheet.add("Stores", storesDiv);
+            //mainTabSheet.add("Users", usersDiv);
+            mainTabSheet.add(userTab, usersDiv);
+            add(mainTabSheet);
         }
 
 
     }
 
-    private void createStoresGrid() {
+    private boolean isStoreOwner(int ownerId) {
+        Result<List<UserInfoService>> result = userService.getAllOwnersIDefined(ownerId);
+        if(result.isError())
+            return false;
+        return result.getValue().size() != 0;
+    }
+
+    private void createStoresGrid(Div storesDiv) {
+
+        Paragraph storeParagraph = new Paragraph("Stores I Own");
+        Paragraph helper = new Paragraph("Select the Store you want to edit");
+        storeParagraph.getStyle().set("font-size","40px");
+        helper.getStyle().set("font-size", "20px");
+        storesDiv.add(storeParagraph, helper);
+
         storesGrid = new Grid<>();
-        //Editor<StoreService> editor = storesGrid.getEditor();
         storesGrid.setItems(storesIOwn.values());
         storesGrid.setAllRowsVisible(true);
+        storesGrid.setWidth("1500px");
 
         storesGrid.addColumn(StoreService::getStoreId).setHeader("ID").setSortable(true);
         storesGrid.addColumn(StoreService::getStoreName).setHeader("Name").setSortable(true);
         storesGrid.addColumn(StoreService::getStoreStatus).setHeader("Status").setSortable(true);
-
         GridContextMenu<StoreService> menu = storesGrid.addContextMenu();
         menu.setOpenOnClick(true);
         menu.addItem("View Items Of Store", event -> viewItemsDialog() );
         menu.addItem("Close Store", event -> closeStoreDialog());  //only store founder
         menu.addItem("Open Store", event -> openStoreDialog());   //only store founder
         menu.addItem("Get Store History", event -> getHistoryDialog());  //Requirement 4.13
-
-
-        //TODO
         menu.addItem("View Discounts Of Store", e -> viewDiscountsDialog());
         menu.addItem("Determine Store policy", event -> {});
+
+        //TODO
         menu.addItem("Get Staff Info", event -> {});  //Requirement 4.11
 
-        add(storesGrid);
+        storesDiv.add(storesGrid);
 
     }
 
-    private void createUserGrid() {
+    private void createUserGrid(Div usersDiv) {
+
+        Paragraph userParagraph = new Paragraph("Users available");
+        userParagraph.getStyle().set("font-size","40px");
+        Paragraph helperParagraph = new Paragraph("Select a User you want to appoint and enter the Store ID in the field below");
+        helperParagraph.getStyle().set("font-size","20px");
+        usersDiv.add(userParagraph, helperParagraph);
 
         userGrid = new Grid<>();
         Editor<UserInfoService> editor = userGrid.getEditor();
         userGrid.setItems(users.values());
         userGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
 
-        userGrid.addColumn(UserInfoService::getId).setHeader("ID").setSortable(true);
+        //userGrid.addColumn(UserInfoService::getId).setHeader("ID").setSortable(true);
         userGrid.addColumn(UserInfoService::getUsername).setHeader("Name").setSortable(true);
         userGrid.addColumn(UserInfoService::getStoreIManageString).setHeader("Manager of Stores");
         userGrid.addColumn(UserInfoService::getStoreIOwnString).setHeader("Owner of Stores");
@@ -132,7 +163,68 @@ public class StoreManagementView extends VerticalLayout {
         editor.setBuffered(true);
 
         HorizontalLayout footer = addButtons();
-        add(userGrid, footer);
+        usersDiv.add(userGrid, footer);
+
+
+        createOwnersGrid(usersDiv);
+        createManagersGrid(usersDiv);
+    }
+
+    private void createManagersGrid(Div usersDiv) {
+        Paragraph headerParagraph = new Paragraph("Managers I appointed");
+        headerParagraph.getStyle().set("font-size","40px");
+        Paragraph helperParagraph = new Paragraph("Select a User you want to appoint and enter the Store ID in the field below");
+        helperParagraph.getStyle().set("font-size","15px");
+        usersDiv.add(headerParagraph, helperParagraph);
+
+        Result<List<UserInfoService>> managersIDefinedRes = userService.getAllManagersIDefined(ownerId);
+        if(managersIDefinedRes.isError()){
+            printError(managersIDefinedRes.getMessage());
+        }
+        else{
+            managersIDefinedGrid = new Grid<>();
+            managersIDefinedGrid.setItems(managersIDefinedRes.getValue());
+            managersIDefinedGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+            managersIDefinedGrid.addColumn(UserInfoService::getUsername).setHeader("Name").setSortable(true);
+            managersIDefinedGrid.addColumn(UserInfoService::getStoreIManageString).setHeader("Manager appointed by me to Stores");
+
+            Button removeManagerbutton = new Button("Remove Manager");
+            IntegerField removeManagerStoreField = new IntegerField("StoreId");
+            removeManagerStoreField.setMin(0);
+            removeManagerStoreField.setErrorMessage("Enter a valid StoreId!");
+            removeManagerbutton.addClickListener(e -> removeManagerAction(removeManagerStoreField));
+            usersDiv.add(managersIDefinedGrid, removeManagerStoreField, removeManagerbutton);
+
+        }
+
+    }
+
+    private void createOwnersGrid(Div usersDiv) {
+
+        Paragraph headerParagraph = new Paragraph("Owners I appointed");
+        headerParagraph.getStyle().set("font-size","40px");
+        Paragraph helperParagraph = new Paragraph("Select a User you want to appoint and enter the Store ID in the field below");
+        helperParagraph.getStyle().set("font-size","15px");
+        usersDiv.add(headerParagraph, helperParagraph);
+
+        Result<List<UserInfoService>> usersIDefinedRes = userService.getAllOwnersIDefined(ownerId);
+        if(usersIDefinedRes.isError()){
+            printError(usersIDefinedRes.getMessage());
+        }
+        else{
+            ownersIDefinedGrid = new Grid<>();
+            ownersIDefinedGrid.setItems(usersIDefinedRes.getValue());
+            ownersIDefinedGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+            ownersIDefinedGrid.addColumn(UserInfoService::getUsername).setHeader("Name").setSortable(true);
+            ownersIDefinedGrid.addColumn(UserInfoService::getStoreIOwnString).setHeader("Owner appointed by me to Stores");
+
+            Button removeOwnerbutton = new Button("Remove Owner");
+            IntegerField removeOwnerStoreField = new IntegerField("StoreId");
+            removeOwnerStoreField.setMin(0);
+            removeOwnerStoreField.setErrorMessage("Enter a valid StoreId!");
+            removeOwnerbutton.addClickListener(e-> removeOwnerAction(removeOwnerStoreField));
+            usersDiv.add(ownersIDefinedGrid, removeOwnerStoreField, removeOwnerbutton);
+        }
 
     }
 
@@ -145,20 +237,19 @@ public class StoreManagementView extends VerticalLayout {
         Button addOwnerButton = new Button("Add Owner");
         addOwnerButton.addClickListener(e -> addOwnerAction());
 
-        Button removeOwnerbutton = new Button("Remove Owner");
-        removeOwnerbutton.addClickListener(e-> removeOwnerAction());
+//        Button removeOwnerbutton = new Button("Remove Owner");
+//        removeOwnerbutton.addClickListener(e-> removeOwnerAction());
 
         Button addManagerButton = new Button("Add Manager");
         addManagerButton.addClickListener(e -> addManagerAction());
 
-        Button removeManagerButton = new Button("Remove Manager");
-        removeManagerButton.addClickListener(e -> removeManagerAction());
+//        Button removeManagerButton = new Button("Remove Manager");
+//        removeManagerButton.addClickListener(e -> removeManagerAction());
 
         setPadding(false);
         setAlignItems(Alignment.AUTO);
 
-        HorizontalLayout horizontalLayout1 = new HorizontalLayout(storeIdField, addOwnerButton, removeOwnerbutton,
-                                                        removeManagerButton, addManagerButton, removeManagerButton);
+        HorizontalLayout horizontalLayout1 = new HorizontalLayout(storeIdField, addOwnerButton, addManagerButton);
 
         horizontalLayout1.setAlignItems(FlexComponent.Alignment.BASELINE);
         return horizontalLayout1;
@@ -180,9 +271,10 @@ public class StoreManagementView extends VerticalLayout {
             else{
                 if(result.getValue()){
                     printSuccess("Owner added Successfully");
-                    UserInfoService curr = users.get(chosenUserId);
-                    curr.addStoresIOwn(storeId);
-                    userGrid.getDataProvider().refreshItem(curr);
+                    refreshUserGrids(ownerId);
+                    //UserInfoService curr = users.get(chosenUserId);
+                    //curr.addStoresIOwn(storeId);
+                    //userGrid.getDataProvider().refreshItem(curr);
                 }
                 else{
                     printError("Something went wrong");
@@ -191,9 +283,9 @@ public class StoreManagementView extends VerticalLayout {
         }
     }
 
-    private void removeOwnerAction() {
-        int chosenUserId = getIdOfSelectedRow(userGrid);
-        int storeId = storeIdField.getValue();
+    private void removeOwnerAction(IntegerField removeOwnerStoreField) {
+        int chosenUserId = getIdOfSelectedRow(ownersIDefinedGrid);
+        int storeId = removeOwnerStoreField.getValue();
 
         if(chosenUserId != -1){
             Result<Boolean> result = userService.removeOwner(ownerId, chosenUserId, storeId);
@@ -204,14 +296,39 @@ public class StoreManagementView extends VerticalLayout {
             else{
                 if(result.getValue()){
                     printSuccess("Owner removed Successfully");
-                    UserInfoService curr = users.get(chosenUserId);
-                    curr.removeStoresIOwn(storeId);
-                    userGrid.getDataProvider().refreshItem(curr);
+                    refreshUserGrids(ownerId);
                 }
                 else{
                     printError("Something went wrong");
                 }
             }
+        }
+    }
+
+    private void refreshUserGrids(int ownerId) {
+        Result<List<UserInfoService>> result1 = userService.getAllOwnersIDefined(ownerId);
+        Result<Map<Integer, UserInfoService>> result2 = userService.getAllRegisteredUsers();
+        Result<List<UserInfoService>> result3 = userService.getAllManagersIDefined(ownerId);
+        if(result1.isError()||result1.getValue() == null){
+            printError(result1.getMessage());
+        }
+        else if(result2.isError() ||result2.getValue() == null){
+            printError(result2.getMessage());
+        }
+        else if(result3.isError() ||result3.getValue() == null){
+            printError(result3.getMessage());
+        }
+        else{
+            users = result2.getValue();
+            userGrid.setItems(users.values());
+            userGrid.getDataProvider().refreshAll();
+
+            ownersIDefinedGrid.setItems(result1.getValue());
+            ownersIDefinedGrid.getDataProvider().refreshAll();
+
+            managersIDefinedGrid.setItems(result3.getValue());
+            managersIDefinedGrid.getDataProvider().refreshAll();
+
         }
     }
 
@@ -228,9 +345,10 @@ public class StoreManagementView extends VerticalLayout {
             else{
                 if(result.getValue()){
                     printSuccess("Manager added Successfully");
-                    UserInfoService curr = users.get(chosenUserId);
-                    curr.addStoresIManage(storeId);
-                    userGrid.getDataProvider().refreshItem(curr);
+                    refreshUserGrids(ownerId);
+                    //UserInfoService curr = users.get(chosenUserId);
+                    //curr.addStoresIManage(storeId);
+                    //userGrid.getDataProvider().refreshItem(curr);
                 }
                 else{
                     printError("Something went wrong");
@@ -239,12 +357,11 @@ public class StoreManagementView extends VerticalLayout {
         }
     }
 
-    private void removeManagerAction() {
-        int chosenUserId = getIdOfSelectedRow(userGrid);
+    private void removeManagerAction(IntegerField removeManagerStoreField) {
+        int chosenUserId = getIdOfSelectedRow(managersIDefinedGrid);
 
-
-        if(chosenUserId != -1 && storeIdField != null){
-            int storeId = storeIdField.getValue();
+        if(chosenUserId != -1 && removeManagerStoreField != null){
+            int storeId = removeManagerStoreField.getValue();
             Result<Boolean> result = userService.removeManager(ownerId, chosenUserId, storeId);
 
             if(result.isError()){
@@ -253,9 +370,7 @@ public class StoreManagementView extends VerticalLayout {
             else{
                 if(result.getValue()){
                     printSuccess("Manager removed Successfully");
-                    UserInfoService curr = users.get(chosenUserId);
-                    curr.removeStoresIManage(storeId);
-                    userGrid.getDataProvider().refreshItem(curr);
+                    refreshUserGrids(ownerId);
                 }
                 else{
                     printError("Something went wrong");

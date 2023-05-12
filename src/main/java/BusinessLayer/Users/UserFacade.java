@@ -9,10 +9,7 @@ import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class UserFacade {
@@ -291,5 +288,13 @@ public class UserFacade {
 
     public ArrayList<Integer> getStoresIdsIOwn(int ownerId) throws Exception {
         return new ArrayList<>(getRegisteredUser(ownerId).getStoresIOwn().keySet());
+    }
+
+    public Map<RegisteredUser, Set<Integer>> getAllOwnersIDefined(int ownerId) throws Exception {
+        return getRegisteredUser(ownerId).getAllOwnersIDefined();
+    }
+
+    public Map<RegisteredUser, Set<Integer>> getAllManagersIDefined(int ownerId) throws Exception {
+        return getRegisteredUser(ownerId).getAllManagersIDefined();
     }
 }

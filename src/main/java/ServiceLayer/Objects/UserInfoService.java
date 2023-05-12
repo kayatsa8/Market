@@ -3,6 +3,7 @@ package ServiceLayer.Objects;
 import BusinessLayer.Users.RegisteredUser;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 public class UserInfoService {
 
@@ -16,6 +17,23 @@ public class UserInfoService {
         this.id = user.getId();
         this.storesIOwn = new ArrayList<>(user.getStoresIOwn().keySet());
         this.storesIManage = new ArrayList<>(user.getStoresIManage().keySet());
+    }
+
+
+    //Sets the Store for Owner Screen. Only the Stores he appointed me are here
+    //if action is owner than Only storeI Own will be defined.
+    public UserInfoService(RegisteredUser user, Set<Integer> value, String action) {
+        this.username = user.getUsername();
+        this.id = user.getId();
+        if(action.equals("owner")){
+            this.storesIOwn = new ArrayList<>(value);
+            this.storesIManage = new ArrayList<>();
+        }
+        else{
+            this.storesIManage = new ArrayList<>(value);
+            this.storesIOwn = new ArrayList<>();
+        }
+
     }
 
 
