@@ -79,7 +79,7 @@ public class UserFacade {
 
     public RegisteredUser getLoggedInUser(int userID) throws Exception {
         RegisteredUser user = users.get(userID);
-        if (user.isLoggedIn()) {
+        if (user!=null&&user.isLoggedIn()) {
             return user;
         }
         throw new Exception("User " + user.getUsername() + "is not logged in");
