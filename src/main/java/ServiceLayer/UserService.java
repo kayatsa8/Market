@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 public class UserService {
     private static final Logger log = Log.log;
     private final Market market;
-
+    private UserInfoService loggedInUser;
     public UserService() throws Exception {
         market = Market.getInstance();
     }
