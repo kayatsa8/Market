@@ -1,7 +1,9 @@
 package BusinessLayer.NotificationSystem.TestVersions;
 
+import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.NotificationSystem.NotificationHub;
+import BusinessLayer.NotificationSystem.Repositories.ChatRepository;
 import BusinessLayer.NotificationSystem.Repositories.NotReadMessagesRepository;
 import BusinessLayer.NotificationSystem.Repositories.ReadMessagesRepository;
 import BusinessLayer.NotificationSystem.Repositories.SentMessagesRepository;
@@ -14,13 +16,12 @@ import java.util.stream.Collectors;
 public class StoreMailboxTestVersion extends MailBoxTestVersion {
     private final Store owner;
 
-    public StoreMailboxTestVersion(Store _owner){
+    public StoreMailboxTestVersion(Store _owner, NotificationHubTestVersion _hub){
         owner = _owner;
         available = true;
         ownerID = owner.getStoreID();
-        notReadMessages = new NotReadMessagesRepository();
-        readMessages = new ReadMessagesRepository();
-        sentMessages = new SentMessagesRepository();
+        chats = new ChatRepository();
+        hub = _hub;
     }
 
     @Override
@@ -31,8 +32,10 @@ public class StoreMailboxTestVersion extends MailBoxTestVersion {
 
         for(Integer id : IDs){
             notificationMessage = makeNotificationMessage(id);
+            chats.putIfAbsent(id, new Chat(ownerID, id));
+            chats.get(id).addMessage(notificationMessage);
             hub.passMessage(notificationMessage);
-            sentMessages.add(notificationMessage);
+            //sentMessages.add(notificationMessage);
         }
     }
 
@@ -41,12 +44,13 @@ public class StoreMailboxTestVersion extends MailBoxTestVersion {
         String title = "A new message is waiting in " + storeName + "'s mailbox";
         String content = "You can view the message in the store's mailbox";
 
-        return new Message(ownerID, id, title, content);
+        return new Message(ownerID, id, content);
+        //return new Message(ownerID, id, title, content);
     }
 
-    public void sendMessage(int receiverID, String title, String content){
+    public void sendMessage(int receiverID, String content){
         if(isAvailable()){
-            super.sendMessage(receiverID, title, content);
+            super.sendMessage(receiverID, content);
         }
     }
 
@@ -56,9 +60,9 @@ public class StoreMailboxTestVersion extends MailBoxTestVersion {
         }
     }
 
-    public void sendMessageToList(List<Integer> staffIDs, String title, String content){
+    public void sendMessageToList(List<Integer> staffIDs, String content){
         for(Integer id : staffIDs){
-            sendMessage(id, title, content);
+            sendMessage(id, content);
         }
     }
 }

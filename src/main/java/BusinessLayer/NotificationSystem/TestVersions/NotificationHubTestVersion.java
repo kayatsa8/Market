@@ -28,7 +28,7 @@ public class NotificationHubTestVersion {
             Log.log.warning("ERROR: NotificationHub::registerToMailService: the user " + userID + " is already registered!");
             throw new Exception("NotificationHub::registerToMailService: the user " + userID + " is already registered!");
         }
-        UserMailboxTestVersion mailbox = new UserMailboxTestVersion(user);
+        UserMailboxTestVersion mailbox = new UserMailboxTestVersion(user, this);
         mailboxes.putIfAbsent(userID, mailbox);
 
         Log.log.info("NotificationHub::registerToMailService: user "
@@ -42,7 +42,7 @@ public class NotificationHubTestVersion {
             Log.log.warning("NotificationHub::registerToMailService: the store " + storeID + " is already registered!");
             throw new Exception("NotificationHub::registerToMailService: the store " + storeID + " is already registered!");
         }
-        StoreMailboxTestVersion mailbox = new StoreMailboxTestVersion(store);
+        StoreMailboxTestVersion mailbox = new StoreMailboxTestVersion(store, this);
         mailboxes.putIfAbsent(storeID, mailbox);
 
         Log.log.info("NotificationHub::registerToMailService: store " + store.getStoreID()
@@ -83,10 +83,6 @@ public class NotificationHubTestVersion {
 
         if (!isRegistered(message.getReceiverID())) {
             throw new Exception("NotificationHub::passMessage: the receiver is not registered!");
-        }
-
-        if (message.getTitle() == null || message.getTitle().isBlank()) {
-            throw new Exception("NotificationHub::passMessage: the title of the message is invalid!");
         }
 
         if (message.getContent() == null || message.getContent().isBlank()) {
