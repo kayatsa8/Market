@@ -7,10 +7,10 @@ import java.util.List;
 
 //Basket total price must be at least "minimumPrice" (without discounts)
 
-public class DiscountBasketPriceRule extends Rule
+public class BasketTotalPriceRule extends Rule
 {
     double minimumPrice;
-    public DiscountBasketPriceRule(double minimumPrice, int id)
+    public BasketTotalPriceRule(double minimumPrice, int id)
     {
         super(id);
         this.minimumPrice = minimumPrice;

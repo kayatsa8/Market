@@ -5,10 +5,10 @@ import BusinessLayer.CartAndBasket.CartItemInfo;
 import java.util.List;
 import java.util.Map;
 
-public class DiscountQuantityRule extends Rule{
+public class MustItemsAmountsRule extends Rule{
 
     private Map<Integer, Integer> itemsAmounts;
-    public DiscountQuantityRule(Map<Integer, Integer> itemsAmounts, int id)
+    public MustItemsAmountsRule(Map<Integer, Integer> itemsAmounts, int id)
     {
         super(id);
         this.itemsAmounts = itemsAmounts;

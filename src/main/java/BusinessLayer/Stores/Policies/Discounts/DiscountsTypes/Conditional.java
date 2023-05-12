@@ -2,8 +2,8 @@ package BusinessLayer.Stores.Policies.Discounts.DiscountsTypes;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.*;
-import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.Rules.DiscountBasketPriceRule;
-import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.Rules.DiscountQuantityRule;
+import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.Rules.BasketTotalPriceRule;
+import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.Rules.MustItemsAmountsRule;
 import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.Rules.Rule;
 import BusinessLayer.Stores.Policies.Discounts.DiscountScopes.DiscountScope;
 
@@ -44,11 +44,11 @@ public class Conditional extends DiscountType {
     }
     public String addPriceRule(double minimumPrice)
     {
-        return addRule(new DiscountBasketPriceRule(minimumPrice, logicalComponentsIDsCounter++));
+        return addRule(new BasketTotalPriceRule(minimumPrice, logicalComponentsIDsCounter++));
     }
     public String addQuantityRule(Map<Integer, Integer> itemsAmounts)
     {
-        return addRule(new DiscountQuantityRule(itemsAmounts, logicalComponentsIDsCounter++));
+        return addRule(new MustItemsAmountsRule(itemsAmounts, logicalComponentsIDsCounter++));
     }
     public String addComposite(LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs) throws Exception
     {
