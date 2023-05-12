@@ -227,4 +227,12 @@ public class UserService {
             return new Result<>(true, e.getMessage());
         }
     }
+
+    public boolean isAdmin(int currUserID) {
+        return market.isAdmin(currUserID);
+    }
+
+    public boolean isOwnerOrManager(int currUserID) {
+        return market.getUserFacade().isOwnerOrManager(currUserID);
+    }
 }

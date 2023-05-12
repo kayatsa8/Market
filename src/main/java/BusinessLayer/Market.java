@@ -107,7 +107,7 @@ public class Market {
         }
     }
 
-    private boolean isAdmin(int userID) {
+    public boolean isAdmin(int userID) {
         return systemManagerMap.get(userID) != null;
     }
 

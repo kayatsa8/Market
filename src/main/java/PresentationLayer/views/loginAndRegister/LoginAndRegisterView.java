@@ -140,7 +140,7 @@ public class LoginAndRegisterView extends HorizontalLayout {
             MainLayout.setCurrUser(result.getValue());
             //show that id changes
             Notification.show(action + " " + msg+"\nid="+ MainLayout.getCurrUserID());
-            MainLayout.getLogoutBtn().setVisible(true);
+            MainLayout.setUserView();
             //move screen
             UI.getCurrent().navigate(ClientView.class);
         }
