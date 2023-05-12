@@ -5,6 +5,11 @@ import BusinessLayer.NotificationSystem.Message;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * NOT USED!
+ * FOR NOW, THE CLASS WILL STAY FOR ROLL-BACK OPTION.
+ */
 public class NotReadMessagesRepository {
     private List<Message> notReadMessages;
     //TODO: add DAO in future versions

@@ -105,9 +105,9 @@ public class NotificationHub {
             throw new Exception("NotificationHub::passMessage: the receiver is not registered!");
         }
 
-        if (message.getTitle() == null || message.getTitle().isBlank()) {
-            throw new Exception("NotificationHub::passMessage: the title of the message is invalid!");
-        }
+//        if (message.getTitle() == null || message.getTitle().isBlank()) {
+//            throw new Exception("NotificationHub::passMessage: the title of the message is invalid!");
+//        }
 
         if (message.getContent() == null || message.getContent().isBlank()) {
             throw new Exception("NotificationHub::passMessage: the content of the message is invalid!");

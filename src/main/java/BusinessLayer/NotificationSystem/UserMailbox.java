@@ -1,5 +1,6 @@
 package BusinessLayer.NotificationSystem;
 
+import BusinessLayer.NotificationSystem.Repositories.ChatRepository;
 import BusinessLayer.NotificationSystem.Repositories.NotReadMessagesRepository;
 import BusinessLayer.NotificationSystem.Repositories.ReadMessagesRepository;
 import BusinessLayer.NotificationSystem.Repositories.SentMessagesRepository;
@@ -15,9 +16,12 @@ public class UserMailbox extends Mailbox {
     public UserMailbox(RegisteredUser _owner){
         owner = _owner;
         ownerID = owner.getId();
-        notReadMessages = new NotReadMessagesRepository();
-        readMessages = new ReadMessagesRepository();
-        sentMessages = new SentMessagesRepository();
+        chats = new ChatRepository();
+
+
+//        notReadMessages = new NotReadMessagesRepository();
+//        readMessages = new ReadMessagesRepository();
+//        sentMessages = new SentMessagesRepository();
     }
 
     @Override
