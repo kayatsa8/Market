@@ -6,10 +6,10 @@ public final class UserPL {
 
 
     private int currUserID;
-    private final int GUESS_ID=9999;
+    private final int GUEST_ID =9999;
     private UserPL() {
         // private constructor
-        currUserID=GUESS_ID;
+        currUserID= GUEST_ID;
 
     }
 
@@ -30,7 +30,7 @@ public final class UserPL {
     public void setCurrUserID(int currUserID) {
         this.currUserID = currUserID;
     }
-    public void setCurrIdToGuess() {
-        this.currUserID =GUESS_ID;
+    public void setCurrIdToGuest() {
+        this.currUserID = GUEST_ID;
     }
 }

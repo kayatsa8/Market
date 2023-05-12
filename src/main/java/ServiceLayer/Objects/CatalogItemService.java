@@ -8,7 +8,17 @@ public class CatalogItemService {
     private double price;
     private int itemID;
     private String category;
+
+    public String getStoreName() {
+        return storeName;
+    }
+
     private String storeName;
+
+    public int getStoreID() {
+        return storeID;
+    }
+
     private int storeID;
     private boolean inStock;
     private int amount;
@@ -49,6 +59,6 @@ public class CatalogItemService {
         return amount;
     }
     public void setAmount(int amount) {
-        this.amount = amount;
+//        this.amount = amount;
     }
 }

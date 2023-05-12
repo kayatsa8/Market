@@ -24,7 +24,6 @@ import java.util.function.BiFunction;
 @Route(value = "login", layout = MainLayout.class)
 //@RouteAlias(value = "", layout = MainLayout.class)
 public class LoginAndRegisterView extends HorizontalLayout {
-    private MainLayout mainLayout=new MainLayout();
     private TextField userNameTF;
     private Button loginB;
     private Button registerB;
@@ -120,40 +119,6 @@ public class LoginAndRegisterView extends HorizontalLayout {
      which provides a set of UI components that follow the Material Design guidelines.
      * */
     private Footer createFooter() {
-
-
-        /**Buttons*/
-        //Login---------------------------
-        /*loginB = new Button("Login");*/
-        /*
-        loginB.addClickListener(e -> {
-            Notification.show("try to login");
-            Result<Integer> result= userService.login(userNameTF.getValue(),passPF.getValue());
-            String msg=getResultMsg(result);
-            Notification.show("login "+msg);
-        });
-         */
-        /*loginB.addClickListener(e -> handleButtonClick("login", userService::login));
-        loginB.addClickShortcut(Key.ENTER);*/
-
-        //Registration---------------------------
-        /*button = new Button("Register");*/
-        /*
-        registerB.addClickListener(e -> {
-            Notification.show("try to Register");
-            Result<Integer> result = userService.register(userNameTF.getValue(),passPF.getValue());
-            String msg=getResultMsg(result);
-            Notification.show("Register "+msg);
-        });
-        */
-        /*button.addClickListener(e -> handleButtonClick("register", userService::register));
-        button.addClickShortcut(Key.ENTER);
-        add(loginB, button);*/
-
-
-
-
-
         Footer footer = new Footer();
         footer.addClassNames(LumoUtility.Display.FLEX, LumoUtility.AlignItems.CENTER,
                 LumoUtility.JustifyContent.BETWEEN, LumoUtility.Margin.Vertical.MEDIUM);
@@ -163,26 +128,24 @@ public class LoginAndRegisterView extends HorizontalLayout {
         registerB=createNewButton("Register",userService::register);
         registerB.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
 
-        /*Button cancel = new Button("Cancel order");
-        cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);*/
-
-        /*Button pay = new Button("Pay securely", new Icon(VaadinIcon.SIGN_IN_ALT));
-        pay.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);*/
-
         footer.add(registerB, loginB);
         return footer;
     }
     private void handleButtonClick(String action, BiFunction<String, String, Result<Integer>> userServiceMethod) {
-        Notification.show("try to " + action);
+//        Notification.show("try to " + action);
         Result<Integer> result = userServiceMethod.apply(userNameTF.getValue(), passPF.getValue());
         String msg = getResultMsg(result);
         if (!result.isError()){
             //set user ID
-            mainLayout.setCurrUser(result.getValue());
+            MainLayout.setCurrUser(result.getValue());
             //show that id changes
-            Notification.show(action + " " + msg+"\nid="+ mainLayout.getCurrUser());
+            Notification.show(action + " " + msg+"\nid="+ MainLayout.getCurrUserID());
+            MainLayout.getLogoutBtn().setVisible(true);
             //move screen
             UI.getCurrent().navigate(ClientView.class);
+        }
+        else {
+            Notification.show(result.getMessage());
         }
     }
     private Button createNewButton(String action, BiFunction<String, String, Result<Integer>> userServiceMethod) {
