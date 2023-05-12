@@ -71,6 +71,7 @@ public class Market {
     }
 
     public boolean logout(int userID) throws Exception {
+
         return userFacade.logout(userID);
     }
 
@@ -106,7 +107,7 @@ public class Market {
         }
     }
 
-    private boolean isAdmin(int userID) {
+    public boolean isAdmin(int userID) {
         return systemManagerMap.get(userID) != null;
     }
 

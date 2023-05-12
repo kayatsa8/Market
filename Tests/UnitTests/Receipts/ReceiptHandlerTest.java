@@ -39,11 +39,11 @@ public class ReceiptHandlerTest {
         item3.setPercent(0.2);
         item4.setPercent(0.2);
 
-        itemsAndAmounts1.put(new CatalogItem(11, "item11", 20, "Books"), item1);
-        itemsAndAmounts1.put(new CatalogItem(12, "item12", 20, "Books"), item2);
+//        itemsAndAmounts1.put(new CatalogItem(11, "item11", 20, "Books"), item1);
+//        itemsAndAmounts1.put(new CatalogItem(12, "item12", 20, "Books"), item2);
         HashMap<CatalogItem, CartItemInfo> itemsAndAmounts2 = new HashMap<>();
-        itemsAndAmounts2.put(new CatalogItem(21, "item21", 20, "Books"), item3);
-        itemsAndAmounts2.put(new CatalogItem(22, "item22", 20, "Books"), item4);
+//        itemsAndAmounts2.put(new CatalogItem(21, "item21", 20, "Books"), item3);
+//        itemsAndAmounts2.put(new CatalogItem(22, "item22", 20, "Books"), item4);
         items.put(store1ID, itemsAndAmounts1);
         items.put(store2ID, itemsAndAmounts2);
     }
