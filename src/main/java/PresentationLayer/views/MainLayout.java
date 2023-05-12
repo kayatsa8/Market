@@ -35,9 +35,12 @@ import static org.vaadin.lineawesome.LineAwesomeIcon.SIGN_OUT_ALT_SOLID;
 public class MainLayout extends AppLayout {
 
     private H2 viewTitle;
-    public UserService userService;
-    public ShoppingService shoppingService;
+    public static UserService userService;
+    public static ShoppingService shoppingService;
     private static UserPL currUser;
+    private static AppNavItem loginAndRegister;
+    private static AppNavItem systemAdmin;
+    private static AppNavItem marketOwnerOrManager;
 
     public static Button getLogoutBtn() {
         return logoutBtn;
@@ -54,6 +57,7 @@ public class MainLayout extends AppLayout {
         } catch (Exception e) {
             Notification.show("Error initialize userService:\n"+e.getMessage());
         }
+        setGuestView();
     }
 
     public static void setCurrUser(Integer value) {
@@ -96,11 +100,14 @@ public class MainLayout extends AppLayout {
         // For documentation, visit https://github.com/vaadin/vcf-nav#readme
         AppNav nav = new AppNav();
 
-        nav.addItem(new AppNavItem("Explore Market", ClientView.class, SHOPPING_CART_SOLID.create()));
-        nav.addItem(new AppNavItem("Login/Register", LoginAndRegisterView.class, LineAwesomeIcon.PERSON_BOOTH_SOLID.create()));
-        nav.addItem(new AppNavItem("Store Management", StoreManagementView.class, LineAwesomeIcon.TRUCK_LOADING_SOLID.create()));
-        nav.addItem(new AppNavItem("System Management", SystemManagementView.class, LineAwesomeIcon.WRENCH_SOLID.create()));
+        loginAndRegister = new AppNavItem("Login/Register", LoginAndRegisterView.class, LineAwesomeIcon.PERSON_BOOTH_SOLID.create());
+        marketOwnerOrManager = new AppNavItem("Store Management", StoreManagementView.class, LineAwesomeIcon.TRUCK_LOADING_SOLID.create());
+        systemAdmin = new AppNavItem("System Management", SystemManagementView.class, LineAwesomeIcon.WRENCH_SOLID.create());
 
+        nav.addItem(new AppNavItem("Explore Market", ClientView.class, SHOPPING_CART_SOLID.create()));
+        nav.addItem(loginAndRegister);
+        nav.addItem(marketOwnerOrManager);
+        nav.addItem(systemAdmin);
         return nav;
     }
 
@@ -110,7 +117,6 @@ public class MainLayout extends AppLayout {
         logoutBtn = new Button("Logout", SIGN_OUT_ALT_SOLID.create());
         logoutBtn.addClickListener(e -> LogoutAction());
         logoutBtn.addClickShortcut(Key.ENTER);
-        logoutBtn.setVisible(false);
         layout.add(logoutBtn);
         return layout;
     }
@@ -129,10 +135,24 @@ public class MainLayout extends AppLayout {
         }
         else {
             Notification.show("Succeed to logout currId="+ currUser.getCurrUserID());
-            currUser.setCurrIdToGuest();
-            logoutBtn.setVisible(false);
+            setGuestView();
             UI.getCurrent().navigate(LoginAndRegisterView.class);
         }
+    }
+
+    private void setGuestView() {
+        currUser.setCurrIdToGuest();
+        logoutBtn.setVisible(false);
+        systemAdmin.setVisible(false);
+        marketOwnerOrManager.setVisible(false);
+        loginAndRegister.setVisible(true);
+    }
+
+    public static void setUserView() {
+        logoutBtn.setVisible(true);
+        systemAdmin.setVisible(userService.isAdmin(currUser.getCurrUserID()));
+        marketOwnerOrManager.setVisible(userService.isOwnerOrManager(currUser.getCurrUserID()));
+        loginAndRegister.setVisible(false);
     }
 
     @Override

@@ -1,11 +1,4 @@
-/out/
 /target/
-/frontend/
+/frontend/generated/
 /.idea/
 Market.iml
-
-*.js
-*.class
-*.ts
-*.html
-*.json
