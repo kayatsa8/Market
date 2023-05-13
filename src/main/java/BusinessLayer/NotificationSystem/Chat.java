@@ -32,4 +32,8 @@ public class Chat {
     public void addMessage(Message message){
         messages.add(message);
     }
+
+    public boolean contains(Message message){
+        return messages.getMessages().contains(message);
+    }
 }
