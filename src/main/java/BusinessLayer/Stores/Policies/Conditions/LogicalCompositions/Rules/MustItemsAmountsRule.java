@@ -51,10 +51,15 @@ public class MustItemsAmountsRule extends Rule{
     {
         String result = "";
         for (Map.Entry<Integer, Integer> itemAmount : itemsAmounts.entrySet()) {
-            result += ", " + itemAmount.getValue() + " of item ID " + itemAmount.getKey();
+            result += "; " + itemAmount.getValue() + " of item ID " + itemAmount.getKey();
         }
         if (result.length()>1)
             result = result.substring(2);
-        return  "(Basket must contain at least: " + result + ")";
+        return  "(Basket contains at least: " + result + ")";
+    }
+
+    public boolean isApplyForItem(int itemID, String category)
+    {
+        return itemsAmounts.containsKey(itemID);
     }
 }

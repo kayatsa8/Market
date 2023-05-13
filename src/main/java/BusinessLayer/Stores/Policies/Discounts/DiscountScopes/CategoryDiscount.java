@@ -29,4 +29,9 @@ public class CategoryDiscount implements DiscountScope {
     {
         return "Discount is applied on the category: " + category;
     }
+
+    public boolean isDiscountApplyForItem(int itemID, String category)
+    {
+        return this.category.equals(category);
+    }
 }

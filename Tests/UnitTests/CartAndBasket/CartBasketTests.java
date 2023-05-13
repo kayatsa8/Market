@@ -48,15 +48,15 @@ public class CartBasketTests {
         client = userFacade.getRegisteredUser(user2ID);
         int store1ID = market.addStore(storeOwner.getId(), "store1");
         store1 = market.getStoreInfo(store1ID);
-        item1 = market.addItemToStore(store1ID, "1", 2, "Books");
+        item1 = market.addItemToStore(store1ID, "1", 2, "Books", 1);
         market.addItemAmount(store1ID, item1.getItemID(), 100);
-        item2 = market.addItemToStore(store1ID, "2", 3, "Books");
+        item2 = market.addItemToStore(store1ID, "2", 3, "Books", 1);
         market.addItemAmount(store1ID, item2.getItemID(), 100);
         int store2ID = market.addStore(storeOwner.getId(), "store2");
         store2 = market.getStoreInfo(store2ID);
-        item3 = market.addItemToStore(store2ID, "3", 7, "Books");
+        item3 = market.addItemToStore(store2ID, "3", 7, "Books", 1);
         market.addItemAmount(store2ID, item3.getItemID(), 100);
-        item4 = market.addItemToStore(store2ID, "4", 5, "Books");
+        item4 = market.addItemToStore(store2ID, "4", 5, "Books", 1);
         market.addItemAmount(store2ID, item4.getItemID(), 100);
         cart = client.getCart();
     }

@@ -37,4 +37,9 @@ public class BasketTotalPriceRule extends Rule
     {
         return "(Basket must have a total price of at least " + minimumPrice + " not including discounts)";
     }
+
+    public boolean isApplyForItem(int itemID, String category)
+    {
+        return false;
+    }
 }
