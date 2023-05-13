@@ -75,37 +75,44 @@ public class SystemManagerTest {
         try {
             boolean success = market.closeStorePermanently(adminID, storeToDelete);
             assertTrue("Store closed permanently", success);
+            assertEquals("Store should have been removed from store facade", PERMANENTLY_CLOSE, sf.getStore(storeToDelete).getStoreStatus());
+            assertNull("User should not see anymore that he owns the store", user.getStoreIOwn(storeToDelete));
+            assertTrue("Store should remove all owners and managers", sf.getStore(storeToDelete).getStoreOwners().isEmpty() && sf.getStore(storeToDelete).getStoreManagers().isEmpty());
         }
         catch (Exception e) {
             fail(e.getMessage()+" caused us to fail to close store");
         }
-        assertEquals("Store should have been removed from store facade", PERMANENTLY_CLOSE, sf.getStore(storeToDelete).getStoreStatus());
-        assertNull("User should not see anymore that he owns the store", user.getStoreIOwn(storeToDelete));
-        assertTrue("Store should remove all owners and managers", sf.getStore(storeToDelete).getStoreOwners().isEmpty() && sf.getStore(storeToDelete).getStoreManagers().isEmpty());
     }
 
     @Test
-    public void removeUser() {
+    public void removeUserShouldPass() {
+        int[] storeToDelete = {store1, store2};
+        try {
+            if (market==null)
+                fail("market is null!");
+
+            market.removeUser(adminID, user1);
+            for (int store : storeToDelete)
+                assertEquals("User's Store should be closed permanently because he is founder", PERMANENTLY_CLOSE, sf.getStore(store).getStoreStatus());
+            assertEquals("Store 3 should not have been permanently closed bc user was not founder", OPEN, sf.getStore(store3).getStoreStatus());
+            assertNull("User should not be in userfacade any more", uf.getUser(user1));
+        }
+        catch (Exception e) {
+            fail(e.getMessage() + " caused us to fail to remove user");
+
+        }
+        //ensure traces of user are gone in store
+    }
+    @Test
+    public void removeUserShouldFail() {
         int[] storeToDelete = {store1, store2};
         try {
             market.removeUser(user1, user2);
             fail("Only admin should be able to remove user");
         }
         catch (Exception e) {
-
+            assertTrue(e.getMessage() + " caused us to fail to remove user",true);
         }
-        try {
-            market.removeUser(adminID, user1);
-        }
-        catch (Exception e) {
-            fail(e.getMessage() + " caused us to fail to remove user");
-
-        }
-        for (int store : storeToDelete)
-            assertEquals("User's Store should be closed permanently because he is founder", PERMANENTLY_CLOSE, sf.getStore(store).getStoreStatus());
-        assertEquals("Store 3 should not have been permanently closed bc user was not founder", OPEN, sf.getStore(store3).getStoreStatus());
-        assertNull("User should not be in userfacade any more", uf.getUser(user1));
-        //ensure traces of user are gone in store
 
     }
 }

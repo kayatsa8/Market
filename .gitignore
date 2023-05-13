@@ -1,1 +1,4 @@
-/out/
+/target/
+/frontend/generated/
+/.idea/
+Market.iml

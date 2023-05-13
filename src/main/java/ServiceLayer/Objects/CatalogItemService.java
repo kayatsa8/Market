@@ -8,7 +8,20 @@ public class CatalogItemService {
     private double price;
     private int itemID;
     private String category;
+
+    public String getStoreName() {
+        return storeName;
+    }
+
+    private String storeName;
+
+    public int getStoreID() {
+        return storeID;
+    }
+
+    private int storeID;
     private boolean inStock;
+    private int amount;
 
     public CatalogItemService(CatalogItem item, boolean inStock)
     {
@@ -16,7 +29,10 @@ public class CatalogItemService {
         this.itemName = item.getItemName();
         this.category = item.getCategory();
         this.price = item.getPrice();
+        this.storeName = item.getStoreName();
+        this.storeID = item.getStoreID();
         this.inStock = inStock;
+        this.amount = 0;
     }
 
     public String getItemName(){
@@ -37,5 +53,12 @@ public class CatalogItemService {
 
     public boolean isInStock() {
         return inStock;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+    public void setAmount(int amount) {
+//        this.amount = amount;
     }
 }

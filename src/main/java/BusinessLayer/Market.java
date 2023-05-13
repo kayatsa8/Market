@@ -3,10 +3,14 @@ package BusinessLayer;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Message;
-import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.CatalogItem;
+import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.LogicalComposites;
+import BusinessLayer.Stores.Policies.Conditions.NumericCompositions.NumericComposites;
+import BusinessLayer.Stores.Policies.Discounts.Discount;
+import BusinessLayer.Stores.Policies.Discounts.DiscountsTypes.Visible;
+import BusinessLayer.Stores.Policies.PurchasePolicies.PurchasePolicy;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Users.RegisteredUser;
@@ -16,9 +20,7 @@ import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Market {
     private static Market instance;
@@ -72,6 +74,7 @@ public class Market {
     }
 
     public boolean logout(int userID) throws Exception {
+
         return userFacade.logout(userID);
     }
 
@@ -107,13 +110,20 @@ public class Market {
         }
     }
 
-    private boolean isAdmin(int userID) {
+    public boolean isAdmin(int userID) {
         return systemManagerMap.get(userID) != null;
     }
 
     public void removeUser(int userID, int userToRemove) throws Exception {
+
         if (isAdmin(userID)) {
+            if(!systemManagerMap.containsKey(userID))
+                throw new Exception("systemManagerMap cant find userID");
             SystemManager systemManager = systemManagerMap.get(userID);
+            if (systemManager==null)
+                throw new Exception("systemManager is Null");
+            if (userFacade.getRegisteredUser(userToRemove)==null)
+                throw new Exception("userToRemove is null!");
             systemManager.removeUser(userFacade.getRegisteredUser(userToRemove));
         }
         else
@@ -178,14 +188,14 @@ public class Market {
         return userFacade.emptyCart(userID);
     }
 
-    public Store getStoreInfo(int storeID)
+    public Store getStoreInfo(int storeID) throws Exception
     {
         return storeFacade.getStore(storeID);
     }
 
-    public CatalogItem addItemToStore(int storeID, String itemName, double itemPrice, String itemCategory) throws Exception
+    public CatalogItem addItemToStore(int storeID, String itemName, double itemPrice, String itemCategory, double weight) throws Exception
     {
-        return storeFacade.addCatalogItem(storeID, itemName, itemPrice, itemCategory);
+        return storeFacade.addCatalogItem(storeID, itemName, itemPrice, itemCategory, weight);
     }
 
     public CatalogItem removeItemFromStore(int storeID, int itemID) throws Exception
@@ -313,9 +323,11 @@ public class Market {
         return false;
     }
 
-    public void addItemAmount(int storeID, int itemID, int amountToAdd) throws Exception
+
+    //Yonatan added boolean, don't delete
+    public boolean addItemAmount(int storeID, int itemID, int amountToAdd) throws Exception
     {
-        storeFacade.addItemAmount(storeID, itemID, amountToAdd);
+        return storeFacade.addItemAmount(storeID, itemID, amountToAdd);
     }
 
     public List<Receipt> getSellingHistoryOfStoreForManager(int storeId, int userId) throws Exception {
@@ -323,4 +335,137 @@ public class Market {
             return storeFacade.getStore(storeId).getReceiptHandler().getAllReceipts();
         return null;
     }
+
+    public Map<Integer, Store> getAllStores() {
+        return storeFacade.getAllStores();
+    }
+
+    public Map<Integer, RegisteredUser> getAllRegisteredUsers() {
+        return userFacade.getAllRegisteredUsers();
+    }
+
+    public Map<Integer, Store> getStoresIOwn(int ownerId) throws Exception {
+        ArrayList<Integer> storesIds = userFacade.getStoresIdsIOwn(ownerId);
+        Map<Integer, Store> result = new HashMap<>();
+        for(Integer storeId: storesIds){
+            result.put(storeId, storeFacade.getStore(storeId));
+        }
+        return result;
+    }
+
+    public int addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale) throws Exception
+    {
+        return storeFacade.addVisibleItemsDiscount(storeID, itemsIDs, percent, endOfSale);
+    }
+    public int addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale) throws Exception
+    {
+        return storeFacade.addVisibleCategoryDiscount(storeID, category, percent, endOfSale);
+    }
+    public int addVisibleStoreDiscount(int storeID, double percent, Calendar endOfSale) throws Exception
+    {
+        return storeFacade.addVisibleStoreDiscount(storeID, percent, endOfSale);
+    }
+    public int addConditionalItemsDiscount(int storeID, double percent, Calendar endOfSale, List<Integer> itemsIDs) throws Exception
+    {
+        return storeFacade.addConditionalItemsDiscount(storeID, percent, endOfSale, itemsIDs);
+    }
+    public int addConditionalCategoryDiscount(int storeID, double percent, Calendar endOfSale, String category) throws Exception
+    {
+        return storeFacade.addConditionalCategoryDiscount(storeID, percent, endOfSale, category);
+    }
+    public int addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale) throws Exception
+    {
+        return storeFacade.addConditionalStoreDiscount(storeID, percent, endOfSale);
+    }
+    public int addHiddenItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, String coupon, Calendar endOfSale) throws Exception
+    {
+        return storeFacade.addHiddenItemsDiscount(storeID, itemsIDs, percent, coupon, endOfSale);
+    }
+    public int addHiddenCategoryDiscount(int storeID, String category, double percent, String coupon, Calendar endOfSale) throws Exception
+    {
+        return storeFacade.addHiddenCategoryDiscount(storeID, category, percent, coupon, endOfSale);
+    }
+    public int addHiddenStoreDiscount(int storeID, double percent, String coupon, Calendar endOfSale) throws Exception
+    {
+        return storeFacade.addHiddenStoreDiscount(storeID, percent, coupon, endOfSale);
+    }
+
+
+    public String addDiscountBasketTotalPriceRule(int storeID, int discountID, double minimumPrice) throws Exception
+    {
+        return storeFacade.addDiscountBasketTotalPriceRule(storeID, discountID, minimumPrice);
+    }
+    public String addDiscountQuantityRule(int storeID, int discountID, Map<Integer, Integer> itemsAmounts) throws Exception
+    {
+        return storeFacade.addDiscountQuantityRule(storeID, discountID, itemsAmounts);
+    }
+    public String addDiscountComposite(int storeID, int discountID, LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs) throws Exception
+    {
+        return storeFacade.addDiscountComposite(storeID, discountID, logicalComposite, logicalComponentsIDs);
+    }
+    public String finishConditionalDiscountBuilding(int storeID, int discountID) throws Exception
+    {
+        return storeFacade.finishConditionalDiscountBuilding(storeID, discountID);
+    }
+    public int wrapDiscounts(int storeID, List<Integer> discountsIDsToWrap, NumericComposites numericCompositeEnum) throws Exception
+    {
+        return storeFacade.wrapDiscounts(storeID, discountsIDsToWrap, numericCompositeEnum);
+    }
+
+    public String addPurchasePolicyBasketWeightLimitRule(int storeID, double basketWeightLimit) throws Exception
+    {
+        return storeFacade.addPurchasePolicyBasketWeightLimitRule(storeID, basketWeightLimit);
+    }
+    public String addPurchasePolicyBuyerAgeRule(int storeID, int minimumAge) throws Exception
+    {
+        return storeFacade.addPurchasePolicyBuyerAgeRule(storeID, minimumAge);
+    }
+    public String addPurchasePolicyForbiddenCategoryRule(int storeID, String forbiddenCategory) throws Exception
+    {
+        return storeFacade.addPurchasePolicyForbiddenCategoryRule(storeID, forbiddenCategory);
+    }
+    public String addPurchasePolicyForbiddenDatesRule(int storeID, List<Calendar> forbiddenDates) throws Exception
+    {
+        return storeFacade.addPurchasePolicyForbiddenDatesRule(storeID, forbiddenDates);
+    }
+    public String addPurchasePolicyForbiddenHoursRule(int storeID, int startHour, int endHour) throws Exception
+    {
+        return storeFacade.addPurchasePolicyForbiddenHoursRule(storeID, startHour, endHour);
+    }
+    public String addPurchasePolicyMustDatesRule(int storeID, List<Calendar> mustDates) throws Exception
+    {
+        return storeFacade.addPurchasePolicyMustDatesRule(storeID, mustDates);
+    }
+    public String addPurchasePolicyItemsWeightLimitRule(int storeID, Map<Integer, Double> weightsLimits) throws Exception
+    {
+        return storeFacade.addPurchasePolicyItemsWeightLimitRule(storeID, weightsLimits);
+    }
+    public String addPurchasePolicyBasketTotalPriceRule(int storeID, double minimumPrice) throws Exception
+    {
+        return storeFacade.addPurchasePolicyBasketTotalPriceRule(storeID, minimumPrice);
+    }
+    public String addPurchasePolicyMustItemsAmountsRule(int storeID, Map<Integer, Integer> itemsAmounts) throws Exception
+    {
+        return storeFacade.addPurchasePolicyMustItemsAmountsRule(storeID, itemsAmounts);
+    }
+    public int wrapPurchasePolicies(int storeID, List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
+    {
+        return storeFacade.wrapPurchasePolicies(storeID, purchasePoliciesIDsToWrap, logicalCompositeEnum);
+    }
+
+    public Map<Integer, Discount> getStoreDiscounts(int storeID) throws Exception
+    {
+        return storeFacade.getStoreDiscounts(storeID);
+    }
+
+    public Map<Integer, Visible> getStoreVisibleDiscounts(int storeID) throws Exception
+    {
+        return storeFacade.getStoreVisibleDiscounts(storeID);
+    }
+
+    public Map<Integer, PurchasePolicy> getStorePurchasePolicies(int storeID) throws Exception
+    {
+        return storeFacade.getStorePurchasePolicies(storeID);
+    }
+
 }

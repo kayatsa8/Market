@@ -9,6 +9,7 @@ import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ public class UserFacade {
     private static final Logger log = Log.log;
     private final static int MIN_PASS_LENGTH = 6;
     private final static String adminName = "admin";
+    private final static String adminPass = "adminpass";
     public static int userID = 1000000;
     //    private Map<String, RegisteredUser> users;
     private Map<Integer, RegisteredUser> users;
@@ -40,7 +42,7 @@ public class UserFacade {
     }
 
     public void createAdmin() throws Exception {
-        RegisteredUser admin = new RegisteredUser(adminName, adminName, getNewId(), true);
+        RegisteredUser admin = new RegisteredUser(adminName, adminPass, getNewId(), true);
 //        userDAO.addUser(admin);
         users.put(admin.getId(), admin);
     }
@@ -69,12 +71,16 @@ public class UserFacade {
         if (userID== Guest.GUEST_USER_ID) {
             throw new Exception("This is the guest user ID, not registered user");
         }
+        if (users==null)
+            throw new Exception("users is Null");
+        if (!users.containsKey(userID))
+            throw new Exception("user "+userID+" not found");
         return users.get(userID);
     }
 
     public RegisteredUser getLoggedInUser(int userID) throws Exception {
         RegisteredUser user = users.get(userID);
-        if (user.isLoggedIn()) {
+        if (user!=null&&user.isLoggedIn()) {
             return user;
         }
         throw new Exception("User " + user.getUsername() + "is not logged in");
@@ -123,7 +129,7 @@ public class UserFacade {
         RegisteredUser user = getUserByName(username);
         if (user == null)
             throw new Exception("incorrect user name");
-        if (!user.getPassword().equals(password))
+        if (!Password.verifyPassword(password,user.getPassword()))
             throw new Exception("incorrect password");
         if (user.isLoggedIn())
             throw new Exception("User is already logged in");
@@ -277,5 +283,24 @@ public class UserFacade {
 
     public List<Message> watchSentMessages(int userID){
         return users.get(userID).watchSentMessages();
+    }
+
+    public Map<Integer, RegisteredUser> getAllRegisteredUsers() {
+        return  users;
+    }
+
+
+    public ArrayList<Integer> getStoresIdsIOwn(int ownerId) throws Exception {
+        return new ArrayList<>(getRegisteredUser(ownerId).getStoresIOwn().keySet());
+    }
+
+    public boolean isOwnerOrManager(int currUserID) {
+        try {
+            RegisteredUser user = getRegisteredUser(currUserID);
+            return !user.getStoresIOwn().isEmpty() || user.getStoresIManage().isEmpty();
+        }
+        catch (Exception e) {
+            return false;
+        }
     }
 }
