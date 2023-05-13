@@ -7,7 +7,6 @@ import ServiceLayer.Objects.*;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
 import ServiceLayer.UserService;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
@@ -139,11 +138,12 @@ public class StoreManagementView extends VerticalLayout {
 
         //TODO
         menu.addItem("Get Staff Info", event -> {});  //Requirement 4.11
-        menu.addItem("Determine Store policy", event -> {});
+        menu.addItem("View Store policies", event -> {viewPoliciesDialog();});
 
         storesDiv.add(storesGrid);
 
     }
+
 
     private void createUserGrid(Div usersDiv) {
 
@@ -794,6 +794,48 @@ public class StoreManagementView extends VerticalLayout {
         }
     }
 
+    private void viewPoliciesDialog() {
+        Grid<PolicyService> policiesGrid = new Grid<>();
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Policies");
+        Div div = new Div();
+        div.add(policiesGrid);
+        dialog.add(div);
+        dialog.setWidth("1000px");
+
+        int storeId = getStoreIdOfSelectedRow(storesGrid);
+
+        Result<List<PolicyService>> result = shoppingService.getStorePurchasePolicies(storeId);
+        if(result.isError()){
+            printError(result.getMessage());
+        }
+        else{
+            if(result.getValue() == null){
+                printError("Something went wrong");
+            }
+            else{
+
+                policiesGrid.setItems(result.getValue());
+                policiesGrid.setSelectionMode(Grid.SelectionMode.MULTI);
+                policiesGrid.addColumn(PolicyService:: getInfo).setHeader("Policy").setSortable(true).setWidth("9em");
+                policiesGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
+
+                Button createButton = new Button("Create New Policy", e -> createNewPolicyDialog(policiesGrid, storeId));
+                Button cancelButton = new Button("exit", e -> dialog.close());
+
+                dialog.getFooter().add(createButton, cancelButton);
+                add(dialog);
+                dialog.open();
+            }
+        }
+    }
+
+    private void createNewPolicyDialog(Grid<PolicyService> policiesGrid, int storeId) {
+        //TODO Do here the rules dialog like createNewRulesDialog
+        //DO here the buttons of AND OR New Policy according to all the policies in service!
+    }
 
     private void createNewDiscountDialog(int storeId, Grid<DiscountService> discountsGrid) {
         Dialog dialog = new Dialog();

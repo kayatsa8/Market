@@ -756,16 +756,25 @@ public class ShoppingService {
         }
     }
 
-    public Result<Boolean> getStorePurchasePolicies(int storeID) //Change from boolean to result of service purchase policies
+    public Result<List<PolicyService>> getStorePurchasePolicies(int storeID)
     {
         try {
             Map<Integer, PurchasePolicy> purchasePolicies = market.getStorePurchasePolicies(storeID);
             log.info("Got all purchase policies of store " + storeID);
-            return new Result<>(false, true);
+            return new Result<>(false, convertToPolicyService(purchasePolicies));
         } catch (Exception e) {
             log.info("Failed to get purchase policies of store " + storeID);
             return new Result<>(true, e.getMessage());
         }
+    }
+
+
+    private List<PolicyService> convertToPolicyService(Map<Integer, PurchasePolicy> purchasePolicies) {
+        List<PolicyService> policyServices = new ArrayList<>();
+        for(Map.Entry<Integer, PurchasePolicy> entry: purchasePolicies.entrySet()){
+            policyServices.add(new PolicyService(entry.getValue(), entry.getKey()));
+        }
+        return policyServices;
     }
 
 }
