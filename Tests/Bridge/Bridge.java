@@ -6,6 +6,7 @@ import Globals.SearchFilter;
 import ServiceLayer.Objects.*;
 import ServiceLayer.Result;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -424,4 +425,9 @@ public interface Bridge {
     List<MessageService> watchNotReadMessages(int id) throws Exception;
 
 
+    boolean addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale);
+
+    boolean addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale);
+
+    boolean addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale);
 }

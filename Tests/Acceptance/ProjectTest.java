@@ -7,6 +7,7 @@ import Globals.SearchBy;
 import Globals.SearchFilter;
 import ServiceLayer.Objects.*;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -373,5 +374,19 @@ public abstract class ProjectTest {
     protected boolean askForSupply(int userId, List<CatalogItemService> items, String supplyService) {
         return this.bridge.askForSupply(userId, items, supplyService);
     }
+
+    protected boolean addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale){
+        return this.bridge.addVisibleItemsDiscount(storeID, itemsIDs, percent, endOfSale);
+    }
+
+    protected  boolean addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale){
+        return this.bridge.addVisibleCategoryDiscount(storeID, category, percent, endOfSale);
+    }
+
+
+    protected boolean addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale){
+        return this.bridge.addConditionalStoreDiscount(storeID, percent, endOfSale);
+    }
+
 
 }

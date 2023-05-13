@@ -451,7 +451,7 @@ public class ShoppingService {
         return result;
     }
 
-    public Result<Boolean> addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale) throws Exception
+    public Result<Boolean> addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale)
     {
         try {
             market.addVisibleItemsDiscount(storeID, itemsIDs, percent, endOfSale);
@@ -462,7 +462,7 @@ public class ShoppingService {
             return new Result<>(false, e.getMessage());
         }
     }
-    public Result<Boolean> addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale) throws Exception
+    public Result<Boolean> addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale)
     {
         try {
             market.addVisibleCategoryDiscount(storeID, category, percent, endOfSale);
@@ -473,7 +473,7 @@ public class ShoppingService {
             return new Result<>(false, e.getMessage());
         }
     }
-    public Result<Boolean> addVisibleStoreDiscount(int storeID, double percent, Calendar endOfSale) throws Exception
+    public Result<Boolean> addVisibleStoreDiscount(int storeID, double percent, Calendar endOfSale)
     {
         try {
             market.addVisibleStoreDiscount(storeID, percent, endOfSale);
@@ -484,7 +484,7 @@ public class ShoppingService {
             return new Result<>(false, e.getMessage());
         }
     }
-    public Result<Boolean> addConditionalItemsDiscount(int storeID, double percent, Calendar endOfSale, List<Integer> itemsIDs) throws Exception
+    public Result<Boolean> addConditionalItemsDiscount(int storeID, double percent, Calendar endOfSale, List<Integer> itemsIDs)
     {
         try {
             market.addConditionalItemsDiscount(storeID, percent, endOfSale, itemsIDs);
@@ -495,7 +495,7 @@ public class ShoppingService {
             return new Result<>(false, e.getMessage());
         }
     }
-    public Result<Boolean> addConditionalCategoryDiscount(int storeID, double percent, Calendar endOfSale, String category) throws Exception
+    public Result<Boolean> addConditionalCategoryDiscount(int storeID, double percent, Calendar endOfSale, String category)
     {
         try {
             market.addConditionalCategoryDiscount(storeID, percent, endOfSale, category);
@@ -506,7 +506,7 @@ public class ShoppingService {
             return new Result<>(false, e.getMessage());
         }
     }
-    public Result<Boolean> addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale) throws Exception
+    public Result<Boolean> addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale)
     {
         try {
             market.addConditionalStoreDiscount(storeID, percent, endOfSale);
@@ -517,7 +517,7 @@ public class ShoppingService {
             return new Result<>(false, e.getMessage());
         }
     }
-    public Result<Boolean> addHiddenItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, String coupon, Calendar endOfSale) throws Exception
+    public Result<Boolean> addHiddenItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, String coupon, Calendar endOfSale)
     {
         try {
             market.addHiddenItemsDiscount(storeID, itemsIDs, percent, coupon, endOfSale);
@@ -528,7 +528,7 @@ public class ShoppingService {
             return new Result<>(false, e.getMessage());
         }
     }
-    public Result<Boolean> addHiddenCategoryDiscount(int storeID, String category, double percent, String coupon, Calendar endOfSale) throws Exception
+    public Result<Boolean> addHiddenCategoryDiscount(int storeID, String category, double percent, String coupon, Calendar endOfSale)
     {
         try {
             market.addHiddenCategoryDiscount(storeID, category, percent, coupon, endOfSale);
@@ -539,7 +539,7 @@ public class ShoppingService {
             return new Result<>(false, e.getMessage());
         }
     }
-    public Result<Boolean> addHiddenStoreDiscount(int storeID, double percent, String coupon, Calendar endOfSale) throws Exception
+    public Result<Boolean> addHiddenStoreDiscount(int storeID, double percent, String coupon, Calendar endOfSale)
     {
         try {
             market.addHiddenStoreDiscount(storeID, percent, coupon, endOfSale);
@@ -552,7 +552,7 @@ public class ShoppingService {
     }
 
 
-    public Result<Boolean> addPriceRule(int storeID, int discountID, double minimumPrice) throws Exception
+    public Result<Boolean> addPriceRule(int storeID, int discountID, double minimumPrice)
     {
         try {
             String result = market.addPriceRule(storeID, discountID, minimumPrice);
@@ -563,7 +563,7 @@ public class ShoppingService {
             return new Result<>(false, e.getMessage());
         }
     }
-    public Result<Boolean> addQuantityRule(int storeID, int discountID, Map<Integer, Integer> itemsAmounts) throws Exception
+    public Result<Boolean> addQuantityRule(int storeID, int discountID, Map<Integer, Integer> itemsAmounts)
     {
         try {
             String result = market.addQuantityRule(storeID, discountID, itemsAmounts);
@@ -574,7 +574,7 @@ public class ShoppingService {
             return new Result<>(false, e.getMessage());
         }
     }
-    public Result<Boolean> addComposite(int storeID, int discountID, LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs) throws Exception
+    public Result<Boolean> addComposite(int storeID, int discountID, LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs)
     {
         try {
             String result = market.addComposite(storeID, discountID, logicalComposite, logicalComponentsIDs);
@@ -585,7 +585,7 @@ public class ShoppingService {
             return new Result<>(false, e.getMessage());
         }
     }
-    public Result<Boolean> finishConditionalDiscountBuilding(int storeID, int discountID) throws Exception
+    public Result<Boolean> finishConditionalDiscountBuilding(int storeID, int discountID)
     {
         try {
             String result = market.finishConditionalDiscountBuilding(storeID, discountID);
@@ -596,7 +596,7 @@ public class ShoppingService {
             return new Result<>(false, e.getMessage());
         }
     }
-    public Result<Boolean> wrapDiscounts(int storeID, List<Integer> discountsIDsToWrap, NumericComposites numericCompositeEnum) throws Exception
+    public Result<Boolean> wrapDiscounts(int storeID, List<Integer> discountsIDsToWrap, NumericComposites numericCompositeEnum)
     {
         try {
             market.wrapDiscounts(storeID, discountsIDsToWrap, numericCompositeEnum);

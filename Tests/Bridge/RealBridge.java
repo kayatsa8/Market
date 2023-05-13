@@ -9,6 +9,7 @@ import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
 import ServiceLayer.UserService;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -249,6 +250,26 @@ public class RealBridge implements Bridge{
         }
         return result.getValue();
     }
+
+    @Override
+    public boolean addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale) {
+        Result<Boolean> result = shoppingService.addVisibleItemsDiscount(storeID, itemsIDs, percent, endOfSale);
+        return handleBoolResult(result);
+    }
+
+    public boolean addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale){
+        Result<Boolean> result = shoppingService.addVisibleCategoryDiscount(storeID, category, percent, endOfSale);
+        return handleBoolResult(result);
+    }
+
+    public boolean addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale){
+        Result<Boolean> result = shoppingService.addConditionalStoreDiscount(storeID, percent, endOfSale);
+        return handleBoolResult(result);
+    }
+
+
+
+
 
 
 
