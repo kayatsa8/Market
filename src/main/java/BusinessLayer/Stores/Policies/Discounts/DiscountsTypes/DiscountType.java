@@ -21,9 +21,7 @@ public abstract class DiscountType extends Discount {
     }
     private String getEndOfSaleString(Calendar endOfSale)
     {
-        return  endOfSale.get(5) + "." + endOfSale.get(2) + "." + endOfSale.get(1)
-                + " " +
-                endOfSale.get(11) + ":" + endOfSale.get(12) + ":" + endOfSale.get(13);
+        return  endOfSale.get(5) + "." + endOfSale.get(2) + "." + endOfSale.get(1);
     }
 
     public DiscountType(int discountID, double percent, Calendar endOfSale, DiscountScope discountScope)

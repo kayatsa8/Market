@@ -22,6 +22,7 @@ public class CatalogItemService {
     private int storeID;
     private boolean inStock;
     private int amount;
+    private double weight;
 
     public CatalogItemService(CatalogItem item, boolean inStock)
     {
@@ -33,6 +34,7 @@ public class CatalogItemService {
         this.storeID = item.getStoreID();
         this.inStock = inStock;
         this.amount = 0;
+        this.weight = item.getWeight();
     }
 
     public String getItemName(){
@@ -59,6 +61,10 @@ public class CatalogItemService {
         return amount;
     }
     public void setAmount(int amount) {
-//        this.amount = amount;
+        this.amount = amount;
+    }
+
+    public double getWeight() {
+        return this.weight;
     }
 }

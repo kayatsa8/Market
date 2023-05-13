@@ -194,10 +194,10 @@ public class ShoppingService {
             return new Result<>(true, e.getMessage());
         }
     }
-    public Result<CatalogItemService> addItemToStore(int storeID, String itemName, double itemPrice, String itemCategory)
+    public Result<CatalogItemService> addItemToStore(int storeID, String itemName, double itemPrice, String itemCategory, double weight)
     {
         try {
-            CatalogItem catalogItem = market.addItemToStore(storeID, itemName, itemPrice, itemCategory, 0);
+            CatalogItem catalogItem = market.addItemToStore(storeID, itemName, itemPrice, itemCategory, weight);
             CatalogItemService catalogItemService = new CatalogItemService(catalogItem, false);
             log.info("Added new item to store");
             return new Result<>(false, catalogItemService);
@@ -557,34 +557,34 @@ public class ShoppingService {
     }
 
 
-    public Result<Boolean> addDiscountBasketTotalPriceRule(int storeID, int discountID, double minimumPrice)
+    public Result<RuleService> addDiscountBasketTotalPriceRule(int storeID, int discountID, double minimumPrice)
     {
         try {
             String result = market.addDiscountBasketTotalPriceRule(storeID, discountID, minimumPrice);
             log.info("Added new hidden discount");
-            return new Result<>(false, result);
+            return new Result<>(false, new RuleService(result));
         } catch (Exception e) {
             log.info("Failed to add new hidden discount");
             return new Result<>(true, e.getMessage());
         }
     }
-    public Result<Boolean> addDiscountQuantityRule(int storeID, int discountID, Map<Integer, Integer> itemsAmounts)
+    public Result<RuleService> addDiscountQuantityRule(int storeID, int discountID, Map<Integer, Integer> itemsAmounts)
     {
         try {
             String result = market.addDiscountQuantityRule(storeID, discountID, itemsAmounts);
             log.info("Added new hidden discount");
-            return new Result<>(false, result);
+            return new Result<>(false, new RuleService(result));
         } catch (Exception e) {
             log.info("Failed to add new hidden discount");
             return new Result<>(true, e.getMessage());
         }
     }
-    public Result<Boolean> addDiscountComposite(int storeID, int discountID, LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs)
+    public Result<RuleService> addDiscountComposite(int storeID, int discountID, LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs)
     {
         try {
             String result = market.addDiscountComposite(storeID, discountID, logicalComposite, logicalComponentsIDs);
             log.info("Added new hidden discount");
-            return new Result<>(false, result);
+            return new Result<>(false, new RuleService(result));
         } catch (Exception e) {
             log.info("Failed to add new hidden discount");
             return new Result<>(true, e.getMessage());
@@ -595,7 +595,7 @@ public class ShoppingService {
         try {
             String result = market.finishConditionalDiscountBuilding(storeID, discountID);
             log.info("Added new hidden discount");
-            return new Result<>(false, result);
+            return new Result<>(false, true);
         } catch (Exception e) {
             log.info("Failed to add new hidden discount");
             return new Result<>(true, e.getMessage());
@@ -724,17 +724,26 @@ public class ShoppingService {
         }
     }
 
-    public Result<Boolean> getStoreDiscounts(int storeID) //Change from boolean to result of service discounts
+    public Result<List<DiscountService>> getStoreDiscounts(int storeID)
     {
         try {
             Map<Integer, Discount> discounts = market.getStoreDiscounts(storeID);
             log.info("Got all discounts of store " + storeID);
-            return new Result<>(false, true);
+            return new Result<>(false, convertToServiceDiscounts(discounts));
         } catch (Exception e) {
             log.info("Failed to get discounts of store " + storeID);
             return new Result<>(true, e.getMessage());
         }
     }
+
+    private List<DiscountService> convertToServiceDiscounts(Map<Integer, Discount> discounts) {
+        List<DiscountService> discountServices = new ArrayList<>();
+        for(Discount discount: discounts.values()){
+            discountServices.add(new DiscountService(discount));
+        }
+        return discountServices;
+    }
+
     public Result<Boolean> getStoreVisibleDiscounts(int storeID) //Change from boolean to result of service discounts
     {
         try {
@@ -758,4 +767,5 @@ public class ShoppingService {
             return new Result<>(true, e.getMessage());
         }
     }
+
 }
