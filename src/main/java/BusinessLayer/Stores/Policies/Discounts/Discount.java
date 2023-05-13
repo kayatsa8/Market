@@ -12,4 +12,5 @@ public abstract class Discount {
     }
     public abstract List<CartItemInfo> updateBasket(List<CartItemInfo> basketItems, List<String> coupons);
     public int getDiscountID() { return discountID; }
+    public abstract boolean isDiscountApplyForItem(int itemID, String category);
 }

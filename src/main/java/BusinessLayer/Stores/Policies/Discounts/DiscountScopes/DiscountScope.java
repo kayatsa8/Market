@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface DiscountScope {
     void setItemsPercents(List<CartItemInfo> copyBasket, double percent);
+
+    boolean isDiscountApplyForItem(int itemID, String category);
 }

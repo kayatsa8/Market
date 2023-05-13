@@ -39,4 +39,16 @@ public abstract class NumericComposite extends Discount
         return updateBasketByNumericComposite(tempBaskets);
     }
     protected abstract List<CartItemInfo> updateBasketByNumericComposite(List<List<CartItemInfo>> tempBaskets);
+
+    public boolean isDiscountApplyForItem(int itemID, String category)
+    {
+        for (Discount discount : discounts)
+        {
+            if (discount.isDiscountApplyForItem(itemID, category))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }

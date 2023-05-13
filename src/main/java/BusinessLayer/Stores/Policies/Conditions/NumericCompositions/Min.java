@@ -1,6 +1,7 @@
 package BusinessLayer.Stores.Policies.Conditions.NumericCompositions;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.LogicalComponent;
 import BusinessLayer.Stores.Policies.Discounts.Discount;
 
 import java.util.ArrayList;
@@ -33,5 +34,18 @@ public class Min extends Xor //apply only the worst discount for a given basket 
             }
         }
         return currentHighestBasket;
+    }
+
+    @Override
+    public String toString()
+    {
+        String result = "";
+        for (Discount discount : getDiscounts())
+        {
+            result += " MIN " + discount.toString();
+        }
+        if (result.length()>1)
+            result = result.substring(3);
+        return "(" + result + ")";
     }
 }

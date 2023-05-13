@@ -5,10 +5,10 @@ import BusinessLayer.CartAndBasket.CartItemInfo;
 import java.util.List;
 import java.util.Map;
 
-public class DiscountQuantityRule extends Rule{
+public class MustItemsAmountsRule extends Rule{
 
     private Map<Integer, Integer> itemsAmounts;
-    public DiscountQuantityRule(Map<Integer, Integer> itemsAmounts, int id)
+    public MustItemsAmountsRule(Map<Integer, Integer> itemsAmounts, int id)
     {
         super(id);
         this.itemsAmounts = itemsAmounts;
@@ -51,10 +51,15 @@ public class DiscountQuantityRule extends Rule{
     {
         String result = "";
         for (Map.Entry<Integer, Integer> itemAmount : itemsAmounts.entrySet()) {
-            result += ", " + itemAmount.getValue() + " of item ID " + itemAmount.getKey();
+            result += "; " + itemAmount.getValue() + " of item ID " + itemAmount.getKey();
         }
         if (result.length()>1)
             result = result.substring(2);
-        return  "(Basket must contain at least: " + result + ")";
+        return  "(Basket contains at least: " + result + ")";
+    }
+
+    public boolean isApplyForItem(int itemID, String category)
+    {
+        return itemsAmounts.containsKey(itemID);
     }
 }

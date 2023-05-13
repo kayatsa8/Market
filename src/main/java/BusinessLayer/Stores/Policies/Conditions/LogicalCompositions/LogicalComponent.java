@@ -12,4 +12,6 @@ public abstract class LogicalComponent {
     }
     public abstract boolean checkConditions(List<CartItemInfo> basketItems);
     public int getID() { return id; }
+
+    public abstract boolean isApplyForItem(int itemID, String category);
 }

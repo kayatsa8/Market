@@ -13,4 +13,16 @@ public abstract class LogicalComposite extends LogicalComponent {
     public List<LogicalComponent> getComponents() {
         return components;
     }
+
+    public boolean isApplyForItem(int itemID, String category)
+    {
+        for (LogicalComponent logicalComponent : components)
+        {
+            if (logicalComponent.isApplyForItem(itemID, category))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }

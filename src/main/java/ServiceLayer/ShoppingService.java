@@ -4,9 +4,11 @@ import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.Receipts.Receipt.Receipt;
-import BusinessLayer.Receipts.ReceiptItem.ReceiptItem;
 import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Policies.Conditions.NumericCompositions.NumericComposites;
+import BusinessLayer.Stores.Policies.Discounts.Discount;
+import BusinessLayer.Stores.Policies.Discounts.DiscountsTypes.Visible;
+import BusinessLayer.Stores.Policies.PurchasePolicies.PurchasePolicy;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -195,7 +197,7 @@ public class ShoppingService {
     public Result<CatalogItemService> addItemToStore(int storeID, String itemName, double itemPrice, String itemCategory)
     {
         try {
-            CatalogItem catalogItem = market.addItemToStore(storeID, itemName, itemPrice, itemCategory);
+            CatalogItem catalogItem = market.addItemToStore(storeID, itemName, itemPrice, itemCategory, 0);
             CatalogItemService catalogItemService = new CatalogItemService(catalogItem, false);
             log.info("Added new item to store");
             return new Result<>(false, catalogItemService);
@@ -315,36 +317,39 @@ public class ShoppingService {
         }
     }
 
-    public Result<Boolean> sendMessage(int storeID, int receiverID, String title, String content) throws Exception
+    public Result<Boolean> sendMessage(int storeID, int receiverID, String title, String content)
     {
-        boolean response = market.sendMessage(storeID, receiverID, title, content);
+        try
+        {
+            boolean response = market.sendMessage(storeID, receiverID, title, content);
+            log.info("Sent message successfully");
+            return new Result<>(false, response);
+        } catch (Exception e)
+        {
+            log.info("Failed to send message");
+            return new Result<>(true, e.getMessage());
+        }
 
-        if(response){
-            return new Result<Boolean>(true, "Message was sent");
-        }
-        else{
-            return new Result<Boolean>(false, "Message was not sent");
-        }
 
     }
 
     public Result<Boolean> markMessageAsRead(int storeID, MessageService messageService){
         try{
             market.markMessageAsRead(storeID, new Message(messageService));
-            return new Result<Boolean>(true, "Success");
+            return new Result<Boolean>(false, true);
         }
         catch(Exception e){
-            return new Result<Boolean>(false, "Failure");
+            return new Result<Boolean>(true, e.getMessage());
         }
     }
 
     public Result<Boolean> markMessageAsNotRead(int storeID, MessageService messageService){
         try{
             market.markMessageAsNotRead(storeID, new Message(messageService));
-            return new Result<Boolean>(true, "Success");
+            return new Result<Boolean>(false, true);
         }
         catch(Exception e){
-            return new Result<Boolean>(false, "Failure");
+            return new Result<Boolean>(true, e.getMessage());
         }
     }
 
@@ -375,10 +380,10 @@ public class ShoppingService {
         List<Message> messages = market.watchReadMessages(storeID);
 
         if(messages == null){
-            return new Result<List<MessageService>>(false, "Error");
+            return new Result<List<MessageService>>(true, "Error");
         }
         else{
-            return new Result<List<MessageService>>(true, messageListToMessageServiceList(messages));
+            return new Result<List<MessageService>>(false, messageListToMessageServiceList(messages));
         }
     }
 
@@ -387,10 +392,10 @@ public class ShoppingService {
         List<Message> messages = market.watchSentMessages(storeID);
 
         if(messages == null){
-            return new Result<List<MessageService>>(false, "Error");
+            return new Result<List<MessageService>>(true, "Error");
         }
         else{
-            return new Result<List<MessageService>>(true, messageListToMessageServiceList(messages));
+            return new Result<List<MessageService>>(false, messageListToMessageServiceList(messages));
         }
     }
 
@@ -451,160 +456,306 @@ public class ShoppingService {
         return result;
     }
 
-    public Result<Boolean> addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale) throws Exception
+    public Result<Integer> addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale)
     {
         try {
-            market.addVisibleItemsDiscount(storeID, itemsIDs, percent, endOfSale);
+            int id = market.addVisibleItemsDiscount(storeID, itemsIDs, percent, endOfSale);
             log.info("Added new visible discount");
-            return new Result<>(true, "");
+            return new Result<>(false, id);
         } catch (Exception e) {
             log.info("Failed to add new visible discount");
-            return new Result<>(false, e.getMessage());
+            return new Result<>(true, e.getMessage());
         }
     }
-    public Result<Boolean> addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale) throws Exception
+    public Result<Integer> addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale)
     {
         try {
-            market.addVisibleCategoryDiscount(storeID, category, percent, endOfSale);
+            int id = market.addVisibleCategoryDiscount(storeID, category, percent, endOfSale);
             log.info("Added new visible discount");
-            return new Result<>(true, "");
+            return new Result<>(false, id);
         } catch (Exception e) {
             log.info("Failed to add new visible discount");
-            return new Result<>(false, e.getMessage());
+            return new Result<>(true, e.getMessage());
         }
     }
-    public Result<Boolean> addVisibleStoreDiscount(int storeID, double percent, Calendar endOfSale) throws Exception
+    public Result<Integer> addVisibleStoreDiscount(int storeID, double percent, Calendar endOfSale)
     {
         try {
-            market.addVisibleStoreDiscount(storeID, percent, endOfSale);
+            int id = market.addVisibleStoreDiscount(storeID, percent, endOfSale);
             log.info("Added new visible discount");
-            return new Result<>(true, "");
+            return new Result<>(false, id);
         } catch (Exception e) {
             log.info("Failed to add new visible discount");
-            return new Result<>(false, e.getMessage());
+            return new Result<>(true, e.getMessage());
         }
     }
-    public Result<Boolean> addConditionalItemsDiscount(int storeID, double percent, Calendar endOfSale, List<Integer> itemsIDs) throws Exception
+    public Result<Integer> addConditionalItemsDiscount(int storeID, double percent, Calendar endOfSale, List<Integer> itemsIDs)
     {
         try {
-            market.addConditionalItemsDiscount(storeID, percent, endOfSale, itemsIDs);
+            int id = market.addConditionalItemsDiscount(storeID, percent, endOfSale, itemsIDs);
             log.info("Added new conditional discount");
-            return new Result<>(true, "");
+            return new Result<>(false, id);
         } catch (Exception e) {
             log.info("Failed to add new conditional discount");
-            return new Result<>(false, e.getMessage());
+            return new Result<>(true, e.getMessage());
         }
     }
-    public Result<Boolean> addConditionalCategoryDiscount(int storeID, double percent, Calendar endOfSale, String category) throws Exception
+    public Result<Integer> addConditionalCategoryDiscount(int storeID, double percent, Calendar endOfSale, String category)
     {
         try {
-            market.addConditionalCategoryDiscount(storeID, percent, endOfSale, category);
+            int id = market.addConditionalCategoryDiscount(storeID, percent, endOfSale, category);
             log.info("Added new conditional discount");
-            return new Result<>(true, "");
+            return new Result<>(false, id);
         } catch (Exception e) {
             log.info("Failed to add new conditional discount");
-            return new Result<>(false, e.getMessage());
+            return new Result<>(true, e.getMessage());
         }
     }
-    public Result<Boolean> addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale) throws Exception
+    public Result<Integer> addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale)
     {
         try {
-            market.addConditionalStoreDiscount(storeID, percent, endOfSale);
+            int id = market.addConditionalStoreDiscount(storeID, percent, endOfSale);
             log.info("Added new conditional discount");
-            return new Result<>(true, "");
+            return new Result<>(false, id);
         } catch (Exception e) {
             log.info("Failed to add new conditional discount");
-            return new Result<>(false, e.getMessage());
+            return new Result<>(true, e.getMessage());
         }
     }
-    public Result<Boolean> addHiddenItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, String coupon, Calendar endOfSale) throws Exception
+    public Result<Integer> addHiddenItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, String coupon, Calendar endOfSale)
     {
         try {
-            market.addHiddenItemsDiscount(storeID, itemsIDs, percent, coupon, endOfSale);
+            int id = market.addHiddenItemsDiscount(storeID, itemsIDs, percent, coupon, endOfSale);
             log.info("Added new hidden discount");
-            return new Result<>(true, "");
+            return new Result<>(false, id);
         } catch (Exception e) {
             log.info("Failed to add new hidden discount");
-            return new Result<>(false, e.getMessage());
+            return new Result<>(true, e.getMessage());
         }
     }
-    public Result<Boolean> addHiddenCategoryDiscount(int storeID, String category, double percent, String coupon, Calendar endOfSale) throws Exception
+    public Result<Integer> addHiddenCategoryDiscount(int storeID, String category, double percent, String coupon, Calendar endOfSale)
     {
         try {
-            market.addHiddenCategoryDiscount(storeID, category, percent, coupon, endOfSale);
+            int id = market.addHiddenCategoryDiscount(storeID, category, percent, coupon, endOfSale);
             log.info("Added new hidden discount");
-            return new Result<>(true, "");
+            return new Result<>(false, id);
         } catch (Exception e) {
             log.info("Failed to add new hidden discount");
-            return new Result<>(false, e.getMessage());
+            return new Result<>(true, e.getMessage());
         }
     }
-    public Result<Boolean> addHiddenStoreDiscount(int storeID, double percent, String coupon, Calendar endOfSale) throws Exception
+    public Result<Integer> addHiddenStoreDiscount(int storeID, double percent, String coupon, Calendar endOfSale)
     {
         try {
-            market.addHiddenStoreDiscount(storeID, percent, coupon, endOfSale);
+            int id = market.addHiddenStoreDiscount(storeID, percent, coupon, endOfSale);
             log.info("Added new hidden discount");
-            return new Result<>(true, "");
+            return new Result<>(false, id);
         } catch (Exception e) {
             log.info("Failed to add new hidden discount");
-            return new Result<>(false, e.getMessage());
+            return new Result<>(true, e.getMessage());
         }
     }
 
 
-    public Result<Boolean> addPriceRule(int storeID, int discountID, double minimumPrice) throws Exception
+    public Result<Boolean> addDiscountBasketTotalPriceRule(int storeID, int discountID, double minimumPrice)
     {
         try {
-            String result = market.addPriceRule(storeID, discountID, minimumPrice);
+            String result = market.addDiscountBasketTotalPriceRule(storeID, discountID, minimumPrice);
             log.info("Added new hidden discount");
-            return new Result<>(true, result);
+            return new Result<>(false, result);
         } catch (Exception e) {
             log.info("Failed to add new hidden discount");
-            return new Result<>(false, e.getMessage());
+            return new Result<>(true, e.getMessage());
         }
     }
-    public Result<Boolean> addQuantityRule(int storeID, int discountID, Map<Integer, Integer> itemsAmounts) throws Exception
+    public Result<Boolean> addDiscountQuantityRule(int storeID, int discountID, Map<Integer, Integer> itemsAmounts)
     {
         try {
-            String result = market.addQuantityRule(storeID, discountID, itemsAmounts);
+            String result = market.addDiscountQuantityRule(storeID, discountID, itemsAmounts);
             log.info("Added new hidden discount");
-            return new Result<>(true, result);
+            return new Result<>(false, result);
         } catch (Exception e) {
             log.info("Failed to add new hidden discount");
-            return new Result<>(false, e.getMessage());
+            return new Result<>(true, e.getMessage());
         }
     }
-    public Result<Boolean> addComposite(int storeID, int discountID, LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs) throws Exception
+    public Result<Boolean> addDiscountComposite(int storeID, int discountID, LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs)
     {
         try {
-            String result = market.addComposite(storeID, discountID, logicalComposite, logicalComponentsIDs);
+            String result = market.addDiscountComposite(storeID, discountID, logicalComposite, logicalComponentsIDs);
             log.info("Added new hidden discount");
-            return new Result<>(true, result);
+            return new Result<>(false, result);
         } catch (Exception e) {
             log.info("Failed to add new hidden discount");
-            return new Result<>(false, e.getMessage());
+            return new Result<>(true, e.getMessage());
         }
     }
-    public Result<Boolean> finishConditionalDiscountBuilding(int storeID, int discountID) throws Exception
+    public Result<Boolean> finishConditionalDiscountBuilding(int storeID, int discountID)
     {
         try {
             String result = market.finishConditionalDiscountBuilding(storeID, discountID);
             log.info("Added new hidden discount");
-            return new Result<>(true, result);
+            return new Result<>(false, result);
         } catch (Exception e) {
             log.info("Failed to add new hidden discount");
-            return new Result<>(false, e.getMessage());
+            return new Result<>(true, e.getMessage());
         }
     }
-    public Result<Boolean> wrapDiscounts(int storeID, List<Integer> discountsIDsToWrap, NumericComposites numericCompositeEnum) throws Exception
+    public Result<Integer> wrapDiscounts(int storeID, List<Integer> discountsIDsToWrap, NumericComposites numericCompositeEnum)
     {
         try {
-            market.wrapDiscounts(storeID, discountsIDsToWrap, numericCompositeEnum);
+            int id = market.wrapDiscounts(storeID, discountsIDsToWrap, numericCompositeEnum);
             log.info("Wrapped discounts successfully");
-            return new Result<>(true, "");
+            return new Result<>(false, id);
         } catch (Exception e) {
             log.info("Failed to wrap discounts");
-            return new Result<>(false, e.getMessage());
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result<String> addPurchasePolicyBasketWeightLimitRule(int storeID, double basketWeightLimit)
+    {
+        try {
+            String result = market.addPurchasePolicyBasketWeightLimitRule(storeID, basketWeightLimit);
+            log.info("Succeeded to purchase policy of basket weight limit rule");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to add purchase policy of basket weight limit rule");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<String> addPurchasePolicyBuyerAgeRule(int storeID, int minimumAge)
+    {
+        try {
+            String result = market.addPurchasePolicyBuyerAgeRule(storeID, minimumAge);
+            log.info("Succeeded to purchase policy of buyer age rule");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to add purchase policy of buyer age rule");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<String> addPurchasePolicyForbiddenCategoryRule(int storeID, String forbiddenCategory)
+    {
+        try {
+            String result = market.addPurchasePolicyForbiddenCategoryRule(storeID, forbiddenCategory);
+            log.info("Succeeded to purchase policy of forbidden category rule");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to add purchase policy of forbidden category rule");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<String> addPurchasePolicyForbiddenDatesRule(int storeID, List<Calendar> forbiddenDates)
+    {
+        try {
+            String result = market.addPurchasePolicyForbiddenDatesRule(storeID, forbiddenDates);
+            log.info("Succeeded to purchase policy of forbidden dates rule");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to add purchase policy of forbidden dates rule");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<String> addPurchasePolicyForbiddenHoursRule(int storeID, int startHour, int endHour)
+    {
+        try {
+            String result = market.addPurchasePolicyForbiddenHoursRule(storeID, startHour, endHour);
+            log.info("Succeeded to purchase policy of forbidden hours rule");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to add purchase policy of forbidden hours rule");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<String> addPurchasePolicyMustDatesRule(int storeID, List<Calendar> mustDates)
+    {
+        try {
+            String result = market.addPurchasePolicyMustDatesRule(storeID, mustDates);
+            log.info("Succeeded to purchase policy of must dates rule");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to add purchase policy of must dates rule");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<String> addPurchasePolicyItemsWeightLimitRule(int storeID, Map<Integer, Double> weightsLimits)
+    {
+        try {
+            String result = market.addPurchasePolicyItemsWeightLimitRule(storeID, weightsLimits);
+            log.info("Succeeded to purchase policy of items weight limit rule");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to add purchase policy of items weight limit rule");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<String> addPurchasePolicyBasketTotalPriceRule(int storeID, double minimumPrice)
+    {
+        try {
+            String result = market.addPurchasePolicyBasketTotalPriceRule(storeID, minimumPrice);
+            log.info("Succeeded to purchase policy of basket total price rule");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to add purchase policy of basket total price rule");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<String> addPurchasePolicyMustItemsAmountsRule(int storeID, Map<Integer, Integer> itemsAmounts)
+    {
+        try {
+            String result = market.addPurchasePolicyMustItemsAmountsRule(storeID, itemsAmounts);
+            log.info("Succeeded to purchase policy of must items amounts rule");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to add purchase policy of must items amounts rule");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<Integer> wrapPurchasePolicies(int storeID, List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum)
+    {
+        try {
+            int id = market.wrapPurchasePolicies(storeID, purchasePoliciesIDsToWrap, logicalCompositeEnum);
+            log.info("Succeeded to wrap purchase policies under logical composite of " + logicalCompositeEnum.name());
+            return new Result<>(false, id);
+        } catch (Exception e) {
+            log.info("Failed to wrap purchase policies under logical composite of " + logicalCompositeEnum.name());
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result<Boolean> getStoreDiscounts(int storeID) //Change from boolean to result of service discounts
+    {
+        try {
+            Map<Integer, Discount> discounts = market.getStoreDiscounts(storeID);
+            log.info("Got all discounts of store " + storeID);
+            return new Result<>(false, true);
+        } catch (Exception e) {
+            log.info("Failed to get discounts of store " + storeID);
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<Boolean> getStoreVisibleDiscounts(int storeID) //Change from boolean to result of service discounts
+    {
+        try {
+            Map<Integer, Visible> visibleDiscounts = market.getStoreVisibleDiscounts(storeID);
+            log.info("Got all visible discounts of store " + storeID);
+            return new Result<>(false, true);
+        } catch (Exception e) {
+            log.info("Failed to get visible discounts of store " + storeID);
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result<Boolean> getStorePurchasePolicies(int storeID) //Change from boolean to result of service purchase policies
+    {
+        try {
+            Map<Integer, PurchasePolicy> purchasePolicies = market.getStorePurchasePolicies(storeID);
+            log.info("Got all purchase policies of store " + storeID);
+            return new Result<>(false, true);
+        } catch (Exception e) {
+            log.info("Failed to get purchase policies of store " + storeID);
+            return new Result<>(true, e.getMessage());
         }
     }
 }
