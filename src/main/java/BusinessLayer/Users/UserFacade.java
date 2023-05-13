@@ -16,6 +16,7 @@ public class UserFacade {
     private static final Logger log = Log.log;
     private final static int MIN_PASS_LENGTH = 6;
     private final static String adminName = "admin";
+    private final static String adminPass = "adminpass";
     public static int userID = 1000000;
     //    private Map<String, RegisteredUser> users;
     private Map<Integer, RegisteredUser> users;
@@ -38,7 +39,7 @@ public class UserFacade {
     }
 
     public void createAdmin() throws Exception {
-        RegisteredUser admin = new RegisteredUser(adminName, adminName, getNewId(), true);
+        RegisteredUser admin = new RegisteredUser(adminName, adminPass, getNewId(), true);
 //        userDAO.addUser(admin);
         users.put(admin.getId(), admin);
     }
@@ -76,7 +77,7 @@ public class UserFacade {
 
     public RegisteredUser getLoggedInUser(int userID) throws Exception {
         RegisteredUser user = users.get(userID);
-        if (user.isLoggedIn()) {
+        if (user!=null&&user.isLoggedIn()) {
             return user;
         }
         throw new Exception("User " + user.getUsername() + "is not logged in");
@@ -288,6 +289,16 @@ public class UserFacade {
 
     public ArrayList<Integer> getStoresIdsIOwn(int ownerId) throws Exception {
         return new ArrayList<>(getRegisteredUser(ownerId).getStoresIOwn().keySet());
+    }
+
+    public boolean isOwnerOrManager(int currUserID) {
+        try {
+            RegisteredUser user = getRegisteredUser(currUserID);
+            return !user.getStoresIOwn().isEmpty() || user.getStoresIManage().isEmpty();
+        }
+        catch (Exception e) {
+            return false;
+        }
     }
 
     public Map<RegisteredUser, Set<Integer>> getAllOwnersIDefined(int ownerId) throws Exception {

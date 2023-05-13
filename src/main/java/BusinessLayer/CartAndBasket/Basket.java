@@ -30,9 +30,8 @@ public class Basket {
         items.putIfAbsent(item.getItemID(), new ItemWrapper(item, quantity));
 
         releaseItems();
-        List<CartItemInfo> tempBasketItems = getItemsInfo();
-        store.updateBasket(tempBasketItems, coupons);
-        //updateBasketByCartItemInfoList(tempBasketItems);
+
+        updateBasketWithCoupons(coupons);
     }
 
     public void changeItemQuantity(int itemID, int quantity, List<String> coupons) throws Exception {
@@ -41,9 +40,8 @@ public class Basket {
         items.get(itemID).info.setAmount(quantity);
 
         releaseItems();
-        List<CartItemInfo> tempBasketItems = getItemsInfo();
-        store.updateBasket(tempBasketItems, coupons);
-        //updateBasketByCartItemInfoList(tempBasketItems);
+
+        updateBasketWithCoupons(coupons);
     }
 
     public void removeItem(int itemID, List<String> coupons) throws Exception {
@@ -55,9 +53,8 @@ public class Basket {
         items.remove(itemID);
 
         releaseItems();
-        List<CartItemInfo> tempBasketItems = getItemsInfo();
-        store.updateBasket(tempBasketItems, coupons);
-        //updateBasketByCartItemInfoList(tempBasketItems);
+
+        updateBasketWithCoupons(coupons);
     }
 
     private void validateAddItem(CatalogItem item, int quantity) throws Exception {
@@ -105,7 +102,7 @@ public class Basket {
     }
 
     private CatalogItem makeCopyOfCatalogItem(CatalogItem item){
-        return new CatalogItem(item.getItemID(), item.getItemName(), item.getPrice(), item.getCategory(), item.getStoreName(), item.getItemID());
+        return new CatalogItem(item.getItemID(), item.getItemName(), item.getPrice(), item.getCategory(), item.getStoreName(), item.getItemID(), item.getWeight());
     }
 
     public void saveItems(List<String> coupons) throws Exception{
@@ -197,7 +194,17 @@ public class Basket {
         return items.containsKey(itemID);
     }
 
+    public void updateBasketWithCoupons(List<String> coupons){
+        List<CartItemInfo> updatedBasketItems = getItemsInfo();
+        store.updateBasket(updatedBasketItems, coupons);
+        updateBasketByCartItemInfoList(updatedBasketItems);
+    }
 
+    public void updateBasketByCartItemInfoList(List<CartItemInfo> updatedBasketItems){
+        for(CartItemInfo info : updatedBasketItems){
+            items.get(info.getItemID()).info = info;
+        }
+    }
 
 
 
@@ -215,7 +222,7 @@ public class Basket {
 
         public ItemWrapper(CatalogItem _item, int quantity){
             item = _item;
-            info = new CartItemInfo(item.getItemID(), quantity, item.getPrice(), _item.getCategory(), _item.getItemName());
+            info = new CartItemInfo(item.getItemID(), quantity, item.getPrice(), _item.getCategory(), _item.getItemName(), _item.getWeight());
         }
     }
 

@@ -46,7 +46,7 @@ public class ItemsManagementTests {
     @Test
     public void aAddCatalogItemSuccessfully(){
         try {
-            item1 = storeFacade.addCatalogItem(store1.getStoreID(), "Harry Potter Book", 79.90, "Books");
+            item1 = storeFacade.addCatalogItem(store1.getStoreID(), "Harry Potter Book", 79.90, "Books", 0.8);
             assertNotNull("Item added to store",item1);
         } catch (Exception e) {
             fail(e.getMessage());
@@ -56,7 +56,7 @@ public class ItemsManagementTests {
     @Test
     public void bAddCatalogItemUnsuccessfully(){
         try {
-            CatalogItem item = storeFacade.addCatalogItem(1656, "Blabla Book", 100, "Books");
+            CatalogItem item = storeFacade.addCatalogItem(1656, "Blabla Book", 100, "Books", 0.3);
             fail("Should throw an error for store not exist");
         } catch (Exception e) {
             assertTrue("Store not exist", ("No store with ID: " + 1656).equals(e.getMessage()));

@@ -15,9 +15,15 @@ public abstract class DiscountType extends Discount {
 
     @Override
     public String toString() {
-        return  "Percent is: " + percent + "\n" +
-                "End of sale is at: " + endOfSale.toString() + "\n" +
+        return  "Percent is: " + percent + ", " +
+                "End of sale is at: " + getEndOfSaleString(endOfSale) + ", " +
                 discountScope.toString();
+    }
+    private String getEndOfSaleString(Calendar endOfSale)
+    {
+        return  endOfSale.get(5) + "." + endOfSale.get(2) + "." + endOfSale.get(1)
+                + " " +
+                endOfSale.get(11) + ":" + endOfSale.get(12) + ":" + endOfSale.get(13);
     }
 
     public DiscountType(int discountID, double percent, Calendar endOfSale, DiscountScope discountScope)
@@ -44,4 +50,9 @@ public abstract class DiscountType extends Discount {
         return copyBasket;
     }
     protected abstract boolean checkConditions(List<CartItemInfo> basketItems, List<String> coupons);
+
+    public boolean isDiscountApplyForItem(int itemID, String category)
+    {
+        return discountScope.isDiscountApplyForItem(itemID, category);
+    }
 }

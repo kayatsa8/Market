@@ -19,4 +19,9 @@ public class StoreDiscount implements DiscountScope {
     {
         return "Discount is applied on the whole store";
     }
+
+    public boolean isDiscountApplyForItem(int itemID, String category)
+    {
+        return true;
+    }
 }

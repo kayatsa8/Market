@@ -8,13 +8,15 @@ public class CartItemInfo {
     private double originalPrice;
     private String category;
     private String itemName;
-    public CartItemInfo(int itemID, int amount, double originalPrice, String category, String itemName){
+    private double weight;
+    public CartItemInfo(int itemID, int amount, double originalPrice, String category, String itemName, double weight){
         this.itemID = itemID;
         this.amount = amount;
         this.percent = 0;
         this.originalPrice = originalPrice;
         this.category = category;
         this.itemName = itemName;
+        this.weight = weight;
     }
 
     public CartItemInfo(CartItemInfo other){
@@ -24,6 +26,7 @@ public class CartItemInfo {
         originalPrice = other.originalPrice;
         category = other.category;
         itemName = other.itemName;
+        weight = other.weight;
     }
 
     public int getItemID() { return itemID; }
@@ -32,6 +35,7 @@ public class CartItemInfo {
     public double getOriginalPrice() { return originalPrice; }
     public String getCategory() { return category; }
     public String getItemName() { return itemName; }
+    public double getWeight() { return weight; }
     public void setPercent(double percent) { this.percent = percent; }
     public void setOriginalPrice(double newPrice) { originalPrice = newPrice; }
     public void setAmount(int _amount){
@@ -39,6 +43,8 @@ public class CartItemInfo {
     }
     public void setCategory(String newCategory) { category = newCategory; }
     public void setItemName(String newItemName) { itemName = newItemName; }
+    public void setWeight(double newWeight) { weight = newWeight; }
+
     @Override
     public boolean equals(Object object){
         if(!(object instanceof CartItemInfo item)){

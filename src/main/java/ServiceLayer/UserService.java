@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 public class UserService {
     private static final Logger log = Log.log;
     private final Market market;
-
+    private UserInfoService loggedInUser;
     public UserService() throws Exception {
         market = Market.getInstance();
     }
@@ -223,6 +223,14 @@ public class UserService {
             log.info("Users information not received");
             return new Result<>(true, e.getMessage());
         }
+    }
+
+    public boolean isAdmin(int currUserID) {
+        return market.isAdmin(currUserID);
+    }
+
+    public boolean isOwnerOrManager(int currUserID) {
+        return market.getUserFacade().isOwnerOrManager(currUserID);
     }
 
 

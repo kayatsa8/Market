@@ -172,10 +172,38 @@ public class Cart {
         return baskets.get(storeID).isItemInBasket(itemID);
     }
 
-
-
     public ConcurrentHashMap<Integer, Basket> getBaskets() {
         return baskets.getBaskets();
+    }
+
+    public void addCoupon(String coupon) throws Exception {
+        if(coupon.isBlank()){
+            throw new Exception("Cart::addCoupon: given coupon is invalid!");
+        }
+
+        coupons.add(coupon);
+
+        updateBasketsWithCoupons();
+    }
+
+    public void removeCoupon(String coupon) throws Exception {
+        if(coupon.isBlank()){
+            throw new Exception("Cart::removeCoupon: given coupon is invalid!");
+        }
+
+        if(!coupons.contains(coupon)){
+            throw new Exception("Cart::removeCoupon: given coupon is not in cart!");
+        }
+
+        coupons.remove(coupon);
+
+        updateBasketsWithCoupons();
+    }
+
+    private void updateBasketsWithCoupons(){
+        for(Basket basket : baskets.values()){
+            basket.updateBasketWithCoupons(coupons);
+        }
     }
 
 
