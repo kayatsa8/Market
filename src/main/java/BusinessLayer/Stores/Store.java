@@ -973,7 +973,7 @@ public class Store {
         return storeMailBox;
     }
 
-    public void sendMessage(int receiverID, String title, String content){
+    public void sendMessage(int receiverID, String content){
         storeMailBox.sendMessage(receiverID, content);
     }
 

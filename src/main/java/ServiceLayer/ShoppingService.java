@@ -319,11 +319,11 @@ public class ShoppingService {
         }
     }
 
-    public Result<Boolean> sendMessage(int storeID, int receiverID, String title, String content)
+    public Result<Boolean> sendMessage(int storeID, int receiverID, String content)
     {
         try
         {
-            boolean response = market.sendMessage(storeID, receiverID, title, content);
+            boolean response = market.sendMessage(storeID, receiverID, content);
             log.info("Sent message successfully");
             return new Result<>(false, response);
         } catch (Exception e)
@@ -775,6 +775,5 @@ public class ShoppingService {
         catch(Exception e){
             return new Result<>(true, e.getMessage());
         }
-
     }
 }

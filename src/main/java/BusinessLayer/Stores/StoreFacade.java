@@ -296,10 +296,10 @@ public class StoreFacade {
         return getStore(storeID).checkIfStoreManager(userID);
     }
 
-    public void sendMessage(int storeID, int receiverID, String title, String content) throws Exception
+    public void sendMessage(int storeID, int receiverID, String content) throws Exception
     {
         Store store = getStore(storeID);
-        store.sendMessage(receiverID, title, content);
+        store.sendMessage(receiverID, content);
     }
 
 //    public void markMessageAsRead(int storeID, Message message) throws Exception

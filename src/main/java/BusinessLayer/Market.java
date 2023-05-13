@@ -238,13 +238,13 @@ public class Market {
         userFacade.removeManagerPermission(userID, storeID, manager, permission);
     }
 
-    public boolean sendMessage(int senderID, int receiverID, String title, String content) throws Exception{
+    public boolean sendMessage(int senderID, int receiverID, String content) throws Exception{
         if(storeFacade.isStoreExists(senderID)){
-            storeFacade.sendMessage(senderID, receiverID, title, content);
+            storeFacade.sendMessage(senderID, receiverID, content);
             return true;
         }
         if(userFacade.userExists(senderID)){
-            userFacade.sendMessage(senderID, receiverID, title, content);
+            userFacade.sendMessage(senderID, receiverID, content);
             return true;
         }
 
@@ -305,8 +305,15 @@ public class Market {
 //        return null;
 //    }
 
-    public ConcurrentHashMap<Integer, Chat> getChats(int storeId) throws Exception {
-        return storeFacade.getChats(storeId);
+    public ConcurrentHashMap<Integer, Chat> getChats(int id) throws Exception {
+        if(storeFacade.isStoreExists(id)){
+            return storeFacade.getChats(id);
+        }
+        if(userFacade.userExists(id)){
+            return userFacade.getChats(id);
+        }
+
+        throw new Exception("The given id is invalid!");
     }
 
     public boolean setMailboxAsUnavailable(int storeID) throws Exception

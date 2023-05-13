@@ -2,8 +2,10 @@ package ServiceLayer;
 
 import BusinessLayer.Log;
 import BusinessLayer.Market;
+import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.Users.RegisteredUser;
+import ServiceLayer.Objects.ChatService;
 import ServiceLayer.Objects.MessageService;
 import ServiceLayer.Objects.UserInfoService;
 
@@ -11,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public class UserService {
@@ -118,9 +121,9 @@ public class UserService {
         }
     }
 
-    public Result<Boolean> sendMessage(int userID, int receiverID, String title, String content) throws Exception
+    public Result<Boolean> sendMessage(int userID, int receiverID, String content) throws Exception
     {
-        boolean answer = market.sendMessage(userID, receiverID, title, content);
+        boolean answer = market.sendMessage(userID, receiverID, content);
 
         if(answer){
             return new Result<Boolean>(false, "Success");
@@ -130,87 +133,102 @@ public class UserService {
         }
     }
 
-    public Result<Boolean> markMessageAsRead(int userID, MessageService messageService){
+//    public Result<Boolean> markMessageAsRead(int userID, MessageService messageService){
+//        try{
+//            Message message = new Message(messageService);
+//
+//            market.markMessageAsRead(userID, message);
+//
+//            return new Result<Boolean>(false, "Success");
+//        }
+//        catch(Exception e){
+//            return new Result<Boolean>(true, e.getMessage());
+//        }
+//    }
+//
+//    public Result<Boolean> markMessageAsNotRead(int userID, MessageService messageService){
+//        try{
+//            Message message = new Message(messageService);
+//
+//            market.markMessageAsNotRead(userID, message);
+//
+//            return new Result<Boolean>(false, "Success");
+//        }
+//        catch(Exception e){
+//            return new Result<Boolean>(true, e.getMessage());
+//        }
+//    }
+//
+//    public Result<List<MessageService>> watchNotReadMessages(int userID) throws Exception
+//    {
+//        List<MessageService> messageServices;
+//        List<Message> messages = market.watchNotReadMessages(userID);
+//
+//        if(messages == null){
+//            return new Result<>(true, "Failure");
+//        }
+//
+//        messageServices = messageListToMessageServiceList(messages);
+//
+//        return new Result<>(false, messageServices);
+//
+//    }
+//
+//    private List<MessageService> messageListToMessageServiceList(List<Message> messages){
+//        List<MessageService> toReturn = new ArrayList<>();
+//
+//        for(Message message : messages){
+//            toReturn.add(new MessageService(message));
+//        }
+//
+//        return toReturn;
+//    }
+//
+//    public Result<List<MessageService>> watchReadMessages(int userID) throws Exception
+//    {
+//        List<MessageService> messageServices;
+//        List<Message> messages = market.watchReadMessages(userID);
+//
+//        if(messages == null){
+//            return new Result<>(true, "Failure");
+//        }
+//
+//        messageServices = messageListToMessageServiceList(messages);
+//
+//        return new Result<>(false, messageServices);
+//
+//    }
+//
+//    public Result<List<MessageService>> watchSentMessages(int userID) throws Exception
+//    {
+//        List<MessageService> messageServices;
+//        List<Message> messages = market.watchSentMessages(userID);
+//
+//        if(messages == null){
+//            return new Result<>(true, "Failure");
+//        }
+//
+//        messageServices = messageListToMessageServiceList(messages);
+//
+//        return new Result<>(false, messageServices);
+//
+//    }
+
+    public Result<HashMap<Integer, ChatService>> getChats(int userId){
         try{
-            Message message = new Message(messageService);
+            ConcurrentHashMap<Integer, Chat> _chats = market.getChats(userId);
+            HashMap<Integer, ChatService> chats = new HashMap<>();
 
-            market.markMessageAsRead(userID, message);
+            for(Integer id : _chats.keySet()){
+                chats.put(id, new ChatService(_chats.get(id)));
+            }
 
-            return new Result<Boolean>(false, "Success");
+            return new Result<>(false, chats);
         }
         catch(Exception e){
-            return new Result<Boolean>(true, e.getMessage());
+            return new Result<>(true, e.getMessage());
         }
     }
-
-    public Result<Boolean> markMessageAsNotRead(int userID, MessageService messageService){
-        try{
-            Message message = new Message(messageService);
-
-            market.markMessageAsNotRead(userID, message);
-
-            return new Result<Boolean>(false, "Success");
-        }
-        catch(Exception e){
-            return new Result<Boolean>(true, e.getMessage());
-        }
-    }
-
-    public Result<List<MessageService>> watchNotReadMessages(int userID) throws Exception
-    {
-        List<MessageService> messageServices;
-        List<Message> messages = market.watchNotReadMessages(userID);
-
-        if(messages == null){
-            return new Result<>(true, "Failure");
-        }
-
-        messageServices = messageListToMessageServiceList(messages);
-
-        return new Result<>(false, messageServices);
-
-    }
-
-    private List<MessageService> messageListToMessageServiceList(List<Message> messages){
-        List<MessageService> toReturn = new ArrayList<>();
-
-        for(Message message : messages){
-            toReturn.add(new MessageService(message));
-        }
-
-        return toReturn;
-    }
-
-    public Result<List<MessageService>> watchReadMessages(int userID) throws Exception
-    {
-        List<MessageService> messageServices;
-        List<Message> messages = market.watchReadMessages(userID);
-
-        if(messages == null){
-            return new Result<>(true, "Failure");
-        }
-
-        messageServices = messageListToMessageServiceList(messages);
-
-        return new Result<>(false, messageServices);
-
-    }
-
-    public Result<List<MessageService>> watchSentMessages(int userID) throws Exception
-    {
-        List<MessageService> messageServices;
-        List<Message> messages = market.watchSentMessages(userID);
-
-        if(messages == null){
-            return new Result<>(true, "Failure");
-        }
-
-        messageServices = messageListToMessageServiceList(messages);
-
-        return new Result<>(false, messageServices);
-
-    }
-
 
     public Result<Map<Integer, UserInfoService>> getAllRegisteredUsers() {
         try{

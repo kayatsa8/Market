@@ -1,5 +1,6 @@
 package BusinessLayer.Users;
 
+import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.NotificationSystem.UserMailbox;
@@ -12,6 +13,7 @@ import DataAccessLayer.UserDAO;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RegisteredUser extends User {
     private String username;
@@ -214,27 +216,34 @@ public class RegisteredUser extends User {
         return mailbox;
     }
 
-    public void sendMessage(int receiverID, String title, String content){
-        mailbox.sendMessage(receiverID, title, content);
+    public void sendMessage(int receiverID, String content){
+        mailbox.sendMessage(receiverID, content);
     }
 
-    public void markMessageAsRead(Message message) throws Exception {
-        mailbox.markMessageAsRead(message);
+//    public void markMessageAsRead(Message message) throws Exception {
+//        mailbox.markMessageAsRead(message);
+//    }
+//
+//    public void markMessageAsNotRead(Message message) throws Exception {
+//        mailbox.markMessageAsNotRead(message);
+//    }
+//
+//    public List<Message> watchNotReadMessages(){
+//        return mailbox.watchNotReadMessages();
+//    }
+//
+//    public List<Message> watchReadMessages(){
+//        return mailbox.watchReadMessages();
+//    }
+//
+//    public List<Message> watchSentMessages(){
+//        return mailbox.watchSentMessages();
+//    }
+
+    public ConcurrentHashMap<Integer, Chat> getChats(){
+        return mailbox.getChats();
     }
 
-    public void markMessageAsNotRead(Message message) throws Exception {
-        mailbox.markMessageAsNotRead(message);
-    }
 
-    public List<Message> watchNotReadMessages(){
-        return mailbox.watchNotReadMessages();
-    }
 
-    public List<Message> watchReadMessages(){
-        return mailbox.watchReadMessages();
-    }
-
-    public List<Message> watchSentMessages(){
-        return mailbox.watchSentMessages();
-    }
 }
