@@ -37,10 +37,6 @@ public class SystemManagementView extends VerticalLayout {
     public SystemManagementView() {
         setSpacing(false);
 
-        Image img = new Image("images/empty-plant.png", "placeholder plant");
-        img.setWidth("200px");
-        add(img);
-
         H2 header = new H2("Stores in Market:");
         header.addClassNames(Margin.Top.XLARGE, Margin.Bottom.MEDIUM);
         add(header);

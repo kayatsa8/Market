@@ -30,15 +30,22 @@ public class ReceiptHandlerTest {
 
         items = new HashMap<>();
         HashMap<CatalogItem, CartItemInfo> itemsAndAmounts1 = new HashMap<>();
-        //(int itemID ,String itemName, double price, String category, String storeName, int storeID)
-        itemsAndAmounts1.put(new CatalogItem(11, "item11", 20, "Books","name1",  store1ID), new CartItemInfo(11, 20, 0.2, 10));
-        itemsAndAmounts1.put(new CatalogItem(12, "item12", 20, "Books","name1",  store1ID), new CartItemInfo(12, 20, 0.2, 10));
+        CartItemInfo item1 = new CartItemInfo(11, 20, 10, "Books", "item11");
+        CartItemInfo item2 = new CartItemInfo(12, 20, 10, "Books", "item12");
+        CartItemInfo item3 = new CartItemInfo(21, 20, 10, "Books", "item21");
+        CartItemInfo item4 = new CartItemInfo(22, 20, 10, "Books", "item22");
+        item1.setPercent(0.2);
+        item2.setPercent(0.2);
+        item3.setPercent(0.2);
+        item4.setPercent(0.2);
+
+//        itemsAndAmounts1.put(new CatalogItem(11, "item11", 20, "Books"), item1);
+//        itemsAndAmounts1.put(new CatalogItem(12, "item12", 20, "Books"), item2);
         HashMap<CatalogItem, CartItemInfo> itemsAndAmounts2 = new HashMap<>();
-        itemsAndAmounts2.put(new CatalogItem(21, "item21", 20, "Books", "name2", store2ID), new CartItemInfo(21, 20, 0.2, 10));
-        itemsAndAmounts2.put(new CatalogItem(22, "item22", 20, "Books", "name2", store2ID), new CartItemInfo(22, 20, 0.2, 10));
+//        itemsAndAmounts2.put(new CatalogItem(21, "item21", 20, "Books"), item3);
+//        itemsAndAmounts2.put(new CatalogItem(22, "item22", 20, "Books"), item4);
         items.put(store1ID, itemsAndAmounts1);
         items.put(store2ID, itemsAndAmounts2);
-
     }
 
     @After

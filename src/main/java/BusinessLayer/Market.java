@@ -6,6 +6,8 @@ import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.CatalogItem;
+import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.LogicalComposites;
+import BusinessLayer.Stores.Policies.Conditions.NumericCompositions.NumericComposites;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Users.RegisteredUser;
@@ -15,10 +17,7 @@ import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Market {
     private static Market instance;
@@ -72,6 +71,7 @@ public class Market {
     }
 
     public boolean logout(int userID) throws Exception {
+
         return userFacade.logout(userID);
     }
 
@@ -107,13 +107,20 @@ public class Market {
         }
     }
 
-    private boolean isAdmin(int userID) {
+    public boolean isAdmin(int userID) {
         return systemManagerMap.get(userID) != null;
     }
 
     public void removeUser(int userID, int userToRemove) throws Exception {
+
         if (isAdmin(userID)) {
+            if(!systemManagerMap.containsKey(userID))
+                throw new Exception("systemManagerMap cant find userID");
             SystemManager systemManager = systemManagerMap.get(userID);
+            if (systemManager==null)
+                throw new Exception("systemManager is Null");
+            if (userFacade.getRegisteredUser(userToRemove)==null)
+                throw new Exception("userToRemove is null!");
             systemManager.removeUser(userFacade.getRegisteredUser(userToRemove));
         }
         else
@@ -313,9 +320,11 @@ public class Market {
         return false;
     }
 
-    public void addItemAmount(int storeID, int itemID, int amountToAdd) throws Exception
+
+    //Yonatan added boolean, don't delete
+    public boolean addItemAmount(int storeID, int itemID, int amountToAdd) throws Exception
     {
-        storeFacade.addItemAmount(storeID, itemID, amountToAdd);
+        return storeFacade.addItemAmount(storeID, itemID, amountToAdd);
     }
 
     public List<Receipt> getSellingHistoryOfStoreForManager(int storeId, int userId) throws Exception {
@@ -339,5 +348,64 @@ public class Market {
             result.put(storeId, storeFacade.getStore(storeId));
         }
         return result;
+    }
+
+    public void addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale) throws Exception
+    {
+        storeFacade.addVisibleItemsDiscount(storeID, itemsIDs, percent, endOfSale);
+    }
+    public void addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale) throws Exception
+    {
+        storeFacade.addVisibleCategoryDiscount(storeID, category, percent, endOfSale);
+    }
+    public void addVisibleStoreDiscount(int storeID, double percent, Calendar endOfSale) throws Exception
+    {
+        storeFacade.addVisibleStoreDiscount(storeID, percent, endOfSale);
+    }
+    public void addConditionalItemsDiscount(int storeID, double percent, Calendar endOfSale, List<Integer> itemsIDs) throws Exception
+    {
+        storeFacade.addConditionalItemsDiscount(storeID, percent, endOfSale, itemsIDs);
+    }
+    public void addConditionalCategoryDiscount(int storeID, double percent, Calendar endOfSale, String category) throws Exception
+    {
+        storeFacade.addConditionalCategoryDiscount(storeID, percent, endOfSale, category);
+    }
+    public void addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale) throws Exception
+    {
+        storeFacade.addConditionalStoreDiscount(storeID, percent, endOfSale);
+    }
+    public void addHiddenItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, String coupon, Calendar endOfSale) throws Exception
+    {
+        storeFacade.addHiddenItemsDiscount(storeID, itemsIDs, percent, coupon, endOfSale);
+    }
+    public void addHiddenCategoryDiscount(int storeID, String category, double percent, String coupon, Calendar endOfSale) throws Exception
+    {
+        storeFacade.addHiddenCategoryDiscount(storeID, category, percent, coupon, endOfSale);
+    }
+    public void addHiddenStoreDiscount(int storeID, double percent, String coupon, Calendar endOfSale) throws Exception
+    {
+        storeFacade.addHiddenStoreDiscount(storeID, percent, coupon, endOfSale);
+    }
+
+
+    public String addPriceRule(int storeID, int discountID, double minimumPrice) throws Exception
+    {
+        return storeFacade.addPriceRule(storeID, discountID, minimumPrice);
+    }
+    public String addQuantityRule(int storeID, int discountID, Map<Integer, Integer> itemsAmounts) throws Exception
+    {
+        return storeFacade.addQuantityRule(storeID, discountID, itemsAmounts);
+    }
+    public String addComposite(int storeID, int discountID, LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs) throws Exception
+    {
+        return storeFacade.addComposite(storeID, discountID, logicalComposite, logicalComponentsIDs);
+    }
+    public String finishConditionalDiscountBuilding(int storeID, int discountID) throws Exception
+    {
+        return storeFacade.finishConditionalDiscountBuilding(storeID, discountID);
+    }
+    public void wrapDiscounts(int storeID, List<Integer> discountsIDsToWrap, NumericComposites numericCompositeEnum) throws Exception
+    {
+        storeFacade.wrapDiscounts(storeID, discountsIDsToWrap, numericCompositeEnum);
     }
 }

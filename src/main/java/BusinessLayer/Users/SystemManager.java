@@ -5,6 +5,9 @@ import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SystemManager {
     private final UserFacade userFacade;
     private final StoreFacade storeFacade;
@@ -29,6 +32,10 @@ public class SystemManager {
     }
 
     public void removeUser(RegisteredUser userToRemove) throws Exception {
+        if (userToRemove==null)
+        {
+            throw new Exception("UserToRemove is NULL!");
+        }
         removeStoreAssociations(userToRemove);
         userFacade.removeUser(userToRemove);
     }
@@ -41,6 +48,8 @@ public class SystemManager {
         Store store;
         RegisteredUser founder;
         RegisteredUser parentUser;
+        List<Integer> storesIDs = new ArrayList<>(); //Amir
+        List<RegisteredUser> parents = new ArrayList<>(); // Amir
         for (StoreOwner ownership : userToRemove.getStoresIOwn().values()) {
             //use store to find founder
             storeId = ownership.getStoreID();
@@ -54,9 +63,17 @@ public class SystemManager {
                 storeFacade.closeStorePermanently(storeId);
             }
             else {
-                parentUser.removeOwner(userToRemove, storeId);
+                storesIDs.add(storeId); //Amir
+                parents.add(parentUser); //Amir
+                //parentUser.removeOwner(userToRemove, storeId); //Amir
             }
         }
+        if (parents.size() == 0) //Amir
+            return; //Amir
+        for (int i = 0; i<parents.size(); i++) { //Amir
+            parents.get(i).removeOwner(userToRemove, storesIDs.get(i)); //Amir
+        } //Amir
+
         for (Integer storeID : userToRemove.getStoresIManage().keySet()) {
             myUser.removeManager(userToRemove, storeID);
         }
