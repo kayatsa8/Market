@@ -2,6 +2,7 @@ package BusinessLayer;
 
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
@@ -21,6 +22,7 @@ import Globals.SearchBy;
 import Globals.SearchFilter;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Market {
     private static Market instance;
@@ -249,58 +251,62 @@ public class Market {
         return false;
     }
 
-    public void markMessageAsRead(int ID, Message message) throws Exception {
-        if(storeFacade.isStoreExists(ID)){
-            storeFacade.markMessageAsRead(ID, message);
-        }
-        if(userFacade.userExists(ID)){
-            userFacade.markMessageAsRead(ID, message);
-        }
-    }
+//    public void markMessageAsRead(int ID, Message message) throws Exception {
+//        if(storeFacade.isStoreExists(ID)){
+//            storeFacade.markMessageAsRead(ID, message);
+//        }
+//        if(userFacade.userExists(ID)){
+//            userFacade.markMessageAsRead(ID, message);
+//        }
+//    }
+//
+//    public void markMessageAsNotRead(int ID, Message message) throws Exception {
+//        if(storeFacade.isStoreExists(ID)){
+//            storeFacade.markMessageAsNotRead(ID, message);
+//        }
+//        if(userFacade.userExists(ID)){
+//            userFacade.markMessageAsNotRead(ID, message);
+//        }
+//    }
+//
+//    public List<Message> watchNotReadMessages(int ID) throws Exception
+//    {
+//        if(storeFacade.isStoreExists(ID)){
+//            return storeFacade.watchNotReadMessages(ID);
+//        }
+//        if(userFacade.userExists(ID)){
+//            return userFacade.watchNotReadMessages(ID);
+//        }
+//
+//        return null;
+//    }
+//
+//    public List<Message> watchReadMessages(int ID) throws Exception
+//    {
+//        if(storeFacade.isStoreExists(ID)){
+//            return storeFacade.watchNotReadMessages(ID);
+//        }
+//        if(userFacade.userExists(ID)){
+//            return userFacade.watchReadMessages(ID);
+//        }
+//
+//        return null;
+//    }
+//
+//    public List<Message> watchSentMessages(int ID) throws Exception
+//    {
+//        if(storeFacade.isStoreExists(ID)){
+//            return storeFacade.watchSentMessages(ID);
+//        }
+//        if(userFacade.userExists(ID)){
+//            return userFacade.watchSentMessages(ID);
+//        }
+//
+//        return null;
+//    }
 
-    public void markMessageAsNotRead(int ID, Message message) throws Exception {
-        if(storeFacade.isStoreExists(ID)){
-            storeFacade.markMessageAsNotRead(ID, message);
-        }
-        if(userFacade.userExists(ID)){
-            userFacade.markMessageAsNotRead(ID, message);
-        }
-    }
-
-    public List<Message> watchNotReadMessages(int ID) throws Exception
-    {
-        if(storeFacade.isStoreExists(ID)){
-            return storeFacade.watchNotReadMessages(ID);
-        }
-        if(userFacade.userExists(ID)){
-            return userFacade.watchNotReadMessages(ID);
-        }
-
-        return null;
-    }
-
-    public List<Message> watchReadMessages(int ID) throws Exception
-    {
-        if(storeFacade.isStoreExists(ID)){
-            return storeFacade.watchNotReadMessages(ID);
-        }
-        if(userFacade.userExists(ID)){
-            return userFacade.watchReadMessages(ID);
-        }
-
-        return null;
-    }
-
-    public List<Message> watchSentMessages(int ID) throws Exception
-    {
-        if(storeFacade.isStoreExists(ID)){
-            return storeFacade.watchSentMessages(ID);
-        }
-        if(userFacade.userExists(ID)){
-            return userFacade.watchSentMessages(ID);
-        }
-
-        return null;
+    public ConcurrentHashMap<Integer, Chat> getChats(int storeId) throws Exception {
+        return storeFacade.getChats(storeId);
     }
 
     public boolean setMailboxAsUnavailable(int storeID) throws Exception
