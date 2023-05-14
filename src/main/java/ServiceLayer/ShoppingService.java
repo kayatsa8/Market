@@ -5,6 +5,7 @@ import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.Receipts.Receipt.Receipt;
+import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Policies.Conditions.NumericCompositions.NumericComposites;
 import BusinessLayer.Stores.Policies.Discounts.Discount;
@@ -185,7 +186,7 @@ public class ShoppingService {
             return new Result<>(true, e.getMessage());
         }
     }
-    public Result<StoreService> getStoreInfoAsStoreManager(int storeID, int userID) {
+    public Result<StoreService> getStoreInfoAsStoreManager(int storeID, int userID) {//TODO why is this here
         try {
             Store store = market.getStoreInfo(storeID);
             StoreService storeService = new StoreService(store);
@@ -792,5 +793,17 @@ public class ShoppingService {
             policyServices.add(new PolicyService(entry.getValue(), entry.getKey()));
         }
         return policyServices;
+    }
+
+    public List<String> possibleManagerPermissions() {
+        return market.getStoreFacade().possibleManagerPermissions();
+    }
+
+    public List<String> getManagerInfo(int userID, int storeId) {
+        return market.getStoreFacade().getManagerInfo(userID, storeId);
+    }
+
+    public Boolean managerHasPermission(int managerID, int storeID, StoreActionPermissions permission) {
+        return market.getStoreFacade().managerHasPermission(managerID, storeID, permission);
     }
 }

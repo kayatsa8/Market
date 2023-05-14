@@ -11,6 +11,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -137,20 +138,19 @@ public class LoginAndRegisterView extends HorizontalLayout {
         return footer;
     }
     private void handleButtonClick(String action, BiFunction<String, String, Result<Integer>> userServiceMethod) {
-//        Notification.show("try to " + action);
         Result<Integer> result = userServiceMethod.apply(userNameTF.getValue(), passPF.getValue());
         String msg = getResultMsg(result);
         if (!result.isError()){
             //set user ID
             MainLayout.setCurrUser(result.getValue());
             //show that id changes
-            Notification.show(action + " " + msg+"\nid="+ MainLayout.getCurrUserID());
+            printSuccess(action + " " + msg+"\nid="+ MainLayout.getCurrUserID());
             MainLayout.setUserView();
             //move screen
             UI.getCurrent().navigate(ClientView.class);
         }
         else {
-            Notification.show(result.getMessage());
+            printError(result.getMessage());
         }
     }
     private Button createNewButton(String action, BiFunction<String, String, Result<Integer>> userServiceMethod) {
@@ -165,4 +165,14 @@ public class LoginAndRegisterView extends HorizontalLayout {
         return result.isError()? "Failed "+result.getMessage():"Succeeded";
     }
 
+    private void printSuccess(String msg) {
+        Notification notification = Notification.show(msg, 2000, Notification.Position.BOTTOM_CENTER);
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+
+    }
+
+    private void printError(String errorMsg) {
+        Notification notification = Notification.show(errorMsg, 2000, Notification.Position.BOTTOM_CENTER);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+    }
 }

@@ -21,6 +21,7 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.theme.lumo.LumoUtility;
@@ -52,7 +53,7 @@ public class MainLayout extends AppLayout {
         try {
             userService=new UserService();
         } catch (Exception e) {
-            Notification.show("Error initialize userService:\n"+e.getMessage());
+            printError("Error initialize userService:\n"+e.getMessage());
         }
         setGuestView();
     }
@@ -124,10 +125,10 @@ public class MainLayout extends AppLayout {
          */
         Result<Boolean> result=userService.logout(getCurrUserID());
         if (result.isError()){
-            Notification.show("Failed to logout: "+result.getMessage());
+            printError("Failed to logout: "+result.getMessage());
         }
         else {
-            Notification.show("Succeed to logout currId="+ currUser.getCurrUserID());
+            printSuccess("Succeed to logout currId="+ currUser.getCurrUserID());
             setGuestView();
             UI.getCurrent().navigate(LoginAndRegisterView.class);
         }
@@ -157,5 +158,16 @@ public class MainLayout extends AppLayout {
     private String getCurrentPageTitle() {
         PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
         return title == null ? "" : title.value();
+    }
+
+    private void printSuccess(String msg) {
+        Notification notification = Notification.show(msg, 2000, Notification.Position.BOTTOM_CENTER);
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+
+    }
+
+    private void printError(String errorMsg) {
+        Notification notification = Notification.show(errorMsg, 2000, Notification.Position.BOTTOM_CENTER);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
 }

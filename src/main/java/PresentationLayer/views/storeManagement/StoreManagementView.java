@@ -1,5 +1,6 @@
 package PresentationLayer.views.storeManagement;
 
+import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Policies.Conditions.NumericCompositions.NumericComposites;
 import PresentationLayer.views.MainLayout;
@@ -7,6 +8,8 @@ import ServiceLayer.Objects.*;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
 import ServiceLayer.UserService;
+import com.vaadin.flow.component.accordion.Accordion;
+import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
@@ -18,7 +21,10 @@ import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -33,7 +39,10 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.theme.lumo.Lumo;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
+import org.apache.commons.lang3.text.WordUtils;
+import org.vaadin.lineawesome.LineAwesomeIcon;
 
 import java.time.ZoneId;
 import java.util.*;
@@ -47,7 +56,6 @@ public class StoreManagementView extends VerticalLayout {
 
     ShoppingService shoppingService;
     UserService userService;
-    int ownerId = 1000002;
     private Map<Integer, UserInfoService> users;
     private Map<Integer, StoreService> storesIOwn;
     IntegerField storeIdField;
@@ -75,10 +83,10 @@ public class StoreManagementView extends VerticalLayout {
         setSpacing(false);
 
         Result<Map<Integer, UserInfoService>> usersRes = userService.getAllRegisteredUsers();
-        Result<Map<Integer, StoreService>> storesIOwnRes = shoppingService.getStoresIOwn(ownerId);
+        Result<Map<Integer, StoreService>> storesIOwnRes = shoppingService.getStoresIOwn(PresentationLayer.views.MainLayout.getCurrUserID());
 
         if (usersRes.isError() || storesIOwnRes.isError()) {
-            printError("Problem accrued");
+            printError("Problem accured");
         }
         else {
             TabSheet mainTabSheet = new TabSheet();
@@ -87,24 +95,51 @@ public class StoreManagementView extends VerticalLayout {
 
             Div storesDiv = new Div();
             Div usersDiv = new Div();
-
-            createUserGrid(usersDiv);
-
+            Accordion accordion = new Accordion();
+            createUserGrid(accordion);
+            createOwnersGrid(accordion);
+            createManagersGrid(accordion);
+            createManagerInfoGrid(accordion);
+            usersDiv.add(accordion);
+            mainTabSheet.setSizeFull();
             createStoresGrid(storesDiv);
             Tab userTab = new Tab("Users");
-            userTab.setEnabled(isStoreOwner(ownerId));
+            userTab.setEnabled(isStoreOwner());
 
             mainTabSheet.add("Stores", storesDiv);
             //mainTabSheet.add("Users", usersDiv);
             mainTabSheet.add(userTab, usersDiv);
             add(mainTabSheet);
         }
-
-
     }
 
-    private boolean isStoreOwner(int ownerId) {
-        Result<List<UserInfoService>> result = userService.getAllOwnersIDefined(ownerId);
+    private void createManagerInfoGrid(Accordion accordion) {
+        //Name, Store, List of Permissions
+        AccordionPanel managerInfo = new AccordionPanel("View Manager Permissions");
+        Map<Integer, StoreService> stores = shoppingService.getStoresIOwn(MainLayout.getCurrUserID()).getValue();
+        Map<Integer, Integer> storeToManagerMap = new HashMap<>();
+        for (StoreService store : stores.values()) {
+            for (Integer managerID : store.getManagers().keySet()) {
+                storeToManagerMap.put(store.getStoreId(), managerID);
+            }
+        }
+        Grid<Map.Entry<Integer, Integer>> grid = new Grid();
+        grid.setItems(storeToManagerMap.entrySet());
+        grid.addColumn(entry -> stores.get(entry.getKey()).getStoreName()).setHeader("Store").setSortable(true);
+        grid.addColumn(entry -> userService.getUsername(entry.getValue())).setHeader("Manager").setSortable(true);
+
+        for (String permission : shoppingService.possibleManagerPermissions()) {
+            grid.addComponentColumn(entry -> shoppingService.managerHasPermission(entry.getValue(), entry.getKey(),
+                    StoreActionPermissions.valueOf(permission.replace(' ', '_'))) ?
+                    LineAwesomeIcon.CHECK_CIRCLE_SOLID.create() : new Icon(VaadinIcon.BAN))
+                    .setHeader(WordUtils.capitalizeFully(permission)).setSortable(true);
+        }
+        managerInfo.addContent(grid);
+        accordion.add(managerInfo);
+    }
+
+    private boolean isStoreOwner() {
+        Result<List<UserInfoService>> result = userService.getAllOwnersIDefined(PresentationLayer.views.MainLayout.getCurrUserID());
         if(result.isError())
             return false;
         return result.getValue().size() != 0;
@@ -133,11 +168,11 @@ public class StoreManagementView extends VerticalLayout {
         menu.addItem("Close Store", event -> {closeStoreDialog();});  //only store founder
         menu.addItem("Open Store", event -> {openStoreDialog();});   //only store founder
         menu.addItem("Get Store History", event -> {getHistoryDialog();});  //Requirement 4.13
+        menu.addItem("Get Staff Info", event -> {getStaffInfoDialog();});  //Requirement 4.11
 
 
 
         //TODO
-        menu.addItem("Get Staff Info", event -> {});  //Requirement 4.11
         menu.addItem("View Store policies", event -> {viewPoliciesDialog();});
 
         storesDiv.add(storesGrid);
@@ -145,13 +180,13 @@ public class StoreManagementView extends VerticalLayout {
     }
 
 
-    private void createUserGrid(Div usersDiv) {
-
+    private void createUserGrid(Accordion usersDiv) {
+        AccordionPanel addOwnerManager = new AccordionPanel("Add Owner or Manager");
         Paragraph userParagraph = new Paragraph("Users available");
         userParagraph.getStyle().set("font-size","40px");
         Paragraph helperParagraph = new Paragraph("Select a User you want to appoint and enter the Store ID in the field below");
         helperParagraph.getStyle().set("font-size","20px");
-        usersDiv.add(userParagraph, helperParagraph);
+        addOwnerManager.addContent(userParagraph, helperParagraph);
 
         userGrid = new Grid<>();
         Editor<UserInfoService> editor = userGrid.getEditor();
@@ -167,21 +202,20 @@ public class StoreManagementView extends VerticalLayout {
         editor.setBuffered(true);
 
         HorizontalLayout footer = addButtons();
-        usersDiv.add(userGrid, footer);
+        addOwnerManager.addContent(userGrid, footer);
 
-
-        createOwnersGrid(usersDiv);
-        createManagersGrid(usersDiv);
+        usersDiv.add(addOwnerManager);
     }
 
-    private void createManagersGrid(Div usersDiv) {
+    private void createManagersGrid(Accordion usersDiv) {
+        AccordionPanel removeManager = new AccordionPanel("Remove Manager");
         Paragraph headerParagraph = new Paragraph("Managers I appointed");
         headerParagraph.getStyle().set("font-size","40px");
         Paragraph helperParagraph = new Paragraph("Select a User you want to appoint and enter the Store ID in the field below");
         helperParagraph.getStyle().set("font-size","15px");
-        usersDiv.add(headerParagraph, helperParagraph);
+        removeManager.addContent(headerParagraph, helperParagraph);
 
-        Result<List<UserInfoService>> managersIDefinedRes = userService.getAllManagersIDefined(ownerId);
+        Result<List<UserInfoService>> managersIDefinedRes = userService.getAllManagersIDefined(PresentationLayer.views.MainLayout.getCurrUserID());
         if(managersIDefinedRes.isError()){
             printError(managersIDefinedRes.getMessage());
         }
@@ -197,21 +231,20 @@ public class StoreManagementView extends VerticalLayout {
             removeManagerStoreField.setMin(0);
             removeManagerStoreField.setErrorMessage("Enter a valid StoreId!");
             removeManagerbutton.addClickListener(e -> removeManagerAction(removeManagerStoreField));
-            usersDiv.add(managersIDefinedGrid, removeManagerStoreField, removeManagerbutton);
-
+            removeManager.addContent(managersIDefinedGrid, removeManagerStoreField, removeManagerbutton);
         }
-
+        usersDiv.add(removeManager);
     }
 
-    private void createOwnersGrid(Div usersDiv) {
-
+    private void createOwnersGrid(Accordion usersDiv) {
+        AccordionPanel removeOwner = new AccordionPanel("Remove Owner");
         Paragraph headerParagraph = new Paragraph("Owners I appointed");
         headerParagraph.getStyle().set("font-size","40px");
         Paragraph helperParagraph = new Paragraph("Select a User you want to appoint and enter the Store ID in the field below");
         helperParagraph.getStyle().set("font-size","15px");
-        usersDiv.add(headerParagraph, helperParagraph);
+        removeOwner.addContent(headerParagraph, helperParagraph);
 
-        Result<List<UserInfoService>> usersIDefinedRes = userService.getAllOwnersIDefined(ownerId);
+        Result<List<UserInfoService>> usersIDefinedRes = userService.getAllOwnersIDefined(PresentationLayer.views.MainLayout.getCurrUserID());
         if(usersIDefinedRes.isError()){
             printError(usersIDefinedRes.getMessage());
         }
@@ -227,8 +260,9 @@ public class StoreManagementView extends VerticalLayout {
             removeOwnerStoreField.setMin(0);
             removeOwnerStoreField.setErrorMessage("Enter a valid StoreId!");
             removeOwnerbutton.addClickListener(e-> removeOwnerAction(removeOwnerStoreField));
-            usersDiv.add(ownersIDefinedGrid, removeOwnerStoreField, removeOwnerbutton);
+            removeOwner.addContent(ownersIDefinedGrid, removeOwnerStoreField, removeOwnerbutton);
         }
+        usersDiv.add(removeOwner);
 
     }
 
@@ -265,7 +299,7 @@ public class StoreManagementView extends VerticalLayout {
         int storeId = storeIdField.getValue();
 
         if(chosenUserId != -1){
-            Result<Boolean> result = userService.addOwner(ownerId, chosenUserId, storeId);
+            Result<Boolean> result = userService.addOwner(PresentationLayer.views.MainLayout.getCurrUserID(), chosenUserId, storeId);
 
 //            result.setValue(true);   //for testing
 //            if(!result.isError()){   //for testing
@@ -275,7 +309,7 @@ public class StoreManagementView extends VerticalLayout {
             else{
                 if(result.getValue()){
                     printSuccess("Owner added Successfully");
-                    refreshUserGrids(ownerId);
+                    refreshUserGrids();
                     //UserInfoService curr = users.get(chosenUserId);
                     //curr.addStoresIOwn(storeId);
                     //userGrid.getDataProvider().refreshItem(curr);
@@ -292,7 +326,7 @@ public class StoreManagementView extends VerticalLayout {
         int storeId = removeOwnerStoreField.getValue();
 
         if(chosenUserId != -1){
-            Result<Boolean> result = userService.removeOwner(ownerId, chosenUserId, storeId);
+            Result<Boolean> result = userService.removeOwner(PresentationLayer.views.MainLayout.getCurrUserID(), chosenUserId, storeId);
 
             if(result.isError()){
                 printError("Error in Remove Owner");
@@ -300,7 +334,7 @@ public class StoreManagementView extends VerticalLayout {
             else{
                 if(result.getValue()){
                     printSuccess("Owner removed Successfully");
-                    refreshUserGrids(ownerId);
+                    refreshUserGrids();
                 }
                 else{
                     printError("Something went wrong");
@@ -315,7 +349,7 @@ public class StoreManagementView extends VerticalLayout {
         int storeId = storeIdField.getValue();
 
         if(chosenUserId != -1){
-            Result<Boolean> result = userService.addManager(ownerId, chosenUserId, storeId);
+            Result<Boolean> result = userService.addManager(PresentationLayer.views.MainLayout.getCurrUserID(), chosenUserId, storeId);
 
             if(result.isError()){
                 printError("Error in Adding Manager");
@@ -323,7 +357,7 @@ public class StoreManagementView extends VerticalLayout {
             else{
                 if(result.getValue()){
                     printSuccess("Manager added Successfully");
-                    refreshUserGrids(ownerId);
+                    refreshUserGrids();
                     //UserInfoService curr = users.get(chosenUserId);
                     //curr.addStoresIManage(storeId);
                     //userGrid.getDataProvider().refreshItem(curr);
@@ -340,7 +374,7 @@ public class StoreManagementView extends VerticalLayout {
 
         if(chosenUserId != -1 && removeManagerStoreField != null){
             int storeId = removeManagerStoreField.getValue();
-            Result<Boolean> result = userService.removeManager(ownerId, chosenUserId, storeId);
+            Result<Boolean> result = userService.removeManager(PresentationLayer.views.MainLayout.getCurrUserID(), chosenUserId, storeId);
 
             if(result.isError()){
                 printError("Error in Remove Manager");
@@ -348,7 +382,7 @@ public class StoreManagementView extends VerticalLayout {
             else{
                 if(result.getValue()){
                     printSuccess("Manager removed Successfully");
-                    refreshUserGrids(ownerId);
+                    refreshUserGrids();
                 }
                 else{
                     printError("Something went wrong");
@@ -360,13 +394,13 @@ public class StoreManagementView extends VerticalLayout {
 
 
     private void printSuccess(String msg) {
-        Notification notification = Notification.show(msg, 2000, Notification.Position.TOP_END);
+        Notification notification = Notification.show(msg, 2000, Notification.Position.BOTTOM_CENTER);
         notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
     }
 
     private void printError(String errorMsg) {
-        Notification notification = Notification.show(errorMsg, 2000, Notification.Position.MIDDLE);
+        Notification notification = Notification.show(errorMsg, 2000, Notification.Position.BOTTOM_CENTER);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
 
@@ -629,7 +663,7 @@ public class StoreManagementView extends VerticalLayout {
 
         dialog.setConfirmText("Open");
         dialog.setConfirmButtonTheme("error primary");
-        dialog.addConfirmListener(event -> reOpenStoreAction(getStoreIdOfSelectedRow(storesGrid), ownerId));
+        dialog.addConfirmListener(event -> reOpenStoreAction(getStoreIdOfSelectedRow(storesGrid), PresentationLayer.views.MainLayout.getCurrUserID()));
 
         add(dialog);
         dialog.open();
@@ -647,7 +681,7 @@ public class StoreManagementView extends VerticalLayout {
 
         dialog.setConfirmText("Close");
         dialog.setConfirmButtonTheme("error primary");
-        dialog.addConfirmListener(event -> closeStoreAction(getStoreIdOfSelectedRow(storesGrid), ownerId));
+        dialog.addConfirmListener(event -> closeStoreAction(getStoreIdOfSelectedRow(storesGrid), PresentationLayer.views.MainLayout.getCurrUserID()));
 
         add(dialog);
         dialog.open();
@@ -714,7 +748,7 @@ public class StoreManagementView extends VerticalLayout {
 
         int storeId = getStoreIdOfSelectedRow(storesGrid);
 
-        Result<List<ReceiptService>> result = shoppingService.getSellingHistoryOfStoreForManager(storeId, ownerId);
+        Result<List<ReceiptService>> result = shoppingService.getSellingHistoryOfStoreForManager(storeId, PresentationLayer.views.MainLayout.getCurrUserID());
 
 
         if(result.isError()){
@@ -1540,10 +1574,10 @@ public class StoreManagementView extends VerticalLayout {
         discountsGrid.getDataProvider().refreshAll();
     }
 
-    private void refreshUserGrids(int ownerId) {
-        Result<List<UserInfoService>> result1 = userService.getAllOwnersIDefined(ownerId);
+    private void refreshUserGrids() {
+        Result<List<UserInfoService>> result1 = userService.getAllOwnersIDefined(PresentationLayer.views.MainLayout.getCurrUserID());
         Result<Map<Integer, UserInfoService>> result2 = userService.getAllRegisteredUsers();
-        Result<List<UserInfoService>> result3 = userService.getAllManagersIDefined(ownerId);
+        Result<List<UserInfoService>> result3 = userService.getAllManagersIDefined(PresentationLayer.views.MainLayout.getCurrUserID());
         if(result1.isError()||result1.getValue() == null){
             printError(result1.getMessage());
         }
@@ -1566,5 +1600,76 @@ public class StoreManagementView extends VerticalLayout {
         }
     }
 
+    private void getStaffInfoDialog() {
 
+        Grid<Map.Entry<Integer, Integer>> staffInfo = new Grid<>();
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Staff");
+        Div div = new Div();
+        div.add(staffInfo);
+        dialog.add(div);
+        dialog.setWidth("1000px");
+
+        int storeId = getStoreIdOfSelectedRow(storesGrid);
+
+        Result<StoreService> result = shoppingService.getStoreInfo(storeId);
+
+
+        if(result.isError()){
+            printError(result.getMessage());
+        }
+        else{
+            if(result.getValue() == null){
+                printError("Something went wrong");
+            }
+            else{
+                Map<Integer, Integer> data = result.getValue().getOwners();
+                data.putAll(result.getValue().getManagers());
+                staffInfo.setItems(data.entrySet());
+                staffInfo.setSelectionMode(Grid.SelectionMode.SINGLE);
+
+                staffInfo.addColumn(Map.Entry::getKey).setHeader("UserID").setSortable(true).setVisible(false);
+                staffInfo.addColumn(e -> userService.getUsername(e.getKey())).setHeader("User Name").setSortable(true);
+                staffInfo.addColumn(e -> userService.getUsername(e.getValue())).setHeader("Boss Name").setSortable(true);
+                staffInfo.addColumn(e -> result.getValue().getFounderID()==e.getKey() ? "Founder" :
+                        result.getValue().getManagers().containsKey(e.getKey()) ? "Manager" : "Owner").setHeader("Position").setSortable(true);
+
+                GridContextMenu<Map.Entry<Integer, Integer>> menu = staffInfo.addContextMenu();
+                menu.setOpenOnClick(true);
+
+                menu.addItem("View Permissions", event -> getPermissions(staffInfo, result.getValue()));
+
+//                Button cancelButton = new Button("exit", e -> dialog.close());
+//                dialog.getFooter().add(cancelButton);
+
+                add(dialog);
+                dialog.open();
+                //dialog.add(itemsGrid);
+//                dialog.add(menu);
+            }
+        }
+    }
+
+    private void getPermissions(Grid<Map.Entry<Integer, Integer>> staffInfo, StoreService store) {
+        int userID = staffInfo.getSelectedItems().stream().toList().get(0).getKey();
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Permissions for user: " + userService.getUsername(userID));
+        Div div = new Div();
+
+        List<String> permissions = shoppingService.getManagerInfo(userID, store.getStoreId());
+        for (String permission : permissions)
+            div.add(new Label(permission));
+        dialog.add(div);
+        dialog.setWidth("1000px");
+
+        Button cancelButton = new Button("exit", e -> dialog.close());
+        dialog.getFooter().add(cancelButton);
+
+        add(dialog);
+        dialog.open();
+    }
 }

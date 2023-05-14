@@ -6,6 +6,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class StoreManager extends StoreEmployees {
 
     private ConcurrentHashMap<StoreActionPermissions, Integer> map;
+
+    public Set<StoreActionPermissions> getStoreActionPermissions() {
+        return storeActionPermissions;
+    }
+
     private Set<StoreActionPermissions> storeActionPermissions;
 
     public StoreManager(int id, StoreOwner storeOwnerShip) {
