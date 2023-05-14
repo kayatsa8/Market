@@ -448,7 +448,7 @@ public class Market {
     {
         return storeFacade.addPurchasePolicyMustItemsAmountsRule(storeID, itemsAmounts);
     }
-    public int wrapPurchasePolicies(int storeID, List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
+    public String wrapPurchasePolicies(int storeID, List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
     {
         return storeFacade.wrapPurchasePolicies(storeID, purchasePoliciesIDsToWrap, logicalCompositeEnum);
     }

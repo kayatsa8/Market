@@ -391,7 +391,7 @@ public class Store {
         purchasePolicies.put(purchasePoliciesIDs++, purchasePolicy);
         return (purchasePoliciesIDs-1) + ": " + purchasePolicy.toString();
     }
-    public int wrapPurchasePolicies(List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
+    public String wrapPurchasePolicies(List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
     {
         List<LogicalComponent> policiesRootsToWrap = new ArrayList<>();
         for (Integer policyID : purchasePoliciesIDsToWrap)
@@ -425,8 +425,13 @@ public class Store {
         {
             purchasePolicies.remove(purchasePolicyID);
         }
-        purchasePolicies.put(purchasePoliciesIDs, new PurchasePolicy(myLogicalComponent));
-        return purchasePoliciesIDs++;
+//        purchasePolicies.put(purchasePoliciesIDs, new PurchasePolicy(myLogicalComponent));
+//        return purchasePoliciesIDs++;
+        PurchasePolicy policy = new PurchasePolicy(myLogicalComponent);
+        int policyId = purchasePoliciesIDs;
+        purchasePolicies.put(policyId, policy);
+        purchasePoliciesIDs++;
+        return policyId + ":" + policy.toString();
     }
 
 
