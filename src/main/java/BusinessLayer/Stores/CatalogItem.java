@@ -1,7 +1,8 @@
 package BusinessLayer.Stores;
 
-import BusinessLayer.Stores.Policies.Discounts.Discount;
-import BusinessLayer.Stores.Policies.PurchasePolicies.PurchasePolicy;
+import BusinessLayer.Stores.Policies.DiscountPolicy;
+import BusinessLayer.Stores.Discounts.Discount;
+import BusinessLayer.Stores.Policies.PurchasePolicy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ public class CatalogItem {
     private double weight;
     private List<Discount> discounts;
     private List<PurchasePolicy> purchasePolicies;
+    private List<DiscountPolicy> discountPolicies;
     public CatalogItem(int itemID ,String itemName, double price, String category, String storeName, int storeID, double weight)
     {
         this.itemID = itemID;
@@ -36,6 +38,7 @@ public class CatalogItem {
         this.weight = weight;
         this.discounts = new ArrayList<>();
         this.purchasePolicies = new ArrayList<>();
+        this.discountPolicies = new ArrayList<>();
     }
 
     public String getItemName()
@@ -57,8 +60,10 @@ public class CatalogItem {
     public double getWeight() { return weight; }
     public List<Discount> getDiscounts() { return discounts; }
     public List<PurchasePolicy> getPurchasePolicies() { return purchasePolicies; }
+    public List<DiscountPolicy> getDiscountPolicies() { return discountPolicies; }
     public void setDiscounts(List<Discount> discounts) { this.discounts = discounts; }
     public void setPurchasePolicies(List<PurchasePolicy> purchasePolicies) { this.purchasePolicies = purchasePolicies; }
+    public void setDiscountPolicies(List<DiscountPolicy> discountPolicies) { this.discountPolicies = discountPolicies; }
 
     @Override
     public boolean equals(Object other) {

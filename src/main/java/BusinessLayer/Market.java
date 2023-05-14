@@ -3,16 +3,16 @@ package BusinessLayer;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Chat;
-import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.CatalogItem;
-import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.LogicalComposites;
-import BusinessLayer.Stores.Policies.Conditions.NumericCompositions.NumericComposites;
-import BusinessLayer.Stores.Policies.Discounts.Discount;
-import BusinessLayer.Stores.Policies.Discounts.DiscountsTypes.Visible;
-import BusinessLayer.Stores.Policies.PurchasePolicies.PurchasePolicy;
+import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
+import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
+import BusinessLayer.Stores.Policies.DiscountPolicy;
+import BusinessLayer.Stores.Discounts.Discount;
+import BusinessLayer.Stores.Discounts.DiscountsTypes.Visible;
+import BusinessLayer.Stores.Policies.PurchasePolicy;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Users.RegisteredUser;
@@ -469,6 +469,47 @@ public class Market {
         return storeFacade.wrapPurchasePolicies(storeID, purchasePoliciesIDsToWrap, logicalCompositeEnum);
     }
 
+    public String addDiscountPolicyBasketWeightLimitRule(int storeID, double basketWeightLimit) throws Exception
+    {
+        return storeFacade.addDiscountPolicyBasketWeightLimitRule(storeID, basketWeightLimit);
+    }
+    public String addDiscountPolicyBuyerAgeRule(int storeID, int minimumAge) throws Exception
+    {
+        return storeFacade.addDiscountPolicyBuyerAgeRule(storeID, minimumAge);
+    }
+    public String addDiscountPolicyForbiddenCategoryRule(int storeID, String forbiddenCategory) throws Exception
+    {
+        return storeFacade.addDiscountPolicyForbiddenCategoryRule(storeID, forbiddenCategory);
+    }
+    public String addDiscountPolicyForbiddenDatesRule(int storeID, List<Calendar> forbiddenDates) throws Exception
+    {
+        return storeFacade.addDiscountPolicyForbiddenDatesRule(storeID, forbiddenDates);
+    }
+    public String addDiscountPolicyForbiddenHoursRule(int storeID, int startHour, int endHour) throws Exception
+    {
+        return storeFacade.addDiscountPolicyForbiddenHoursRule(storeID, startHour, endHour);
+    }
+    public String addDiscountPolicyMustDatesRule(int storeID, List<Calendar> mustDates) throws Exception
+    {
+        return storeFacade.addDiscountPolicyMustDatesRule(storeID, mustDates);
+    }
+    public String addDiscountPolicyItemsWeightLimitRule(int storeID, Map<Integer, Double> weightsLimits) throws Exception
+    {
+        return storeFacade.addDiscountPolicyItemsWeightLimitRule(storeID, weightsLimits);
+    }
+    public String addDiscountPolicyBasketTotalPriceRule(int storeID, double minimumPrice) throws Exception
+    {
+        return storeFacade.addDiscountPolicyBasketTotalPriceRule(storeID, minimumPrice);
+    }
+    public String addDiscountPolicyMustItemsAmountsRule(int storeID, Map<Integer, Integer> itemsAmounts) throws Exception
+    {
+        return storeFacade.addDiscountPolicyMustItemsAmountsRule(storeID, itemsAmounts);
+    }
+    public int wrapDiscountPolicies(int storeID, List<Integer> discountPoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
+    {
+        return storeFacade.wrapDiscountPolicies(storeID, discountPoliciesIDsToWrap, logicalCompositeEnum);
+    }
+
     public Map<Integer, Discount> getStoreDiscounts(int storeID) throws Exception
     {
         return storeFacade.getStoreDiscounts(storeID);
@@ -482,6 +523,10 @@ public class Market {
     public Map<Integer, PurchasePolicy> getStorePurchasePolicies(int storeID) throws Exception
     {
         return storeFacade.getStorePurchasePolicies(storeID);
+    }
+    public Map<Integer, DiscountPolicy> getStoreDiscountPolicies(int storeID) throws Exception
+    {
+        return storeFacade.getStoreDiscountPolicies(storeID);
     }
 
     public Map<RegisteredUser, Set<Integer>> getAllOwnersIDefined(int ownerId) throws Exception {

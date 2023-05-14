@@ -1,13 +1,12 @@
 package BusinessLayer.Stores;
 
 import BusinessLayer.NotificationSystem.Chat;
-import BusinessLayer.NotificationSystem.Message;
-import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.LogicalComposites;
-import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.Rules.*;
-import BusinessLayer.Stores.Policies.Conditions.NumericCompositions.NumericComposites;
-import BusinessLayer.Stores.Policies.Discounts.Discount;
-import BusinessLayer.Stores.Policies.Discounts.DiscountsTypes.Visible;
-import BusinessLayer.Stores.Policies.PurchasePolicies.PurchasePolicy;
+import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
+import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
+import BusinessLayer.Stores.Policies.DiscountPolicy;
+import BusinessLayer.Stores.Discounts.Discount;
+import BusinessLayer.Stores.Discounts.DiscountsTypes.Visible;
+import BusinessLayer.Stores.Policies.PurchasePolicy;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -254,6 +253,57 @@ public class StoreFacade {
         return store.wrapPurchasePolicies(purchasePoliciesIDsToWrap, logicalCompositeEnum);
     }
 
+    public String addDiscountPolicyBasketWeightLimitRule(int storeID, double basketWeightLimit) throws Exception
+    {
+        Store store = getStore(storeID);
+        return store.addDiscountPolicyBasketWeightLimitRule(basketWeightLimit);
+    }
+    public String addDiscountPolicyBuyerAgeRule(int storeID, int minimumAge) throws Exception
+    {
+        Store store = getStore(storeID);
+        return store.addDiscountPolicyBuyerAgeRule(minimumAge);
+    }
+    public String addDiscountPolicyForbiddenCategoryRule(int storeID, String forbiddenCategory) throws Exception
+    {
+        Store store = getStore(storeID);
+        return store.addDiscountPolicyForbiddenCategoryRule(forbiddenCategory);
+    }
+    public String addDiscountPolicyForbiddenDatesRule(int storeID, List<Calendar> forbiddenDates) throws Exception
+    {
+        Store store = getStore(storeID);
+        return store.addDiscountPolicyForbiddenDatesRule(forbiddenDates);
+    }
+    public String addDiscountPolicyForbiddenHoursRule(int storeID, int startHour, int endHour) throws Exception
+    {
+        Store store = getStore(storeID);
+        return store.addDiscountPolicyForbiddenHoursRule(startHour, endHour);
+    }
+    public String addDiscountPolicyMustDatesRule(int storeID, List<Calendar> mustDates) throws Exception
+    {
+        Store store = getStore(storeID);
+        return store.addDiscountPolicyMustDatesRule(mustDates);
+    }
+    public String addDiscountPolicyItemsWeightLimitRule(int storeID, Map<Integer, Double> weightsLimits) throws Exception
+    {
+        Store store = getStore(storeID);
+        return store.addDiscountPolicyItemsWeightLimitRule(weightsLimits);
+    }
+    public String addDiscountPolicyBasketTotalPriceRule(int storeID, double minimumPrice) throws Exception
+    {
+        Store store = getStore(storeID);
+        return store.addDiscountPolicyBasketTotalPriceRule(minimumPrice);
+    }
+    public String addDiscountPolicyMustItemsAmountsRule(int storeID, Map<Integer, Integer> itemsAmounts) throws Exception
+    {
+        Store store = getStore(storeID);
+        return store.addDiscountPolicyMustItemsAmountsRule(itemsAmounts);
+    }
+    public int wrapDiscountPolicies(int storeID, List<Integer> discountPoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
+    {
+        Store store = getStore(storeID);
+        return store.wrapDiscountPolicies(discountPoliciesIDsToWrap, logicalCompositeEnum);
+    }
+
 
     public Map<CatalogItem, Boolean> getCatalog() {
         Map<CatalogItem, Boolean> res = new HashMap<>();
@@ -302,36 +352,6 @@ public class StoreFacade {
         store.sendMessage(receiverID, content);
     }
 
-//    public void markMessageAsRead(int storeID, Message message) throws Exception
-//    {
-//        Store store = getStore(storeID);
-//        store.markMessageAsRead(message);
-//    }
-//
-//    public void markMessageAsNotRead(int storeID, Message message) throws Exception
-//    {
-//        Store store = getStore(storeID);
-//        store.markMessageAsNotRead(message);
-//    }
-//
-//    public List<Message> watchNotReadMessages(int storeID) throws Exception
-//    {
-//        Store store = getStore(storeID);
-//        return store.watchNotReadMessages();
-//    }
-//
-//    public List<Message> watchReadMessages(int storeID) throws Exception
-//    {
-//        Store store = getStore(storeID);
-//        return store.watchReadMessages();
-//    }
-//
-//    public List<Message> watchSentMessages(int storeID) throws Exception
-//    {
-//        Store store = getStore(storeID);
-//        return store.watchSentMessages();
-//    }
-
     public ConcurrentHashMap<Integer, Chat> getChats(int storeID) throws Exception {
         if(!isStoreExists(storeID)){
             throw new Exception("The store does not exist!");
@@ -371,7 +391,11 @@ public class StoreFacade {
         Store store = getStore(storeID);
         return store.getStorePurchasePolicies();
     }
-
+    public Map<Integer, DiscountPolicy> getStoreDiscountPolicies(int storeID) throws Exception
+    {
+        Store store = getStore(storeID);
+        return store.getStoreDiscountPolicies();
+    }
 
     public boolean isStoreExists(int storeID) {
         return stores.containsKey(storeID);
