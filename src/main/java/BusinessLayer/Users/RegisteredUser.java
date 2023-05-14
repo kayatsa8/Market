@@ -13,6 +13,7 @@ import DataAccessLayer.UserDAO;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
 
 public class RegisteredUser extends User {
     private String username;
@@ -244,5 +245,48 @@ public class RegisteredUser extends User {
     }
 
 
+    public Map<RegisteredUser, Set<Integer>> getAllOwnersIDefined() {
+        Map<Integer, StoreOwner> storeOwnership = getStoresIOwn();
+        if (storeOwnership == null) {
+            throw new RuntimeException("User is not a store owner");
+        }
+        Map<RegisteredUser, Set<Integer>> owners = new HashMap<>();
+        for(StoreOwner storeOwner: storeOwnership.values()){
+            Set<RegisteredUser> currUsers = storeOwner.getOwnersIDefined();
+            for (RegisteredUser user: currUsers){
+                if(!owners.containsKey(user)){
+                    Set<Integer> set = new HashSet<>();
+                    set.add(storeOwner.getStoreID());
+                    owners.put(user, set);
+                }
+                else{
+                    owners.get(user).add(storeOwner.getStoreID());
+                }
+            }
+        }
+        return owners;
+    }
 
+    public Map<RegisteredUser, Set<Integer>> getAllManagersIDefined() {
+        Map<Integer, StoreOwner> storeOwnership = getStoresIOwn();
+        if (storeOwnership == null) {
+            throw new RuntimeException("User is not a store owner");
+        }
+        Map<RegisteredUser, Set<Integer>> managers = new HashMap<>();
+        for(StoreOwner owner: storeOwnership.values()){
+            Set<RegisteredUser> currUsers = owner.getManagersIDefined();
+            for (RegisteredUser user: currUsers){
+                if(!managers.containsKey(user)){
+                    Set<Integer> set = new HashSet<>();
+                    set.add(owner.getStoreID());
+                    managers.put(user, set);
+                }
+                else{
+                    managers.get(user).add(owner.getStoreID());
+                }
+            }
+        }
+
+        return managers;
+    }
 }

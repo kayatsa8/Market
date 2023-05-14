@@ -1,5 +1,7 @@
 package PresentationLayer.views.storeManagement;
 
+import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.LogicalComposites;
+import BusinessLayer.Stores.Policies.Conditions.NumericCompositions.NumericComposites;
 import PresentationLayer.views.MainLayout;
 import ServiceLayer.Objects.*;
 import ServiceLayer.Result;
@@ -8,29 +10,35 @@ import ServiceLayer.UserService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.tabs.Tab;
+import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 
-import java.util.List;
-import java.util.Map;
+import java.time.ZoneId;
+import java.util.*;
+import java.time.LocalDate;
+
 
 @PageTitle("About")
 @Route(value = "stores", layout = MainLayout.class)
@@ -44,6 +52,9 @@ public class StoreManagementView extends VerticalLayout {
     private Map<Integer, StoreService> storesIOwn;
     IntegerField storeIdField;
     Grid<UserInfoService> userGrid;
+    Grid<UserInfoService> ownersIDefinedGrid;
+    Grid<UserInfoService> managersIDefinedGrid;
+
     Grid<StoreService> storesGrid;
 
 
@@ -66,57 +77,88 @@ public class StoreManagementView extends VerticalLayout {
         Result<Map<Integer, UserInfoService>> usersRes = userService.getAllRegisteredUsers();
         Result<Map<Integer, StoreService>> storesIOwnRes = shoppingService.getStoresIOwn(ownerId);
 
-
         if (usersRes.isError() || storesIOwnRes.isError()) {
             printError("Problem accrued");
         }
         else {
+            TabSheet mainTabSheet = new TabSheet();
             users = usersRes.getValue();
             storesIOwn = storesIOwnRes.getValue();
-            add(new Paragraph("Users available"));
-            createUserGrid();
-            add(new Paragraph("Stores I Own"));
 
-            createStoresGrid();
+            Div storesDiv = new Div();
+            Div usersDiv = new Div();
+
+            createUserGrid(usersDiv);
+
+            createStoresGrid(storesDiv);
+            Tab userTab = new Tab("Users");
+            userTab.setEnabled(isStoreOwner(ownerId));
+
+            mainTabSheet.add("Stores", storesDiv);
+            //mainTabSheet.add("Users", usersDiv);
+            mainTabSheet.add(userTab, usersDiv);
+            add(mainTabSheet);
         }
 
 
     }
 
-    private void createStoresGrid() {
+    private boolean isStoreOwner(int ownerId) {
+        Result<List<UserInfoService>> result = userService.getAllOwnersIDefined(ownerId);
+        if(result.isError())
+            return false;
+        return result.getValue().size() != 0;
+    }
+
+    private void createStoresGrid(Div storesDiv) {
+
+        Paragraph storeParagraph = new Paragraph("Stores I Own");
+        Paragraph helper = new Paragraph("Select the Store you want to edit");
+        storeParagraph.getStyle().set("font-size","40px");
+        helper.getStyle().set("font-size", "20px");
+        storesDiv.add(storeParagraph, helper);
+
         storesGrid = new Grid<>();
-        //Editor<StoreService> editor = storesGrid.getEditor();
         storesGrid.setItems(storesIOwn.values());
         storesGrid.setAllRowsVisible(true);
+        storesGrid.setWidth("1500px");
 
         storesGrid.addColumn(StoreService::getStoreId).setHeader("ID").setSortable(true);
         storesGrid.addColumn(StoreService::getStoreName).setHeader("Name").setSortable(true);
         storesGrid.addColumn(StoreService::getStoreStatus).setHeader("Status").setSortable(true);
-
         GridContextMenu<StoreService> menu = storesGrid.addContextMenu();
         menu.setOpenOnClick(true);
-        menu.addItem("View Items Of Store", event -> viewItemsDialog() );
-        menu.addItem("Close Store", event -> closeStoreDialog());  //only store founder
-        menu.addItem("Open Store", event -> openStoreDialog());   //only store founder
-        menu.addItem("Get Store History", event -> getHistoryDialog());  //Requirement 4.13
+        menu.addItem("View Items Of Store", event -> {viewItemsDialog();});
+        menu.addItem("View Discounts Of Store", e -> {viewDiscountsDialog();});
+        menu.addItem("Close Store", event -> {closeStoreDialog();});  //only store founder
+        menu.addItem("Open Store", event -> {openStoreDialog();});   //only store founder
+        menu.addItem("Get Store History", event -> {getHistoryDialog();});  //Requirement 4.13
+
 
 
         //TODO
-        menu.addItem("Determine Store policy", event -> {});
         menu.addItem("Get Staff Info", event -> {});  //Requirement 4.11
+        menu.addItem("View Store policies", event -> {viewPoliciesDialog();});
 
-        add(storesGrid);
+        storesDiv.add(storesGrid);
 
     }
 
-    private void createUserGrid() {
+
+    private void createUserGrid(Div usersDiv) {
+
+        Paragraph userParagraph = new Paragraph("Users available");
+        userParagraph.getStyle().set("font-size","40px");
+        Paragraph helperParagraph = new Paragraph("Select a User you want to appoint and enter the Store ID in the field below");
+        helperParagraph.getStyle().set("font-size","20px");
+        usersDiv.add(userParagraph, helperParagraph);
 
         userGrid = new Grid<>();
         Editor<UserInfoService> editor = userGrid.getEditor();
         userGrid.setItems(users.values());
         userGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
 
-        userGrid.addColumn(UserInfoService::getId).setHeader("ID").setSortable(true);
+        //userGrid.addColumn(UserInfoService::getId).setHeader("ID").setSortable(true);
         userGrid.addColumn(UserInfoService::getUsername).setHeader("Name").setSortable(true);
         userGrid.addColumn(UserInfoService::getStoreIManageString).setHeader("Manager of Stores");
         userGrid.addColumn(UserInfoService::getStoreIOwnString).setHeader("Owner of Stores");
@@ -125,7 +167,68 @@ public class StoreManagementView extends VerticalLayout {
         editor.setBuffered(true);
 
         HorizontalLayout footer = addButtons();
-        add(userGrid, footer);
+        usersDiv.add(userGrid, footer);
+
+
+        createOwnersGrid(usersDiv);
+        createManagersGrid(usersDiv);
+    }
+
+    private void createManagersGrid(Div usersDiv) {
+        Paragraph headerParagraph = new Paragraph("Managers I appointed");
+        headerParagraph.getStyle().set("font-size","40px");
+        Paragraph helperParagraph = new Paragraph("Select a User you want to appoint and enter the Store ID in the field below");
+        helperParagraph.getStyle().set("font-size","15px");
+        usersDiv.add(headerParagraph, helperParagraph);
+
+        Result<List<UserInfoService>> managersIDefinedRes = userService.getAllManagersIDefined(ownerId);
+        if(managersIDefinedRes.isError()){
+            printError(managersIDefinedRes.getMessage());
+        }
+        else{
+            managersIDefinedGrid = new Grid<>();
+            managersIDefinedGrid.setItems(managersIDefinedRes.getValue());
+            managersIDefinedGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+            managersIDefinedGrid.addColumn(UserInfoService::getUsername).setHeader("Name").setSortable(true);
+            managersIDefinedGrid.addColumn(UserInfoService::getStoreIManageString).setHeader("Manager appointed by me to Stores");
+
+            Button removeManagerbutton = new Button("Remove Manager");
+            IntegerField removeManagerStoreField = new IntegerField("StoreId");
+            removeManagerStoreField.setMin(0);
+            removeManagerStoreField.setErrorMessage("Enter a valid StoreId!");
+            removeManagerbutton.addClickListener(e -> removeManagerAction(removeManagerStoreField));
+            usersDiv.add(managersIDefinedGrid, removeManagerStoreField, removeManagerbutton);
+
+        }
+
+    }
+
+    private void createOwnersGrid(Div usersDiv) {
+
+        Paragraph headerParagraph = new Paragraph("Owners I appointed");
+        headerParagraph.getStyle().set("font-size","40px");
+        Paragraph helperParagraph = new Paragraph("Select a User you want to appoint and enter the Store ID in the field below");
+        helperParagraph.getStyle().set("font-size","15px");
+        usersDiv.add(headerParagraph, helperParagraph);
+
+        Result<List<UserInfoService>> usersIDefinedRes = userService.getAllOwnersIDefined(ownerId);
+        if(usersIDefinedRes.isError()){
+            printError(usersIDefinedRes.getMessage());
+        }
+        else{
+            ownersIDefinedGrid = new Grid<>();
+            ownersIDefinedGrid.setItems(usersIDefinedRes.getValue());
+            ownersIDefinedGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+            ownersIDefinedGrid.addColumn(UserInfoService::getUsername).setHeader("Name").setSortable(true);
+            ownersIDefinedGrid.addColumn(UserInfoService::getStoreIOwnString).setHeader("Owner appointed by me to Stores");
+
+            Button removeOwnerbutton = new Button("Remove Owner");
+            IntegerField removeOwnerStoreField = new IntegerField("StoreId");
+            removeOwnerStoreField.setMin(0);
+            removeOwnerStoreField.setErrorMessage("Enter a valid StoreId!");
+            removeOwnerbutton.addClickListener(e-> removeOwnerAction(removeOwnerStoreField));
+            usersDiv.add(ownersIDefinedGrid, removeOwnerStoreField, removeOwnerbutton);
+        }
 
     }
 
@@ -138,20 +241,19 @@ public class StoreManagementView extends VerticalLayout {
         Button addOwnerButton = new Button("Add Owner");
         addOwnerButton.addClickListener(e -> addOwnerAction());
 
-        Button removeOwnerbutton = new Button("Remove Owner");
-        removeOwnerbutton.addClickListener(e-> removeOwnerAction());
+//        Button removeOwnerbutton = new Button("Remove Owner");
+//        removeOwnerbutton.addClickListener(e-> removeOwnerAction());
 
         Button addManagerButton = new Button("Add Manager");
         addManagerButton.addClickListener(e -> addManagerAction());
 
-        Button removeManagerButton = new Button("Remove Manager");
-        removeManagerButton.addClickListener(e -> removeManagerAction());
+//        Button removeManagerButton = new Button("Remove Manager");
+//        removeManagerButton.addClickListener(e -> removeManagerAction());
 
         setPadding(false);
         setAlignItems(Alignment.AUTO);
 
-        HorizontalLayout horizontalLayout1 = new HorizontalLayout(storeIdField, addOwnerButton, removeOwnerbutton,
-                                                        removeManagerButton, addManagerButton, removeManagerButton);
+        HorizontalLayout horizontalLayout1 = new HorizontalLayout(storeIdField, addOwnerButton, addManagerButton);
 
         horizontalLayout1.setAlignItems(FlexComponent.Alignment.BASELINE);
         return horizontalLayout1;
@@ -173,9 +275,10 @@ public class StoreManagementView extends VerticalLayout {
             else{
                 if(result.getValue()){
                     printSuccess("Owner added Successfully");
-                    UserInfoService curr = users.get(chosenUserId);
-                    curr.addStoresIOwn(storeId);
-                    userGrid.getDataProvider().refreshItem(curr);
+                    refreshUserGrids(ownerId);
+                    //UserInfoService curr = users.get(chosenUserId);
+                    //curr.addStoresIOwn(storeId);
+                    //userGrid.getDataProvider().refreshItem(curr);
                 }
                 else{
                     printError("Something went wrong");
@@ -184,9 +287,9 @@ public class StoreManagementView extends VerticalLayout {
         }
     }
 
-    private void removeOwnerAction() {
-        int chosenUserId = getIdOfSelectedRow(userGrid);
-        int storeId = storeIdField.getValue();
+    private void removeOwnerAction(IntegerField removeOwnerStoreField) {
+        int chosenUserId = getIdOfSelectedRow(ownersIDefinedGrid);
+        int storeId = removeOwnerStoreField.getValue();
 
         if(chosenUserId != -1){
             Result<Boolean> result = userService.removeOwner(ownerId, chosenUserId, storeId);
@@ -197,9 +300,7 @@ public class StoreManagementView extends VerticalLayout {
             else{
                 if(result.getValue()){
                     printSuccess("Owner removed Successfully");
-                    UserInfoService curr = users.get(chosenUserId);
-                    curr.removeStoresIOwn(storeId);
-                    userGrid.getDataProvider().refreshItem(curr);
+                    refreshUserGrids(ownerId);
                 }
                 else{
                     printError("Something went wrong");
@@ -207,6 +308,7 @@ public class StoreManagementView extends VerticalLayout {
             }
         }
     }
+
 
     private void addManagerAction() {
         int chosenUserId = getIdOfSelectedRow(userGrid);
@@ -221,9 +323,10 @@ public class StoreManagementView extends VerticalLayout {
             else{
                 if(result.getValue()){
                     printSuccess("Manager added Successfully");
-                    UserInfoService curr = users.get(chosenUserId);
-                    curr.addStoresIManage(storeId);
-                    userGrid.getDataProvider().refreshItem(curr);
+                    refreshUserGrids(ownerId);
+                    //UserInfoService curr = users.get(chosenUserId);
+                    //curr.addStoresIManage(storeId);
+                    //userGrid.getDataProvider().refreshItem(curr);
                 }
                 else{
                     printError("Something went wrong");
@@ -232,12 +335,11 @@ public class StoreManagementView extends VerticalLayout {
         }
     }
 
-    private void removeManagerAction() {
-        int chosenUserId = getIdOfSelectedRow(userGrid);
+    private void removeManagerAction(IntegerField removeManagerStoreField) {
+        int chosenUserId = getIdOfSelectedRow(managersIDefinedGrid);
 
-
-        if(chosenUserId != -1 && storeIdField != null){
-            int storeId = storeIdField.getValue();
+        if(chosenUserId != -1 && removeManagerStoreField != null){
+            int storeId = removeManagerStoreField.getValue();
             Result<Boolean> result = userService.removeManager(ownerId, chosenUserId, storeId);
 
             if(result.isError()){
@@ -246,9 +348,7 @@ public class StoreManagementView extends VerticalLayout {
             else{
                 if(result.getValue()){
                     printSuccess("Manager removed Successfully");
-                    UserInfoService curr = users.get(chosenUserId);
-                    curr.removeStoresIManage(storeId);
-                    userGrid.getDataProvider().refreshItem(curr);
+                    refreshUserGrids(ownerId);
                 }
                 else{
                     printError("Something went wrong");
@@ -333,6 +433,56 @@ public class StoreManagementView extends VerticalLayout {
     }
 
 
+    private List<Integer> getMultiIdsOfSelectedDiscounts(Grid<DiscountService> discountGrid) {
+        List<DiscountService> discounts = discountGrid.getSelectedItems().stream().toList();
+        if(discounts.size() == 0){
+            printError("You need to choose a Discount!");
+            return null;
+        }
+        else if(discounts.size() == 1) {
+            printError("You need to choose at least 2 Discount!");
+            return null;
+        }
+        else{
+            List<Integer> ids = new ArrayList<>();
+            for(DiscountService discountService: discounts){
+                ids.add(discountService.getId());
+            }
+            return ids;
+        }
+    }
+
+
+    private List<Integer> getMultiIdsOfSelectedItemsInItemsDiscount(Grid<CatalogItemService> catalogItemGrid) {
+        List<CatalogItemService> itemsIds = catalogItemGrid.getSelectedItems().stream().toList();
+        if(itemsIds.size() == 0){
+            printError("You need to choose at least 1 item!");
+            return null;
+        }
+        else{
+            List<Integer> ids = new ArrayList<>();
+            for(CatalogItemService catalogItemService: itemsIds){
+                ids.add(catalogItemService.getItemID());
+            }
+            return ids;
+        }
+    }
+
+
+    private List<Integer> getMultiIdsOfSelectedRules(Grid<RuleService> rulesGrid) {
+        List<RuleService> rules = rulesGrid.getSelectedItems().stream().toList();
+        if(rules.size() == 0){
+            printError("You need to choose at least 1 Rule!");
+            return null;
+        }
+        else{
+            List<Integer> ids = new ArrayList<>();
+            for(RuleService ruleService: rules){
+                ids.add(ruleService.getId());
+            }
+            return ids;
+        }
+    }
 
     private void addItemDialog(Grid<CatalogItemService> itemsGrid) {
         Dialog dialog = new Dialog();
@@ -344,8 +494,10 @@ public class StoreManagementView extends VerticalLayout {
         NumberField itemPriceField = new NumberField("Item Price");
         itemPriceField.setMin(0);
         TextField itemCategoryField = new TextField("Item Category");
+        NumberField itemWeightField = new NumberField("Item Weight");
+        itemWeightField.setMin(0);
 
-        VerticalLayout dialogLayout = new VerticalLayout(itemNameField, itemPriceField, itemCategoryField);
+        VerticalLayout dialogLayout = new VerticalLayout(itemNameField, itemPriceField, itemCategoryField, itemWeightField);
         dialogLayout.setPadding(false);
         dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
         dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
@@ -355,7 +507,7 @@ public class StoreManagementView extends VerticalLayout {
         Button saveButton = new Button("Add", e -> {
             dialog.close();
             addItemToStoreAction(getStoreIdOfSelectedRow(storesGrid), itemNameField.getValue(),
-                                    itemPriceField.getValue(), itemCategoryField.getValue(), itemsGrid);
+                                    itemPriceField.getValue(), itemCategoryField.getValue(), itemsGrid, itemWeightField.getValue());
         });
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
@@ -522,8 +674,8 @@ public class StoreManagementView extends VerticalLayout {
         itemsGrid.addColumn(CatalogItemService:: getItemName).setHeader("Name").setSortable(true);
         itemsGrid.addColumn(CatalogItemService:: getCategory).setHeader("Category").setSortable(true);
         itemsGrid.addColumn(CatalogItemService:: getAmount).setHeader("Amount").setSortable(true);
-        itemsGrid.addColumn(CatalogItemService:: getPrice).setHeader("price").setSortable(true);
-
+        itemsGrid.addColumn(CatalogItemService:: getPrice).setHeader("Price").setSortable(true);
+        itemsGrid.addColumn(CatalogItemService:: getWeight).setHeader("Weight").setSortable(true);
 
         GridContextMenu<CatalogItemService> menu = itemsGrid.addContextMenu();
         menu.setOpenOnClick(true);
@@ -595,10 +747,352 @@ public class StoreManagementView extends VerticalLayout {
                 dialog.add(menu);
             }
         }
+    }
 
 
+
+
+    private void viewDiscountsDialog() {
+        Grid<DiscountService> discountsGrid = new Grid<>();
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Discounts");
+        Div div = new Div();
+        div.add(discountsGrid);
+        dialog.add(div);
+        dialog.setWidth("1000px");
+
+        int storeId = getStoreIdOfSelectedRow(storesGrid);
+
+        Result<List<DiscountService>> result = shoppingService.getStoreDiscounts(storeId);
+        if(result.isError()){
+            printError(result.getMessage());
+        }
+        else{
+            if(result.getValue() == null){
+                printError("Something went wrong");
+            }
+            else{
+
+                discountsGrid.setItems(result.getValue());
+                discountsGrid.setSelectionMode(Grid.SelectionMode.MULTI);
+                discountsGrid.addColumn(DiscountService:: getType).setHeader("Discount Type").setSortable(true);
+                discountsGrid.addColumn(DiscountService:: getDiscountString).setHeader("Discount").setSortable(true).setWidth("9em");
+                discountsGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
+
+                Button ADDButton = new Button("ADD", event -> newTypeDiscountAction(discountsGrid, NumericComposites.ADD, storeId));
+                Button MAXButton = new Button("MAX", e -> newTypeDiscountAction(discountsGrid, NumericComposites.MAX, storeId));
+                Button MINButton = new Button("MIN", e -> newTypeDiscountAction(discountsGrid, NumericComposites.MIN, storeId));
+                Button createButton = new Button("Create New Discount", e -> createNewDiscountDialog(storeId, discountsGrid));
+                Button cancelButton = new Button("exit", e -> dialog.close());
+
+                dialog.getFooter().add(ADDButton, MAXButton, MINButton, createButton, cancelButton);
+                add(dialog);
+                dialog.open();
+            }
+        }
+    }
+
+    private void viewPoliciesDialog() {
+        Grid<PolicyService> policiesGrid = new Grid<>();
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Policies");
+        Div div = new Div();
+        div.add(policiesGrid);
+        dialog.add(div);
+        dialog.setWidth("1000px");
+
+        int storeId = getStoreIdOfSelectedRow(storesGrid);
+
+        Result<List<PolicyService>> result = shoppingService.getStorePurchasePolicies(storeId);
+        if(result.isError()){
+            printError(result.getMessage());
+        }
+        else{
+            if(result.getValue() == null){
+                printError("Something went wrong");
+            }
+            else{
+
+                policiesGrid.setItems(result.getValue());
+                policiesGrid.setSelectionMode(Grid.SelectionMode.MULTI);
+                policiesGrid.addColumn(PolicyService:: getInfo).setHeader("Policy").setSortable(true).setWidth("9em");
+                policiesGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
+
+                Button createButton = new Button("Create New Policy", e -> createNewPolicyDialog(policiesGrid, storeId));
+                Button cancelButton = new Button("exit", e -> dialog.close());
+
+                dialog.getFooter().add(createButton, cancelButton);
+                add(dialog);
+                dialog.open();
+            }
+        }
+    }
+
+    private void createNewPolicyDialog(Grid<PolicyService> policiesGrid, int storeId) {
+        //TODO Do here the rules dialog like createNewRulesDialog
+        //DO here the buttons of AND OR New Policy according to all the policies in service!
+    }
+
+    private void createNewDiscountDialog(int storeId, Grid<DiscountService> discountsGrid) {
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Discounts");
+        dialog.setWidth("1000px");
+
+        TabSheet tabSheet = new TabSheet();
+
+        //calendar percent buttons and fields!!
+        DatePicker datePicker = setDateButton();
+        NumberField percentField = new NumberField("Percentage Of Discount");
+        percentField.setMin(0);
+        percentField.setValue((double) 0);
+
+
+        Div divItemsDiscounts = new Div();
+        //showItems
+        Div itemsDiv = new Div();
+        Grid<CatalogItemService> itemsGrid = new Grid<>();
+        itemsDiv.add(new Paragraph("Select all the items you want for a discount"));
+        itemsDiv.add(itemsGrid);
+        itemsDiv.setHeight("200");
+
+        setItemsGridForDiscounts(itemsGrid, storeId);
+
+        divItemsDiscounts.add(itemsDiv);
+
+        Div divCategoryDiscount = new Div();
+        TextField categoryField = new TextField("Category");
+        categoryField.setHelperText("Enter Category here");
+        divCategoryDiscount.add(categoryField);
+
+        Div divStoreDiscount = new Div();
+
+        tabSheet.add("Items Discounts", divItemsDiscounts);
+        tabSheet.add("Category Discount", divCategoryDiscount);
+        tabSheet.add("Store Discount", divStoreDiscount);
+
+        Button visible = new Button("Create Visible", e-> {
+            List<Integer> itemsIds = new ArrayList<>();
+            if(tabSheet.getSelectedIndex() == 0) {
+                itemsIds = getMultiIdsOfSelectedItemsInItemsDiscount(itemsGrid);
+            }
+            visibleDiscountTypeAction(convertToCalender(datePicker.getValue()), tabSheet.getSelectedIndex(), categoryField, storeId, percentField.getValue(), discountsGrid, itemsIds);
+            dialog.close();
+            //refreshDiscountsFromBusiness(storeId, discountsGrid); doing this inside the function!
+        });
+        Button conditional = new Button("Create Conditional", e-> {
+            List<Integer> itemsIds = new ArrayList<>();
+            if(tabSheet.getSelectedIndex() == 0) {
+                itemsIds = getMultiIdsOfSelectedItemsInItemsDiscount(itemsGrid);
+            }
+            conditionalDiscountTypeAction(convertToCalender(datePicker.getValue()), tabSheet.getSelectedIndex(), categoryField, storeId, percentField.getValue(), discountsGrid, itemsIds);
+            dialog.close();
+            //refreshDiscountsFromBusiness(storeId, discountsGrid);
+        });
+        Button hidden = new Button("Create Hidden", e-> {
+            List<Integer> itemsIds = new ArrayList<>();
+            if(tabSheet.getSelectedIndex() == 0) {
+                itemsIds = getMultiIdsOfSelectedItemsInItemsDiscount(itemsGrid);
+            }
+            getCouponDialog(convertToCalender(datePicker.getValue()), tabSheet.getSelectedIndex(), categoryField, storeId, percentField.getValue(), discountsGrid, itemsIds) ;
+            dialog.close();
+            //refreshDiscountsFromBusiness(storeId, discountsGrid);
+        });
+        Button cancelButton = new Button("exit", e -> dialog.close());
+
+        dialog.add(datePicker, percentField);
+        dialog.add(tabSheet);
+        dialog.getFooter().add(visible, conditional, hidden, cancelButton);
+
+        add(dialog);
+        dialog.open();
 
     }
+
+    private void setItemsGridForDiscounts(Grid<CatalogItemService> itemsGrid, int storeId) {
+        itemsGrid.setItems(storesIOwn.get(storeId).getItems());
+        itemsGrid.setSelectionMode(Grid.SelectionMode.MULTI);
+        itemsGrid.addColumn(CatalogItemService:: getItemID).setHeader("ID").setSortable(true);
+        itemsGrid.addColumn(CatalogItemService:: getItemName).setHeader("Name").setSortable(true);
+        itemsGrid.addColumn(CatalogItemService:: getCategory).setHeader("Category").setSortable(true);
+        //itemsGrid.addColumn(CatalogItemService:: getAmount).setHeader("Amount").setSortable(true);
+        itemsGrid.addColumn(CatalogItemService:: getPrice).setHeader("price").setSortable(true);
+    }
+
+    private void getCouponDialog(Calendar calendar, int selectedIndex, TextField categoryField, int storeId, Double percent, Grid<DiscountService> discountsGrid, List<Integer> itemsIds) {
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Discounts");
+        dialog.setWidth("1000px");
+
+        TextField couponField = new TextField("Enter Coupon here");
+        couponField.setMinLength(0);
+
+        Button Addbutton = new Button("Add Coupon",e -> {
+            if(couponField.getValue().length() == 0){
+                printError("Enter a coupon please");
+            }
+            else{
+                hiddenDiscountTypeAction(couponField.getValue(), calendar,selectedIndex, categoryField, storeId, percent, discountsGrid, itemsIds);
+                dialog.close();
+            }
+        });
+        Button cancelButton = new Button("exit", e -> dialog.close());
+
+        dialog.add(couponField);
+        dialog.getFooter().add(Addbutton, cancelButton);
+        add(dialog);
+        dialog.open();
+    }
+
+    private Calendar convertToCalender(LocalDate localDate) {
+        try{
+            Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            return calendar;
+        }
+        catch (Exception e){
+            return null;
+        }
+    }
+
+    private DatePicker setDateButton() {
+        Locale locale = new Locale("en", "US");
+        DatePicker datePicker = new DatePicker("Select a date:");
+        datePicker.setLocale(locale);
+        datePicker.setValue(LocalDate.now().plusDays(7));
+        return datePicker;
+    }
+
+    final int ITEMS = 0;
+    final int CATEGORY = 1;
+    final int STORE = 2;
+
+    private void hiddenDiscountTypeAction(String coupon, Calendar calendar, int selectedIndex, TextField categoryField, int storeId, Double percent, Grid<DiscountService> discountsGrid, List<Integer> itemsIds) {
+        if(calendar == null)
+            printError("Enter Date please!");
+        else if(percent == null)
+            printError("Enter percent please!");
+        else if(storeId == -1)
+            printError("Something went wrong");
+        else {
+            Result<Integer> result = null;
+            switch (selectedIndex) {
+                case ITEMS -> {
+                    if(itemsIds.size() == 0)
+                        printError("Enter Ids please!");
+                    else
+                        result = shoppingService.addHiddenItemsDiscount(storeId, itemsIds, percent, coupon, calendar);
+                }
+                case CATEGORY -> {
+                    if (categoryField.getValue() != null) {
+                        String category = categoryField.getValue();
+                        result = shoppingService.addHiddenCategoryDiscount(storeId, category, percent, coupon, calendar);
+                    }
+                }
+                case STORE -> result = shoppingService.addHiddenStoreDiscount(storeId, percent, coupon, calendar);
+            }
+            if(result == null)
+                printError("Something went wrong");
+            else if(result.isError()){
+                printError(result.getMessage());
+            }
+            else if(result.getValue() == -1){
+                printError("Error in adding discount");
+            }
+            else{
+                printSuccess("Added discount successfully");
+                refreshDiscountsFromBusiness(storeId, discountsGrid);
+            }
+        }
+    }
+
+    private void conditionalDiscountTypeAction(Calendar calendar, int selectedIndex, TextField categoryField, int storeId, Double percent, Grid<DiscountService> discountsGrid, List<Integer> itemsIds) {
+        if(calendar == null)
+            printError("Enter Date please!");
+        else if(percent == null)
+            printError("Enter percent please!");
+        else if(storeId == -1)
+            printError("Something went wrong");
+        else {
+            Result<Integer> result = null;
+            switch (selectedIndex) {
+                case ITEMS ->{
+                    if(itemsIds.size() == 0)
+                        printError("Enter Ids please!");
+                    else
+                        result = shoppingService.addConditionalItemsDiscount(storeId, percent, calendar, itemsIds);
+                }
+                case CATEGORY -> {
+                    if (categoryField.getValue() != null) {
+                        String category = categoryField.getValue();
+                        result = shoppingService.addConditionalCategoryDiscount(storeId, percent, calendar, category);
+                    }
+                }
+                case STORE -> result = shoppingService.addConditionalStoreDiscount(storeId, percent, calendar);
+            }
+            if(result == null)
+                printError("Something went wrong");
+            else if(result.isError()){
+                printError(result.getMessage());
+            }
+            else if(result.getValue() == -1){
+                printError("Error in adding discount");
+            }
+            else{
+                printSuccess("Added discount successfully");
+                createNewRulesDialog(discountsGrid, result.getValue());
+            }
+        }
+    }
+
+
+    private void visibleDiscountTypeAction(Calendar calendar, int selectedIndex, TextField categoryField, int storeId, Double percent, Grid<DiscountService> discountsGrid, List<Integer> itemsIds) {
+        if(calendar == null)
+            printError("Enter Date please!");
+        else if(percent == null)
+            printError("Enter percent please!");
+        else if(storeId == -1)
+            printError("Something went wrong");
+        else {
+            Result<Integer> result = null;
+            switch (selectedIndex) {
+                case ITEMS -> {
+                    if(itemsIds.size() == 0)
+                        printError("Enter Ids please!");
+                    else
+                        result = shoppingService.addVisibleItemsDiscount(storeId, itemsIds, percent, calendar);
+                }
+                case CATEGORY -> {
+                    if (categoryField.getValue() != null) {
+                        String category = categoryField.getValue();
+                        result = shoppingService.addVisibleCategoryDiscount(storeId, category, percent, calendar);
+                    }
+                }
+                case STORE -> result = shoppingService.addVisibleStoreDiscount(storeId, percent, calendar);
+            }
+            if(result == null)
+                printError("Something went wrong");
+            else if(result.isError()){
+                printError(result.getMessage());
+            }
+            else if(result.getValue() == -1){
+                printError("Error in adding discount");
+            }
+            else{
+                printSuccess("Added discount successfully");
+                refreshDiscountsFromBusiness(storeId, discountsGrid);
+            }
+        }
+    }
+
 
     private void viewReceiptItemsAction(Grid<ReceiptService> receiptsGrid, List<ReceiptService> receipts, int receiptId) {
 
@@ -644,7 +1138,7 @@ public class StoreManagementView extends VerticalLayout {
             Result<String> result = shoppingService.updateItemName(storeId, itemId, newName);
 
             if(result.isError()){
-                printError("Error in update Item Name");
+                printError(result.getMessage());
             }
             else{
                 if(result.getMessage().contains("Changed item name from")){
@@ -664,7 +1158,7 @@ public class StoreManagementView extends VerticalLayout {
             Result<CatalogItemService> result = shoppingService.removeItemFromStore(storeId, itemId);
 
             if(result.isError()){
-                printError("Error in remove Item");
+                printError(result.getMessage());
             }
             else{
                 if(result.getValue() != null){
@@ -685,7 +1179,7 @@ public class StoreManagementView extends VerticalLayout {
             Result<Boolean> result = shoppingService.addItemAmount(storeId, itemId, amount);
 
             if(result.isError()){
-                printError("Error in add Item amount");
+                printError(result.getMessage());
             }
             else{
                 if(result.getValue()){
@@ -700,13 +1194,12 @@ public class StoreManagementView extends VerticalLayout {
     }
 
 
-//
-    private void addItemToStoreAction(int storeId, String itemName, Double price, String category, Grid<CatalogItemService> itemsGrid) {
-        if(storeId != -1 || price == null){
-            Result<CatalogItemService> result = shoppingService.addItemToStore(storeId, itemName, price, category);
+    private void addItemToStoreAction(int storeId, String itemName, Double price, String category, Grid<CatalogItemService> itemsGrid, Double weight) {
+        if(storeId != -1 && price != null){
+            Result<CatalogItemService> result = shoppingService.addItemToStore(storeId, itemName, price, category, weight);
 
             if(result.isError()){
-                printError("Error in add Item");
+                printError(result.getMessage());
             }
             else{
                 if(result.getValue() != null){
@@ -726,7 +1219,7 @@ public class StoreManagementView extends VerticalLayout {
             Result<Boolean> result = shoppingService.reopenStore(userId, storeId);
 
             if(result.isError()){
-                printError("Error in reopen Store");
+                printError(result.getMessage());
             }
             else{
                 if(result.getValue()){
@@ -746,7 +1239,7 @@ public class StoreManagementView extends VerticalLayout {
             Result<Boolean> result = shoppingService.closeStore(userId, storeId);
 
             if(result.isError()){
-                printError("Error in close Store");
+                printError(result.getMessage());
             }
             else{
                 if(result.getValue()){
@@ -761,13 +1254,274 @@ public class StoreManagementView extends VerticalLayout {
         }
     }
 
+
+    private void newTypeDiscountAction(Grid<DiscountService> discountGrid, NumericComposites numericComposites, int storeId) {
+        if(storeId != -1){
+            List<Integer> discounts = getMultiIdsOfSelectedDiscounts(discountGrid);
+            if(discounts != null){
+                Result<Integer> result = shoppingService.wrapDiscounts(storeId, discounts , numericComposites);
+                if(result.isError()){
+                    printError(result.getMessage());
+                }
+                else{
+                    if(result.getValue() != -1){
+                        printSuccess("New Discount created!");
+                        refreshDiscountsFromBusiness(storeId,discountGrid);
+                    }
+                    else{
+                        printError("Something went wrong");
+                    }
+                }
+            }
+        }
+
+    }
+
+
+
+
+    private void createNewRulesDialog(Grid<DiscountService> discountsGrid, int discountId) {
+        Grid<RuleService> rulesGrid = new Grid<>();
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Rules");
+        Div div = new Div();
+        div.add(rulesGrid);
+        dialog.add(div);
+        dialog.setWidth("1000px");
+
+        int storeId = getStoreIdOfSelectedRow(storesGrid);
+
+        rulesGrid.setItems(new ArrayList<>());
+        rulesGrid.setSelectionMode(Grid.SelectionMode.MULTI);
+        rulesGrid.addColumn(RuleService::getInfo).setHeader("Rule");
+        rulesGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
+
+        Button priceRuleButton = new Button("new Price Rule", e-> newPriceRuleDialog(discountId, storeId, rulesGrid));
+        Button quantityRuleButton = new Button("new Quantity Rule", e-> newQuantityRuleDialog(discountId, storeId, rulesGrid));
+        Button andButton = new Button("And", e-> ruleCompositeAction(discountId, rulesGrid, storeId, LogicalComposites.AND));  //in the function get the ids selected
+        Button orButton = new Button("Or", e-> ruleCompositeAction(discountId, rulesGrid, storeId, LogicalComposites.OR));     //in the function get the ids selected
+        Button finishButton = new Button("Finish", e-> {
+            boolean errorOccurred = finishCompositeAction(discountId, storeId);
+            if(!errorOccurred){
+                dialog.close();
+                refreshDiscountsFromBusiness(storeId, discountsGrid);
+            }
+        });
+
+        dialog.getFooter().add(priceRuleButton, quantityRuleButton, andButton, orButton, finishButton);
+        add(dialog);
+        dialog.open();
+    }
+
+    private boolean finishCompositeAction(int discountId, int storeId) {
+        boolean errorOccurred = false;
+        if(storeId != -1){
+            Result<Boolean> result = shoppingService.finishConditionalDiscountBuilding(storeId, discountId);
+            if(result.isError()){
+                printError(result.getMessage());
+                errorOccurred = true;
+            }
+            else{
+                if(result.getValue()){
+                    printSuccess("Rule Finished!");
+                }
+                else{
+                    printError("Something went wrong");
+                    errorOccurred = true;
+                }
+            }
+        }
+        return errorOccurred;
+    }
+
+    private void ruleCompositeAction(int discountId, Grid<RuleService> rulesGrid, int storeId, LogicalComposites logicalComposite) {
+        List<Integer> ids = getMultiIdsOfSelectedRules(rulesGrid);
+        if( ids == null || ids.size() < 2){
+            printError("You didn't choose enough Rules");
+        }
+        else if(storeId != -1){
+            Result<RuleService> result = shoppingService.addDiscountComposite(storeId,discountId, logicalComposite, ids);
+            if(result.isError()){
+                printError(result.getMessage());
+            }
+            else{
+                if(result.getValue() != null){
+                    printSuccess("Rule added Successfully");
+                    changeRulesListInScreen(result.getValue(), ids, rulesGrid);
+                }
+                else{
+                    printError("Something went wrong");
+                }
+            }
+        }
+    }
+
+
+    private void newPriceRuleDialog(int discountId, int storeId, Grid<RuleService> rulesGrid) {
+
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("New Price Rule");
+
+        NumberField minPriceField = new NumberField("Minimum Price");
+        minPriceField.setMin(0);
+
+        VerticalLayout dialogLayout = new VerticalLayout(minPriceField);
+
+        dialogLayout.setPadding(false);
+        dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+        dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
+
+        dialog.add(dialogLayout);
+
+        Button createButton = new Button("Create", e -> {
+
+            RuleService newRule = addPriceRuleAction(minPriceField.getValue(), discountId, storeId);
+            changeRulesListInScreen(newRule, new ArrayList<>(), rulesGrid);
+            if(newRule != null)
+                dialog.close();
+        });
+
+        createButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        Button cancelButton = new Button("Cancel", e -> dialog.close());
+        dialog.getFooter().add(cancelButton, createButton);
+
+        add(dialog);
+        dialog.open();
+
+    }
+
+    private RuleService addPriceRuleAction(Double price, int discountId, int storeId) {
+        RuleService resultRule = null;
+        if(storeId != -1 && price != null){
+            Result<RuleService> result = shoppingService.addDiscountBasketTotalPriceRule(storeId, discountId, price);
+
+            if(result.isError()){
+                printError(result.getMessage());
+            }
+            else{
+                if(result.getValue() != null){
+                    printSuccess("Price Rule added Successfully");
+                    resultRule = result.getValue();
+                }
+                else{
+                    printError("Something went wrong");
+                }
+            }
+        }
+        return resultRule;
+    }
+
+    private void newQuantityRuleDialog(int discountId, int storeId, Grid<RuleService> rulesGrid) {
+
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("New Quantity Rule");
+        dialog.setWidth("800px");
+        //showItems
+        Div itemsDiv = new Div();
+        Grid<CatalogItemService> itemsGrid = new Grid<>();
+        itemsDiv.add(new Paragraph("Items of Store"));
+        itemsDiv.add(itemsGrid);
+        setItemsGridForDiscounts(itemsGrid, storeId);
+        itemsGrid.setSelectionMode(Grid.SelectionMode.NONE);
+
+        Map<Integer, Integer> idsToAmounts = new HashMap<>();
+        Paragraph paragraph = new Paragraph("Map of Items: ");
+        TextField textField = new TextField("ID, Amount");
+        Button addButton = getMapFromUser(idsToAmounts, textField, paragraph);
+
+        dialog.add(itemsDiv, paragraph, textField, addButton);
+
+        Button createButton = new Button("Create", e -> {
+
+            RuleService newRule = addQuantityRuleAction(idsToAmounts, storeId, discountId);
+            changeRulesListInScreen(newRule, new ArrayList<>(), rulesGrid);
+            if(newRule != null)
+                dialog.close();
+        });
+
+        createButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        Button cancelButton = new Button("Cancel", e -> dialog.close());
+        dialog.getFooter().add(cancelButton, createButton);
+
+        add(dialog);
+        dialog.open();
+    }
+
+    private RuleService addQuantityRuleAction(Map<Integer, Integer> idsToAmounts, int storeId, int discountId) {
+        RuleService resultRule = null;
+        if( idsToAmounts.size() == 0){
+            printError("You didn't added nothing to the list");
+        }
+        else if(storeId != -1){
+            Result<RuleService> result = shoppingService.addDiscountQuantityRule(storeId, discountId, idsToAmounts);
+            if(result.isError()){
+                printError(result.getMessage());
+            }
+            else{
+                if(result.getValue() != null){
+                    printSuccess("Quantity Rule added Successfully");
+                    resultRule = result.getValue();
+                }
+                else{
+                    printError("Something went wrong");
+                }
+            }
+        }
+        return resultRule;
+    }
+
+    private Button getMapFromUser(Map<Integer, Integer> idsToAmounts, TextField textField, Paragraph paragraph) {
+        textField.setHelperText("Enter an ID a ',' and amount");
+        return new Button("Add Id,Amount", e->{
+
+            if(textField.getValue() == null){
+                printError("Enter an ID and Amount please");
+            }
+            else{
+                String res = textField.getValue().replace(" ","");
+                int secondIndex = res.indexOf(',', res.indexOf(',') + 1);
+                if(!res.contains(",")){
+                    printError("You didn't enter a ','");
+                }
+                else if(secondIndex != -1){
+                    printError("You entered too many values");
+                }
+                else {
+                    String[] resSplit = res.split(",");
+                    try{
+                        idsToAmounts.put(Integer.parseInt(resSplit[0]), Integer.parseInt(resSplit[1]));
+                        paragraph.add(resSplit[0] + ":" + resSplit[1]+ "   ");
+                    }catch (Exception e1){
+                        printError("You didn't enter number!");
+                    }
+                }
+            }
+        });
+    }
+
+    private void changeRulesListInScreen(RuleService newRule, List<Integer> toRemoveIds, Grid<RuleService> rulesGrid) {
+        if(newRule != null){
+            ListDataProvider dataProvider = (ListDataProvider) rulesGrid.getDataProvider();
+            List<RuleService> rules = new ArrayList<>(dataProvider.getItems());
+            rules.add(newRule);
+            rules.removeIf(ruleService -> toRemoveIds.contains(ruleService.getId()));
+            rulesGrid.setItems(rules);
+            rulesGrid.getDataProvider().refreshAll();
+        }
+    }
+
+
     private void refreshStoreFromBusiness(int storeId) {
         StoreService curr = shoppingService.getStoreInfo(storeId).getValue();
         storesIOwn.replace(storeId, curr);
-        //storesGrid.getDataProvider().refreshItem(curr);
         storesGrid.getDataProvider().refreshAll();
     }
-
 
     private void refreshItemFromBusiness(int storeId, int itemId, Grid<CatalogItemService> itemsGrid) {
         StoreService currStore = shoppingService.getStoreInfo(storeId).getValue();
@@ -776,6 +1530,40 @@ public class StoreManagementView extends VerticalLayout {
         itemsGrid.setItems(currStore.getItems());
         itemsGrid.getDataProvider().refreshAll();
         storesGrid.getDataProvider().refreshAll();
+    }
+
+
+    private void refreshDiscountsFromBusiness(int storeId, Grid<DiscountService> discountsGrid){
+        //uncomment this
+        Result<List<DiscountService>> result = shoppingService.getStoreDiscounts(storeId);
+        discountsGrid.setItems(result.getValue());
+        discountsGrid.getDataProvider().refreshAll();
+    }
+
+    private void refreshUserGrids(int ownerId) {
+        Result<List<UserInfoService>> result1 = userService.getAllOwnersIDefined(ownerId);
+        Result<Map<Integer, UserInfoService>> result2 = userService.getAllRegisteredUsers();
+        Result<List<UserInfoService>> result3 = userService.getAllManagersIDefined(ownerId);
+        if(result1.isError()||result1.getValue() == null){
+            printError(result1.getMessage());
+        }
+        else if(result2.isError() ||result2.getValue() == null){
+            printError(result2.getMessage());
+        }
+        else if(result3.isError() ||result3.getValue() == null){
+            printError(result3.getMessage());
+        }
+        else{
+            users = result2.getValue();
+            userGrid.setItems(users.values());
+            userGrid.getDataProvider().refreshAll();
+
+            ownersIDefinedGrid.setItems(result1.getValue());
+            ownersIDefinedGrid.getDataProvider().refreshAll();
+
+            managersIDefinedGrid.setItems(result3.getValue());
+            managersIDefinedGrid.getDataProvider().refreshAll();
+        }
     }
 
 
