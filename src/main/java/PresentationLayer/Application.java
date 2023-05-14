@@ -34,9 +34,9 @@ public class Application implements AppShellConfigurator {
             int maorStoreID = shoppingService.createStore(amirID, "maors Store").getValue();
             userService.addOwner(amirID, tomerID, amirStoreID);
             userService.addManager(amirID, meitarID, amirStoreID);
-            Result<CatalogItemService> result = shoppingService.addItemToStore(amirStoreID, "Bread", 5, "Wheat");
-            shoppingService.addItemToStore(amirStoreID, "Milk", 6, "Dairy");
-            shoppingService.addItemToStore(amirStoreID, "Butter", 7, "Dairy");
+            Result<CatalogItemService> result = shoppingService.addItemToStore(amirStoreID, "Bread", 5, "Wheat", 0);
+            shoppingService.addItemToStore(amirStoreID, "Milk", 6, "Dairy", 0);
+            shoppingService.addItemToStore(amirStoreID, "Butter", 7, "Dairy", 0);
             int itemId = result.getValue().getItemID();
             shoppingService.addItemAmount(amirStoreID, itemId, 50);
             shoppingService.addItemAmount(amirStoreID, itemId + 1, 30);

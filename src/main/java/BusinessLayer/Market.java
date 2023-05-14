@@ -2,7 +2,9 @@ package BusinessLayer;
 
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.Message;
+import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.CatalogItem;
@@ -21,17 +23,20 @@ import Globals.SearchBy;
 import Globals.SearchFilter;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Market {
     private static Market instance;
     private UserFacade userFacade;
     private StoreFacade storeFacade;
     private Map<Integer, SystemManager> systemManagerMap;
+    private NotificationHub notificationHub;
     private static final Object instanceLock = new Object();
     private Market() {
         systemManagerMap = new HashMap<>();
         userFacade = new UserFacade();
         storeFacade = new StoreFacade();
+        notificationHub = new NotificationHub();
     }
 
     public static Market getInstance() throws Exception {
@@ -236,71 +241,82 @@ public class Market {
         userFacade.removeManagerPermission(userID, storeID, manager, permission);
     }
 
-    public boolean sendMessage(int senderID, int receiverID, String title, String content) throws Exception{
+    public boolean sendMessage(int senderID, int receiverID, String content) throws Exception{
         if(storeFacade.isStoreExists(senderID)){
-            storeFacade.sendMessage(senderID, receiverID, title, content);
+            storeFacade.sendMessage(senderID, receiverID, content);
             return true;
         }
         if(userFacade.userExists(senderID)){
-            userFacade.sendMessage(senderID, receiverID, title, content);
+            userFacade.sendMessage(senderID, receiverID, content);
             return true;
         }
 
         return false;
     }
 
-    public void markMessageAsRead(int ID, Message message) throws Exception {
-        if(storeFacade.isStoreExists(ID)){
-            storeFacade.markMessageAsRead(ID, message);
-        }
-        if(userFacade.userExists(ID)){
-            userFacade.markMessageAsRead(ID, message);
-        }
-    }
+//    public void markMessageAsRead(int ID, Message message) throws Exception {
+//        if(storeFacade.isStoreExists(ID)){
+//            storeFacade.markMessageAsRead(ID, message);
+//        }
+//        if(userFacade.userExists(ID)){
+//            userFacade.markMessageAsRead(ID, message);
+//        }
+//    }
+//
+//    public void markMessageAsNotRead(int ID, Message message) throws Exception {
+//        if(storeFacade.isStoreExists(ID)){
+//            storeFacade.markMessageAsNotRead(ID, message);
+//        }
+//        if(userFacade.userExists(ID)){
+//            userFacade.markMessageAsNotRead(ID, message);
+//        }
+//    }
+//
+//    public List<Message> watchNotReadMessages(int ID) throws Exception
+//    {
+//        if(storeFacade.isStoreExists(ID)){
+//            return storeFacade.watchNotReadMessages(ID);
+//        }
+//        if(userFacade.userExists(ID)){
+//            return userFacade.watchNotReadMessages(ID);
+//        }
+//
+//        return null;
+//    }
+//
+//    public List<Message> watchReadMessages(int ID) throws Exception
+//    {
+//        if(storeFacade.isStoreExists(ID)){
+//            return storeFacade.watchNotReadMessages(ID);
+//        }
+//        if(userFacade.userExists(ID)){
+//            return userFacade.watchReadMessages(ID);
+//        }
+//
+//        return null;
+//    }
+//
+//    public List<Message> watchSentMessages(int ID) throws Exception
+//    {
+//        if(storeFacade.isStoreExists(ID)){
+//            return storeFacade.watchSentMessages(ID);
+//        }
+//        if(userFacade.userExists(ID)){
+//            return userFacade.watchSentMessages(ID);
+//        }
+//
+//        return null;
+//    }
 
-    public void markMessageAsNotRead(int ID, Message message) throws Exception {
-        if(storeFacade.isStoreExists(ID)){
-            storeFacade.markMessageAsNotRead(ID, message);
+    public ConcurrentHashMap<Integer, Chat> getChats(int id) throws Exception {
+        if(storeFacade.isStoreExists(id)){
+            return storeFacade.getChats(id);
         }
-        if(userFacade.userExists(ID)){
-            userFacade.markMessageAsNotRead(ID, message);
-        }
-    }
-
-    public List<Message> watchNotReadMessages(int ID) throws Exception
-    {
-        if(storeFacade.isStoreExists(ID)){
-            return storeFacade.watchNotReadMessages(ID);
-        }
-        if(userFacade.userExists(ID)){
-            return userFacade.watchNotReadMessages(ID);
+        if(userFacade.userExists(id)){
+            return userFacade.getChats(id);
         }
 
-        return null;
-    }
-
-    public List<Message> watchReadMessages(int ID) throws Exception
-    {
-        if(storeFacade.isStoreExists(ID)){
-            return storeFacade.watchNotReadMessages(ID);
-        }
-        if(userFacade.userExists(ID)){
-            return userFacade.watchReadMessages(ID);
-        }
-
-        return null;
-    }
-
-    public List<Message> watchSentMessages(int ID) throws Exception
-    {
-        if(storeFacade.isStoreExists(ID)){
-            return storeFacade.watchSentMessages(ID);
-        }
-        if(userFacade.userExists(ID)){
-            return userFacade.watchSentMessages(ID);
-        }
-
-        return null;
+        throw new Exception("The given id is invalid!");
     }
 
     public boolean setMailboxAsUnavailable(int storeID) throws Exception
@@ -466,6 +482,18 @@ public class Market {
     public Map<Integer, PurchasePolicy> getStorePurchasePolicies(int storeID) throws Exception
     {
         return storeFacade.getStorePurchasePolicies(storeID);
+    }
+
+    public Map<RegisteredUser, Set<Integer>> getAllOwnersIDefined(int ownerId) throws Exception {
+        return userFacade.getAllOwnersIDefined(ownerId);
+    }
+
+    public Map<RegisteredUser, Set<Integer>> getAllManagersIDefined(int ownerId) throws Exception {
+        return userFacade.getAllManagersIDefined(ownerId);
+    }
+  
+    public NotificationHub getNotificationHub(){
+        return notificationHub;
     }
 
 }
