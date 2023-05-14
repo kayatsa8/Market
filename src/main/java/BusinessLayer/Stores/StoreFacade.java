@@ -258,7 +258,8 @@ public class StoreFacade {
     public Map<CatalogItem, Boolean> getCatalog() {
         Map<CatalogItem, Boolean> res = new HashMap<>();
         for (Store store : stores.values()) {
-            res.putAll(store.getCatalog());
+            if (store.getStoreStatus()!=StoreStatus.PERMANENTLY_CLOSE)
+                res.putAll(store.getCatalog());
         }
         return res;
     }

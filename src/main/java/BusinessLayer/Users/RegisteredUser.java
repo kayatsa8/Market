@@ -34,7 +34,7 @@ public class RegisteredUser extends User {
         this.storesIOwn = new HashMap<>();
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();
-        this.isLoggedIn = true;
+        this.isLoggedIn = false;
         this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(this);
     }
 
@@ -46,6 +46,7 @@ public class RegisteredUser extends User {
         this.storesIOwn = new HashMap<>();
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();
+        this.isLoggedIn = false;
         if (isAdmin) {
             systemManager = new SystemManager(this);
         }
