@@ -36,6 +36,9 @@ public class SystemManager {
         {
             throw new Exception("UserToRemove is NULL!");
         }
+        if (!userToRemove.getStoresIOwn().isEmpty() || !userToRemove.getStoresIManage().isEmpty()) {
+            throw new Exception("Cannot remove User who owns or manages a store");
+        }
         removeStoreAssociations(userToRemove);
         userFacade.removeUser(userToRemove);
     }

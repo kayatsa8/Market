@@ -30,8 +30,13 @@ public class Application implements AppShellConfigurator {
             int sagiID = userService.register("Sagi", "sagisPass").getValue();
             int meitarID = userService.register("Meitar", "meitarsPass").getValue();
             int maorID = userService.register("Maor", "maorsPass").getValue();
+
+            userService.login("Amir", "amirsPass");
+            userService.login("Maor", "maorsPass");
+
             int amirStoreID = shoppingService.createStore(amirID, "amirs Store").getValue();
-            int maorStoreID = shoppingService.createStore(amirID, "maors Store").getValue();
+            int maorStoreID = shoppingService.createStore(maorID, "maors Store").getValue();
+
             userService.addOwner(amirID, tomerID, amirStoreID);
             userService.addManager(amirID, meitarID, amirStoreID);
             Result<CatalogItemService> result = shoppingService.addItemToStore(amirStoreID, "Bread", 5, "Wheat", 0);
@@ -41,6 +46,12 @@ public class Application implements AppShellConfigurator {
             shoppingService.addItemAmount(amirStoreID, itemId, 50);
             shoppingService.addItemAmount(amirStoreID, itemId + 1, 30);
             shoppingService.addItemAmount(amirStoreID, itemId + 2, 2);
+
+            shoppingService.addItemToCart(maorID, amirStoreID, itemId, 2);
+            shoppingService.buyCart(maorID, "Address");
+
+            userService.logout(amirID);
+            userService.logout(maorID);
         }
         catch (Exception e) {
             System.out.println("Problem initiating Market");

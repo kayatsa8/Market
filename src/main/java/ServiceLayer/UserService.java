@@ -247,6 +247,38 @@ public class UserService {
         }
     }
 
+    public Result<Map<Integer, UserInfoService>> getLoggedInUsers() {
+        try{
+            Map<Integer, RegisteredUser> users = market.getLoggedInUsers();
+            Map<Integer, UserInfoService> usersService = new HashMap<>();
+            for(Map.Entry<Integer, RegisteredUser> user : users.entrySet()){
+                usersService.put(user.getKey(), new UserInfoService(user.getValue()));
+            }
+            log.info("Users information received successfully");
+            return new Result<>(false, usersService);
+        }
+        catch (Exception e){
+            log.info("Users information not received");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result<Map<Integer, UserInfoService>> getLoggedOutUsers() {
+        try{
+            Map<Integer, RegisteredUser> users = market.getLoggedOutUsers();
+            Map<Integer, UserInfoService> usersService = new HashMap<>();
+            for(Map.Entry<Integer, RegisteredUser> user : users.entrySet()){
+                usersService.put(user.getKey(), new UserInfoService(user.getValue()));
+            }
+            log.info("Users information received successfully");
+            return new Result<>(false, usersService);
+        }
+        catch (Exception e){
+            log.info("Users information not received");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
     public boolean isAdmin(int currUserID) {
         return market.isAdmin(currUserID);
     }
@@ -285,6 +317,16 @@ public class UserService {
         catch (Exception e){
             log.info("Users information not received");
             return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result removeUser(int userID, int userToRemove) {
+        try {
+            market.removeUser(userID, userToRemove);
+            return new Result(false, "Success");
+        }
+        catch (Exception e) {
+            return new Result(true, e.getMessage());
         }
     }
 }
