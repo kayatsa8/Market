@@ -444,6 +444,7 @@ public class Market {
     {
         return storeFacade.addPurchasePolicyForbiddenDatesRule(storeID, forbiddenDates);
     }
+
     public String addPurchasePolicyForbiddenHoursRule(int storeID, int startHour, int endHour) throws Exception
     {
         return storeFacade.addPurchasePolicyForbiddenHoursRule(storeID, startHour, endHour);
@@ -468,7 +469,6 @@ public class Market {
     {
         return storeFacade.wrapPurchasePolicies(storeID, purchasePoliciesIDsToWrap, logicalCompositeEnum);
     }
-
     public Map<Integer, Discount> getStoreDiscounts(int storeID) throws Exception
     {
         return storeFacade.getStoreDiscounts(storeID);
@@ -491,9 +491,16 @@ public class Market {
     public Map<RegisteredUser, Set<Integer>> getAllManagersIDefined(int ownerId) throws Exception {
         return userFacade.getAllManagersIDefined(ownerId);
     }
-  
+
     public NotificationHub getNotificationHub(){
         return notificationHub;
     }
 
+    public Map<Integer, RegisteredUser> getLoggedInUsers() {
+        return userFacade.getLoggedInUsers();
+    }
+
+    public Map<Integer, RegisteredUser> getLoggedOutUsers() {
+        return userFacade.getLoggedOutUsers();
+    }
 }

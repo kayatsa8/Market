@@ -47,6 +47,7 @@ public class MainLayout extends AppLayout {
     }
 
     private static Button logoutBtn;
+
     public MainLayout() {
         setPrimarySection(Section.DRAWER);
         addDrawerContent();
@@ -75,7 +76,6 @@ public class MainLayout extends AppLayout {
         viewTitle = new H2();
         viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
 
-//        Button cartButton = new Button("My Cart", SHOPPING_CART_SOLID.create());
         AppNav nav = new AppNav();
         nav.addItem(new AppNavItem("My Cart", Cart.class, SHOPPING_CART_SOLID.create()));
         nav.getStyle().set("margin-left", "auto");
@@ -123,12 +123,10 @@ public class MainLayout extends AppLayout {
 
     private void LogoutAction(){
         /**
-         1.default is guess
+         1.default is guest
          2.on login change to the according RegisterUser + load his data if needed
-         3.on logout change the login of the RegisterUser to false, change the User to guess again.
+         3.on logout change the login of the RegisterUser to false, change the User to guest again.
          */
-
-        Notification.show("Try logout id="+ currUser.getCurrUserID());
         Result<Boolean> result=userService.logout(getCurrUserID());
         if (result.isError()){
             Notification.show("Failed to logout: "+result.getMessage());
@@ -143,7 +141,7 @@ public class MainLayout extends AppLayout {
     private void setGuestView() {
         currUser.setCurrIdToGuest();
         logoutBtn.setVisible(false);
-        systemAdmin.setVisible(false);
+        systemAdmin.setVisible(true);
         marketOwnerOrManager.setVisible(false);
         loginAndRegister.setVisible(true);
     }

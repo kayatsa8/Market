@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class UserFacade {
     private static final Logger log = Log.log;
@@ -308,11 +309,25 @@ public class UserFacade {
     public boolean isOwnerOrManager(int currUserID) {
         try {
             RegisteredUser user = getRegisteredUser(currUserID);
-            return !user.getStoresIOwn().isEmpty() || user.getStoresIManage().isEmpty();
+            return !user.getStoresIOwn().isEmpty() || !user.getStoresIManage().isEmpty();
         }
         catch (Exception e) {
             return false;
         }
+    }
+
+    public Map<Integer, RegisteredUser> getLoggedInUsers() {
+        return users.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().isLoggedIn())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    public Map<Integer, RegisteredUser> getLoggedOutUsers() {
+        return users.entrySet()
+                .stream()
+                .filter(entry -> !entry.getValue().isLoggedIn())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public Map<RegisteredUser, Set<Integer>> getAllOwnersIDefined(int ownerId) throws Exception {
