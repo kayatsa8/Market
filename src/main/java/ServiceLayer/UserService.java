@@ -7,10 +7,7 @@ import BusinessLayer.Users.RegisteredUser;
 import ServiceLayer.Objects.MessageService;
 import ServiceLayer.Objects.UserInfoService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class UserService {
@@ -234,5 +231,38 @@ public class UserService {
 
     public boolean isOwnerOrManager(int currUserID) {
         return market.getUserFacade().isOwnerOrManager(currUserID);
+    }
+
+
+    public Result<List<UserInfoService>> getAllOwnersIDefined(int ownerId) {
+        try{
+            Map<RegisteredUser, Set<Integer>> users = market.getAllOwnersIDefined(ownerId);
+            List<UserInfoService> usersService = new ArrayList<>();
+            for(Map.Entry<RegisteredUser, Set<Integer>> entry: users.entrySet()){
+                usersService.add(new UserInfoService(entry.getKey(), entry.getValue(), "owner"));
+            }
+            log.info("Users information received successfully");
+            return new Result<>(false, usersService);
+        }
+        catch (Exception e){
+            log.info("Users information not received");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result<List<UserInfoService>> getAllManagersIDefined(int ownerId) {
+        try{
+            Map<RegisteredUser, Set<Integer>> users = market.getAllManagersIDefined(ownerId);
+            List<UserInfoService> usersService = new ArrayList<>();
+            for(Map.Entry<RegisteredUser, Set<Integer>> entry: users.entrySet()){
+                usersService.add(new UserInfoService(entry.getKey(), entry.getValue(), "manager"));
+            }
+            log.info("Users information received successfully");
+            return new Result<>(false, usersService);
+        }
+        catch (Exception e){
+            log.info("Users information not received");
+            return new Result<>(true, e.getMessage());
+        }
     }
 }
