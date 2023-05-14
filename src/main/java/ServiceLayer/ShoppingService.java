@@ -2,6 +2,7 @@ package ServiceLayer;
 
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.LogicalComposites;
@@ -21,6 +22,7 @@ import BusinessLayer.Stores.CatalogItem;
 import ServiceLayer.Objects.*;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public class ShoppingService {
@@ -317,11 +319,11 @@ public class ShoppingService {
         }
     }
 
-    public Result<Boolean> sendMessage(int storeID, int receiverID, String title, String content)
+    public Result<Boolean> sendMessage(int storeID, int receiverID, String content)
     {
         try
         {
-            boolean response = market.sendMessage(storeID, receiverID, title, content);
+            boolean response = market.sendMessage(storeID, receiverID, content);
             log.info("Sent message successfully");
             return new Result<>(false, response);
         } catch (Exception e)
@@ -333,71 +335,71 @@ public class ShoppingService {
 
     }
 
-    public Result<Boolean> markMessageAsRead(int storeID, MessageService messageService){
-        try{
-            market.markMessageAsRead(storeID, new Message(messageService));
-            return new Result<Boolean>(false, true);
-        }
-        catch(Exception e){
-            return new Result<Boolean>(true, e.getMessage());
-        }
-    }
+//    public Result<Boolean> markMessageAsRead(int storeID, MessageService messageService){
+//        try{
+//            market.markMessageAsRead(storeID, new Message(messageService));
+//            return new Result<Boolean>(false, true);
+//        }
+//        catch(Exception e){
+//            return new Result<Boolean>(true, e.getMessage());
+//        }
+//    }
+//
+//    public Result<Boolean> markMessageAsNotRead(int storeID, MessageService messageService){
+//        try{
+//            market.markMessageAsNotRead(storeID, new Message(messageService));
+//            return new Result<Boolean>(false, true);
+//        }
+//        catch(Exception e){
+//            return new Result<Boolean>(true, e.getMessage());
+//        }
+//    }
 
-    public Result<Boolean> markMessageAsNotRead(int storeID, MessageService messageService){
-        try{
-            market.markMessageAsNotRead(storeID, new Message(messageService));
-            return new Result<Boolean>(false, true);
-        }
-        catch(Exception e){
-            return new Result<Boolean>(true, e.getMessage());
-        }
-    }
-
-    public Result<List<MessageService>> watchNotReadMessages(int storeID) throws Exception
-    {
-        List<Message> messages = market.watchNotReadMessages(storeID);
-
-        if(messages == null){
-            return new Result<>(true, "Error");
-        }
-        else{
-            return new Result<>(false, messageListToMessageServiceList(messages));
-        }
-    }
-
-    private List<MessageService> messageListToMessageServiceList(List<Message> messages){
-        List<MessageService> toReturn = new ArrayList<>();
-
-        for(Message message : messages){
-            toReturn.add(new MessageService(message));
-        }
-
-        return toReturn;
-    }
-
-    public Result<List<MessageService>> watchReadMessages(int storeID) throws Exception
-    {
-        List<Message> messages = market.watchReadMessages(storeID);
-
-        if(messages == null){
-            return new Result<List<MessageService>>(true, "Error");
-        }
-        else{
-            return new Result<List<MessageService>>(false, messageListToMessageServiceList(messages));
-        }
-    }
-
-    public Result<List<MessageService>> watchSentMessages(int storeID) throws Exception
-    {
-        List<Message> messages = market.watchSentMessages(storeID);
-
-        if(messages == null){
-            return new Result<List<MessageService>>(true, "Error");
-        }
-        else{
-            return new Result<List<MessageService>>(false, messageListToMessageServiceList(messages));
-        }
-    }
+//    public Result<List<MessageService>> watchNotReadMessages(int storeID) throws Exception
+//    {
+//        List<Message> messages = market.watchNotReadMessages(storeID);
+//
+//        if(messages == null){
+//            return new Result<>(true, "Error");
+//        }
+//        else{
+//            return new Result<>(false, messageListToMessageServiceList(messages));
+//        }
+//    }
+//
+//    private List<MessageService> messageListToMessageServiceList(List<Message> messages){
+//        List<MessageService> toReturn = new ArrayList<>();
+//
+//        for(Message message : messages){
+//            toReturn.add(new MessageService(message));
+//        }
+//
+//        return toReturn;
+//    }
+//
+//    public Result<List<MessageService>> watchReadMessages(int storeID) throws Exception
+//    {
+//        List<Message> messages = market.watchReadMessages(storeID);
+//
+//        if(messages == null){
+//            return new Result<List<MessageService>>(true, "Error");
+//        }
+//        else{
+//            return new Result<List<MessageService>>(false, messageListToMessageServiceList(messages));
+//        }
+//    }
+//
+//    public Result<List<MessageService>> watchSentMessages(int storeID) throws Exception
+//    {
+//        List<Message> messages = market.watchSentMessages(storeID);
+//
+//        if(messages == null){
+//            return new Result<List<MessageService>>(true, "Error");
+//        }
+//        else{
+//            return new Result<List<MessageService>>(false, messageListToMessageServiceList(messages));
+//        }
+//    }
 
     public Result<Boolean> setMailboxAsUnavailable(int storeID) throws Exception
     {
@@ -768,6 +770,21 @@ public class ShoppingService {
         }
     }
 
+    public Result<HashMap<Integer, ChatService>> getChats(int storeId){
+        try{
+            ConcurrentHashMap<Integer, Chat> _chats = market.getChats(storeId);
+            HashMap<Integer, ChatService> chats = new HashMap<>();
+
+            for(Integer id : _chats.keySet()){
+                chats.put(id, new ChatService(_chats.get(id)));
+            }
+
+            return new Result<>(false, chats);
+        }
+        catch(Exception e){
+            return new Result<>(true, e.getMessage());
+        }
+    }
 
     private List<PolicyService> convertToPolicyService(Map<Integer, PurchasePolicy> purchasePolicies) {
         List<PolicyService> policyServices = new ArrayList<>();
@@ -776,5 +793,4 @@ public class ShoppingService {
         }
         return policyServices;
     }
-
 }

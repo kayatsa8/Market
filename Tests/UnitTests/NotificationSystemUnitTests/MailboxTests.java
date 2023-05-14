@@ -4,15 +4,11 @@ import BusinessLayer.Market;
 import BusinessLayer.NotificationSystem.Mailbox;
 import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.NotificationSystem.NotificationHub;
-import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.UserFacade;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -36,10 +32,9 @@ public class MailboxTests {
     static RegisteredUser user7;
 
     @BeforeClass
-    public static void setUp() throws Exception
-    {
-        hub = NotificationHub.getInstance();
+    public static void setUp() throws Exception {
         market = Market.getInstance();
+        hub = market.getNotificationHub();
         userFacade = market.getUserFacade();
         storeFacade = market.getStoreFacade();
         int userID1 = market.register("user1B", "123456789");
@@ -63,40 +58,42 @@ public class MailboxTests {
         Mailbox mailbox1 = user1.getMailbox();
         Mailbox mailbox2 = user2.getMailbox();
         Mailbox mailbox3 = user3.getMailbox();
-        Message message1 = new Message(user1.getId(), user2.getId(), "title1", "message1");
-        mailbox1.sendMessage(message1.getReceiverID(), message1.getTitle(), message1.getContent());
-        assertTrue("The message was not added the sent list!", mailbox1.watchSentMessages().contains(message1));
-        assertTrue("The message was not added the not-read list!", mailbox2.watchNotReadMessages().contains(message1));
-        assertFalse("The message was found in different mailbox!", mailbox3.watchNotReadMessages().contains(message1));
+        Message message1 = new Message(user1.getId(), user2.getId(), "message1");
+        mailbox1.sendMessage(message1.getReceiverID(), message1.getContent());
+        assertTrue("The message was not added the sent list!",
+                mailbox1.getChats().get(user2.getId()).contains(message1));
+        assertTrue("The message was not added the not-read list!",
+                mailbox2.getChats().get(user1.getId()).contains(message1));
         hub.removeFromService(user1.getId());
         hub.removeFromService(user2.getId());
         hub.removeFromService(user3.getId());
     }
 
-    @Test
-    public void markMessageAsRead() throws Exception {
-        Mailbox mailbox1 = user4.getMailbox();
-        Mailbox mailbox2 = user5.getMailbox();
-        Message message1 = new Message(user4.getId(), user5.getId(), "title1", "message1");
-        mailbox1.sendMessage(message1.getReceiverID(), message1.getTitle(), message1.getContent());
-        mailbox2.markMessageAsRead(message1);
-        assertTrue("The message was not passed to read list", mailbox2.watchReadMessages().contains(message1));
-        assertFalse("The message was not removed from the not-read list", mailbox2.watchNotReadMessages().contains(message1));
-        hub.removeFromService(user4.getId());
-        hub.removeFromService(user5.getId());
-    }
-
-    @Test
-    public void markMessageAsNotRead() throws Exception {
-        Mailbox mailbox1 = user6.getMailbox();
-        Mailbox mailbox2 = user7.getMailbox();
-        Message message1 = new Message(user6.getId(), user7.getId(), "title1", "message1");
-        mailbox1.sendMessage(message1.getReceiverID(), message1.getTitle(), message1.getContent());
-        mailbox2.markMessageAsRead(message1);
-        mailbox2.markMessageAsNotRead(message1);
-        assertTrue("The message is not in not-read lis", mailbox2.watchNotReadMessages().contains(message1));
-        assertFalse("The message was not removed from read list", mailbox2.watchReadMessages().contains(message1));
-        hub.removeFromService(user6.getId());
-        hub.removeFromService(user7.getId());
-    }
+    //Both tests are not relevant, due to the changes in NotificationSystem (mail system -> chat system)
+//    @Test
+//    public void markMessageAsRead() throws Exception {
+//        Mailbox mailbox1 = user4.getMailbox();
+//        Mailbox mailbox2 = user5.getMailbox();
+//        Message message1 = new Message(user4.getId(), user5.getId(), "message1");
+//        mailbox1.sendMessage(message1.getReceiverID(), message1.getContent());
+//        mailbox2.markMessageAsRead(message1);
+//        assertTrue("The message was not passed to read list", mailbox2.watchReadMessages().contains(message1));
+//        assertFalse("The message was not removed from the not-read list", mailbox2.watchNotReadMessages().contains(message1));
+//        hub.removeFromService(user4.getId());
+//        hub.removeFromService(user5.getId());
+//    }
+//
+//    @Test
+//    public void markMessageAsNotRead() throws Exception {
+//        Mailbox mailbox1 = user6.getMailbox();
+//        Mailbox mailbox2 = user7.getMailbox();
+//        Message message1 = new Message(user6.getId(), user7.getId(), "title1", "message1");
+//        mailbox1.sendMessage(message1.getReceiverID(), message1.getTitle(), message1.getContent());
+//        mailbox2.markMessageAsRead(message1);
+//        mailbox2.markMessageAsNotRead(message1);
+//        assertTrue("The message is not in not-read lis", mailbox2.watchNotReadMessages().contains(message1));
+//        assertFalse("The message was not removed from read list", mailbox2.watchReadMessages().contains(message1));
+//        hub.removeFromService(user6.getId());
+//        hub.removeFromService(user7.getId());
+//    }
 }

@@ -3,12 +3,18 @@ package BusinessLayer.Users;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.Log;
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -258,28 +264,36 @@ public class UserFacade {
         user.removeManagerPermission(storeID, manager, permission);
     }
 
-    public void sendMessage(int senderID, int receiverID, String title, String content){
-        users.get(senderID).sendMessage(receiverID, title, content);
+    public void sendMessage(int senderID, int receiverID, String content){
+        users.get(senderID).sendMessage(receiverID, content);
     }
 
-    public void markMessageAsRead(int userID, Message message) throws Exception {
-        users.get(userID).markMessageAsRead(message);
-    }
+//    public void markMessageAsRead(int userID, Message message) throws Exception {
+//        users.get(userID).markMessageAsRead(message);
+//    }
+//
+//    public void markMessageAsNotRead(int userID, Message message) throws Exception {
+//        users.get(userID).markMessageAsNotRead(message);
+//    }
+//
+//    public List<Message> watchNotReadMessages(int userID){
+//        return users.get(userID).watchNotReadMessages();
+//    }
+//
+//    public List<Message> watchReadMessages(int userID){
+//        return users.get(userID).watchReadMessages();
+//    }
+//
+//    public List<Message> watchSentMessages(int userID){
+//        return users.get(userID).watchSentMessages();
+//    }
 
-    public void markMessageAsNotRead(int userID, Message message) throws Exception {
-        users.get(userID).markMessageAsNotRead(message);
-    }
+    public ConcurrentHashMap<Integer, Chat> getChats(int userID) throws Exception {
+        if(!userExists(userID)){
+            throw new Exception("The user was not found!");
+        }
 
-    public List<Message> watchNotReadMessages(int userID){
-        return users.get(userID).watchNotReadMessages();
-    }
-
-    public List<Message> watchReadMessages(int userID){
-        return users.get(userID).watchReadMessages();
-    }
-
-    public List<Message> watchSentMessages(int userID){
-        return users.get(userID).watchSentMessages();
+        return users.get(userID).getChats();
     }
 
     public Map<Integer, RegisteredUser> getAllRegisteredUsers() {

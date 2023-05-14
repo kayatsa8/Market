@@ -1,6 +1,7 @@
 package BusinessLayer.Users;
 
-import BusinessLayer.NotificationSystem.Message;
+import BusinessLayer.Market;
+import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.NotificationSystem.UserMailbox;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
@@ -9,6 +10,9 @@ import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.*;
 
 public class RegisteredUser extends User {
@@ -31,7 +35,7 @@ public class RegisteredUser extends User {
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();
         this.isLoggedIn = true;
-        this.mailbox = NotificationHub.getInstance().registerToMailService(this);
+        this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(this);
     }
 
     public RegisteredUser(String username, String pass, int id, boolean isAdmin) throws Exception {
@@ -45,7 +49,7 @@ public class RegisteredUser extends User {
         if (isAdmin) {
             systemManager = new SystemManager(this);
         }
-        NotificationHub.getInstance().registerToMailService(this);
+        this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(this);
     }
 
     public Map<Integer, StoreOwner> getStoresIOwn() {
@@ -212,29 +216,34 @@ public class RegisteredUser extends User {
         return mailbox;
     }
 
-    public void sendMessage(int receiverID, String title, String content){
-        mailbox.sendMessage(receiverID, title, content);
+    public void sendMessage(int receiverID, String content){
+        mailbox.sendMessage(receiverID, content);
     }
 
-    public void markMessageAsRead(Message message) throws Exception {
-        mailbox.markMessageAsRead(message);
+//    public void markMessageAsRead(Message message) throws Exception {
+//        mailbox.markMessageAsRead(message);
+//    }
+//
+//    public void markMessageAsNotRead(Message message) throws Exception {
+//        mailbox.markMessageAsNotRead(message);
+//    }
+//
+//    public List<Message> watchNotReadMessages(){
+//        return mailbox.watchNotReadMessages();
+//    }
+//
+//    public List<Message> watchReadMessages(){
+//        return mailbox.watchReadMessages();
+//    }
+//
+//    public List<Message> watchSentMessages(){
+//        return mailbox.watchSentMessages();
+//    }
+
+    public ConcurrentHashMap<Integer, Chat> getChats(){
+        return mailbox.getChats();
     }
 
-    public void markMessageAsNotRead(Message message) throws Exception {
-        mailbox.markMessageAsNotRead(message);
-    }
-
-    public List<Message> watchNotReadMessages(){
-        return mailbox.watchNotReadMessages();
-    }
-
-    public List<Message> watchReadMessages(){
-        return mailbox.watchReadMessages();
-    }
-
-    public List<Message> watchSentMessages(){
-        return mailbox.watchSentMessages();
-    }
 
     public Map<RegisteredUser, Set<Integer>> getAllOwnersIDefined() {
         Map<Integer, StoreOwner> storeOwnership = getStoresIOwn();

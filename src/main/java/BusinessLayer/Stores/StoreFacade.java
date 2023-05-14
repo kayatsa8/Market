@@ -1,5 +1,6 @@
 package BusinessLayer.Stores;
 
+import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.Rules.*;
@@ -12,6 +13,7 @@ import Globals.SearchBy;
 import Globals.SearchFilter;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static Globals.SearchFilter.STORE_RATING;
 
@@ -294,40 +296,47 @@ public class StoreFacade {
         return getStore(storeID).checkIfStoreManager(userID);
     }
 
-    public void sendMessage(int storeID, int receiverID, String title, String content) throws Exception
+    public void sendMessage(int storeID, int receiverID, String content) throws Exception
     {
         Store store = getStore(storeID);
-        store.sendMessage(receiverID, title, content);
+        store.sendMessage(receiverID, content);
     }
 
-    public void markMessageAsRead(int storeID, Message message) throws Exception
-    {
-        Store store = getStore(storeID);
-        store.markMessageAsRead(message);
-    }
+//    public void markMessageAsRead(int storeID, Message message) throws Exception
+//    {
+//        Store store = getStore(storeID);
+//        store.markMessageAsRead(message);
+//    }
+//
+//    public void markMessageAsNotRead(int storeID, Message message) throws Exception
+//    {
+//        Store store = getStore(storeID);
+//        store.markMessageAsNotRead(message);
+//    }
+//
+//    public List<Message> watchNotReadMessages(int storeID) throws Exception
+//    {
+//        Store store = getStore(storeID);
+//        return store.watchNotReadMessages();
+//    }
+//
+//    public List<Message> watchReadMessages(int storeID) throws Exception
+//    {
+//        Store store = getStore(storeID);
+//        return store.watchReadMessages();
+//    }
+//
+//    public List<Message> watchSentMessages(int storeID) throws Exception
+//    {
+//        Store store = getStore(storeID);
+//        return store.watchSentMessages();
+//    }
 
-    public void markMessageAsNotRead(int storeID, Message message) throws Exception
-    {
-        Store store = getStore(storeID);
-        store.markMessageAsNotRead(message);
-    }
-
-    public List<Message> watchNotReadMessages(int storeID) throws Exception
-    {
-        Store store = getStore(storeID);
-        return store.watchNotReadMessages();
-    }
-
-    public List<Message> watchReadMessages(int storeID) throws Exception
-    {
-        Store store = getStore(storeID);
-        return store.watchReadMessages();
-    }
-
-    public List<Message> watchSentMessages(int storeID) throws Exception
-    {
-        Store store = getStore(storeID);
-        return store.watchSentMessages();
+    public ConcurrentHashMap<Integer, Chat> getChats(int storeID) throws Exception {
+        if(!isStoreExists(storeID)){
+            throw new Exception("The store does not exist!");
+        }
+        return stores.get(storeID).getChats();
     }
 
     public void setMailboxAsUnavailable(int storeID) throws Exception
