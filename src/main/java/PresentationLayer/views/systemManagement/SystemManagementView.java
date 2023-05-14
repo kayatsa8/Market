@@ -1,6 +1,7 @@
 package PresentationLayer.views.systemManagement;
 
 import PresentationLayer.views.MainLayout;
+import ServiceLayer.Objects.ReceiptItemService;
 import ServiceLayer.Objects.ReceiptService;
 import ServiceLayer.Objects.StoreService;
 import ServiceLayer.Objects.UserInfoService;
@@ -17,11 +18,9 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.grid.editor.Editor;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -256,38 +255,87 @@ public class SystemManagementView extends VerticalLayout {
         int chosenId = getIdOfSelectedRow(grid);
 
         if(chosenId != -1){
+            Grid<ReceiptService> receiptsGrid = new Grid<>();
+            Dialog dialog = new Dialog();
+            dialog.setDraggable(true);
+            dialog.setResizable(true);
+            dialog.setHeaderTitle("Receipts");
+            Div div = new Div();
+            div.add(receiptsGrid);
+            dialog.add(div);
+            dialog.setWidth("1000px");
+
             Result<List<ReceiptService>> result = shoppingService.getSellingHistoryOfStoreForManager(chosenId, MainLayout.getCurrUserID());
+
             if(result.isError()){
-                printError("Error in get receipts!");
+                printError(result.getMessage());
             }
             else{
-                Dialog dialog = new Dialog();
-
-                dialog.setHeaderTitle("Receipts for Store: " + grid.getSelectedItems().stream().toList().get(0).getStoreName());
-                if (result.getValue().isEmpty()) {
-                    dialog.add(new H3("No Receipts found"));
+                if(result.getValue() == null){
+                    printError("Something went wrong");
                 }
-                else {
-                    VerticalLayout dialogLayout = new VerticalLayout();
-                    Grid<ReceiptService> receiptServiceGrid = new Grid<>();
-                    receiptServiceGrid.setItems(result.getValue());
-                    receiptServiceGrid.addColumn(ReceiptService::getDate).setHeader("Date").setSortable(true);
-                    receiptServiceGrid.addColumn(ReceiptService::getItemsInList).setHeader("ItemsInList").setSortable(true);
-                    receiptServiceGrid.addColumn(ReceiptService::getItems).setHeader("Items").setSortable(true);
-                    receiptServiceGrid.addColumn(ReceiptService::getOwnerId).setHeader("Owner").setSortable(true);
-                    receiptServiceGrid.addColumn(ReceiptService::getId).setHeader("ID").setSortable(true);
-                    dialogLayout.add(receiptServiceGrid);
-                    dialog.add(dialogLayout);
+                else{
+                    receiptsGrid.setItems(result.getValue());
+                    receiptsGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+
+                    receiptsGrid.addColumn(ReceiptService:: getId).setHeader("Receipt ID").setSortable(true);
+                    receiptsGrid.addColumn(ReceiptService:: getOwnerId).setHeader("User ID").setSortable(true);
+                    receiptsGrid.addColumn(ReceiptService:: getDate).setHeader("Date").setSortable(true);
+
+                    GridContextMenu<ReceiptService> menu = receiptsGrid.addContextMenu();
+                    menu.setOpenOnClick(true);
+
+                    menu.addItem("View Items", event -> viewReceiptItemsAction(receiptsGrid, result.getValue(),
+                            receiptsGrid.getSelectedItems().stream().toList().get(0).getId()) );
+
+                    Button cancelButton = new Button("exit", e -> dialog.close());
+                    dialog.getFooter().add(cancelButton);
+
+
+                    add(dialog);
+                    dialog.open();
+                    //dialog.add(itemsGrid);
+                    dialog.add(menu);
                 }
-
-                Button closeButton = new Button("Close", e -> dialog.close());
-                dialog.getFooter().add(closeButton);
-
-                dialog.open();
             }
         }
     }
 
+    private void viewReceiptItemsAction(Grid<ReceiptService> receiptsGrid, List<ReceiptService> receipts, int receiptId) {
+
+        Grid<ReceiptItemService> itemsGrid = new Grid<>();
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Receipt Items");
+        Div div = new Div();
+        div.add(itemsGrid);
+        dialog.add(div);
+        dialog.setWidth("1000px");
+
+        ReceiptService curr = null;
+        for(ReceiptService receiptService: receipts){
+            if(receiptService.getId() == receiptId)
+                curr = receiptService;
+        }
+        if(curr != null){
+            itemsGrid.setItems(curr.getItemsInList());
+            itemsGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+            itemsGrid.addColumn(ReceiptItemService:: getOwnerId).setHeader("User ID").setSortable(true);
+            itemsGrid.addColumn(ReceiptItemService:: getId).setHeader("Item ID").setSortable(true);
+            itemsGrid.addColumn(ReceiptItemService:: getName).setHeader("Name").setSortable(true);
+            itemsGrid.addColumn(ReceiptItemService:: getAmount).setHeader("Amount").setSortable(true);
+            itemsGrid.addColumn(ReceiptItemService:: getPriceBeforeDiscount).setHeader("Price Before Discount").setSortable(true);
+            itemsGrid.addColumn(ReceiptItemService:: getFinalPrice).setHeader("Final Price").setSortable(true);
+
+            Button cancelButton = new Button("exit", e -> dialog.close());
+            dialog.getFooter().add(cancelButton);
+
+            add(dialog);
+            dialog.open();
+            dialog.add(itemsGrid);
+        }
+    }
 
     private void closeStorePermanently(Grid grid) {
         int chosenId = getIdOfSelectedRow(grid);

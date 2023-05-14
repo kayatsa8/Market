@@ -42,10 +42,6 @@ public class MainLayout extends AppLayout {
     private static AppNavItem systemAdmin;
     private static AppNavItem marketOwnerOrManager;
 
-    public static Button getLogoutBtn() {
-        return logoutBtn;
-    }
-
     private static Button logoutBtn;
 
     public MainLayout() {
@@ -116,7 +112,6 @@ public class MainLayout extends AppLayout {
 
         logoutBtn = new Button("Logout", SIGN_OUT_ALT_SOLID.create());
         logoutBtn.addClickListener(e -> LogoutAction());
-        logoutBtn.addClickShortcut(Key.ENTER);
         layout.add(logoutBtn);
         return layout;
     }

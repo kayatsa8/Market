@@ -49,6 +49,9 @@ public class Application implements AppShellConfigurator {
 
             shoppingService.addItemToCart(maorID, amirStoreID, itemId, 2);
             shoppingService.buyCart(maorID, "Address");
+
+            userService.logout(amirID);
+            userService.logout(maorID);
         }
         catch (Exception e) {
             System.out.println("Problem initiating Market");
