@@ -5,7 +5,6 @@ import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Market;
-import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;

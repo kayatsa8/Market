@@ -2,19 +2,14 @@ package BusinessLayer.NotificationSystem;
 
 import BusinessLayer.Log;
 import BusinessLayer.NotificationSystem.Repositories.ChatRepository;
-import BusinessLayer.NotificationSystem.Repositories.NotReadMessagesRepository;
-import BusinessLayer.NotificationSystem.Repositories.ReadMessagesRepository;
-import BusinessLayer.NotificationSystem.Repositories.SentMessagesRepository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Mailbox {
     protected int ownerID;
     protected boolean available;
     protected ChatRepository chats; // <otherSideId, Chat>
+    protected NotificationHub hub;
 
 
 //    protected NotReadMessagesRepository notReadMessages;
@@ -28,7 +23,7 @@ public abstract class Mailbox {
             chats.putIfAbsent(receiverID, new Chat(ownerID, receiverID));
             chats.get(receiverID).addMessage(message);
 
-            NotificationHub.getInstance().passMessage(message);
+            hub.passMessage(message);
         }
         catch (Exception e){
             System.out.println(e.getMessage());
@@ -56,6 +51,7 @@ public abstract class Mailbox {
         }
 
         chats.putIfAbsent(message.getSenderID(), new Chat(ownerID, message.getSenderID()));
+        chats.get(message.getSenderID()).addMessage(message);
         //notReadMessages.add(message);
         notifyOwner();
     }

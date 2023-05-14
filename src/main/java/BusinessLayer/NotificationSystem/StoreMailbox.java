@@ -1,10 +1,6 @@
 package BusinessLayer.NotificationSystem;
 
-import BusinessLayer.Log;
 import BusinessLayer.NotificationSystem.Repositories.ChatRepository;
-import BusinessLayer.NotificationSystem.Repositories.NotReadMessagesRepository;
-import BusinessLayer.NotificationSystem.Repositories.ReadMessagesRepository;
-import BusinessLayer.NotificationSystem.Repositories.SentMessagesRepository;
 import BusinessLayer.StorePermissions.StoreEmployees;
 import BusinessLayer.Stores.Store;
 
@@ -15,11 +11,12 @@ public class StoreMailbox extends Mailbox{
 
     private final Store owner;
 
-    public StoreMailbox(Store _owner){
+    public StoreMailbox(Store _owner, NotificationHub _hub){
         owner = _owner;
         available = true;
         ownerID = owner.getStoreID();
         chats = new ChatRepository();
+        hub = _hub;
 
 //        notReadMessages = new NotReadMessagesRepository();
 //        readMessages = new ReadMessagesRepository();
@@ -30,7 +27,6 @@ public class StoreMailbox extends Mailbox{
     public void notifyOwner() throws Exception {
         List<Integer> IDs = owner.getStoreOwners().stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
         IDs.addAll(owner.getStoreManagers().stream().map(StoreEmployees::getUserID).toList());
-        NotificationHub hub = NotificationHub.getInstance();
         Message notificationMessage;
 
         for(Integer id : IDs){

@@ -13,10 +13,11 @@ public class UserMailbox extends Mailbox {
 
     private final RegisteredUser owner;
 
-    public UserMailbox(RegisteredUser _owner){
+    public UserMailbox(RegisteredUser _owner, NotificationHub _hub){
         owner = _owner;
         ownerID = owner.getId();
         chats = new ChatRepository();
+        hub = _hub;
 
 
 //        notReadMessages = new NotReadMessagesRepository();

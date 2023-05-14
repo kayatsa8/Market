@@ -3,12 +3,10 @@ package UnitTests.NotificationSystemUnitTests;
 import BusinessLayer.Market;
 import BusinessLayer.NotificationSystem.Mailbox;
 import BusinessLayer.NotificationSystem.NotificationHub;
-import BusinessLayer.NotificationSystem.StoreMailbox;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.UserFacade;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -28,8 +26,8 @@ public class StoreMailboxTests {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        hub = NotificationHub.getInstance();
         market = Market.getInstance();
+        hub = market.getNotificationHub();
         userFacade = market.getUserFacade();
         storeFacade = market.getStoreFacade();
         int user1ID = market.register("user1", "123456");

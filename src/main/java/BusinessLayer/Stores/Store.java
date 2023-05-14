@@ -2,6 +2,7 @@ package BusinessLayer.Stores;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Log;
+import BusinessLayer.Market;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.NotificationSystem.StoreMailbox;
@@ -79,7 +80,7 @@ public class Store {
         this.founderID = founderID;
         this.storeOwners = new ArrayList<>();
         try {
-            this.storeMailBox = NotificationHub.getInstance().registerToMailService(this);
+            this.storeMailBox = Market.getInstance().getNotificationHub().registerToMailService(this);
         } catch (Exception ignored) {
         }
         log.info("Store " + storeID + " created with name: " + storeName);

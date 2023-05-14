@@ -1,16 +1,12 @@
 package UnitTests;
 
 import BusinessLayer.Market;
-import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.UserFacade;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.util.Set;
 
 import static BusinessLayer.Stores.StoreStatus.OPEN;
 import static BusinessLayer.Stores.StoreStatus.PERMANENTLY_CLOSE;

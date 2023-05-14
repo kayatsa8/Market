@@ -4,6 +4,7 @@ import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.Message;
+import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.CatalogItem;
@@ -29,11 +30,13 @@ public class Market {
     private UserFacade userFacade;
     private StoreFacade storeFacade;
     private Map<Integer, SystemManager> systemManagerMap;
+    private NotificationHub notificationHub;
     private static final Object instanceLock = new Object();
     private Market() {
         systemManagerMap = new HashMap<>();
         userFacade = new UserFacade();
         storeFacade = new StoreFacade();
+        notificationHub = new NotificationHub();
     }
 
     public static Market getInstance() throws Exception {
@@ -479,6 +482,10 @@ public class Market {
     public Map<Integer, PurchasePolicy> getStorePurchasePolicies(int storeID) throws Exception
     {
         return storeFacade.getStorePurchasePolicies(storeID);
+    }
+
+    public NotificationHub getNotificationHub(){
+        return notificationHub;
     }
 
 }

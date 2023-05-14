@@ -6,7 +6,6 @@ import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.UserFacade;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -26,8 +25,8 @@ public class NotificationHubTests {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        hub = NotificationHub.getInstance();
         market = Market.getInstance();
+        hub = market.getNotificationHub();
         userFacade = market.getUserFacade();
         storeFacade = market.getStoreFacade();
         int user1ID = market.register("user1C", "123456");

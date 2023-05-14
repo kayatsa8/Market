@@ -1,7 +1,7 @@
 package BusinessLayer.Users;
 
+import BusinessLayer.Market;
 import BusinessLayer.NotificationSystem.Chat;
-import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.NotificationSystem.UserMailbox;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
@@ -11,7 +11,6 @@ import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -35,7 +34,7 @@ public class RegisteredUser extends User {
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();
         this.isLoggedIn = true;
-        this.mailbox = NotificationHub.getInstance().registerToMailService(this);
+        this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(this);
     }
 
     public RegisteredUser(String username, String pass, int id, boolean isAdmin) throws Exception {
@@ -49,7 +48,7 @@ public class RegisteredUser extends User {
         if (isAdmin) {
             systemManager = new SystemManager(this);
         }
-        NotificationHub.getInstance().registerToMailService(this);
+        this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(this);
     }
 
     public Map<Integer, StoreOwner> getStoresIOwn() {
