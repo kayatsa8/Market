@@ -369,6 +369,15 @@ public class Market {
         return result;
     }
 
+    public Map<Integer, Store> getStoresIManage(int managerID) throws Exception {
+        ArrayList<Integer> storesIds = userFacade.getStoresIdsIManage(managerID);
+        Map<Integer, Store> result = new HashMap<>();
+        for(Integer storeId: storesIds){
+            result.put(storeId, storeFacade.getStore(storeId));
+        }
+        return result;
+    }
+
     public int addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale) throws Exception
     {
         return storeFacade.addVisibleItemsDiscount(storeID, itemsIDs, percent, endOfSale);

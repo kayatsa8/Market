@@ -58,6 +58,7 @@ public class StoreManagementView extends VerticalLayout {
     UserService userService;
     private Map<Integer, UserInfoService> users;
     private Map<Integer, StoreService> storesIOwn;
+    private Map<Integer, StoreService> storesIManage;
     IntegerField storeIdField;
     Grid<UserInfoService> userGrid;
     Grid<UserInfoService> ownersIDefinedGrid;
@@ -84,6 +85,8 @@ public class StoreManagementView extends VerticalLayout {
 
         Result<Map<Integer, UserInfoService>> usersRes = userService.getAllRegisteredUsers();
         Result<Map<Integer, StoreService>> storesIOwnRes = shoppingService.getStoresIOwn(PresentationLayer.views.MainLayout.getCurrUserID());
+        Result<Map<Integer, StoreService>> storesIManageRes = shoppingService.getStoresIManage(PresentationLayer.views.MainLayout.getCurrUserID());
+
 
         if (usersRes.isError() || storesIOwnRes.isError()) {
             printError("Problem accured");
@@ -92,6 +95,7 @@ public class StoreManagementView extends VerticalLayout {
             TabSheet mainTabSheet = new TabSheet();
             users = usersRes.getValue();
             storesIOwn = storesIOwnRes.getValue();
+            storesIManage = storesIManageRes.getValue();
 
             Div storesDiv = new Div();
             Div usersDiv = new Div();
@@ -146,12 +150,15 @@ public class StoreManagementView extends VerticalLayout {
     }
 
     private void createStoresGrid(Div storesDiv) {
+        Accordion accordion = new Accordion();
+        AccordionPanel owning = new AccordionPanel("Stores I Own");
+        AccordionPanel managing = new AccordionPanel("Stores I Manage");
 
         Paragraph storeParagraph = new Paragraph("Stores I Own");
         Paragraph helper = new Paragraph("Select the Store you want to edit");
         storeParagraph.getStyle().set("font-size","40px");
         helper.getStyle().set("font-size", "20px");
-        storesDiv.add(storeParagraph, helper);
+        owning.addContent(storeParagraph, helper);
 
         storesGrid = new Grid<>();
         storesGrid.setItems(storesIOwn.values());
@@ -161,6 +168,32 @@ public class StoreManagementView extends VerticalLayout {
         storesGrid.addColumn(StoreService::getStoreId).setHeader("ID").setSortable(true);
         storesGrid.addColumn(StoreService::getStoreName).setHeader("Name").setSortable(true);
         storesGrid.addColumn(StoreService::getStoreStatus).setHeader("Status").setSortable(true);
+        addMenuItems(storesGrid);
+
+        owning.addContent(storesGrid);
+
+        Paragraph storeParagraph2 = new Paragraph("Stores I Manage");
+        Paragraph helper2 = new Paragraph("Select the Store you want to edit");
+        storeParagraph2.getStyle().set("font-size","40px");
+        helper2.getStyle().set("font-size", "20px");
+        managing.addContent(storeParagraph2, helper2);
+
+        Grid<StoreService> storesManaged = new Grid<>();
+        storesManaged.setItems(storesIManage.values());
+
+        storesManaged.addColumn(StoreService::getStoreId).setHeader("ID").setSortable(true);
+        storesManaged.addColumn(StoreService::getStoreName).setHeader("Name").setSortable(true);
+        storesManaged.addColumn(StoreService::getStoreStatus).setHeader("Status").setSortable(true);
+        addMenuItems(storesManaged);
+
+        managing.addContent(storesManaged);
+
+        accordion.add(owning);
+        accordion.add(managing);
+        storesDiv.add(accordion);
+    }
+
+    private void addMenuItems(Grid<StoreService> storesGrid) {
         GridContextMenu<StoreService> menu = storesGrid.addContextMenu();
         menu.setOpenOnClick(true);
         menu.addItem("View Items Of Store", event -> {viewItemsDialog();});
@@ -170,13 +203,8 @@ public class StoreManagementView extends VerticalLayout {
         menu.addItem("Get Store History", event -> {getHistoryDialog();});  //Requirement 4.13
         menu.addItem("Get Staff Info", event -> {getStaffInfoDialog();});  //Requirement 4.11
 
-
-
         //TODO
         menu.addItem("View Store policies", event -> {viewPoliciesDialog();});
-
-        storesDiv.add(storesGrid);
-
     }
 
 

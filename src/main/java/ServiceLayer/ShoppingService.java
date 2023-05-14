@@ -174,6 +174,21 @@ public class ShoppingService {
         }
     }
 
+    public Result<Map<Integer, StoreService>> getStoresIManage(int managerID) {
+        try {
+            Map<Integer, Store> allStores = market.getStoresIManage(managerID);
+            Map<Integer, StoreService> storeServices = new HashMap<>();
+            for (Map.Entry<Integer, Store> entry: allStores.entrySet()) {
+                storeServices.put(entry.getKey(), new StoreService(entry.getValue()));
+            }
+            log.info("Stores information received successfully");
+            return new Result<>(false, storeServices);
+        }
+        catch (Exception e){
+            log.info("Stores information not received");
+            return new Result<>(true, e.getMessage());
+        }
+    }
 
     public Result<StoreService> getStoreInfo(int storeID) {
         try {
