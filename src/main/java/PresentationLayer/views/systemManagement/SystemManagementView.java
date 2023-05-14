@@ -70,11 +70,9 @@ public class SystemManagementView extends VerticalLayout {
         createGrid(managerLayout);
         addUsersInfo(userLayout);
         accordion.setWidthFull();
-//        accordion.getStyle().set("text-align", "left");
         add(accordion);
         setSizeFull();
-        setJustifyContentMode(JustifyContentMode.CENTER);
-        setDefaultHorizontalComponentAlignment(Alignment.CENTER);
+        setJustifyContentMode(JustifyContentMode.START);
         getStyle().set("text-align", "center");
     }
 
@@ -269,16 +267,18 @@ public class SystemManagementView extends VerticalLayout {
                 if (result.getValue().isEmpty()) {
                     dialog.add(new H3("No Receipts found"));
                 }
-                VerticalLayout dialogLayout = new VerticalLayout();
-                Grid<ReceiptService> receiptServiceGrid = new Grid<>();
-                receiptServiceGrid.setItems(result.getValue());
-                receiptServiceGrid.addColumn(ReceiptService::getDate).setHeader("Date").setSortable(true);
-                receiptServiceGrid.addColumn(ReceiptService::getItemsInList).setHeader("ItemsInList").setSortable(true);
-                receiptServiceGrid.addColumn(ReceiptService::getItems).setHeader("Items").setSortable(true);
-                receiptServiceGrid.addColumn(ReceiptService::getOwnerId).setHeader("Owner").setSortable(true);
-                receiptServiceGrid.addColumn(ReceiptService::getId).setHeader("ID").setSortable(true);
-                dialogLayout.add(receiptServiceGrid);
-                dialog.add(dialogLayout);
+                else {
+                    VerticalLayout dialogLayout = new VerticalLayout();
+                    Grid<ReceiptService> receiptServiceGrid = new Grid<>();
+                    receiptServiceGrid.setItems(result.getValue());
+                    receiptServiceGrid.addColumn(ReceiptService::getDate).setHeader("Date").setSortable(true);
+                    receiptServiceGrid.addColumn(ReceiptService::getItemsInList).setHeader("ItemsInList").setSortable(true);
+                    receiptServiceGrid.addColumn(ReceiptService::getItems).setHeader("Items").setSortable(true);
+                    receiptServiceGrid.addColumn(ReceiptService::getOwnerId).setHeader("Owner").setSortable(true);
+                    receiptServiceGrid.addColumn(ReceiptService::getId).setHeader("ID").setSortable(true);
+                    dialogLayout.add(receiptServiceGrid);
+                    dialog.add(dialogLayout);
+                }
 
                 Button closeButton = new Button("Close", e -> dialog.close());
                 dialog.getFooter().add(closeButton);

@@ -141,7 +141,7 @@ public class MainLayout extends AppLayout {
     private void setGuestView() {
         currUser.setCurrIdToGuest();
         logoutBtn.setVisible(false);
-        systemAdmin.setVisible(true);
+        systemAdmin.setVisible(false);
         marketOwnerOrManager.setVisible(false);
         loginAndRegister.setVisible(true);
     }
