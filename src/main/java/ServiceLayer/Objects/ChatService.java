@@ -24,4 +24,8 @@ public class ChatService {
             messages.add(new MessageService(m));
         }
     }
+
+    public List<MessageService> getMessages(){
+        return messages;
+    }
 }

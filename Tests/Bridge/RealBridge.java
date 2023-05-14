@@ -239,20 +239,6 @@ public class RealBridge implements Bridge{
         return handleBoolResult(result);
     }
 
-    @Override
-    public List<MessageService> watchNotReadMessages(int id) throws Exception
-    {
-//        Result<List<MessageService>> result = shoppingService.watchNotReadMessages(id);
-//        if(result.isError()){
-//            System.out.println(result.getMessage());
-//            return null;
-//        }
-//        return result.getValue();
-
-        return null;
-    }
-
-
 
     private boolean handleBoolResult(Result<Boolean> result) {
         if(result.isError()){
@@ -269,7 +255,6 @@ public class RealBridge implements Bridge{
         }
         return result.getValue();
     }
-
 
 
 
@@ -451,6 +436,17 @@ public class RealBridge implements Bridge{
         //return this.facade.askForSupply(userId, items, supplyService);
         /** Not sure...*/
         return false;
+    }
+
+    @Override
+    public HashMap<Integer, ChatService> getChats(int id){
+        Result<HashMap<Integer, ChatService>> result = userService.getChats(id);
+
+        if(result.isError()){
+            result = shoppingService.getChats(id);
+        }
+
+        return result.getValue();
     }
 
 
