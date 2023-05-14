@@ -484,6 +484,14 @@ public class Market {
         return storeFacade.getStorePurchasePolicies(storeID);
     }
 
+    public Map<RegisteredUser, Set<Integer>> getAllOwnersIDefined(int ownerId) throws Exception {
+        return userFacade.getAllOwnersIDefined(ownerId);
+    }
+
+    public Map<RegisteredUser, Set<Integer>> getAllManagersIDefined(int ownerId) throws Exception {
+        return userFacade.getAllManagersIDefined(ownerId);
+    }
+  
     public NotificationHub getNotificationHub(){
         return notificationHub;
     }

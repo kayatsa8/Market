@@ -111,19 +111,7 @@ public class Conditional extends DiscountType {
         return getConditionString(newRule);
     }
     private void removeLogicalComponentsFromInProgressList(List<Integer> logicalComponentsIDs) {
-        List<Integer> indicesToRemove = new ArrayList<>();
-        for (int i = 0; i < inProgressList.size(); i++)
-        {
-            LogicalComponent logicalComponent = inProgressList.get(i);
-            for (Integer logicalComponentID : logicalComponentsIDs)
-            {
-                if (logicalComponent.getID() == logicalComponentID.intValue())
-                {
-                    indicesToRemove.add(i);
-                }
-            }
-        }
-        inProgressList.removeIf(x -> indicesToRemove.contains(x.getID()));
+        inProgressList.removeIf(x -> logicalComponentsIDs.contains(x.getID()));
     }
     private LogicalComponent getLogicalComponentByIDFromInProgressList(Integer logicalComponentID) {
         for (LogicalComponent logicalComponent : inProgressList)

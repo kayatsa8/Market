@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class UserFacade {
@@ -312,5 +313,13 @@ public class UserFacade {
         catch (Exception e) {
             return false;
         }
+    }
+
+    public Map<RegisteredUser, Set<Integer>> getAllOwnersIDefined(int ownerId) throws Exception {
+        return getRegisteredUser(ownerId).getAllOwnersIDefined();
+    }
+
+    public Map<RegisteredUser, Set<Integer>> getAllManagersIDefined(int ownerId) throws Exception {
+        return getRegisteredUser(ownerId).getAllManagersIDefined();
     }
 }
