@@ -505,7 +505,7 @@ public class Store {
         discountPolicies.put(policiesIDs++, discountPolicy);
         return (policiesIDs -1) + ": " + discountPolicy.toString();
     }
-    public int wrapDiscountPolicies(List<Integer> discountPoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
+    public String wrapDiscountPolicies(List<Integer> discountPoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
     {
         List<LogicalComponent> policiesRootsToWrap = new ArrayList<>();
         for (Integer policyID : discountPoliciesIDsToWrap)
@@ -539,8 +539,13 @@ public class Store {
         {
             discountPolicies.remove(discountPolicyID);
         }
-        discountPolicies.put(policiesIDs, new DiscountPolicy(myLogicalComponent));
-        return policiesIDs++;
+        //discountPolicies.put(policiesIDs, new DiscountPolicy(myLogicalComponent));
+        //return policiesIDs++;
+        DiscountPolicy policy = new DiscountPolicy(myLogicalComponent);
+        int policyId = policiesIDs;
+        discountPolicies.put(policyId, policy);
+        policiesIDs++;
+        return policyId + ":" + policy;
     }
 
     public StoreStatus getStoreStatus() {
