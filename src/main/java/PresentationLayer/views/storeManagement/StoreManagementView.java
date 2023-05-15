@@ -1,8 +1,6 @@
 package PresentationLayer.views.storeManagement;
 
 import BusinessLayer.StorePermissions.StoreActionPermissions;
-import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.LogicalComposites;
-import BusinessLayer.Stores.Policies.Conditions.NumericCompositions.NumericComposites;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
 import PresentationLayer.views.MainLayout;
@@ -72,8 +70,6 @@ public class StoreManagementView extends VerticalLayout {
     Grid<StoreService> storesGrid;
 
     //uncomment
-    //int ownerId = MainLayout.getCurrUserID();
-    int ownerId = 1000006;  //1000006 manager
     boolean isStoreOwner;
     boolean isStoreManager;
 
@@ -100,11 +96,11 @@ public class StoreManagementView extends VerticalLayout {
 
 
         if (usersRes.isError() || storesIOwnRes.isError()) {
-            printError("Problem accured");
+            printError("Problem occurred:\n"+ (usersRes.isError() ? usersRes.getMessage() : storesIOwnRes.getMessage()));
         }
         else {
-            isStoreOwner(ownerId, usersRes);
-            isStoreManager(ownerId, usersRes);
+            isStoreOwner(MainLayout.getCurrUserID(), usersRes);
+            isStoreManager(MainLayout.getCurrUserID(), usersRes);
 
             TabSheet mainTabSheet = new TabSheet();
             users = usersRes.getValue();
@@ -166,9 +162,9 @@ public class StoreManagementView extends VerticalLayout {
 
     private void updateStoresGrid() {
         Result<Map<Integer, UserInfoService>> usersRes = userService.getAllRegisteredUsers();
-        Result<Map<Integer, StoreService>> storesIOwnRes = shoppingService.getStoresIOwn(ownerId);
+        Result<Map<Integer, StoreService>> storesIOwnRes = shoppingService.getStoresIOwn(MainLayout.getCurrUserID());
         if (usersRes.isError() || storesIOwnRes.isError()) {
-            printError("Problem accrued");
+            printError("Problem occurred:\n"+ (usersRes.isError() ? usersRes.getMessage() : storesIOwnRes.getMessage()));
         }
         else {
             if(isStoreOwner){
@@ -183,7 +179,7 @@ public class StoreManagementView extends VerticalLayout {
     private void addStoreIManageToStoresIOwn(Map<Integer, UserInfoService> allUsers) {
         List<Integer> storesIManage = new ArrayList<>();
         for(UserInfoService userInfoService: allUsers.values()){
-            if(userInfoService.getId() == ownerId){
+            if(userInfoService.getId() == MainLayout.getCurrUserID()){
                 storesIManage = userInfoService.getStoresIManage();
             }
         }
@@ -300,7 +296,7 @@ public class StoreManagementView extends VerticalLayout {
 
         Button saveButton = new Button("Add Store", e -> {
             dialog.close();
-            addStoreAction(name.getValue(), ownerId);
+            addStoreAction(name.getValue(), MainLayout.getCurrUserID());
         });
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
@@ -325,10 +321,10 @@ public class StoreManagementView extends VerticalLayout {
                     printSuccess("Store added Successfully");
                     updateStoresGrid();
                     refreshStoreFromBusiness(result.getValue());
-                    UI.getCurrent().getPage().reload();
+//                    UI.getCurrent().getPage().reload();
                 }
                 else{
-                    printError("Something went wrong");
+                    printError("Something went wrong:\n"+result.getMessage());
                 }
             }
         }
@@ -456,7 +452,7 @@ public class StoreManagementView extends VerticalLayout {
             Result<Boolean> result = userService.addOwner(PresentationLayer.views.MainLayout.getCurrUserID(), chosenUserId, storeId);
 
             if(result.isError()){
-                printError("Error in add Owner");
+                printError("Error in add Owner:\n"+result.getMessage());
             }
             else{
                 if(result.getValue()){
@@ -478,7 +474,7 @@ public class StoreManagementView extends VerticalLayout {
             Result<Boolean> result = userService.removeOwner(PresentationLayer.views.MainLayout.getCurrUserID(), chosenUserId, storeId);
 
             if(result.isError()){
-                printError("Error in Remove Owner");
+                printError("Error in Remove Owner:\n"+result.getMessage());
             }
             else{
                 if(result.getValue()){
@@ -501,7 +497,7 @@ public class StoreManagementView extends VerticalLayout {
             Result<Boolean> result = userService.addManager(PresentationLayer.views.MainLayout.getCurrUserID(), chosenUserId, storeId);
 
             if(result.isError()){
-                printError("Error in Adding Manager");
+                printError("Error in Adding Manager:\n"+result.getMessage());
             }
             else{
                 if(result.getValue()){
@@ -526,7 +522,7 @@ public class StoreManagementView extends VerticalLayout {
             Result<Boolean> result = userService.removeManager(PresentationLayer.views.MainLayout.getCurrUserID(), chosenUserId, storeId);
 
             if(result.isError()){
-                printError("Error in Remove Manager");
+                printError("Error in Remove Manager:\n"+result.getMessage());
             }
             else{
                 if(result.getValue()){
@@ -1011,7 +1007,6 @@ public class StoreManagementView extends VerticalLayout {
 
                 Button cancelButton = new Button("exit", e -> dialog.close());
 
-                //TODO
                 Button removeButton = new Button("remove", e -> printError("Need implementation"));
 
                 dialog.getFooter().add(createButton, removeButton, cancelButton);
@@ -1919,6 +1914,7 @@ public class StoreManagementView extends VerticalLayout {
             storesIOwn.replace(storeId, curr);
         else
             storesIOwn.put(storeId, curr);
+        storesGrid.setItems(storesIOwn.values());
         storesGrid.getDataProvider().refreshAll();
     }
 

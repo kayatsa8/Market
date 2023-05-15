@@ -435,13 +435,11 @@ public class Store {
         {
             purchasePolicies.remove(purchasePolicyID);
         }
-//        purchasePolicies.put(purchasePoliciesIDs, new PurchasePolicy(myLogicalComponent));
-//        return purchasePoliciesIDs++;
         PurchasePolicy policy = new PurchasePolicy(myLogicalComponent);
         int policyId = policiesIDs;
         purchasePolicies.put(policyId, policy);
-        purchasePoliciesIDs++;
-        return policyId + ":" + policy.toString();
+        policiesIDs++;
+        return policyId + ":" + policy;
     }
 
     public String addDiscountPolicyBasketWeightLimitRule(double basketWeightLimit)

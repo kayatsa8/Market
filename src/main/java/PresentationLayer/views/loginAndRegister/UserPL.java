@@ -1,5 +1,7 @@
 package PresentationLayer.views.loginAndRegister;
 
+import PresentationLayer.views.MainLayout;
+
 public final class UserPL {
     private static volatile UserPL instance = null;
 
@@ -18,6 +20,7 @@ public final class UserPL {
             synchronized (UserPL.class) {
                 if (instance == null) {
                     instance = new UserPL();
+                    MainLayout.setGuestView();
                 }
             }
         }

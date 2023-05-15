@@ -11,15 +11,11 @@ import PresentationLayer.views.systemManagement.SystemManagementView;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
 import ServiceLayer.UserService;
-import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Footer;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Header;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.Scroller;
@@ -36,6 +32,7 @@ import static org.vaadin.lineawesome.LineAwesomeIcon.SIGN_OUT_ALT_SOLID;
 public class MainLayout extends AppLayout {
 
     private H2 viewTitle;
+    private H2 user;
     public static UserService userService;
     public static ShoppingService shoppingService;
     private static UserPL currUser;
@@ -44,18 +41,19 @@ public class MainLayout extends AppLayout {
     private static AppNavItem marketOwnerOrManager;
 
     private static Button logoutBtn;
+    private static AppNav nav;
 
     public MainLayout() {
         setPrimarySection(Section.DRAWER);
         addDrawerContent();
-        addHeaderContent();
         currUser = UserPL.getInstance();
         try {
             userService=new UserService();
         } catch (Exception e) {
             printError("Error initialize userService:\n"+e.getMessage());
         }
-        setGuestView();
+        addHeaderContent(userService.getUsername(currUser.getCurrUserID()));
+
     }
 
     public static void setCurrUser(Integer value) {
@@ -66,19 +64,28 @@ public class MainLayout extends AppLayout {
         return currUser.getCurrUserID();
     }
 
-    private void addHeaderContent() {
+    private void addHeaderContent(String username) {
         DrawerToggle toggle = new DrawerToggle();
         toggle.getElement().setAttribute("aria-label", "Menu toggle");
 
         viewTitle = new H2();
         viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
 
-        AppNav nav = new AppNav();
+        if (username != null) {
+            user = new H2(username);
+            user.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
+        }
+
+        nav = new AppNav();
         nav.addItem(new AppNavItem("My Cart", Cart.class, SHOPPING_CART_SOLID.create()));
         nav.getStyle().set("margin-left", "auto");
         nav.getStyle().set("padding", "15px");
 
-        addToNavbar(true, toggle, viewTitle, nav);
+        if (username != null) {
+            addToNavbar(true, toggle, viewTitle, user, nav);
+        }
+        else
+            addToNavbar(true, toggle, viewTitle, nav);
 
     }
 
@@ -130,12 +137,12 @@ public class MainLayout extends AppLayout {
         else {
             printSuccess("Succeed to logout currId="+ currUser.getCurrUserID());
             setGuestView();
+            currUser.setCurrIdToGuest();
             UI.getCurrent().navigate(LoginAndRegisterView.class);
         }
     }
 
-    private void setGuestView() {
-        currUser.setCurrIdToGuest();
+    public static void setGuestView() {
         logoutBtn.setVisible(false);
         systemAdmin.setVisible(false);
         marketOwnerOrManager.setVisible(false);
