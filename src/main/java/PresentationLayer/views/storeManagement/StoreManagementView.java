@@ -74,6 +74,7 @@ public class StoreManagementView extends VerticalLayout {
 
     int PURCHASE_POLICY = 1;
     int DISCOUNT_POLICY = 2;
+    private Tab userTab;
 
 
     public StoreManagementView() {
@@ -121,7 +122,7 @@ public class StoreManagementView extends VerticalLayout {
             usersDiv.add(accordion);
             mainTabSheet.setSizeFull();
             createStoresGrid(storesDiv);
-            Tab userTab = new Tab("Users");
+            userTab = new Tab("Users");
             userTab.setEnabled(isStoreOwner());
 
             mainTabSheet.add("Stores", storesDiv);
@@ -156,10 +157,15 @@ public class StoreManagementView extends VerticalLayout {
     }
 
     private boolean isStoreOwner() {
-        Result<List<UserInfoService>> result = userService.getAllOwnersIDefined(mainLayout.getCurrUserID());
-        if (result.isError())
-            return false;
-        return result.getValue().size() != 0;
+        Result<Map<Integer, UserInfoService>> usersRes = userService.getAllRegisteredUsers();
+        for(UserInfoService userInfoService: usersRes.getValue().values()){
+            if(userInfoService.getId() == mainLayout.getCurrUserID()){
+                isStoreOwner = userInfoService.getStoresIOwn().size() != 0;
+                return isStoreOwner;
+            }
+        }
+        isStoreOwner = false;
+        return isStoreOwner;
     }
 
     private void updateStoresGrid() {
@@ -327,7 +333,8 @@ public class StoreManagementView extends VerticalLayout {
                     printSuccess("Store added Successfully");
                     updateStoresGrid();
                     refreshStoreFromBusiness(result.getValue());
-//                    UI.getCurrent().getPage().reload();
+                    userTab.setEnabled(isStoreOwner());
+                    refreshUserGrids();
                 }
                 else{
                     printError("Something went wrong:\n"+result.getMessage());
