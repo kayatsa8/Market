@@ -1,5 +1,6 @@
 package BusinessLayer;
 
+import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Message;
@@ -407,5 +408,9 @@ public class Market {
     public void wrapDiscounts(int storeID, List<Integer> discountsIDsToWrap, NumericComposites numericCompositeEnum) throws Exception
     {
         storeFacade.wrapDiscounts(storeID, discountsIDsToWrap, numericCompositeEnum);
+    }
+
+    public Basket removeBasketFromCart(int userID, int storeID) throws Exception {
+        return userFacade.removeBasketFromCart(userID, storeID);
     }
 }

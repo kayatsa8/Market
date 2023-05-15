@@ -1,5 +1,6 @@
 package ServiceLayer;
 
+import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Message;
@@ -73,7 +74,7 @@ public class ShoppingService {
         }
     }
 
-    public Result<CartService> removeItemFromCart(int userID, int storeID, int itemID) throws Exception {
+    public Result<CartService> removeItemFromCart(int userID, int storeID, int itemID) {
         try {
             Cart cart = market.removeItemFromCart(userID, storeID, itemID);
             return new Result<>(false, new CartService(cart));
@@ -82,8 +83,17 @@ public class ShoppingService {
             return new Result<>(true, e.getMessage());
         }
     }
+    public Result<BasketService> removeBasketFromCart(int userID, int storeID) {
+        try {
+            Basket basket = market.removeBasketFromCart(userID, storeID);
+            return new Result<>(false, new BasketService(basket));
+        }
+        catch (Exception e) {
+            return new Result<>(true, e.getMessage());
+        }
+    }
 
-    public Result<CartService> changeItemQuantityInCart(int userID, int storeID, int itemID, int quantity) throws Exception {
+    public Result<CartService> changeItemQuantityInCart(int userID, int storeID, int itemID, int quantity){
         try {
             Cart cart = market.changeItemQuantityInCart(userID, storeID, itemID, quantity);
             return new Result<>(false, new CartService(cart));
@@ -112,7 +122,7 @@ public class ShoppingService {
         return market.getItemsInBasket(userID, storeName);
     }
 
-    public Result buyCart(int userID, String address) throws Exception {
+    public Result<Boolean> buyCart(int userID, String address)  {
         try {
             market.buyCart(userID, address);
             return new Result<>(false, true);

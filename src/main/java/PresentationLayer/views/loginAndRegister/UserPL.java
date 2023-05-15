@@ -6,7 +6,7 @@ public final class UserPL {
 
 
     private int currUserID;
-    private final int GUEST_ID =9999;
+    private final int GUEST_ID =999999;
     private UserPL() {
         // private constructor
         currUserID= GUEST_ID;

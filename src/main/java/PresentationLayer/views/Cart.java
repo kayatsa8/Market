@@ -1,166 +1,463 @@
 package PresentationLayer.views;
 
-import PresentationLayer.views.MainLayout;
-import ServiceLayer.Objects.ReceiptService;
-import ServiceLayer.Objects.StoreService;
+import PresentationLayer.views.loginAndRegister.UserPL;
+import ServiceLayer.Objects.*;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
-import ServiceLayer.UserService;
-import com.vaadin.flow.component.ClickEvent;
-import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasText;
+import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.editor.Editor;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.grid.HeaderRow;
+import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.EmailField;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.component.treegrid.TreeGrid;
+import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 
+import java.awt.*;
 import java.util.List;
-import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 @PageTitle("Cart")
 @Route(value = "cart", layout = MainLayout.class)
-public class Cart extends VerticalLayout {
+public class Cart extends Div {
+    private final UserPL currUser =UserPL.getInstance();
+    private Span totalPriceSpan=new Span();
+    private float  totalPrice=0;
+    private Span discountSpan=new Span();
+    private float  discountPrice=0;
+    private Span originalPriceSpan=new Span();
+    private float  originalPrice=0;
+    private final String TOTAL_PRICE="Total Price:";
+    private final String TOTAL_DISCOUNT="Total discount:";
+    private final String ORIGINAL_TOTAL_PRICE="Original Total Price:";
 
 
     ShoppingService shoppingService;
-    UserService userService;
-    private Grid<StoreService> grid;
-    private Map<Integer, StoreService> stores;
-
+    /**TreeGrid*/
+    private List<BasketService> baskets;
     public Cart() {
-        setSpacing(false);
-
-        H2 header = new H2("Stores in Market:");
-        header.addClassNames(Margin.Top.XLARGE, Margin.Bottom.MEDIUM);
-        add(header);
-        //add(new Paragraph("It’s a place where you can grow your own UI 🤗"));
-
         try {
             shoppingService = new ShoppingService();
-        }
-        catch (Exception e) {
-            add("Problem initiating Store:(");
-        }
-        setSpacing(false);
-
-        Result<Map<Integer, StoreService>> storesRes = shoppingService.getAllStoresInfo();
-        if (storesRes.isError()) {
-            add("Problem getting catalog :(");
-        }
-        else {
-            stores = storesRes.getValue();
-            Grid<StoreService> grid = createGrid();
-            //add(grid);
-            //add another grid of users and show info about them?
-            //add grid of notifications? maybe do another screen of notification?
-
+            baskets = shoppingService.getCart(currUser.getCurrUserID()).getValue().getAllBaskets();
+            Notification.show("Succeeded to connect to shoppingService");
+        } catch (Exception e) {
+            Notification.show("Problem initiating Shefa Isaschar :(");
         }
 
 
-        setSizeFull();
-        setJustifyContentMode(JustifyContentMode.CENTER);
-        setDefaultHorizontalComponentAlignment(Alignment.CENTER);
-        getStyle().set("text-align", "center");
+        addClassNames("cart-form-view");
+        addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN, LumoUtility.Height.FULL, LumoUtility.Width.FULL);
+
+        Main content = new Main();
+        content.addClassNames(LumoUtility.Display.FLEX,
+                LumoUtility.Gap.XLARGE, LumoUtility.AlignItems.START, LumoUtility.JustifyContent.CENTER, LumoUtility.MaxWidth.SCREEN_LARGE,
+                LumoUtility.Margin.Horizontal.XSMALL, LumoUtility.Padding.Bottom.LARGE, LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Position.RELATIVE);
+
+
+        content.add(createCheckoutForm(totalPriceSpan));
+        content.add(createAside(totalPriceSpan));
+        add(content);
     }
 
+    private Component createCheckoutForm(Span totalPriceSpan) {
+        Section checkoutForm = new Section();
+        checkoutForm.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN, LumoUtility.Flex.GROW, LumoUtility.MaxWidth.FULL);
 
-    private Grid<StoreService> createGrid() {
+        H2 header = new H2("My Cart");
+        header.addClassNames(LumoUtility.Margin.Bottom.NONE, LumoUtility.Margin.Top.XLARGE, LumoUtility.FontSize.XXXLARGE);
+        checkoutForm.add(header);
+        //checkoutForm.add(createPersonalDetailsSection());
+        //checkoutForm.add(createShippingAddressSection());
+        //checkoutForm.add(createPaymentInformationSection());
+        checkoutForm.add(createGrid(totalPriceSpan));
+        checkoutForm.add(new Hr());
+        /**FooterExample*/
+        //checkoutForm.add(createFooter());
 
-        grid = new Grid<>();
-        Editor<StoreService> editor = grid.getEditor();
-        grid.setItems(stores.values());
-
-        grid.addColumn(StoreService::getStoreId).setHeader("ID").setSortable(true);
-        grid.addColumn(StoreService::getStoreName).setHeader("Name").setSortable(true);
-        grid.addColumn(StoreService::getStoreStatus).setSortable(true).setKey("Status");
-        Binder<StoreService> binder = new Binder<>(StoreService.class);
-        editor.setBinder(binder);
-        editor.setBuffered(true);
-
-        HorizontalLayout footer = addButtons();
-        add(grid, footer);
-
-        return grid;
-
+        return checkoutForm;
     }
 
-    private HorizontalLayout addButtons() {
+    private Component createGrid(Span totalPriceSpan) {
+        Section gridSection = new Section();
+        gridSection.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN, LumoUtility.Height.FULL,
+                LumoUtility.Margin.Bottom.XLARGE, LumoUtility.Margin.Top.MEDIUM, LumoUtility.MaxWidth.FULL);
 
-        Button closePermButton = new Button("Close Store Permanently");
-        closePermButton.setEnabled(false);
-        closePermButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        closePermButton.getStyle().set("margin-inline-start", "auto");
+        Paragraph stepOne = new Paragraph("Checkout 1/3");
+        stepOne.addClassNames(LumoUtility.Margin.NONE, LumoUtility.FontSize.SMALL, LumoUtility.TextColor.SECONDARY);
 
-        Button storeReceiptsButton = new Button("Get Store Receipts");
-        storeReceiptsButton.setEnabled(false);
+        H3 header = new H3("Personal details");
+        header.addClassNames(LumoUtility.Margin.Bottom.MEDIUM, LumoUtility.Margin.Top.SMALL, LumoUtility.FontSize.XXLARGE);
+        Grid<BasketService> grid = new Grid<>();
+        //TODO REMOVE?
+        List<BasketService> baskets = this.baskets;
+        grid.setItems(baskets);
+        grid.setRowsDraggable(true);
+        //grid.setHeight("auto");
+        //grid.setMinHeight("500px");
+        //setGridHeight();
+        grid.addColumn(BasketService::getStoreName)
+                .setHeader("Basket")
+                .setAutoWidth(true)
+                .setResizable(true)
+                .setFlexGrow(1);
+        grid.getElement().getStyle().set("border", "none");
 
-        //https://vaadin.com/docs/latest/components/button#:~:text=Show%20code-,Global%20vs.%20Selection%2DSpecific%20Actions,-In%20lists%20of
-        grid.setSelectionMode(Grid.SelectionMode.SINGLE);
-        grid.addSelectionListener(selection -> {
-            int size = selection.getAllSelectedItems().size();
-            boolean isSingleSelection = size == 1;
-            closePermButton.setEnabled(isSingleSelection);
-            storeReceiptsButton.setEnabled(isSingleSelection);
-            //Not sure if I need all of this. This was made to multiple selection!
+
+        grid.setSelectionMode(Grid.SelectionMode.NONE);
+        setSubGridCreation(totalPriceSpan, grid, baskets);
+
+        grid.setDetailsVisibleOnClick(false); // disable opening details on click
+        grid.addContextMenu();
+        //TODO remove?
+        grid.addItemClickListener(event -> {
+            if (event.getItem() != null) {
+                boolean detailsVisible = grid.isDetailsVisible(event.getItem());
+                grid.setDetailsVisible(event.getItem(), !detailsVisible);
+                BasketService basket=event.getItem();
+                grid.setHeight(grid.getPageSize()+"px");
+            }
+        });
+// Create a span element to display the total price
+
+
+        //Span priceSpan=new Span();
+        // Create a ListDataProvider for your List<Basket>
+        ListDataProvider<BasketService> basketDataProvider = new ListDataProvider<>(baskets);
+        // Update the total price whenever a basket is added or removed
+        basketDataProvider.addDataProviderListener(event -> {
+            if (event != null) {
+                double totalPrice = baskets.stream()
+                        .flatMap(basket -> basket.getAllItems().stream())
+                        .mapToDouble(CartItemInfoService::getFinalPrice)
+                        .sum();
+                totalPriceSpan.setText("Total Price: " + totalPrice);
+            }
+        });
+        grid.setDataProvider(basketDataProvider);
+// ... add columns etc.
+
+
+        grid.addComponentColumn(basket -> {
+            Button removeButton = new Button("", new Icon(VaadinIcon.CLOSE_SMALL), event -> {
+
+                //remove from business
+                Result<BasketService> result= shoppingService.removeBasketFromCart(
+                        currUser.getCurrUserID(),
+                        basket.getStoreId());
+                if (result.isError()){
+                    Notification.show("Fail: "+result.getMessage());
+                }else
+                    Notification.show("Succeed remove Basket: "+basket.getStoreName());
+
+                baskets.remove(basket);
+                updateAside(baskets);
+                grid.setItems(baskets);
+            });
+            removeButton.getStyle().set("color", "red");
+            return removeButton;
+        }).setHeader("Remove");
+
+        setGridHeight(grid,baskets);
+        gridSection.add(grid);
+        return gridSection;
+    }
+
+    private void setSubGridCreation(Span totalPriceSpan, Grid<BasketService> grid, List<BasketService> baskets) {
+        grid.setItemDetailsRenderer(
+                new ComponentRenderer<>(basket -> {
+                    Grid<CartItemInfoService> subGrid = new Grid<>();
+                    subGrid.setItems(basket.getAllItems());
+                    subGrid.setHeight("auto");
+                    subGrid.setMinHeight("50px");
+                    //subGrid.setMaxHeight("200px");
+
+                    //Minus Button
+                    subGrid.addComponentColumn(item -> {
+                        Button minusAmount = new Button("", new Icon(VaadinIcon.MINUS)
+                                , event -> {
+                            Result<CartService> result;
+                            if (item.getAmount()==1)
+                                 result= shoppingService.removeItemFromCart(
+                                        currUser.getCurrUserID(),
+                                        basket.getStoreId(),
+                                        item.getItemID());
+                            else {
+                                //remove from business
+                                 result = shoppingService.changeItemQuantityInCart(
+                                        currUser.getCurrUserID(),
+                                        basket.getStoreId(),
+                                        item.getItemID(),
+                                        item.getAmount() - 1);
+                            }
+                            if (result.isError()){
+                                Notification.show("Fail: "+result.getMessage());
+                            }else
+                                Notification.show("Succeed remove item form store: "+basket.getStoreName());
+
+                            basket.removeItem(item);
+                            //updateTotalPrice(priceSpan,baskets);
+                            updateAside( baskets);
+                            grid.setItems(baskets);
+                        });minusAmount.getStyle().set("color", "red");
+                        return minusAmount;
+                    });
+
+
+                    //Add Button
+                    subGrid.addComponentColumn(item -> {
+                        Button addAmount = new Button("", new Icon(VaadinIcon.PLUS)
+                                , event -> {
+                            //remove from business
+                            Result<CartService> result= shoppingService.changeItemQuantityInCart(
+                                    currUser.getCurrUserID(),
+                                    basket.getStoreId(),
+                                    item.getItemID(),
+                                    item.getAmount()+1);
+                            if (result.isError()){
+                                Notification.show("Fail: "+result.getMessage());
+                            }else
+                                Notification.show("Succeed remove item form store: "+basket.getStoreName());
+
+                            basket.removeItem(item);
+                            //updateTotalPrice(priceSpan,baskets);
+                            updateAside( baskets);
+                            grid.setItems(baskets);
+                        });
+                        return addAmount;
+                    });
+
+
+
+                    addColumnToGrid(subGrid, CartItemInfoService::getAmount,"Amount");
+                    addColumnToGrid(subGrid, CartItemInfoService::getItemID,"ID");
+                    addColumnToGrid(subGrid, CartItemInfoService::getPercent,"Percent");
+
+                    addColumnToGrid(subGrid, CartItemInfoService::getOriginalPrice,"Original Price");
+                    addColumnToGrid(subGrid, CartItemInfoService::getFinalPrice,"Final Price");
+                    grid.setWidthFull();
+
+
+                    subGrid.getElement().getStyle().set("border", "none");
+                    subGrid.setSelectionMode(Grid.SelectionMode.NONE);
+                    setHeightByRows(subGrid, basket.getAllItems().size());
+
+
+                    subGrid.addComponentColumn(item -> {
+                        Button removeButton = new Button("", new Icon(VaadinIcon.CLOSE_SMALL)
+                        , event -> {
+                            //remove from business
+                            Result<CartService> result= shoppingService.removeItemFromCart(
+                                currUser.getCurrUserID(),
+                                basket.getStoreId(),
+                                item.getItemID());
+                            if (result.isError()){
+                                Notification.show("Fail: "+result.getMessage());
+                            }else
+                                Notification.show("Succeed remove item form store: "+basket.getStoreName());
+
+                        basket.removeItem(item);
+                        //updateTotalPrice(priceSpan,baskets);
+                        updateAside( baskets);
+                        grid.setItems(baskets);
+                        });
+                        return removeButton;
+                    }).setHeader("Remove");
+
+
+                    return subGrid;
+                })
+        );
+    }
+
+    public static <T> void setGridHeight(Grid<T> grid,List<BasketService> baskets) {
+        int mainRows=baskets.size();
+        int subRows = baskets.stream()
+                .mapToInt(basket -> basket.getAllItems().size())
+                .sum();
+        float height=0;
+        if (mainRows > 0){
+            float rowHeight = 100;
+            float subRowHeight = 80;
+            float headerHeight = 50;
+            float footerHeight = 0;
+            height =mainRows*rowHeight+( headerHeight + footerHeight + subRowHeight * subRows);
+        }
+        grid.setMinHeight(height, Unit.PIXELS);
+        grid.setHeight(height, Unit.PIXELS);
+    }
+
+    private void updateAside(List<BasketService> baskets) {
+        double totalPrice = baskets.stream()
+                .flatMap(basket -> basket.getAllItems().stream())
+                .mapToDouble(item -> item.getFinalPrice() * item.getAmount())
+                .sum();
+        double origTotalPrice =baskets.stream()
+                .flatMap(basket -> basket.getAllItems().stream())
+                .mapToDouble(item -> item.getOriginalPrice() * item.getAmount())
+                .sum();
+        double totalDiscount =totalPrice-origTotalPrice;
+        totalPriceSpan.setText(String.valueOf(totalPrice));
+        originalPriceSpan.setText(String.valueOf(origTotalPrice));
+        discountSpan.setText(String.valueOf(discountPrice));
+    }
+    public static  <T> float setHeightByRows(Grid<T> grid, int rows) {
+        float height=0;
+        if (rows < 0) {
+            throw new IllegalArgumentException("Number of rows must be positive");
+        }
+        else if (rows > 0){
+            float rowHeight = 70;
+            float headerHeight = 30;
+            float footerHeight = 0;
+            height = headerHeight + footerHeight + rowHeight * rows;
+        }
+
+        grid.setHeight(height, Unit.PIXELS);
+        return height;
+    }
+    public static <T> void addColumnToGrid(Grid<T> grid, Function<T, ?> valueProvider, String headerName) {
+        grid.addColumn(valueProvider::apply)
+                .setHeader(headerName)
+                .setAutoWidth(true)
+                .setResizable(true)
+                .setFlexGrow(0);
+    }
+
+    private Aside createAside(Span totalPriceSpan) {
+        Aside aside = new Aside();
+        aside.addClassNames(LumoUtility.Background.CONTRAST_5, LumoUtility.BoxSizing.BORDER, LumoUtility.Padding.LARGE,
+                LumoUtility.BorderRadius.LARGE, LumoUtility.MaxWidth.SCREEN_MEDIUM,
+                LumoUtility.Position.STICKY);
+        aside.getStyle().set("top", "0");
+        aside.getStyle().set("z-index", "1"); // set a high value for z-index for sticky!
+        Header headerSection = new Header();
+        headerSection.addClassNames(LumoUtility.Display.FLEX, LumoUtility.AlignItems.CENTER, LumoUtility.JustifyContent.BETWEEN, LumoUtility.Margin.Bottom.MEDIUM);
+        H3 header = new H3("Order");
+        header.addClassNames(LumoUtility.Margin.NONE);
+        Button edit = new Button("Edit");
+        edit.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+        headerSection.add(header, edit);
+
+        UnorderedList ul = new UnorderedList();
+        ul.addClassNames(LumoUtility.MaxWidth.SCREEN_MEDIUM,LumoUtility.ListStyleType.NONE, LumoUtility.Margin.NONE, LumoUtility.Padding.NONE, LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN, LumoUtility.Gap.MEDIUM);
+
+        ul.add(createListItem(ORIGINAL_TOTAL_PRICE, ORIGINAL_TOTAL_PRICE, originalPriceSpan));
+        ul.add(createListItem(TOTAL_DISCOUNT, TOTAL_DISCOUNT, discountSpan));
+        ul.add(createListItem(TOTAL_PRICE, TOTAL_PRICE, totalPriceSpan));
+
+        aside.add(headerSection, ul);
+        //TODO BUY
+        Button pay = new Button("Buy", new Icon(VaadinIcon.LOCK));
+        pay.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+        pay.addClickListener(e -> {
+            ConfirmDialog dialog = new ConfirmDialog();
+            TextField addressField = new TextField("Enter shipping address:");
+            Button confirmButton = new Button("BUY", event -> {
+                String address = addressField.getValue();
+                Result<Boolean> result=shoppingService.buyCart(currUser.getCurrUserID(), address);
+                if (result.isError()){
+                    Notification.show("Fail to buy: "+result.getMessage());
+                }
+                else {
+                    Notification.show("Succeed to buy");
+                }
+                dialog.close();
+            });
+            dialog.add(addressField, confirmButton);
+            dialog.open();
         });
 
+        ListItem item = new ListItem();
+        item.addClassNames(LumoUtility.Display.FLEX, LumoUtility.JustifyContent.BETWEEN);
 
-        ConfirmDialog dialog = addConfirmationDialog(); //pop up screen for confirmation
-        closePermButton.addClickListener(e -> dialog.open());
+        Div subSection = new Div();
+        subSection.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
 
-        HorizontalLayout footer = new HorizontalLayout(closePermButton, storeReceiptsButton);
-        //footer.getStyle().set("flex-wrap", "wrap");
-        setPadding(false);
-        setAlignItems(Alignment.AUTO);
-        return footer;
+        subSection.add(pay);
+
+        item.add(subSection);
+
+
+        aside.add(item);
+        updateAside(baskets);
+        return aside;
     }
+    private ListItem createListItem(String primary, String secondary, Span priceSpan) {
+        ListItem item = new ListItem();
+        item.addClassNames(LumoUtility.Display.FLEX, LumoUtility.JustifyContent.BETWEEN);
 
-    private ConfirmDialog addConfirmationDialog() {
-        ConfirmDialog dialog = new ConfirmDialog();
-        dialog.setHeader("Delete Store?");
-        dialog.setText("Are you sure you want to permanently delete this store?");
+        Div subSection = new Div();
+        subSection.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
 
-        dialog.setCancelable(true);
-        dialog.addCancelListener(event -> printError("Canceled"));
+        subSection.add(new Span(primary));
+        Span secondarySpan = new Span(secondary);
+        secondarySpan.addClassNames(LumoUtility.FontSize.SMALL, LumoUtility.TextColor.SECONDARY);
+        subSection.add(secondarySpan);
 
-        dialog.setConfirmText("Delete");
-        dialog.setConfirmButtonTheme("error primary");
-        return dialog;
+        item.add(subSection, priceSpan);
+        return item;
     }
-
-
-
-    private int getIdOfSelectedRow() {
-        List<StoreService> stores = grid.getSelectedItems().stream().toList();
-        if(stores.size() > 1){
-            printError("Chosen More than one!");
-            return -1;
-        }
-        else if(stores.size() == 0){
-            printError("You need to choose a User!");
-            return -1;
-        }
-        else{
-            return stores.get(0).getStoreId();
-        }
     }
 
 
-    private void printError(String errorMsg) {
-        //How I print to screen?
+
+
+
+
+
+
+
+
+
+class ValidationMessage extends HorizontalLayout implements HasText {
+
+    private final Span span = new Span();
+
+    public ValidationMessage() {
+        setVisible(false);
+        setAlignItems(Alignment.CENTER);
+        getStyle().set("color", "var(--lumo-error-text-color)");
+        getThemeList().clear();
+        getThemeList().add("spacing-s");
+
+        Icon icon = VaadinIcon.EXCLAMATION_CIRCLE_O.create();
+        icon.setSize("16px");
+        add(icon, span);
     }
 
-    private void printSuccess(String closedStore) {
-        //How I print to screen?
+    @Override
+    public String getText() {
+        return span.getText();
     }
+
+    @Override
+    public void setText(String text) {
+        span.setText(text);
+        this.setVisible(text != null && !text.isEmpty());
+    }
+
 
 
 }

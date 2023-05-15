@@ -61,4 +61,8 @@ public class CartService {
         }
         catch (Exception e) {}
     }
+
+    public List<BasketService> getAllBaskets() {
+        return baskets;
+    }
 }
