@@ -198,8 +198,7 @@ public class Basket {
         return items.containsKey(itemID);
     }
 
-    public void updateBasketWithCoupons(List<String> coupons) throws Exception
-    {
+    public void updateBasketWithCoupons(List<String> coupons) throws Exception {
         List<CartItemInfo> updatedBasketItems = getItemsInfo();
         store.updateBasket(updatedBasketItems, coupons);
         updateBasketByCartItemInfoList(updatedBasketItems);

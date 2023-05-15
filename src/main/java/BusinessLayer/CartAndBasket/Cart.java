@@ -156,6 +156,7 @@ public class Cart {
      */
     public void empty(){
         baskets.clear();
+        coupons.clear();
     }
 
     public double calculateTotalPrice(){
