@@ -98,7 +98,7 @@ public class ClientView extends VerticalLayout {
                 .asRequired("Amount cant be negative")
                 .withValidator(new IntegerRangeValidator("Amount cant be negative", 0, 99999))
                 .withStatusLabel(firstNameValidationMessage)
-                .bind(o->0, CartService::setAmount); //TODO
+                .bind(o->0, this::setAmount); //TODO
         amountColumn.setEditorComponent(integerField);
         Button saveButton = new Button("Add", e -> {
 //            Notification.show("items added to cart");
@@ -129,6 +129,18 @@ public class ClientView extends VerticalLayout {
         setFilters(grid);
         return grid;
     }
+
+    private void setAmount(CatalogItemService catalogItemService, Integer amount) {
+
+        Result<CartService> result = shoppingService.addItemToCart(MainLayout.getCurrUserID(),catalogItemService.getStoreID(), catalogItemService.getItemID(), amount);
+        if (!result.isError()){
+            Notification.show("Successfully added to " + MainLayout.getCurrUserID()+"'s cart\n");
+        }
+        else {
+            Notification.show(MainLayout.getCurrUserID() + result.getMessage());
+        }
+    }
+
     private void setFilters(Grid<CatalogItemService> grid){
         ItemFilter itemFilter = new ItemFilter(grid.getListDataView());
 

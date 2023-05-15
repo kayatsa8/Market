@@ -64,7 +64,7 @@ public class ShoppingService {
         }
     }
 
-    public Result<CartService> addItemToCart(int userID, int storeID, int itemID, int quantity) throws Exception {
+    public Result<CartService> addItemToCart(int userID, int storeID, int itemID, int quantity) {
         try {
             Cart cart = market.addItemToCart(userID, storeID, itemID, quantity);
             return new Result<>(false, new CartService(cart));
@@ -73,7 +73,6 @@ public class ShoppingService {
             return new Result<>(true, e.getMessage());
         }
     }
-
     public Result<CartService> removeItemFromCart(int userID, int storeID, int itemID) {
         try {
             Cart cart = market.removeItemFromCart(userID, storeID, itemID);

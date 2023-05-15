@@ -26,8 +26,12 @@ public class Basket {
 
     public void addItem(CatalogItem item, int quantity, List<String> coupons) throws Exception {
         validateAddItem(item, quantity);
-
-        items.putIfAbsent(item.getItemID(), new ItemWrapper(item, quantity));
+        if (items.containsKey(item.getItemID())){
+            int prevAmount= items.getAmount(item.getItemID());
+            items.put(item.getItemID(), new ItemWrapper(item, quantity+prevAmount));
+        }
+        else
+            items.putIfAbsent(item.getItemID(), new ItemWrapper(item, quantity));
 
         releaseItems();
 
@@ -70,7 +74,7 @@ public class Basket {
 
         if(items.containsKey(item.getItemID())){
             //LOG
-            throw new Exception("ERROR: Basket::addItemToCart: the item is already in the basket!");
+            //throw new Exception("ERROR: Basket::addItemToCart: the item is already in the basket!");
         }
     }
 

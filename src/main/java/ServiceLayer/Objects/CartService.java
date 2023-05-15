@@ -47,7 +47,7 @@ public class CartService {
         return found;
     }
 
-    public static void setAmount(CatalogItemService catalogItemService, Integer amount) {
+    public static void setAmount(CatalogItemService catalogItemService, Integer amount) throws Exception {
 
         try {
             shoppingService = new ShoppingService();
@@ -59,7 +59,7 @@ public class CartService {
                 Notification.show(MainLayout.getCurrUserID() + result.getMessage());
             }
         }
-        catch (Exception e) {}
+        catch (Exception e) {throw new Exception(e.getMessage());}
     }
 
     public List<BasketService> getAllBaskets() {
