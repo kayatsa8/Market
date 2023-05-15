@@ -2,7 +2,6 @@ package PresentationLayer.views.storeManagement;
 
 import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
-import BusinessLayer.Stores.Conditions.LogicalCompositions.Rules.Rule;
 import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
 import PresentationLayer.views.MainLayout;
 import ServiceLayer.Objects.*;
@@ -1046,7 +1045,7 @@ public class StoreManagementView extends VerticalLayout {
         SubMenu newRuleSubMenu = menuBar.addItem("New Rule").getSubMenu();
         menuBar.addItem("And", e-> compositeRuleAction(rulesGrid, storeId, LogicalComposites.AND, policyMode));
         menuBar.addItem("Or", e-> compositeRuleAction(rulesGrid, storeId, LogicalComposites.OR, policyMode));
-        menuBar.addItem("Conditional", e-> conditioningDialog(rulesGrid, storeId, LogicalComposites.CONDITIONING));
+        menuBar.addItem("Conditional", e-> conditioningDialog(rulesGrid, storeId, LogicalComposites.CONDITIONING, policyMode));
 
         newRuleSubMenu.addItem("Basket Weight Limit", e-> ruleBasketWeightOrPriceLimitDialog(rulesGrid, storeId, "Weight", true, policyMode));
         newRuleSubMenu.addItem("Age Limit", e-> ruleAgeDialog(rulesGrid, storeId, policyMode));
@@ -1070,7 +1069,7 @@ public class StoreManagementView extends VerticalLayout {
         dialog.open();
     }
 
-    private void conditioningDialog(Grid<RuleService> rulesGrid, int storeId, LogicalComposites logicalComposites) {
+    private void conditioningDialog(Grid<RuleService> rulesGrid, int storeId, LogicalComposites logicalComposites, int policyMode) {
         List<Integer> ids = getMultiIdsOfSelectedRules(rulesGrid);
         if( ids == null || ids.size() != 2){
             printError("You need to choose exactly 2 Rules!");
@@ -1095,10 +1094,10 @@ public class StoreManagementView extends VerticalLayout {
             dialog.add(div);
             dialog.setWidth("1000px");
 
-            rulesGrid.setItems(rulesChosen);
-            rulesGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
-            rulesGrid.addColumn(RuleService::getInfo).setHeader("Rule");
-            rulesGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
+            twoRulesGrid.setItems(rulesChosen);
+            twoRulesGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+            twoRulesGrid.addColumn(RuleService::getInfo).setHeader("Rule");
+            twoRulesGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
 
             Button addButton = new Button("Add", e->{
                 List<Integer> ruleChosen = getMultiIdsOfSelectedRules(twoRulesGrid);
@@ -1106,7 +1105,6 @@ public class StoreManagementView extends VerticalLayout {
                     printError("You need to choose exactly 1 Rule!");
                 }
                 else{
-                    //get the rules from twoRules grid and sent to function
                     int firstId = ruleChosen.get(0);
                     int secondId = -1;
                     for(RuleService ruleService: rulesChosen){
@@ -1114,8 +1112,12 @@ public class StoreManagementView extends VerticalLayout {
                             secondId = ruleService.getId();
                     }
                     if(secondId != -1){
-                        Result<RuleService> result = shoppingService.wrapPurchasePolicies(storeId, Arrays.asList(firstId, secondId), logicalComposites);
-                        handleRuleServiceResult(result, ids, rulesGrid);
+                        Result<RuleService> result;
+                        if(policyMode == PURCHASE_POLICY)
+                            result = shoppingService.wrapPurchasePolicies(storeId, Arrays.asList(firstId, secondId), logicalComposites);
+                        else
+                            result = shoppingService.wrapDiscountPolicies(storeId, Arrays.asList(firstId, secondId), logicalComposites);
+                        handleRuleServiceResult(result, ids, twoRulesGrid);
                         dialog.close();
                     }
                 }
