@@ -47,10 +47,10 @@ public class SystemManagementView extends VerticalLayout {
     Grid<UserInfoService> loggedOut;
     Grid<UserInfoService> loggedIn;
     Grid<StoreService> storeGrid;
-
+    MainLayout mainLayout;
     public SystemManagementView() {
         setSpacing(false);
-
+        mainLayout = MainLayout.getMainLayout();
         AccordionPanel managerLayout = new AccordionPanel("Store Info");
         AccordionPanel userLayout = new AccordionPanel("User Info");
 
@@ -162,7 +162,7 @@ public class SystemManagementView extends VerticalLayout {
 
     private void deleteUser(Grid<UserInfoService> grid) {
         UserInfoService userToRemove = grid.getSelectedItems().stream().toList().get(0);
-        Result<Boolean> result = userService.removeUser(MainLayout.getCurrUserID(), userToRemove.getId());
+        Result<Boolean> result = userService.removeUser(mainLayout.getCurrUserID(), userToRemove.getId());
         if(result.isError()){
             printError("Error Removing User:\n" + result.getMessage());
         }
@@ -265,7 +265,7 @@ public class SystemManagementView extends VerticalLayout {
             dialog.add(div);
             dialog.setWidth("1000px");
 
-            Result<List<ReceiptService>> result = shoppingService.getSellingHistoryOfStoreForManager(chosenId, MainLayout.getCurrUserID());
+            Result<List<ReceiptService>> result = shoppingService.getSellingHistoryOfStoreForManager(chosenId, mainLayout.getCurrUserID());
 
             if(result.isError()){
                 printError(result.getMessage());
@@ -341,7 +341,7 @@ public class SystemManagementView extends VerticalLayout {
         int chosenId = getIdOfSelectedRow(grid);
         if( chosenId!= -1){
 
-            Result<Boolean> result = shoppingService.closeStorePermanently(MainLayout.getCurrUserID(), chosenId);
+            Result<Boolean> result = shoppingService.closeStorePermanently(mainLayout.getCurrUserID(), chosenId);
             if(result.isError()){
                 printError("Error in close store permanently:\n" + result.getMessage());
             }

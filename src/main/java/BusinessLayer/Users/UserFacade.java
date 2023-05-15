@@ -306,6 +306,10 @@ public class UserFacade {
         return new ArrayList<>(getRegisteredUser(ownerId).getStoresIOwn().keySet());
     }
 
+    public ArrayList<Integer> getStoresIdsIManage(int ownerId) throws Exception {
+        return new ArrayList<>(getRegisteredUser(ownerId).getStoresIManage().keySet());
+    }
+
     public boolean isOwnerOrManager(int currUserID) {
         try {
             RegisteredUser user = getRegisteredUser(currUserID);

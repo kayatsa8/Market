@@ -1,5 +1,6 @@
 package PresentationLayer.views.storeManagement;
 
+import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
 import PresentationLayer.views.MainLayout;
@@ -7,7 +8,8 @@ import ServiceLayer.Objects.*;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
 import ServiceLayer.UserService;
-import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.accordion.Accordion;
+import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
@@ -20,7 +22,10 @@ import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -37,6 +42,8 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
+import org.apache.commons.lang3.text.WordUtils;
+import org.vaadin.lineawesome.LineAwesomeIcon;
 
 import java.time.ZoneId;
 import java.util.*;
@@ -50,9 +57,9 @@ public class StoreManagementView extends VerticalLayout {
 
     ShoppingService shoppingService;
     UserService userService;
-
     private Map<Integer, UserInfoService> users;
-    private Map<Integer, StoreService> storesIOwn = new HashMap<>();
+    private Map<Integer, StoreService> storesIOwn;
+    private Map<Integer, StoreService> storesIManage;
     IntegerField storeIdField;
     Grid<UserInfoService> userGrid;
     Grid<UserInfoService> ownersIDefinedGrid;
@@ -61,15 +68,17 @@ public class StoreManagementView extends VerticalLayout {
     Grid<StoreService> storesGrid;
 
     //uncomment
-    //int ownerId = MainLayout.getCurrUserID();
-    int ownerId = 1000006;  //1000006 manager
     boolean isStoreOwner;
     boolean isStoreManager;
+    private MainLayout mainLayout;
+
+    int PURCHASE_POLICY = 1;
+    int DISCOUNT_POLICY = 2;
 
 
     public StoreManagementView() {
         setSpacing(false);
-
+        mainLayout = MainLayout.getMainLayout();
         H2 header = new H2("Store Owner/Manager View");
         header.addClassNames(Margin.Top.XLARGE, Margin.Bottom.MEDIUM);
         add(header);
@@ -84,69 +93,105 @@ public class StoreManagementView extends VerticalLayout {
         setSpacing(false);
 
         Result<Map<Integer, UserInfoService>> usersRes = userService.getAllRegisteredUsers();
-        Result<Map<Integer, StoreService>> storesIOwnRes = shoppingService.getStoresIOwn(ownerId);
+        Result<Map<Integer, StoreService>> storesIOwnRes = shoppingService.getStoresIOwn(mainLayout.getCurrUserID());
+        Result<Map<Integer, StoreService>> storesIManageRes = shoppingService.getStoresIManage(mainLayout.getCurrUserID());
 
 
         if (usersRes.isError() || storesIOwnRes.isError()) {
-            printError("Problem accrued");
+            printError("Problem occurred:\n"+ (usersRes.isError() ? usersRes.getMessage() : storesIOwnRes.getMessage()));
         }
         else {
-
-            isStoreOwner(ownerId, usersRes);
-            isStoreManager(ownerId, usersRes);
+            isStoreOwner(mainLayout.getCurrUserID(), usersRes);
+            isStoreManager(mainLayout.getCurrUserID(), usersRes);
 
             TabSheet mainTabSheet = new TabSheet();
             users = usersRes.getValue();
+            storesIOwn = storesIOwnRes.getValue();
+            storesIManage = storesIManageRes.getValue();
 
             updateStoresGrid();
 
             Div storesDiv = new Div();
             Div usersDiv = new Div();
-
-            createUserGrid(usersDiv);
-
+            Accordion accordion = new Accordion();
+            createUserGrid(accordion);
+            createOwnersGrid(accordion);
+            createManagersGrid(accordion);
+            createManagerInfoGrid(accordion);
+            usersDiv.add(accordion);
+            mainTabSheet.setSizeFull();
             createStoresGrid(storesDiv);
             Tab userTab = new Tab("Users");
-            userTab.setEnabled(isStoreOwner);
+            userTab.setEnabled(isStoreOwner());
 
             mainTabSheet.add("Stores", storesDiv);
             mainTabSheet.add(userTab, usersDiv);
             add(mainTabSheet);
         }
+    }
 
+    private void createManagerInfoGrid(Accordion accordion) {
+        //Name, Store, List of Permissions
+        AccordionPanel managerInfo = new AccordionPanel("View Manager Permissions");
+        Map<Integer, StoreService> stores = shoppingService.getStoresIOwn(mainLayout.getCurrUserID()).getValue();
+        Map<Integer, Integer> storeToManagerMap = new HashMap<>();
+        for (StoreService store : stores.values()) {
+            for (Integer managerID : store.getManagers().keySet()) {
+                storeToManagerMap.put(store.getStoreId(), managerID);
+            }
+        }
+        Grid<Map.Entry<Integer, Integer>> grid = new Grid();
+        grid.setItems(storeToManagerMap.entrySet());
+        grid.addColumn(entry -> stores.get(entry.getKey()).getStoreName()).setHeader("Store").setSortable(true);
+        grid.addColumn(entry -> userService.getUsername(entry.getValue())).setHeader("Manager").setSortable(true);
 
+        for (String permission : shoppingService.possibleManagerPermissions()) {
+            grid.addComponentColumn(entry -> shoppingService.managerHasPermission(entry.getValue(), entry.getKey(),
+                    StoreActionPermissions.valueOf(permission.replace(' ', '_'))) ?
+                    LineAwesomeIcon.CHECK_CIRCLE_SOLID.create() : new Icon(VaadinIcon.BAN))
+                    .setHeader(WordUtils.capitalizeFully(permission)).setSortable(true);
+        }
+        managerInfo.addContent(grid);
+        accordion.add(managerInfo);
+    }
+
+    private boolean isStoreOwner() {
+        Result<List<UserInfoService>> result = userService.getAllOwnersIDefined(mainLayout.getCurrUserID());
+        if (result.isError())
+            return false;
+        return result.getValue().size() != 0;
     }
 
     private void updateStoresGrid() {
         Result<Map<Integer, UserInfoService>> usersRes = userService.getAllRegisteredUsers();
-        Result<Map<Integer, StoreService>> storesIOwnRes = shoppingService.getStoresIOwn(ownerId);
+        Result<Map<Integer, StoreService>> storesIOwnRes = shoppingService.getStoresIOwn(mainLayout.getCurrUserID());
         if (usersRes.isError() || storesIOwnRes.isError()) {
-            printError("Problem accrued");
+            printError("Problem occurred:\n"+ (usersRes.isError() ? usersRes.getMessage() : storesIOwnRes.getMessage()));
         }
         else {
             if(isStoreOwner){
                 storesIOwn = storesIOwnRes.getValue();
             }
             if(isStoreManager){
-                addStoreIManageToStoresIOwn(usersRes.getValue());
+                updateStoresIManage(usersRes.getValue());
             }
         }
     }
 
-    private void addStoreIManageToStoresIOwn(Map<Integer, UserInfoService> allUsers) {
-        List<Integer> storesIManage = new ArrayList<>();
+    private void updateStoresIManage(Map<Integer, UserInfoService> allUsers) {
+        List<Integer> storesIManageLocal = new ArrayList<>();
         for(UserInfoService userInfoService: allUsers.values()){
-            if(userInfoService.getId() == ownerId){
-                storesIManage = userInfoService.getStoresIManage();
+            if(userInfoService.getId() == mainLayout.getCurrUserID()){
+                storesIManageLocal = userInfoService.getStoresIManage();
             }
         }
-        if(storesIManage != null) {
+        if(storesIManageLocal != null) {
             Result<Map<Integer, StoreService>> result = shoppingService.getAllStoresInfo();
             if (!result.isError() && result.getValue() != null) {
                 for (Map.Entry<Integer, StoreService> entry : result.getValue().entrySet()) {
                     int storeId = entry.getValue().getStoreId();
-                    if (storesIManage.contains(storeId)){
-                        storesIOwn.put(entry.getKey(), entry.getValue());
+                    if (storesIManageLocal.contains(storeId)){
+                        storesIManage.putIfAbsent(entry.getKey(), entry.getValue());
                     }
                 }
             }
@@ -178,12 +223,15 @@ public class StoreManagementView extends VerticalLayout {
     }
 
     private void createStoresGrid(Div storesDiv) {
+        Accordion accordion = new Accordion();
+        AccordionPanel owning = new AccordionPanel("Stores I Own");
+        AccordionPanel managing = new AccordionPanel("Stores I Manage");
 
         Paragraph storeParagraph = new Paragraph("Stores I Own");
         Paragraph helper = new Paragraph("Select the Store you want to edit");
         storeParagraph.getStyle().set("font-size","40px");
         helper.getStyle().set("font-size", "20px");
-        storesDiv.add(storeParagraph, helper);
+        owning.addContent(storeParagraph, helper);
 
         storesGrid = new Grid<>();
         storesGrid.setItems(storesIOwn.values());
@@ -193,34 +241,49 @@ public class StoreManagementView extends VerticalLayout {
         storesGrid.addColumn(StoreService::getStoreId).setHeader("ID").setSortable(true);
         storesGrid.addColumn(StoreService::getStoreName).setHeader("Name").setSortable(true);
         storesGrid.addColumn(StoreService::getStoreStatus).setHeader("Status").setSortable(true);
+        addMenuItems(storesGrid, false);
 
-        if(isStoreOwner || isStoreManager) {
-            GridContextMenu<StoreService> menu = storesGrid.addContextMenu();
-            menu.setOpenOnClick(true);
-            menu.addItem("View Items Of Store", event -> {viewItemsDialog();}).setVisible(isStoreOwner);
-            menu.addItem("Close Store", event -> {
-                closeStoreDialog();
-            }).setVisible(isStoreOwner);
-            menu.addItem("Open Store", event -> {
-                openStoreDialog();
-            }).setVisible(isStoreOwner);
-            menu.addItem("Get Store History", event -> {
-                getHistoryDialog();
-            }).setVisible(isStoreManager | isStoreOwner);  //Requirement 4.13
-            menu.addItem("View Store policies", event -> {
-                viewPoliciesDialog();
-            }).setVisible(isStoreOwner);
-            menu.addItem("View Discounts Of Store", e -> {
-                viewDiscountsDialog();
-            }).setVisible(isStoreOwner);
+        owning.addContent(storesGrid);
 
-            //TODO
-            menu.addItem("Get Staff Info", event -> {}).setVisible(isStoreOwner);  //Requirement 4.11
-        }
+        Paragraph storeParagraph2 = new Paragraph("Stores I Manage");
+        Paragraph helper2 = new Paragraph("Select the Store you want to edit");
+        storeParagraph2.getStyle().set("font-size","40px");
+        helper2.getStyle().set("font-size", "20px");
+        managing.addContent(storeParagraph2, helper2);
+
+        Grid<StoreService> storesManaged = new Grid<>();
+        storesManaged.setItems(storesIManage.values());
+
+        storesManaged.addColumn(StoreService::getStoreId).setHeader("ID").setSortable(true);
+        storesManaged.addColumn(StoreService::getStoreName).setHeader("Name").setSortable(true);
+        storesManaged.addColumn(StoreService::getStoreStatus).setHeader("Status").setSortable(true);
+        addMenuItems(storesManaged, true);
+
+        managing.addContent(storesManaged);
+
+        accordion.add(owning);
+        accordion.add(managing);
 
         Button createStore = new Button("Create Store", e-> createStoreDialog());
-        storesDiv.add(storesGrid, createStore);
+        owning.addContent(createStore);
+        storesDiv.add(accordion);
+    }
 
+    private void addMenuItems(Grid<StoreService> storesGrid, boolean managerMode) {
+        GridContextMenu<StoreService> menu = storesGrid.addContextMenu();
+        storesGrid.addSelectionListener(e->
+                            {
+                                if (e.getAllSelectedItems().size()==0) {menu.close();}
+                            });
+        menu.setOpenOnClick(true);
+        menu.addItem("View Items Of Store", event -> {viewItemsDialog();});
+        menu.addItem("View Discounts Of Store", e -> {viewDiscountsDialog();});
+        menu.addItem("Close Store", event -> {closeStoreDialog();}).setVisible(!managerMode);  //only store founder
+        menu.addItem("Open Store", event -> {openStoreDialog();}).setVisible(!managerMode);   //only store founder
+        menu.addItem("Get Store History", event -> {getHistoryDialog();});  //Requirement 4.13
+        menu.addItem("Get Staff Info", event -> {getStaffInfoDialog();}).setVisible(!managerMode);  //Requirement 4.11
+        menu.addItem("View Store Purchase policies", event -> {viewPoliciesDialog(PURCHASE_POLICY);});
+        menu.addItem("View Store Discount policies", event -> {viewPoliciesDialog(DISCOUNT_POLICY);});
     }
 
     private void createStoreDialog() {
@@ -239,7 +302,7 @@ public class StoreManagementView extends VerticalLayout {
 
         Button saveButton = new Button("Add Store", e -> {
             dialog.close();
-            addStoreAction(name.getValue(), ownerId);
+            addStoreAction(name.getValue(), mainLayout.getCurrUserID());
         });
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
@@ -264,22 +327,22 @@ public class StoreManagementView extends VerticalLayout {
                     printSuccess("Store added Successfully");
                     updateStoresGrid();
                     refreshStoreFromBusiness(result.getValue());
-                    UI.getCurrent().getPage().reload();
+//                    UI.getCurrent().getPage().reload();
                 }
                 else{
-                    printError("Something went wrong");
+                    printError("Something went wrong:\n"+result.getMessage());
                 }
             }
         }
     }
 
-    private void createUserGrid(Div usersDiv) {
-
+    private void createUserGrid(Accordion usersDiv) {
+        AccordionPanel addOwnerManager = new AccordionPanel("Add Owner or Manager");
         Paragraph userParagraph = new Paragraph("Users available");
         userParagraph.getStyle().set("font-size","40px");
         Paragraph helperParagraph = new Paragraph("Select a User you want to appoint and enter the Store ID in the field below");
         helperParagraph.getStyle().set("font-size","20px");
-        usersDiv.add(userParagraph, helperParagraph);
+        addOwnerManager.addContent(userParagraph, helperParagraph);
 
         userGrid = new Grid<>();
         Editor<UserInfoService> editor = userGrid.getEditor();
@@ -295,21 +358,20 @@ public class StoreManagementView extends VerticalLayout {
         editor.setBuffered(true);
 
         HorizontalLayout footer = addButtons();
-        usersDiv.add(userGrid, footer);
+        addOwnerManager.addContent(userGrid, footer);
 
-
-        createOwnersGrid(usersDiv);
-        createManagersGrid(usersDiv);
+        usersDiv.add(addOwnerManager);
     }
 
-    private void createManagersGrid(Div usersDiv) {
+    private void createManagersGrid(Accordion usersDiv) {
+        AccordionPanel removeManager = new AccordionPanel("Remove Manager");
         Paragraph headerParagraph = new Paragraph("Managers I appointed");
         headerParagraph.getStyle().set("font-size","40px");
         Paragraph helperParagraph = new Paragraph("Select a User you want to appoint and enter the Store ID in the field below");
         helperParagraph.getStyle().set("font-size","15px");
-        usersDiv.add(headerParagraph, helperParagraph);
+        removeManager.addContent(headerParagraph, helperParagraph);
 
-        Result<List<UserInfoService>> managersIDefinedRes = userService.getAllManagersIDefined(ownerId);
+        Result<List<UserInfoService>> managersIDefinedRes = userService.getAllManagersIDefined(mainLayout.getCurrUserID());
         if(managersIDefinedRes.isError()){
             printError(managersIDefinedRes.getMessage());
         }
@@ -325,21 +387,20 @@ public class StoreManagementView extends VerticalLayout {
             removeManagerStoreField.setMin(0);
             removeManagerStoreField.setErrorMessage("Enter a valid StoreId!");
             removeManagerbutton.addClickListener(e -> removeManagerAction(removeManagerStoreField));
-            usersDiv.add(managersIDefinedGrid, removeManagerStoreField, removeManagerbutton);
-
+            removeManager.addContent(managersIDefinedGrid, removeManagerStoreField, removeManagerbutton);
         }
-
+        usersDiv.add(removeManager);
     }
 
-    private void createOwnersGrid(Div usersDiv) {
-
+    private void createOwnersGrid(Accordion usersDiv) {
+        AccordionPanel removeOwner = new AccordionPanel("Remove Owner");
         Paragraph headerParagraph = new Paragraph("Owners I appointed");
         headerParagraph.getStyle().set("font-size","40px");
         Paragraph helperParagraph = new Paragraph("Select a User you want to appoint and enter the Store ID in the field below");
         helperParagraph.getStyle().set("font-size","15px");
-        usersDiv.add(headerParagraph, helperParagraph);
+        removeOwner.addContent(headerParagraph, helperParagraph);
 
-        Result<List<UserInfoService>> usersIDefinedRes = userService.getAllOwnersIDefined(ownerId);
+        Result<List<UserInfoService>> usersIDefinedRes = userService.getAllOwnersIDefined(mainLayout.getCurrUserID());
         if(usersIDefinedRes.isError()){
             printError(usersIDefinedRes.getMessage());
         }
@@ -355,8 +416,9 @@ public class StoreManagementView extends VerticalLayout {
             removeOwnerStoreField.setMin(0);
             removeOwnerStoreField.setErrorMessage("Enter a valid StoreId!");
             removeOwnerbutton.addClickListener(e-> removeOwnerAction(removeOwnerStoreField));
-            usersDiv.add(ownersIDefinedGrid, removeOwnerStoreField, removeOwnerbutton);
+            removeOwner.addContent(ownersIDefinedGrid, removeOwnerStoreField, removeOwnerbutton);
         }
+        usersDiv.add(removeOwner);
 
     }
 
@@ -393,15 +455,15 @@ public class StoreManagementView extends VerticalLayout {
         int storeId = storeIdField.getValue();
 
         if(chosenUserId != -1){
-            Result<Boolean> result = userService.addOwner(ownerId, chosenUserId, storeId);
+            Result<Boolean> result = userService.addOwner(mainLayout.getCurrUserID(), chosenUserId, storeId);
 
             if(result.isError()){
-                printError("Error in add Owner");
+                printError("Error in add Owner:\n"+result.getMessage());
             }
             else{
                 if(result.getValue()){
                     printSuccess("Owner added Successfully");
-                    refreshUserGrids(ownerId);
+                    refreshUserGrids();
                 }
                 else{
                     printError("Something went wrong");
@@ -415,15 +477,15 @@ public class StoreManagementView extends VerticalLayout {
         int storeId = removeOwnerStoreField.getValue();
 
         if(chosenUserId != -1){
-            Result<Boolean> result = userService.removeOwner(ownerId, chosenUserId, storeId);
+            Result<Boolean> result = userService.removeOwner(mainLayout.getCurrUserID(), chosenUserId, storeId);
 
             if(result.isError()){
-                printError("Error in Remove Owner");
+                printError("Error in Remove Owner:\n"+result.getMessage());
             }
             else{
                 if(result.getValue()){
                     printSuccess("Owner removed Successfully");
-                    refreshUserGrids(ownerId);
+                    refreshUserGrids();
                 }
                 else{
                     printError("Something went wrong");
@@ -438,15 +500,15 @@ public class StoreManagementView extends VerticalLayout {
         int storeId = storeIdField.getValue();
 
         if(chosenUserId != -1){
-            Result<Boolean> result = userService.addManager(ownerId, chosenUserId, storeId);
+            Result<Boolean> result = userService.addManager(mainLayout.getCurrUserID(), chosenUserId, storeId);
 
             if(result.isError()){
-                printError("Error in Adding Manager");
+                printError("Error in Adding Manager:\n"+result.getMessage());
             }
             else{
                 if(result.getValue()){
                     printSuccess("Manager added Successfully");
-                    refreshUserGrids(ownerId);
+                    refreshUserGrids();
                     //UserInfoService curr = users.get(chosenUserId);
                     //curr.addStoresIManage(storeId);
                     //userGrid.getDataProvider().refreshItem(curr);
@@ -463,15 +525,15 @@ public class StoreManagementView extends VerticalLayout {
 
         if(chosenUserId != -1 && removeManagerStoreField != null){
             int storeId = removeManagerStoreField.getValue();
-            Result<Boolean> result = userService.removeManager(ownerId, chosenUserId, storeId);
+            Result<Boolean> result = userService.removeManager(mainLayout.getCurrUserID(), chosenUserId, storeId);
 
             if(result.isError()){
-                printError("Error in Remove Manager");
+                printError("Error in Remove Manager:\n"+result.getMessage());
             }
             else{
                 if(result.getValue()){
                     printSuccess("Manager removed Successfully");
-                    refreshUserGrids(ownerId);
+                    refreshUserGrids();
                 }
                 else{
                     printError("Something went wrong");
@@ -483,13 +545,13 @@ public class StoreManagementView extends VerticalLayout {
 
 
     private void printSuccess(String msg) {
-        Notification notification = Notification.show(msg, 2000, Notification.Position.TOP_END);
+        Notification notification = Notification.show(msg, 2000, Notification.Position.BOTTOM_CENTER);
         notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
     }
 
     private void printError(String errorMsg) {
-        Notification notification = Notification.show(errorMsg, 2000, Notification.Position.MIDDLE);
+        Notification notification = Notification.show(errorMsg, 2000, Notification.Position.BOTTOM_CENTER);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
 
@@ -751,8 +813,8 @@ public class StoreManagementView extends VerticalLayout {
         dialog.addCancelListener(event -> printError("Canceled"));
 
         dialog.setConfirmText("Open");
-        dialog.setConfirmButtonTheme("error primary");
-        dialog.addConfirmListener(event -> reOpenStoreAction(getStoreIdOfSelectedRow(storesGrid), ownerId));
+        dialog.setConfirmButtonTheme("success primary");
+        dialog.addConfirmListener(event -> reOpenStoreAction(getStoreIdOfSelectedRow(storesGrid), mainLayout.getCurrUserID()));
 
         add(dialog);
         dialog.open();
@@ -770,7 +832,7 @@ public class StoreManagementView extends VerticalLayout {
 
         dialog.setConfirmText("Close");
         dialog.setConfirmButtonTheme("error primary");
-        dialog.addConfirmListener(event -> closeStoreAction(getStoreIdOfSelectedRow(storesGrid), ownerId));
+        dialog.addConfirmListener(event -> closeStoreAction(getStoreIdOfSelectedRow(storesGrid), mainLayout.getCurrUserID()));
 
         add(dialog);
         dialog.open();
@@ -837,7 +899,7 @@ public class StoreManagementView extends VerticalLayout {
 
         int storeId = getStoreIdOfSelectedRow(storesGrid);
 
-        Result<List<ReceiptService>> result = shoppingService.getSellingHistoryOfStoreForManager(storeId, ownerId);
+        Result<List<ReceiptService>> result = shoppingService.getSellingHistoryOfStoreForManager(storeId, mainLayout.getCurrUserID());
 
 
         if(result.isError()){
@@ -917,7 +979,7 @@ public class StoreManagementView extends VerticalLayout {
         }
     }
 
-    private void viewPoliciesDialog() {
+    private void viewPoliciesDialog(int policy) {
         Grid<PolicyService> policiesGrid = new Grid<>();
         Dialog dialog = new Dialog();
         dialog.setDraggable(true);
@@ -929,8 +991,11 @@ public class StoreManagementView extends VerticalLayout {
         dialog.setWidth("1000px");
 
         int storeId = getStoreIdOfSelectedRow(storesGrid);
-
-        Result<List<PolicyService>> result = shoppingService.getStorePurchasePolicies(storeId);
+        Result<List<PolicyService>> result;
+        if(policy == PURCHASE_POLICY)
+            result = shoppingService.getStorePurchasePolicies(storeId);
+        else
+            result = shoppingService.getStoreDiscountPolicies(storeId);
         if(result.isError()){
             printError(result.getMessage());
         }
@@ -946,12 +1011,11 @@ public class StoreManagementView extends VerticalLayout {
                 policiesGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
 
                 Button createButton = new Button("Create New Policy", e -> {
-                    createNewPolicyDialog(policiesGrid, storeId);
+                    createNewPolicyDialog(policiesGrid, storeId, policy);
                 });
 
                 Button cancelButton = new Button("exit", e -> dialog.close());
 
-                //TODO
                 Button removeButton = new Button("remove", e -> printError("Need implementation"));
 
                 dialog.getFooter().add(createButton, removeButton, cancelButton);
@@ -961,7 +1025,7 @@ public class StoreManagementView extends VerticalLayout {
         }
     }
 
-    private void createNewPolicyDialog(Grid<PolicyService> policiesGrid, int storeId) {
+    private void createNewPolicyDialog(Grid<PolicyService> policiesGrid, int storeId, int policyMode) {
         Grid<RuleService> rulesGrid = new Grid<>();
         Dialog dialog = new Dialog();
         dialog.setDraggable(true);
@@ -979,21 +1043,21 @@ public class StoreManagementView extends VerticalLayout {
 
         MenuBar menuBar = new MenuBar();
         SubMenu newRuleSubMenu = menuBar.addItem("New Rule").getSubMenu();
-        menuBar.addItem("And", e-> policyCompositeRuleAction(rulesGrid, storeId, LogicalComposites.AND));
-        menuBar.addItem("Or", e-> policyCompositeRuleAction(rulesGrid, storeId, LogicalComposites.OR));
+        menuBar.addItem("And", e-> compositeRuleAction(rulesGrid, storeId, LogicalComposites.AND, policyMode));
+        menuBar.addItem("Or", e-> compositeRuleAction(rulesGrid, storeId, LogicalComposites.OR, policyMode));
 
         //TODO
         menuBar.addItem("Conditional", e-> printError("Need implementing")/*policyCompositeRuleAction(rulesGrid, storeId, LogicalComposites.CONDITIONING)*/);
 
-        newRuleSubMenu.addItem("Basket Weight Limit", e-> policyRuleBasketWeightOrPriceLimitDialog(rulesGrid, storeId, "Weight", true));
-        newRuleSubMenu.addItem("Age Limit", e-> policyRuleAgeDialog(rulesGrid, storeId));
-        newRuleSubMenu.addItem("Forbidden Category", e-> policyRuleForbiddenCategoryDialog(rulesGrid, storeId));
-        newRuleSubMenu.addItem("Forbidden Dates", e-> policyRuleForbiddenAndOrDatesDialog(rulesGrid, storeId, "Forbidden Dates", true));
-        newRuleSubMenu.addItem("Forbidden Hours", e-> {});  //TODO
-        newRuleSubMenu.addItem("Must Dates", e-> policyRuleForbiddenAndOrDatesDialog(rulesGrid, storeId, "Must Dates", false));
-        newRuleSubMenu.addItem("Item and Weights", e-> {});  //TODO
-        newRuleSubMenu.addItem("Basket Price Limit", e-> policyRuleBasketWeightOrPriceLimitDialog(rulesGrid, storeId, "Price", false));
-        newRuleSubMenu.addItem("Item and Amounts", e-> {});  //TODO
+        newRuleSubMenu.addItem("Basket Weight Limit", e-> ruleBasketWeightOrPriceLimitDialog(rulesGrid, storeId, "Weight", true, policyMode));
+        newRuleSubMenu.addItem("Age Limit", e-> ruleAgeDialog(rulesGrid, storeId, policyMode));
+        newRuleSubMenu.addItem("Forbidden Category", e-> ruleForbiddenCategoryDialog(rulesGrid, storeId, policyMode));
+        newRuleSubMenu.addItem("Forbidden Dates", e-> ruleForbiddenAndOrDatesDialog(rulesGrid, storeId, "Forbidden Dates", true, policyMode));
+        newRuleSubMenu.addItem("Forbidden Hours", e-> rulesForbiddenHoursDialog(rulesGrid, storeId, policyMode));
+        newRuleSubMenu.addItem("Must Dates", e-> ruleForbiddenAndOrDatesDialog(rulesGrid, storeId, "Must Dates", false, policyMode));
+        newRuleSubMenu.addItem("Item and Weights", e-> ruleItemsAmountsOrWeightsLimits(rulesGrid, storeId, "Weight", policyMode));
+        newRuleSubMenu.addItem("Basket Price Limit", e-> ruleBasketWeightOrPriceLimitDialog(rulesGrid, storeId, "Price", false, policyMode));
+        newRuleSubMenu.addItem("Item and Amounts", e-> ruleItemsAmountsOrWeightsLimits(rulesGrid, storeId, "Amount", policyMode));
 
 
 
@@ -1007,7 +1071,107 @@ public class StoreManagementView extends VerticalLayout {
         dialog.open();
     }
 
-    private void policyRuleForbiddenAndOrDatesDialog(Grid<RuleService> rulesGrid, int storeId, String headline, boolean forbidden) {
+    private void ruleItemsAmountsOrWeightsLimits(Grid<RuleService> rulesGrid, int storeId, String value, int policyMode) {
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Items and " + value + "s");
+        dialog.setWidth("800px");
+        //showItems
+        Div itemsDiv = new Div();
+        Grid<CatalogItemService> itemsGrid = new Grid<>();
+        itemsDiv.add(new Paragraph("Items of Store"));
+        itemsDiv.add(itemsGrid);
+        setItemsGridForDiscounts(itemsGrid, storeId);
+        itemsGrid.setSelectionMode(Grid.SelectionMode.NONE);
+
+        Paragraph paragraph = new Paragraph("Map of Items: ");
+        TextField textField = new TextField("ID, " + value);
+
+        Button addButton;
+        Button createButton;
+        if(value.equals("Amount")){  // amount window
+            Map<Integer, Integer> idsMap = new HashMap<>();
+            addButton = getIntIntMapFromUser(idsMap, textField, paragraph);
+            dialog.add(itemsDiv, paragraph, textField, addButton);
+            createButton = new Button("Create", e -> {
+                if(storeId != -1 && idsMap.size() > 0){
+                    dialog.close();
+                    Result<RuleService> result;
+                    if(policyMode == PURCHASE_POLICY)
+                        result = shoppingService.addPurchasePolicyMustItemsAmountsRule(storeId, idsMap);
+                    else
+                        result = shoppingService.addDiscountPolicyMustItemsAmountsRule(storeId, idsMap);
+                    handleRuleServiceResult(result, new ArrayList<>(), rulesGrid);
+                }
+            });
+        }
+        else{   // weight window
+            Map<Integer, Double> idsMap = new HashMap<>();
+            addButton = getIntDoubleMapFromUser(idsMap, textField, paragraph);
+            dialog.add(itemsDiv, paragraph, textField, addButton);
+            createButton = new Button("Create", e -> {
+                if(storeId != -1 && idsMap.size() > 0){
+                    dialog.close();
+                    Result<RuleService> result = shoppingService.addPurchasePolicyItemsWeightLimitRule(storeId, idsMap);
+                    handleRuleServiceResult(result, new ArrayList<>(), rulesGrid);
+                }
+            });
+        }
+
+        createButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        Button cancelButton = new Button("Cancel", e -> dialog.close());
+        dialog.getFooter().add(cancelButton, createButton);
+
+        add(dialog);
+        dialog.open();
+    }
+
+    private void rulesForbiddenHoursDialog(Grid<RuleService> rulesGrid, int storeId, int policyMode) {
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true); dialog.setResizable(true); dialog.setHeaderTitle("Forbidden Hours");
+
+        IntegerField startHour = new IntegerField("Start");
+        startHour.setValue(10);
+        startHour.setStepButtonsVisible(true);
+        startHour.setMin(0);
+        startHour.setMax(23);
+
+        IntegerField endHour = new IntegerField("End");
+        endHour.setValue(12);
+        endHour.setStepButtonsVisible(true);
+        endHour.setMin(0);
+        endHour.setMax(23);
+
+        VerticalLayout dialogLayout = new VerticalLayout(startHour, endHour);
+        dialogLayout.setPadding(false); dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+        dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
+
+        dialog.add(dialogLayout);
+
+        Button saveButton = new Button("Add", e -> {
+            dialog.close();
+            Integer startHourInt = startHour.getValue();
+            Integer endHourInt = endHour.getValue();
+            if(startHourInt != null && endHourInt != null &&storeId != -1){
+                Result<RuleService> result;
+                if(policyMode == PURCHASE_POLICY)
+                    result = shoppingService.addPurchasePolicyForbiddenHoursRule(storeId, startHourInt, endHourInt);
+                else
+                    result = shoppingService.addDiscountPolicyForbiddenHoursRule(storeId, startHourInt, endHourInt);
+                handleRuleServiceResult(result, new ArrayList<>(), rulesGrid);
+            }
+        });
+        saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+        Button cancelButton = new Button("Cancel", e -> dialog.close());
+        dialog.getFooter().add(cancelButton, saveButton);
+
+        add(dialog);
+        dialog.open();
+    }
+
+    private void ruleForbiddenAndOrDatesDialog(Grid<RuleService> rulesGrid, int storeId, String headline, boolean forbidden, int policyMode) {
         Dialog dialog = new Dialog();
         dialog.setDraggable(true); dialog.setResizable(true); dialog.setHeaderTitle(headline);
 
@@ -1030,11 +1194,18 @@ public class StoreManagementView extends VerticalLayout {
             dialog.close();
             if(dates.size() != 0 && storeId != -1){
                 Result<RuleService> result;
-                if(forbidden)
-                    result = shoppingService.addPurchasePolicyForbiddenDatesRule(storeId, new ArrayList<>(dates));
-                else
-                    result = shoppingService.addPurchasePolicyMustDatesRule(storeId, new ArrayList<>(dates));
-
+                if(forbidden){
+                    if(policyMode == PURCHASE_POLICY)
+                        result = shoppingService.addPurchasePolicyForbiddenDatesRule(storeId, new ArrayList<>(dates));
+                    else
+                        result = shoppingService.addDiscountPolicyForbiddenDatesRule(storeId, new ArrayList<>(dates));
+                }
+                else{
+                    if(policyMode == PURCHASE_POLICY)
+                        result = shoppingService.addPurchasePolicyMustDatesRule(storeId, new ArrayList<>(dates));
+                    else
+                        result = shoppingService.addDiscountPolicyMustDatesRule(storeId, new ArrayList<>(dates));
+                }
                 handleRuleServiceResult(result, new ArrayList<>(), rulesGrid);
             }
         });
@@ -1051,7 +1222,7 @@ public class StoreManagementView extends VerticalLayout {
         return  date.get(Calendar.DATE) + "." + date.get(Calendar.MONTH) + "." + date.get(Calendar.YEAR);
     }
 
-    private void policyRuleForbiddenCategoryDialog(Grid<RuleService> rulesGrid, int storeId) {
+    private void ruleForbiddenCategoryDialog(Grid<RuleService> rulesGrid, int storeId, int policyMode) {
         Dialog dialog = new Dialog();
         dialog.setDraggable(true); dialog.setResizable(true); dialog.setHeaderTitle("Forbidden Category");
 
@@ -1067,7 +1238,11 @@ public class StoreManagementView extends VerticalLayout {
             dialog.close();
             String category = field.getValue();
             if(category != null && storeId != -1 && !category.equals("")){
-                Result<RuleService> result = shoppingService.addPurchasePolicyForbiddenCategoryRule(storeId, category);
+                Result<RuleService> result;
+                if(policyMode == PURCHASE_POLICY)
+                    result = shoppingService.addPurchasePolicyForbiddenCategoryRule(storeId, category);
+                else
+                    result = shoppingService.addDiscountPolicyForbiddenCategoryRule(storeId, category);
                 handleRuleServiceResult(result, new ArrayList<>(), rulesGrid);
             }
         });
@@ -1080,7 +1255,7 @@ public class StoreManagementView extends VerticalLayout {
         dialog.open();
     }
 
-    private void policyRuleAgeDialog(Grid<RuleService> rulesGrid, int storeId) {
+    private void ruleAgeDialog(Grid<RuleService> rulesGrid, int storeId, int policyMode) {
         Dialog dialog = new Dialog();
         dialog.setDraggable(true); dialog.setResizable(true); dialog.setHeaderTitle("Basket Weight Limit");
 
@@ -1097,7 +1272,11 @@ public class StoreManagementView extends VerticalLayout {
             dialog.close();
             Integer age = field.getValue();
             if(age != null && storeId != -1 && age> 0){
-                Result<RuleService> result = shoppingService.addPurchasePolicyBuyerAgeRule(storeId, age);
+                Result<RuleService> result;
+                if(policyMode == PURCHASE_POLICY)
+                    result = shoppingService.addPurchasePolicyBuyerAgeRule(storeId, age);
+                else
+                    result = shoppingService.addDiscountPolicyBuyerAgeRule(storeId, age);
                 handleRuleServiceResult(result, new ArrayList<>(), rulesGrid);
             }
         });
@@ -1110,7 +1289,7 @@ public class StoreManagementView extends VerticalLayout {
         dialog.open();
     }
 
-    private void policyRuleBasketWeightOrPriceLimitDialog(Grid<RuleService> rulesGrid, int storeId, String weightOrPrice, boolean weightBool) {
+    private void ruleBasketWeightOrPriceLimitDialog(Grid<RuleService> rulesGrid, int storeId, String weightOrPrice, boolean weightBool, int policyMode) {
         Dialog dialog = new Dialog();
         dialog.setDraggable(true); dialog.setResizable(true); dialog.setHeaderTitle("Basket " +  weightOrPrice + " Limit");
 
@@ -1128,10 +1307,18 @@ public class StoreManagementView extends VerticalLayout {
             Double num = field.getValue();
             if(num != null && storeId != -1 && num >= 0){
                 Result<RuleService> result;
-                if(weightBool)
-                    result = shoppingService.addPurchasePolicyBasketWeightLimitRule(storeId, num);
-                else
-                    result = shoppingService.addPurchasePolicyBasketTotalPriceRule(storeId, num);
+                if(weightBool){
+                    if(policyMode == PURCHASE_POLICY)
+                        result = shoppingService.addPurchasePolicyBasketWeightLimitRule(storeId, num);
+                    else
+                        result = shoppingService.addDiscountPolicyBasketWeightLimitRule(storeId, num);
+                }
+                else{
+                    if(policyMode == PURCHASE_POLICY)
+                        result = shoppingService.addPurchasePolicyBasketTotalPriceRule(storeId, num);
+                    else
+                        result = shoppingService.addDiscountPolicyBasketTotalPriceRule(storeId, num);
+                }
                 handleRuleServiceResult(result, new ArrayList<>(), rulesGrid);
             }
         });
@@ -1144,13 +1331,17 @@ public class StoreManagementView extends VerticalLayout {
         dialog.open();
     }
 
-    private void policyCompositeRuleAction(Grid<RuleService> rulesGrid, int storeId, LogicalComposites logicalComposites) {
+    private void compositeRuleAction(Grid<RuleService> rulesGrid, int storeId, LogicalComposites logicalComposites, int policy) {
         List<Integer> ids = getMultiIdsOfSelectedRules(rulesGrid);
         if( ids == null || ids.size() < 2){
             printError("You didn't choose enough Rules");
         }
         else if(storeId != -1) {
-            Result<RuleService> result = shoppingService.wrapPurchasePolicies(storeId, ids, logicalComposites);
+            Result<RuleService> result;
+            if(policy == PURCHASE_POLICY)
+                result = shoppingService.wrapPurchasePolicies(storeId, ids, logicalComposites);
+            else
+                result = shoppingService.wrapDiscountPolicies(storeId, ids, logicalComposites);
             handleRuleServiceResult(result, ids, rulesGrid);
         }
     }
@@ -1769,7 +1960,7 @@ public class StoreManagementView extends VerticalLayout {
         Map<Integer, Integer> idsToAmounts = new HashMap<>();
         Paragraph paragraph = new Paragraph("Map of Items: ");
         TextField textField = new TextField("ID, Amount");
-        Button addButton = getMapFromUser(idsToAmounts, textField, paragraph);
+        Button addButton = getIntIntMapFromUser(idsToAmounts, textField, paragraph);
 
         dialog.add(itemsDiv, paragraph, textField, addButton);
 
@@ -1812,7 +2003,7 @@ public class StoreManagementView extends VerticalLayout {
         return resultRule;
     }
 
-    private Button getMapFromUser(Map<Integer, Integer> idsToAmounts, TextField textField, Paragraph paragraph) {
+    private Button getIntIntMapFromUser(Map<Integer, Integer> idsToAmounts, TextField textField, Paragraph paragraph) {
         textField.setHelperText("Enter an ID a ',' and amount");
         return new Button("Add Id,Amount", e->{
 
@@ -1841,6 +2032,35 @@ public class StoreManagementView extends VerticalLayout {
         });
     }
 
+    private Button getIntDoubleMapFromUser(Map<Integer, Double> idsToWeights, TextField textField, Paragraph paragraph) {
+        textField.setHelperText("Enter an ID a ',' and weight");
+        return new Button("Add Id,Weight", e->{
+
+            if(textField.getValue() == null){
+                printError("Enter an ID and weight please");
+            }
+            else{
+                String res = textField.getValue().replace(" ","");
+                int secondIndex = res.indexOf(',', res.indexOf(',') + 1);
+                if(!res.contains(",")){
+                    printError("You didn't enter a ','");
+                }
+                else if(secondIndex != -1){
+                    printError("You entered too many values");
+                }
+                else {
+                    String[] resSplit = res.split(",");
+                    try{
+                        idsToWeights.put(Integer.parseInt(resSplit[0]), Double.parseDouble(resSplit[1]));
+                        paragraph.add(resSplit[0] + ":" + resSplit[1]+ "   ");
+                    }catch (Exception e1){
+                        printError("You didn't enter number!");
+                    }
+                }
+            }
+        });
+    }
+
     private void changeRulesListInScreen(RuleService newRule, List<Integer> toRemoveIds, Grid<RuleService> rulesGrid) {
         if(newRule != null){
             ListDataProvider dataProvider = (ListDataProvider) rulesGrid.getDataProvider();
@@ -1859,6 +2079,7 @@ public class StoreManagementView extends VerticalLayout {
             storesIOwn.replace(storeId, curr);
         else
             storesIOwn.put(storeId, curr);
+        storesGrid.setItems(storesIOwn.values());
         storesGrid.getDataProvider().refreshAll();
     }
 
@@ -1878,10 +2099,10 @@ public class StoreManagementView extends VerticalLayout {
         discountsGrid.getDataProvider().refreshAll();
     }
 
-    private void refreshUserGrids(int ownerId) {
-        Result<List<UserInfoService>> result1 = userService.getAllOwnersIDefined(ownerId);
+    private void refreshUserGrids() {
+        Result<List<UserInfoService>> result1 = userService.getAllOwnersIDefined(mainLayout.getCurrUserID());
         Result<Map<Integer, UserInfoService>> result2 = userService.getAllRegisteredUsers();
-        Result<List<UserInfoService>> result3 = userService.getAllManagersIDefined(ownerId);
+        Result<List<UserInfoService>> result3 = userService.getAllManagersIDefined(mainLayout.getCurrUserID());
         if(result1.isError()||result1.getValue() == null){
             printError(result1.getMessage());
         }
@@ -1910,5 +2131,76 @@ public class StoreManagementView extends VerticalLayout {
         policiesGrid.getDataProvider().refreshAll();
     }
 
+    private void getStaffInfoDialog() {
 
+        Grid<Map.Entry<Integer, Integer>> staffInfo = new Grid<>();
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Staff");
+        Div div = new Div();
+        div.add(staffInfo);
+        dialog.add(div);
+        dialog.setWidth("1000px");
+
+        int storeId = getStoreIdOfSelectedRow(storesGrid);
+
+        Result<StoreService> result = shoppingService.getStoreInfo(storeId);
+
+
+        if(result.isError()){
+            printError(result.getMessage());
+        }
+        else{
+            if(result.getValue() == null){
+                printError("Something went wrong");
+            }
+            else{
+                Map<Integer, Integer> data = result.getValue().getOwners();
+                data.putAll(result.getValue().getManagers());
+                staffInfo.setItems(data.entrySet());
+                staffInfo.setSelectionMode(Grid.SelectionMode.SINGLE);
+
+                staffInfo.addColumn(Map.Entry::getKey).setHeader("UserID").setSortable(true).setVisible(false);
+                staffInfo.addColumn(e -> userService.getUsername(e.getKey())).setHeader("User Name").setSortable(true);
+                staffInfo.addColumn(e -> userService.getUsername(e.getValue())).setHeader("Boss Name").setSortable(true);
+                staffInfo.addColumn(e -> result.getValue().getFounderID()==e.getKey() ? "Founder" :
+                        result.getValue().getManagers().containsKey(e.getKey()) ? "Manager" : "Owner").setHeader("Position").setSortable(true);
+
+                GridContextMenu<Map.Entry<Integer, Integer>> menu = staffInfo.addContextMenu();
+                menu.setOpenOnClick(true);
+
+                menu.addItem("View Permissions", event -> getPermissions(staffInfo, result.getValue()));
+
+//                Button cancelButton = new Button("exit", e -> dialog.close());
+//                dialog.getFooter().add(cancelButton);
+
+                add(dialog);
+                dialog.open();
+                //dialog.add(itemsGrid);
+//                dialog.add(menu);
+            }
+        }
+    }
+
+    private void getPermissions(Grid<Map.Entry<Integer, Integer>> staffInfo, StoreService store) {
+        int userID = staffInfo.getSelectedItems().stream().toList().get(0).getKey();
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Permissions for user: " + userService.getUsername(userID));
+        Div div = new Div();
+
+        List<String> permissions = shoppingService.getManagerInfo(userID, store.getStoreId());
+        for (String permission : permissions)
+            div.add(new Label(permission));
+        dialog.add(div);
+        dialog.setWidth("1000px");
+
+        Button cancelButton = new Button("exit", e -> dialog.close());
+        dialog.getFooter().add(cancelButton);
+
+        add(dialog);
+        dialog.open();
+    }
 }

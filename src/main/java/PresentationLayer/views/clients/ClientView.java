@@ -106,7 +106,7 @@ public class ClientView extends VerticalLayout {
                 .asRequired("Amount cant be negative")
                 .withValidator(new IntegerRangeValidator("Amount cant be negative", 0, 99999))
                 .withStatusLabel(firstNameValidationMessage)
-                .bind(o->0, CartService::setAmount); //TODO
+                .bind(o->0, (k,v)->{}); //TODO
         amountColumn.setEditorComponent(integerField);
         Button saveButton = new Button("Add", e -> {
 //            Notification.show("items added to cart");
