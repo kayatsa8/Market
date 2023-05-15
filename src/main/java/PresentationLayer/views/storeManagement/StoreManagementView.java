@@ -2,6 +2,7 @@ package PresentationLayer.views.storeManagement;
 
 import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
+import BusinessLayer.Stores.Conditions.LogicalCompositions.Rules.Rule;
 import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
 import PresentationLayer.views.MainLayout;
 import ServiceLayer.Objects.*;
@@ -1045,9 +1046,7 @@ public class StoreManagementView extends VerticalLayout {
         SubMenu newRuleSubMenu = menuBar.addItem("New Rule").getSubMenu();
         menuBar.addItem("And", e-> compositeRuleAction(rulesGrid, storeId, LogicalComposites.AND, policyMode));
         menuBar.addItem("Or", e-> compositeRuleAction(rulesGrid, storeId, LogicalComposites.OR, policyMode));
-
-        //TODO
-        menuBar.addItem("Conditional", e-> printError("Need implementing")/*policyCompositeRuleAction(rulesGrid, storeId, LogicalComposites.CONDITIONING)*/);
+        menuBar.addItem("Conditional", e-> conditioningDialog(rulesGrid, storeId, LogicalComposites.CONDITIONING));
 
         newRuleSubMenu.addItem("Basket Weight Limit", e-> ruleBasketWeightOrPriceLimitDialog(rulesGrid, storeId, "Weight", true, policyMode));
         newRuleSubMenu.addItem("Age Limit", e-> ruleAgeDialog(rulesGrid, storeId, policyMode));
@@ -1069,6 +1068,63 @@ public class StoreManagementView extends VerticalLayout {
         dialog.getFooter().add(menuBar);
         add(dialog);
         dialog.open();
+    }
+
+    private void conditioningDialog(Grid<RuleService> rulesGrid, int storeId, LogicalComposites logicalComposites) {
+        List<Integer> ids = getMultiIdsOfSelectedRules(rulesGrid);
+        if( ids == null || ids.size() != 2){
+            printError("You need to choose exactly 2 Rules!");
+        }
+        else{
+            List<RuleService> allRules = rulesGrid.getSelectedItems().stream().toList();
+            List<RuleService> rulesChosen = new ArrayList<>();
+            for(RuleService ruleService: allRules){
+                if(ids.contains(ruleService.getId())){
+                    rulesChosen.add(ruleService);
+                }
+            }
+            Grid<RuleService> twoRulesGrid = new Grid<>();
+            Dialog dialog = new Dialog();
+            dialog.setDraggable(true);
+            dialog.setResizable(true);
+            dialog.setHeaderTitle("Rules");
+            Paragraph helper = new Paragraph("Choose the one you want to be if, the second will be if the first is not happening");
+            Div div = new Div();
+
+            div.add(helper, twoRulesGrid);
+            dialog.add(div);
+            dialog.setWidth("1000px");
+
+            rulesGrid.setItems(rulesChosen);
+            rulesGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+            rulesGrid.addColumn(RuleService::getInfo).setHeader("Rule");
+            rulesGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
+
+            Button addButton = new Button("Add", e->{
+                List<Integer> ruleChosen = getMultiIdsOfSelectedRules(twoRulesGrid);
+                if( ruleChosen == null || ids.size() != 1){
+                    printError("You need to choose exactly 1 Rule!");
+                }
+                else{
+                    //get the rules from twoRules grid and sent to function
+                    int firstId = ruleChosen.get(0);
+                    int secondId = -1;
+                    for(RuleService ruleService: rulesChosen){
+                        if(ruleService.getId() != firstId)
+                            secondId = ruleService.getId();
+                    }
+                    if(secondId != -1){
+                        Result<RuleService> result = shoppingService.wrapPurchasePolicies(storeId, Arrays.asList(firstId, secondId), logicalComposites);
+                        handleRuleServiceResult(result, ids, rulesGrid);
+                        dialog.close();
+                    }
+                }
+            });
+
+            dialog.getFooter().add(addButton);
+            add(dialog);
+            dialog.open();
+        }
     }
 
     private void ruleItemsAmountsOrWeightsLimits(Grid<RuleService> rulesGrid, int storeId, String value, int policyMode) {
