@@ -315,22 +315,22 @@ public class StoreOwnerManagerTests extends ProjectTest{
     /**
      * Get store info and answer request as Store manager #38  NotForVersion1
      */
-    /*
+
     @Test
     public void getStoreInformation_Valid(){
         StoreService result = this.getStoreInformationAsStoreManager(store2Id, user2LoggedInId);
-        assertTrue(false);
-    }
-
-    @Test
-    public void getStoreInformation_UserNotManagerOfThisStore(){
-        StoreService result = this.getStoreInformationAsStoreManager(store2Id, user1GuestId);
-        assertNull(result);
+        assertEquals(result.getStoreId(), store2Id);
     }
 
     @Test
     public void getStoreInformation_StoreNotExist(){
         StoreService result = this.getStoreInformationAsStoreManager(-1, user2LoggedInId);
+        assertNull(result);
+    }
+    /*
+        @Test
+    public void getStoreInformation_UserNotManagerOfThisStore(){
+        StoreService result = this.getStoreInformationAsStoreManager(store2Id, user1GuestId);
         assertNull(result);
     }
 

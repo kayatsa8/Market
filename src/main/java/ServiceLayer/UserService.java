@@ -320,10 +320,10 @@ public class UserService {
         }
     }
 
-    public Result removeUser(int userID, int userToRemove) {
+    public Result<Boolean> removeUser(int userID, int userToRemove) {
         try {
             market.removeUser(userID, userToRemove);
-            return new Result(false, "Success");
+            return new Result(false, true);
         }
         catch (Exception e) {
             return new Result(true, e.getMessage());

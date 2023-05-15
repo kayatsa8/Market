@@ -398,10 +398,28 @@ public class RealBridge implements Bridge{
 
     @Override
     public boolean removeRegisterdUser(int systemManagerId, int userToRemoveId) {
-        /** NotForVersion1 */
-        //return this.facade.removeRegisterdUser(systemManagerId, userToRemoveId);
-        return false;
+        Result<Boolean> result = userService.removeUser(systemManagerId, userToRemoveId);
+        return handleBoolResult(result);
     }
+
+    @Override
+    public Map<Integer, UserInfoService> getLoggedOutUsers(){
+        Result<Map<Integer, UserInfoService>> users =  userService.getLoggedOutUsers();
+        if(users == null)
+            return null;
+        return users.getValue();
+    }
+
+    @Override
+    public Map<Integer, UserInfoService> getLoggedInUsers(){
+        Result<Map<Integer, UserInfoService>> users =  userService.getLoggedInUsers();
+        if(users == null)
+            return null;
+        return users.getValue();
+    }
+
+
+
 
     @Override
     public boolean answerComplaint(int userId, HashMap<Integer, String> complaintsAnswers) {

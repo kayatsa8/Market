@@ -442,4 +442,8 @@ public interface Bridge {
     int wrapDiscounts(int storeID, List<Integer> discountsIDsToWrap, NumericComposites numericCompositeEnum);
 
     RuleService addDiscountComposite(int storeID, int discountID, LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs);
+
+    Map<Integer, UserInfoService> getLoggedOutUsers();
+    Map<Integer, UserInfoService> getLoggedInUsers();
+
 }

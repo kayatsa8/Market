@@ -479,4 +479,21 @@ public class ProxyBridge implements Bridge {
         return null;
     }
 
+    @Override
+    public Map<Integer, UserInfoService> getLoggedOutUsers(){
+        if(real!=null){
+            return real.getLoggedOutUsers();
+        }
+        return null;
+    }
+
+    @Override
+    public Map<Integer, UserInfoService> getLoggedInUsers(){
+        if(real!=null){
+            return real.getLoggedInUsers();
+        }
+        return null;
+    }
+
+
 }
