@@ -1101,7 +1101,7 @@ public class StoreManagementView extends VerticalLayout {
 
             Button addButton = new Button("Add", e->{
                 List<Integer> ruleChosen = getMultiIdsOfSelectedRules(twoRulesGrid);
-                if( ruleChosen == null || ids.size() != 1){
+                if( ruleChosen == null || ruleChosen.size() != 1){
                     printError("You need to choose exactly 1 Rule!");
                 }
                 else{
@@ -1112,13 +1112,14 @@ public class StoreManagementView extends VerticalLayout {
                             secondId = ruleService.getId();
                     }
                     if(secondId != -1){
+                        dialog.close();
                         Result<RuleService> result;
                         if(policyMode == PURCHASE_POLICY)
                             result = shoppingService.wrapPurchasePolicies(storeId, Arrays.asList(firstId, secondId), logicalComposites);
                         else
                             result = shoppingService.wrapDiscountPolicies(storeId, Arrays.asList(firstId, secondId), logicalComposites);
                         handleRuleServiceResult(result, ids, twoRulesGrid);
-                        dialog.close();
+
                     }
                 }
             });
