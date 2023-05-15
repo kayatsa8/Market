@@ -615,111 +615,111 @@ public class ShoppingService {
         }
     }
 
-    public Result<String> addPurchasePolicyBasketWeightLimitRule(int storeID, double basketWeightLimit)
+    public Result<RuleService> addPurchasePolicyBasketWeightLimitRule(int storeID, double basketWeightLimit)
     {
         try {
             String result = market.addPurchasePolicyBasketWeightLimitRule(storeID, basketWeightLimit);
             log.info("Succeeded to purchase policy of basket weight limit rule");
-            return new Result<>(false, result);
+            return new Result<>(false, new RuleService(result));
         } catch (Exception e) {
             log.info("Failed to add purchase policy of basket weight limit rule");
             return new Result<>(true, e.getMessage());
         }
     }
-    public Result<String> addPurchasePolicyBuyerAgeRule(int storeID, int minimumAge)
+    public Result<RuleService> addPurchasePolicyBuyerAgeRule(int storeID, int minimumAge)
     {
         try {
             String result = market.addPurchasePolicyBuyerAgeRule(storeID, minimumAge);
             log.info("Succeeded to purchase policy of buyer age rule");
-            return new Result<>(false, result);
+            return new Result<>(false, new RuleService(result));
         } catch (Exception e) {
             log.info("Failed to add purchase policy of buyer age rule");
             return new Result<>(true, e.getMessage());
         }
     }
-    public Result<String> addPurchasePolicyForbiddenCategoryRule(int storeID, String forbiddenCategory)
+    public Result<RuleService> addPurchasePolicyForbiddenCategoryRule(int storeID, String forbiddenCategory)
     {
         try {
             String result = market.addPurchasePolicyForbiddenCategoryRule(storeID, forbiddenCategory);
             log.info("Succeeded to purchase policy of forbidden category rule");
-            return new Result<>(false, result);
+            return new Result<>(false, new RuleService(result));
         } catch (Exception e) {
             log.info("Failed to add purchase policy of forbidden category rule");
             return new Result<>(true, e.getMessage());
         }
     }
-    public Result<String> addPurchasePolicyForbiddenDatesRule(int storeID, List<Calendar> forbiddenDates)
+    public Result<RuleService> addPurchasePolicyForbiddenDatesRule(int storeID, List<Calendar> forbiddenDates)
     {
         try {
             String result = market.addPurchasePolicyForbiddenDatesRule(storeID, forbiddenDates);
             log.info("Succeeded to purchase policy of forbidden dates rule");
-            return new Result<>(false, result);
+            return new Result<>(false, new RuleService(result));
         } catch (Exception e) {
             log.info("Failed to add purchase policy of forbidden dates rule");
             return new Result<>(true, e.getMessage());
         }
     }
-    public Result<String> addPurchasePolicyForbiddenHoursRule(int storeID, int startHour, int endHour)
+    public Result<RuleService> addPurchasePolicyForbiddenHoursRule(int storeID, int startHour, int endHour)
     {
         try {
             String result = market.addPurchasePolicyForbiddenHoursRule(storeID, startHour, endHour);
             log.info("Succeeded to purchase policy of forbidden hours rule");
-            return new Result<>(false, result);
+            return new Result<>(false, new RuleService(result));
         } catch (Exception e) {
             log.info("Failed to add purchase policy of forbidden hours rule");
             return new Result<>(true, e.getMessage());
         }
     }
-    public Result<String> addPurchasePolicyMustDatesRule(int storeID, List<Calendar> mustDates)
+    public Result<RuleService> addPurchasePolicyMustDatesRule(int storeID, List<Calendar> mustDates)
     {
         try {
             String result = market.addPurchasePolicyMustDatesRule(storeID, mustDates);
             log.info("Succeeded to purchase policy of must dates rule");
-            return new Result<>(false, result);
+            return new Result<>(false, new RuleService(result));
         } catch (Exception e) {
             log.info("Failed to add purchase policy of must dates rule");
             return new Result<>(true, e.getMessage());
         }
     }
-    public Result<String> addPurchasePolicyItemsWeightLimitRule(int storeID, Map<Integer, Double> weightsLimits)
+    public Result<RuleService> addPurchasePolicyItemsWeightLimitRule(int storeID, Map<Integer, Double> weightsLimits)
     {
         try {
             String result = market.addPurchasePolicyItemsWeightLimitRule(storeID, weightsLimits);
             log.info("Succeeded to purchase policy of items weight limit rule");
-            return new Result<>(false, result);
+            return new Result<>(false, new RuleService(result));
         } catch (Exception e) {
             log.info("Failed to add purchase policy of items weight limit rule");
             return new Result<>(true, e.getMessage());
         }
     }
-    public Result<String> addPurchasePolicyBasketTotalPriceRule(int storeID, double minimumPrice)
+    public Result<RuleService> addPurchasePolicyBasketTotalPriceRule(int storeID, double minimumPrice)
     {
         try {
             String result = market.addPurchasePolicyBasketTotalPriceRule(storeID, minimumPrice);
             log.info("Succeeded to purchase policy of basket total price rule");
-            return new Result<>(false, result);
+            return new Result<>(false, new RuleService(result));
         } catch (Exception e) {
             log.info("Failed to add purchase policy of basket total price rule");
             return new Result<>(true, e.getMessage());
         }
     }
-    public Result<String> addPurchasePolicyMustItemsAmountsRule(int storeID, Map<Integer, Integer> itemsAmounts)
+    public Result<RuleService> addPurchasePolicyMustItemsAmountsRule(int storeID, Map<Integer, Integer> itemsAmounts)
     {
         try {
             String result = market.addPurchasePolicyMustItemsAmountsRule(storeID, itemsAmounts);
             log.info("Succeeded to purchase policy of must items amounts rule");
-            return new Result<>(false, result);
+            return new Result<>(false, new RuleService(result));
         } catch (Exception e) {
             log.info("Failed to add purchase policy of must items amounts rule");
             return new Result<>(true, e.getMessage());
         }
     }
-    public Result<Integer> wrapPurchasePolicies(int storeID, List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum)
+    public Result<RuleService> wrapPurchasePolicies(int storeID, List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum)
     {
         try {
-            int id = market.wrapPurchasePolicies(storeID, purchasePoliciesIDsToWrap, logicalCompositeEnum);
+            String result = market.wrapPurchasePolicies(storeID, purchasePoliciesIDsToWrap, logicalCompositeEnum);
             log.info("Succeeded to wrap purchase policies under logical composite of " + logicalCompositeEnum.name());
-            return new Result<>(false, id);
+            return new Result<>(false, new RuleService(result));
         } catch (Exception e) {
             log.info("Failed to wrap purchase policies under logical composite of " + logicalCompositeEnum.name());
             return new Result<>(true, e.getMessage());

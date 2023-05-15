@@ -401,7 +401,7 @@ public class Store {
         purchasePolicies.put(policiesIDs++, purchasePolicy);
         return (policiesIDs -1) + ": " + purchasePolicy.toString();
     }
-    public int wrapPurchasePolicies(List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
+    public String wrapPurchasePolicies(List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
     {
         List<LogicalComponent> policiesRootsToWrap = new ArrayList<>();
         for (Integer policyID : purchasePoliciesIDsToWrap)
@@ -435,8 +435,13 @@ public class Store {
         {
             purchasePolicies.remove(purchasePolicyID);
         }
-        purchasePolicies.put(policiesIDs, new PurchasePolicy(myLogicalComponent));
-        return policiesIDs++;
+//        purchasePolicies.put(purchasePoliciesIDs, new PurchasePolicy(myLogicalComponent));
+//        return purchasePoliciesIDs++;
+        PurchasePolicy policy = new PurchasePolicy(myLogicalComponent);
+        int policyId = policiesIDs;
+        purchasePolicies.put(policyId, policy);
+        purchasePoliciesIDs++;
+        return policyId + ":" + policy.toString();
     }
 
     public String addDiscountPolicyBasketWeightLimitRule(double basketWeightLimit)
