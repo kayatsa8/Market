@@ -645,10 +645,10 @@ public class Store {
             CartItemInfo copyItem = copyBasketItems.get(i);
             if ((item.getOriginalPrice() != copyItem.getOriginalPrice()) || (item.getPercent() != copyItem.getPercent()))
             {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     public boolean checkIfItemsInStock(List<CartItemInfo> basketItems)
