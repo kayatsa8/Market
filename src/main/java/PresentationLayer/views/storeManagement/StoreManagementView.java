@@ -72,6 +72,9 @@ public class StoreManagementView extends VerticalLayout {
     boolean isStoreManager;
     private MainLayout mainLayout;
 
+    int PURCHASE_POLICY = 1;
+    int DISCOUNT_POLICY = 2;
+
 
     public StoreManagementView() {
         setSpacing(false);
@@ -170,25 +173,25 @@ public class StoreManagementView extends VerticalLayout {
                 storesIOwn = storesIOwnRes.getValue();
             }
             if(isStoreManager){
-                addStoreIManageToStoresIOwn(usersRes.getValue());
+                updateStoresIManage(usersRes.getValue());
             }
         }
     }
 
-    private void addStoreIManageToStoresIOwn(Map<Integer, UserInfoService> allUsers) {
-        List<Integer> storesIManage = new ArrayList<>();
+    private void updateStoresIManage(Map<Integer, UserInfoService> allUsers) {
+        List<Integer> storesIManageLocal = new ArrayList<>();
         for(UserInfoService userInfoService: allUsers.values()){
             if(userInfoService.getId() == mainLayout.getCurrUserID()){
-                storesIManage = userInfoService.getStoresIManage();
+                storesIManageLocal = userInfoService.getStoresIManage();
             }
         }
-        if(storesIManage != null) {
+        if(storesIManageLocal != null) {
             Result<Map<Integer, StoreService>> result = shoppingService.getAllStoresInfo();
             if (!result.isError() && result.getValue() != null) {
                 for (Map.Entry<Integer, StoreService> entry : result.getValue().entrySet()) {
                     int storeId = entry.getValue().getStoreId();
-                    if (storesIManage.contains(storeId)){
-                        storesIOwn.put(entry.getKey(), entry.getValue());
+                    if (storesIManageLocal.contains(storeId)){
+                        storesIManage.putIfAbsent(entry.getKey(), entry.getValue());
                     }
                 }
             }
@@ -279,8 +282,8 @@ public class StoreManagementView extends VerticalLayout {
         menu.addItem("Open Store", event -> {openStoreDialog();}).setVisible(!managerMode);   //only store founder
         menu.addItem("Get Store History", event -> {getHistoryDialog();});  //Requirement 4.13
         menu.addItem("Get Staff Info", event -> {getStaffInfoDialog();}).setVisible(!managerMode);  //Requirement 4.11
-        menu.addItem("View Store policies", event -> {viewPoliciesDialog();});
-
+        menu.addItem("View Store Purchase policies", event -> {viewPoliciesDialog(PURCHASE_POLICY);});
+        menu.addItem("View Store Discount policies", event -> {viewPoliciesDialog(DISCOUNT_POLICY);});
     }
 
     private void createStoreDialog() {
@@ -976,7 +979,7 @@ public class StoreManagementView extends VerticalLayout {
         }
     }
 
-    private void viewPoliciesDialog() {
+    private void viewPoliciesDialog(int policy) {
         Grid<PolicyService> policiesGrid = new Grid<>();
         Dialog dialog = new Dialog();
         dialog.setDraggable(true);
@@ -988,8 +991,11 @@ public class StoreManagementView extends VerticalLayout {
         dialog.setWidth("1000px");
 
         int storeId = getStoreIdOfSelectedRow(storesGrid);
-
-        Result<List<PolicyService>> result = shoppingService.getStorePurchasePolicies(storeId);
+        Result<List<PolicyService>> result;
+        if(policy == PURCHASE_POLICY)
+            result = shoppingService.getStorePurchasePolicies(storeId);
+        else
+            result = shoppingService.getStoreDiscountPolicies(storeId);
         if(result.isError()){
             printError(result.getMessage());
         }
@@ -1005,7 +1011,7 @@ public class StoreManagementView extends VerticalLayout {
                 policiesGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
 
                 Button createButton = new Button("Create New Policy", e -> {
-                    createNewPolicyDialog(policiesGrid, storeId);
+                    createNewPolicyDialog(policiesGrid, storeId, policy);
                 });
 
                 Button cancelButton = new Button("exit", e -> dialog.close());
@@ -1019,7 +1025,7 @@ public class StoreManagementView extends VerticalLayout {
         }
     }
 
-    private void createNewPolicyDialog(Grid<PolicyService> policiesGrid, int storeId) {
+    private void createNewPolicyDialog(Grid<PolicyService> policiesGrid, int storeId, int policyMode) {
         Grid<RuleService> rulesGrid = new Grid<>();
         Dialog dialog = new Dialog();
         dialog.setDraggable(true);
@@ -1037,21 +1043,21 @@ public class StoreManagementView extends VerticalLayout {
 
         MenuBar menuBar = new MenuBar();
         SubMenu newRuleSubMenu = menuBar.addItem("New Rule").getSubMenu();
-        menuBar.addItem("And", e-> policyCompositeRuleAction(rulesGrid, storeId, LogicalComposites.AND));
-        menuBar.addItem("Or", e-> policyCompositeRuleAction(rulesGrid, storeId, LogicalComposites.OR));
+        menuBar.addItem("And", e-> compositeRuleAction(rulesGrid, storeId, LogicalComposites.AND, policyMode));
+        menuBar.addItem("Or", e-> compositeRuleAction(rulesGrid, storeId, LogicalComposites.OR, policyMode));
 
         //TODO
         menuBar.addItem("Conditional", e-> printError("Need implementing")/*policyCompositeRuleAction(rulesGrid, storeId, LogicalComposites.CONDITIONING)*/);
 
-        newRuleSubMenu.addItem("Basket Weight Limit", e-> policyRuleBasketWeightOrPriceLimitDialog(rulesGrid, storeId, "Weight", true));
-        newRuleSubMenu.addItem("Age Limit", e-> policyRuleAgeDialog(rulesGrid, storeId));
-        newRuleSubMenu.addItem("Forbidden Category", e-> policyRuleForbiddenCategoryDialog(rulesGrid, storeId));
-        newRuleSubMenu.addItem("Forbidden Dates", e-> policyRuleForbiddenAndOrDatesDialog(rulesGrid, storeId, "Forbidden Dates", true));
-        newRuleSubMenu.addItem("Forbidden Hours", e-> {});  //TODO
-        newRuleSubMenu.addItem("Must Dates", e-> policyRuleForbiddenAndOrDatesDialog(rulesGrid, storeId, "Must Dates", false));
-        newRuleSubMenu.addItem("Item and Weights", e-> {});  //TODO
-        newRuleSubMenu.addItem("Basket Price Limit", e-> policyRuleBasketWeightOrPriceLimitDialog(rulesGrid, storeId, "Price", false));
-        newRuleSubMenu.addItem("Item and Amounts", e-> {});  //TODO
+        newRuleSubMenu.addItem("Basket Weight Limit", e-> ruleBasketWeightOrPriceLimitDialog(rulesGrid, storeId, "Weight", true, policyMode));
+        newRuleSubMenu.addItem("Age Limit", e-> ruleAgeDialog(rulesGrid, storeId, policyMode));
+        newRuleSubMenu.addItem("Forbidden Category", e-> ruleForbiddenCategoryDialog(rulesGrid, storeId, policyMode));
+        newRuleSubMenu.addItem("Forbidden Dates", e-> ruleForbiddenAndOrDatesDialog(rulesGrid, storeId, "Forbidden Dates", true, policyMode));
+        newRuleSubMenu.addItem("Forbidden Hours", e-> rulesForbiddenHoursDialog(rulesGrid, storeId, policyMode));
+        newRuleSubMenu.addItem("Must Dates", e-> ruleForbiddenAndOrDatesDialog(rulesGrid, storeId, "Must Dates", false, policyMode));
+        newRuleSubMenu.addItem("Item and Weights", e-> ruleItemsAmountsOrWeightsLimits(rulesGrid, storeId, "Weight", policyMode));
+        newRuleSubMenu.addItem("Basket Price Limit", e-> ruleBasketWeightOrPriceLimitDialog(rulesGrid, storeId, "Price", false, policyMode));
+        newRuleSubMenu.addItem("Item and Amounts", e-> ruleItemsAmountsOrWeightsLimits(rulesGrid, storeId, "Amount", policyMode));
 
 
 
@@ -1065,7 +1071,107 @@ public class StoreManagementView extends VerticalLayout {
         dialog.open();
     }
 
-    private void policyRuleForbiddenAndOrDatesDialog(Grid<RuleService> rulesGrid, int storeId, String headline, boolean forbidden) {
+    private void ruleItemsAmountsOrWeightsLimits(Grid<RuleService> rulesGrid, int storeId, String value, int policyMode) {
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Items and " + value + "s");
+        dialog.setWidth("800px");
+        //showItems
+        Div itemsDiv = new Div();
+        Grid<CatalogItemService> itemsGrid = new Grid<>();
+        itemsDiv.add(new Paragraph("Items of Store"));
+        itemsDiv.add(itemsGrid);
+        setItemsGridForDiscounts(itemsGrid, storeId);
+        itemsGrid.setSelectionMode(Grid.SelectionMode.NONE);
+
+        Paragraph paragraph = new Paragraph("Map of Items: ");
+        TextField textField = new TextField("ID, " + value);
+
+        Button addButton;
+        Button createButton;
+        if(value.equals("Amount")){  // amount window
+            Map<Integer, Integer> idsMap = new HashMap<>();
+            addButton = getIntIntMapFromUser(idsMap, textField, paragraph);
+            dialog.add(itemsDiv, paragraph, textField, addButton);
+            createButton = new Button("Create", e -> {
+                if(storeId != -1 && idsMap.size() > 0){
+                    dialog.close();
+                    Result<RuleService> result;
+                    if(policyMode == PURCHASE_POLICY)
+                        result = shoppingService.addPurchasePolicyMustItemsAmountsRule(storeId, idsMap);
+                    else
+                        result = shoppingService.addDiscountPolicyMustItemsAmountsRule(storeId, idsMap);
+                    handleRuleServiceResult(result, new ArrayList<>(), rulesGrid);
+                }
+            });
+        }
+        else{   // weight window
+            Map<Integer, Double> idsMap = new HashMap<>();
+            addButton = getIntDoubleMapFromUser(idsMap, textField, paragraph);
+            dialog.add(itemsDiv, paragraph, textField, addButton);
+            createButton = new Button("Create", e -> {
+                if(storeId != -1 && idsMap.size() > 0){
+                    dialog.close();
+                    Result<RuleService> result = shoppingService.addPurchasePolicyItemsWeightLimitRule(storeId, idsMap);
+                    handleRuleServiceResult(result, new ArrayList<>(), rulesGrid);
+                }
+            });
+        }
+
+        createButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        Button cancelButton = new Button("Cancel", e -> dialog.close());
+        dialog.getFooter().add(cancelButton, createButton);
+
+        add(dialog);
+        dialog.open();
+    }
+
+    private void rulesForbiddenHoursDialog(Grid<RuleService> rulesGrid, int storeId, int policyMode) {
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true); dialog.setResizable(true); dialog.setHeaderTitle("Forbidden Hours");
+
+        IntegerField startHour = new IntegerField("Start");
+        startHour.setValue(10);
+        startHour.setStepButtonsVisible(true);
+        startHour.setMin(0);
+        startHour.setMax(23);
+
+        IntegerField endHour = new IntegerField("End");
+        endHour.setValue(12);
+        endHour.setStepButtonsVisible(true);
+        endHour.setMin(0);
+        endHour.setMax(23);
+
+        VerticalLayout dialogLayout = new VerticalLayout(startHour, endHour);
+        dialogLayout.setPadding(false); dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+        dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
+
+        dialog.add(dialogLayout);
+
+        Button saveButton = new Button("Add", e -> {
+            dialog.close();
+            Integer startHourInt = startHour.getValue();
+            Integer endHourInt = endHour.getValue();
+            if(startHourInt != null && endHourInt != null &&storeId != -1){
+                Result<RuleService> result;
+                if(policyMode == PURCHASE_POLICY)
+                    result = shoppingService.addPurchasePolicyForbiddenHoursRule(storeId, startHourInt, endHourInt);
+                else
+                    result = shoppingService.addDiscountPolicyForbiddenHoursRule(storeId, startHourInt, endHourInt);
+                handleRuleServiceResult(result, new ArrayList<>(), rulesGrid);
+            }
+        });
+        saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+        Button cancelButton = new Button("Cancel", e -> dialog.close());
+        dialog.getFooter().add(cancelButton, saveButton);
+
+        add(dialog);
+        dialog.open();
+    }
+
+    private void ruleForbiddenAndOrDatesDialog(Grid<RuleService> rulesGrid, int storeId, String headline, boolean forbidden, int policyMode) {
         Dialog dialog = new Dialog();
         dialog.setDraggable(true); dialog.setResizable(true); dialog.setHeaderTitle(headline);
 
@@ -1088,11 +1194,18 @@ public class StoreManagementView extends VerticalLayout {
             dialog.close();
             if(dates.size() != 0 && storeId != -1){
                 Result<RuleService> result;
-                if(forbidden)
-                    result = shoppingService.addPurchasePolicyForbiddenDatesRule(storeId, new ArrayList<>(dates));
-                else
-                    result = shoppingService.addPurchasePolicyMustDatesRule(storeId, new ArrayList<>(dates));
-
+                if(forbidden){
+                    if(policyMode == PURCHASE_POLICY)
+                        result = shoppingService.addPurchasePolicyForbiddenDatesRule(storeId, new ArrayList<>(dates));
+                    else
+                        result = shoppingService.addDiscountPolicyForbiddenDatesRule(storeId, new ArrayList<>(dates));
+                }
+                else{
+                    if(policyMode == PURCHASE_POLICY)
+                        result = shoppingService.addPurchasePolicyMustDatesRule(storeId, new ArrayList<>(dates));
+                    else
+                        result = shoppingService.addDiscountPolicyMustDatesRule(storeId, new ArrayList<>(dates));
+                }
                 handleRuleServiceResult(result, new ArrayList<>(), rulesGrid);
             }
         });
@@ -1109,7 +1222,7 @@ public class StoreManagementView extends VerticalLayout {
         return  date.get(Calendar.DATE) + "." + date.get(Calendar.MONTH) + "." + date.get(Calendar.YEAR);
     }
 
-    private void policyRuleForbiddenCategoryDialog(Grid<RuleService> rulesGrid, int storeId) {
+    private void ruleForbiddenCategoryDialog(Grid<RuleService> rulesGrid, int storeId, int policyMode) {
         Dialog dialog = new Dialog();
         dialog.setDraggable(true); dialog.setResizable(true); dialog.setHeaderTitle("Forbidden Category");
 
@@ -1125,7 +1238,11 @@ public class StoreManagementView extends VerticalLayout {
             dialog.close();
             String category = field.getValue();
             if(category != null && storeId != -1 && !category.equals("")){
-                Result<RuleService> result = shoppingService.addPurchasePolicyForbiddenCategoryRule(storeId, category);
+                Result<RuleService> result;
+                if(policyMode == PURCHASE_POLICY)
+                    result = shoppingService.addPurchasePolicyForbiddenCategoryRule(storeId, category);
+                else
+                    result = shoppingService.addDiscountPolicyForbiddenCategoryRule(storeId, category);
                 handleRuleServiceResult(result, new ArrayList<>(), rulesGrid);
             }
         });
@@ -1138,7 +1255,7 @@ public class StoreManagementView extends VerticalLayout {
         dialog.open();
     }
 
-    private void policyRuleAgeDialog(Grid<RuleService> rulesGrid, int storeId) {
+    private void ruleAgeDialog(Grid<RuleService> rulesGrid, int storeId, int policyMode) {
         Dialog dialog = new Dialog();
         dialog.setDraggable(true); dialog.setResizable(true); dialog.setHeaderTitle("Basket Weight Limit");
 
@@ -1155,7 +1272,11 @@ public class StoreManagementView extends VerticalLayout {
             dialog.close();
             Integer age = field.getValue();
             if(age != null && storeId != -1 && age> 0){
-                Result<RuleService> result = shoppingService.addPurchasePolicyBuyerAgeRule(storeId, age);
+                Result<RuleService> result;
+                if(policyMode == PURCHASE_POLICY)
+                    result = shoppingService.addPurchasePolicyBuyerAgeRule(storeId, age);
+                else
+                    result = shoppingService.addDiscountPolicyBuyerAgeRule(storeId, age);
                 handleRuleServiceResult(result, new ArrayList<>(), rulesGrid);
             }
         });
@@ -1168,7 +1289,7 @@ public class StoreManagementView extends VerticalLayout {
         dialog.open();
     }
 
-    private void policyRuleBasketWeightOrPriceLimitDialog(Grid<RuleService> rulesGrid, int storeId, String weightOrPrice, boolean weightBool) {
+    private void ruleBasketWeightOrPriceLimitDialog(Grid<RuleService> rulesGrid, int storeId, String weightOrPrice, boolean weightBool, int policyMode) {
         Dialog dialog = new Dialog();
         dialog.setDraggable(true); dialog.setResizable(true); dialog.setHeaderTitle("Basket " +  weightOrPrice + " Limit");
 
@@ -1186,10 +1307,18 @@ public class StoreManagementView extends VerticalLayout {
             Double num = field.getValue();
             if(num != null && storeId != -1 && num >= 0){
                 Result<RuleService> result;
-                if(weightBool)
-                    result = shoppingService.addPurchasePolicyBasketWeightLimitRule(storeId, num);
-                else
-                    result = shoppingService.addPurchasePolicyBasketTotalPriceRule(storeId, num);
+                if(weightBool){
+                    if(policyMode == PURCHASE_POLICY)
+                        result = shoppingService.addPurchasePolicyBasketWeightLimitRule(storeId, num);
+                    else
+                        result = shoppingService.addDiscountPolicyBasketWeightLimitRule(storeId, num);
+                }
+                else{
+                    if(policyMode == PURCHASE_POLICY)
+                        result = shoppingService.addPurchasePolicyBasketTotalPriceRule(storeId, num);
+                    else
+                        result = shoppingService.addDiscountPolicyBasketTotalPriceRule(storeId, num);
+                }
                 handleRuleServiceResult(result, new ArrayList<>(), rulesGrid);
             }
         });
@@ -1202,13 +1331,17 @@ public class StoreManagementView extends VerticalLayout {
         dialog.open();
     }
 
-    private void policyCompositeRuleAction(Grid<RuleService> rulesGrid, int storeId, LogicalComposites logicalComposites) {
+    private void compositeRuleAction(Grid<RuleService> rulesGrid, int storeId, LogicalComposites logicalComposites, int policy) {
         List<Integer> ids = getMultiIdsOfSelectedRules(rulesGrid);
         if( ids == null || ids.size() < 2){
             printError("You didn't choose enough Rules");
         }
         else if(storeId != -1) {
-            Result<RuleService> result = shoppingService.wrapPurchasePolicies(storeId, ids, logicalComposites);
+            Result<RuleService> result;
+            if(policy == PURCHASE_POLICY)
+                result = shoppingService.wrapPurchasePolicies(storeId, ids, logicalComposites);
+            else
+                result = shoppingService.wrapDiscountPolicies(storeId, ids, logicalComposites);
             handleRuleServiceResult(result, ids, rulesGrid);
         }
     }
@@ -1827,7 +1960,7 @@ public class StoreManagementView extends VerticalLayout {
         Map<Integer, Integer> idsToAmounts = new HashMap<>();
         Paragraph paragraph = new Paragraph("Map of Items: ");
         TextField textField = new TextField("ID, Amount");
-        Button addButton = getMapFromUser(idsToAmounts, textField, paragraph);
+        Button addButton = getIntIntMapFromUser(idsToAmounts, textField, paragraph);
 
         dialog.add(itemsDiv, paragraph, textField, addButton);
 
@@ -1870,7 +2003,7 @@ public class StoreManagementView extends VerticalLayout {
         return resultRule;
     }
 
-    private Button getMapFromUser(Map<Integer, Integer> idsToAmounts, TextField textField, Paragraph paragraph) {
+    private Button getIntIntMapFromUser(Map<Integer, Integer> idsToAmounts, TextField textField, Paragraph paragraph) {
         textField.setHelperText("Enter an ID a ',' and amount");
         return new Button("Add Id,Amount", e->{
 
@@ -1890,6 +2023,35 @@ public class StoreManagementView extends VerticalLayout {
                     String[] resSplit = res.split(",");
                     try{
                         idsToAmounts.put(Integer.parseInt(resSplit[0]), Integer.parseInt(resSplit[1]));
+                        paragraph.add(resSplit[0] + ":" + resSplit[1]+ "   ");
+                    }catch (Exception e1){
+                        printError("You didn't enter number!");
+                    }
+                }
+            }
+        });
+    }
+
+    private Button getIntDoubleMapFromUser(Map<Integer, Double> idsToWeights, TextField textField, Paragraph paragraph) {
+        textField.setHelperText("Enter an ID a ',' and weight");
+        return new Button("Add Id,Weight", e->{
+
+            if(textField.getValue() == null){
+                printError("Enter an ID and weight please");
+            }
+            else{
+                String res = textField.getValue().replace(" ","");
+                int secondIndex = res.indexOf(',', res.indexOf(',') + 1);
+                if(!res.contains(",")){
+                    printError("You didn't enter a ','");
+                }
+                else if(secondIndex != -1){
+                    printError("You entered too many values");
+                }
+                else {
+                    String[] resSplit = res.split(",");
+                    try{
+                        idsToWeights.put(Integer.parseInt(resSplit[0]), Double.parseDouble(resSplit[1]));
                         paragraph.add(resSplit[0] + ":" + resSplit[1]+ "   ");
                     }catch (Exception e1){
                         printError("You didn't enter number!");

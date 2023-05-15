@@ -300,7 +300,7 @@ public class StoreFacade {
         Store store = getStore(storeID);
         return store.addDiscountPolicyMustItemsAmountsRule(itemsAmounts);
     }
-    public int wrapDiscountPolicies(int storeID, List<Integer> discountPoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
+    public String wrapDiscountPolicies(int storeID, List<Integer> discountPoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
     {
         Store store = getStore(storeID);
         return store.wrapDiscountPolicies(discountPoliciesIDsToWrap, logicalCompositeEnum);
