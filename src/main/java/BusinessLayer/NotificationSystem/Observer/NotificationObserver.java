@@ -1,6 +1,5 @@
 package BusinessLayer.NotificationSystem.Observer;
 
-import BusinessLayer.NotificationSystem.UserMailbox;
 
 public interface NotificationObserver {
 

@@ -29,10 +29,19 @@ public class SimpleObserver implements NotificationObserver {
 
 /*
     1) make all windows implement NotificationObserver
-    2)
 
-    Notification notification = Notification
-        .show("New project plan available");
-    notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+    2) listenToNotifications should be:
 
+    public void listenToNotifications(userId){
+        userService.listenToNotifications(userId, this);
+    }
+
+
+    3) notify function should be:
+
+    public void notify(String notification){
+        Notification notification = Notification
+            .show(notification);
+        notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+    }
  */
