@@ -78,7 +78,6 @@ public class ShoppingService {
             return new Result<>(true, e.getMessage());
         }
     }
-
     public Result<CartService> removeItemFromCart(int userID, int storeID, int itemID) {
         try {
             Cart cart = market.removeItemFromCart(userID, storeID, itemID);

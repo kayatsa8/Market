@@ -52,6 +52,10 @@ public class Cart extends Div {
     private final String TOTAL_PRICE="Total Price:";
     private final String TOTAL_DISCOUNT="Total discount:";
     private final String ORIGINAL_TOTAL_PRICE="Original Total Price:";
+    public static final float ROW_HEIGHT = 120;
+    private static final float SUB_ROW_HEIGHT = 70;
+    private static final float HEADER_HEIGHT= 60;
+    private static final float FOOTER_HEIGHT= 0;
 
 
     ShoppingService shoppingService;
@@ -220,9 +224,11 @@ public class Cart extends Div {
                             //updateTotalPrice(priceSpan,baskets);
                             updateAside( baskets);
                             grid.setItems(baskets);
-                        });minusAmount.getStyle().set("color", "red");
+                        });
+                        minusAmount.getStyle().set("color", "red");
+
                         return minusAmount;
-                    });
+                    }).setWidth("80px");
 
 
                     //Add Button
@@ -246,12 +252,12 @@ public class Cart extends Div {
                             grid.setItems(baskets);
                         });
                         return addAmount;
-                    });
+                    }).setWidth("80px");
 
 
 
                     addColumnToGrid(subGrid, CartItemInfoService::getAmount,"Amount");
-                    addColumnToGrid(subGrid, CartItemInfoService::getItemID,"ID");
+                    addColumnToGrid(subGrid, CartItemInfoService::getItemName,"Name");
                     addColumnToGrid(subGrid, CartItemInfoService::getPercent,"Percent");
 
                     addColumnToGrid(subGrid, CartItemInfoService::getOriginalPrice,"Original Price");
@@ -298,11 +304,7 @@ public class Cart extends Div {
                 .sum();
         float height=0;
         if (mainRows > 0){
-            float rowHeight = 100;
-            float subRowHeight = 80;
-            float headerHeight = 50;
-            float footerHeight = 0;
-            height =mainRows*rowHeight+( headerHeight + footerHeight + subRowHeight * subRows);
+            height =mainRows*ROW_HEIGHT+( HEADER_HEIGHT + FOOTER_HEIGHT + SUB_ROW_HEIGHT * subRows);
         }
         grid.setMinHeight(height, Unit.PIXELS);
         grid.setHeight(height, Unit.PIXELS);
@@ -328,10 +330,7 @@ public class Cart extends Div {
             throw new IllegalArgumentException("Number of rows must be positive");
         }
         else if (rows > 0){
-            float rowHeight = 70;
-            float headerHeight = 30;
-            float footerHeight = 0;
-            height = headerHeight + footerHeight + rowHeight * rows;
+            height = HEADER_HEIGHT + FOOTER_HEIGHT + SUB_ROW_HEIGHT * rows;
         }
 
         grid.setHeight(height, Unit.PIXELS);
@@ -348,7 +347,7 @@ public class Cart extends Div {
     private Aside createAside(Span totalPriceSpan) {
         Aside aside = new Aside();
         aside.addClassNames(LumoUtility.Background.CONTRAST_5, LumoUtility.BoxSizing.BORDER, LumoUtility.Padding.LARGE,
-                LumoUtility.BorderRadius.LARGE, LumoUtility.MaxWidth.SCREEN_MEDIUM,
+                LumoUtility.BorderRadius.LARGE, LumoUtility.MaxWidth.SCREEN_SMALL,
                 LumoUtility.Position.STICKY);
         aside.getStyle().set("top", "0");
         aside.getStyle().set("z-index", "1"); // set a high value for z-index for sticky!
@@ -356,9 +355,7 @@ public class Cart extends Div {
         headerSection.addClassNames(LumoUtility.Display.FLEX, LumoUtility.AlignItems.CENTER, LumoUtility.JustifyContent.BETWEEN, LumoUtility.Margin.Bottom.MEDIUM);
         H3 header = new H3("Order");
         header.addClassNames(LumoUtility.Margin.NONE);
-        Button edit = new Button("Edit");
-        edit.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-        headerSection.add(header, edit);
+        headerSection.add(header);
 
         UnorderedList ul = new UnorderedList();
         ul.addClassNames(LumoUtility.MaxWidth.SCREEN_MEDIUM,LumoUtility.ListStyleType.NONE, LumoUtility.Margin.NONE, LumoUtility.Padding.NONE, LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN, LumoUtility.Gap.MEDIUM);
