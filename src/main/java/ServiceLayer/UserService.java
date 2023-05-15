@@ -4,6 +4,7 @@ import BusinessLayer.Log;
 import BusinessLayer.Market;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.Message;
+import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
 import BusinessLayer.Users.RegisteredUser;
 import ServiceLayer.Objects.ChatService;
 import ServiceLayer.Objects.MessageService;
@@ -348,5 +349,16 @@ public class UserService {
         catch(Exception e){
             return new Result<>(true, e.getMessage());
         }
+    }
+
+    public Result<Boolean> listenToNotifications(int userId, NotificationObserver listener){
+        try{
+            market.getUserFacade().listenToNotifications(userId, listener);
+            return new Result<>(false, "good");
+        }
+        catch(Exception e){
+            return new Result<>(true, e.getMessage());
+        }
+
     }
 }

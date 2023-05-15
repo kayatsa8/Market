@@ -39,7 +39,7 @@ public class UserMailboxTests {
         UserMailbox mailbox1 = user1.getMailbox();
 
         NotificationObserver observer = new SimpleObserver();
-        mailbox1.listen(observer);
+        observer.listenToNotifications(user1.getId());
 
         user2.sendMessage(user1.getId(), "Hello There!");
 

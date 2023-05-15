@@ -1,5 +1,6 @@
 package BusinessLayer.NotificationSystem.Observer;
 
+import BusinessLayer.Market;
 import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
 
 public class SimpleObserver implements NotificationObserver {
@@ -15,7 +16,23 @@ public class SimpleObserver implements NotificationObserver {
         givenNotification = notification;
     }
 
+    @Override
+    public void listenToNotifications(int userId) throws Exception {
+        Market.getInstance().getUserFacade().listenToNotifications(userId, this);
+    }
+
     public String getGivenNotification(){
         return givenNotification;
     }
 }
+
+
+/*
+    1) make all windows implement NotificationObserver
+    2)
+
+    Notification notification = Notification
+        .show("New project plan available");
+    notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+
+ */

@@ -5,6 +5,7 @@ import BusinessLayer.Log;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.Message;
+import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
@@ -352,5 +353,13 @@ public class UserFacade {
         }
 
         users.get(userId).removeCouponFromCart(coupon);
+    }
+
+    public void listenToNotifications(int userId, NotificationObserver listener) throws Exception {
+        if(!userExists(userId)){
+            throw new Exception("No such user!");
+        }
+
+        users.get(userId).listenToNotifications(listener);
     }
 }
