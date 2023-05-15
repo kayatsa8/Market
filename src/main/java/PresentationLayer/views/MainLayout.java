@@ -153,7 +153,7 @@ public class MainLayout extends AppLayout {
     public void setUserView() {
         logoutBtn.setVisible(true);
         systemAdmin.setVisible(userService.isAdmin(currUser.getCurrUserID()));
-        marketOwnerOrManager.setVisible(userService.isOwnerOrManager(currUser.getCurrUserID()));
+        marketOwnerOrManager.setVisible(true);
         loginAndRegister.setVisible(false);
         user.setText(getUserName());
     }
