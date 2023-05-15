@@ -1,6 +1,7 @@
 package PresentationLayer.views;
 
 
+import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
 import PresentationLayer.views.clients.ClientView;
 import PresentationLayer.views.loginAndRegister.UserPL;
 import PresentationLayer.views.storeManagement.StoreManagementView;
@@ -29,7 +30,7 @@ import static org.vaadin.lineawesome.LineAwesomeIcon.SIGN_OUT_ALT_SOLID;
 /**
  * The main view is a top-level placeholder for other views.
  */
-public class MainLayout extends AppLayout {
+public class MainLayout extends AppLayout implements NotificationObserver {
 
     private H2 viewTitle;
     private H2 user;
@@ -50,6 +51,14 @@ public class MainLayout extends AppLayout {
             userService=new UserService();
         } catch (Exception e) {
             printError("Error initialize userService:\n"+e.getMessage());
+        }
+        try{
+            listenToNotifications(currUser.getCurrUserID());
+        }
+        catch(Exception e){
+            System.out.println("\n\nERROR: MainLayout::MainLayout: " +
+                    e.getMessage() +
+                    "\n");
         }
         addHeaderContent();
         setGuestView();
@@ -169,6 +178,18 @@ public class MainLayout extends AppLayout {
         return title == null ? "" : title.value();
     }
 
+    @Override
+    public void notify(String notification) {
+        Notification systemNotification = Notification
+                .show(notification);
+        systemNotification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+    }
+
+    @Override
+    public void listenToNotifications(int userId) throws Exception {
+        userService.listenToNotifications(userId, this);
+    }
+  
     private void printSuccess(String msg) {
         Notification notification = Notification.show(msg, 2000, Notification.Position.BOTTOM_CENTER);
         notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
