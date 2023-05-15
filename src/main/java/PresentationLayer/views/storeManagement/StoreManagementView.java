@@ -8,7 +8,6 @@ import ServiceLayer.Objects.*;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
 import ServiceLayer.UserService;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
@@ -42,7 +41,6 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.lumo.Lumo;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 import org.apache.commons.lang3.text.WordUtils;
 import org.vaadin.lineawesome.LineAwesomeIcon;
@@ -72,11 +70,12 @@ public class StoreManagementView extends VerticalLayout {
     //uncomment
     boolean isStoreOwner;
     boolean isStoreManager;
+    private MainLayout mainLayout;
 
 
     public StoreManagementView() {
         setSpacing(false);
-
+        mainLayout = MainLayout.getMainLayout();
         H2 header = new H2("Store Owner/Manager View");
         header.addClassNames(Margin.Top.XLARGE, Margin.Bottom.MEDIUM);
         add(header);
@@ -91,16 +90,16 @@ public class StoreManagementView extends VerticalLayout {
         setSpacing(false);
 
         Result<Map<Integer, UserInfoService>> usersRes = userService.getAllRegisteredUsers();
-        Result<Map<Integer, StoreService>> storesIOwnRes = shoppingService.getStoresIOwn(PresentationLayer.views.MainLayout.getCurrUserID());
-        Result<Map<Integer, StoreService>> storesIManageRes = shoppingService.getStoresIManage(PresentationLayer.views.MainLayout.getCurrUserID());
+        Result<Map<Integer, StoreService>> storesIOwnRes = shoppingService.getStoresIOwn(mainLayout.getCurrUserID());
+        Result<Map<Integer, StoreService>> storesIManageRes = shoppingService.getStoresIManage(mainLayout.getCurrUserID());
 
 
         if (usersRes.isError() || storesIOwnRes.isError()) {
             printError("Problem occurred:\n"+ (usersRes.isError() ? usersRes.getMessage() : storesIOwnRes.getMessage()));
         }
         else {
-            isStoreOwner(MainLayout.getCurrUserID(), usersRes);
-            isStoreManager(MainLayout.getCurrUserID(), usersRes);
+            isStoreOwner(mainLayout.getCurrUserID(), usersRes);
+            isStoreManager(mainLayout.getCurrUserID(), usersRes);
 
             TabSheet mainTabSheet = new TabSheet();
             users = usersRes.getValue();
@@ -131,7 +130,7 @@ public class StoreManagementView extends VerticalLayout {
     private void createManagerInfoGrid(Accordion accordion) {
         //Name, Store, List of Permissions
         AccordionPanel managerInfo = new AccordionPanel("View Manager Permissions");
-        Map<Integer, StoreService> stores = shoppingService.getStoresIOwn(MainLayout.getCurrUserID()).getValue();
+        Map<Integer, StoreService> stores = shoppingService.getStoresIOwn(mainLayout.getCurrUserID()).getValue();
         Map<Integer, Integer> storeToManagerMap = new HashMap<>();
         for (StoreService store : stores.values()) {
             for (Integer managerID : store.getManagers().keySet()) {
@@ -154,7 +153,7 @@ public class StoreManagementView extends VerticalLayout {
     }
 
     private boolean isStoreOwner() {
-        Result<List<UserInfoService>> result = userService.getAllOwnersIDefined(PresentationLayer.views.MainLayout.getCurrUserID());
+        Result<List<UserInfoService>> result = userService.getAllOwnersIDefined(mainLayout.getCurrUserID());
         if (result.isError())
             return false;
         return result.getValue().size() != 0;
@@ -162,7 +161,7 @@ public class StoreManagementView extends VerticalLayout {
 
     private void updateStoresGrid() {
         Result<Map<Integer, UserInfoService>> usersRes = userService.getAllRegisteredUsers();
-        Result<Map<Integer, StoreService>> storesIOwnRes = shoppingService.getStoresIOwn(MainLayout.getCurrUserID());
+        Result<Map<Integer, StoreService>> storesIOwnRes = shoppingService.getStoresIOwn(mainLayout.getCurrUserID());
         if (usersRes.isError() || storesIOwnRes.isError()) {
             printError("Problem occurred:\n"+ (usersRes.isError() ? usersRes.getMessage() : storesIOwnRes.getMessage()));
         }
@@ -179,7 +178,7 @@ public class StoreManagementView extends VerticalLayout {
     private void addStoreIManageToStoresIOwn(Map<Integer, UserInfoService> allUsers) {
         List<Integer> storesIManage = new ArrayList<>();
         for(UserInfoService userInfoService: allUsers.values()){
-            if(userInfoService.getId() == MainLayout.getCurrUserID()){
+            if(userInfoService.getId() == mainLayout.getCurrUserID()){
                 storesIManage = userInfoService.getStoresIManage();
             }
         }
@@ -300,7 +299,7 @@ public class StoreManagementView extends VerticalLayout {
 
         Button saveButton = new Button("Add Store", e -> {
             dialog.close();
-            addStoreAction(name.getValue(), MainLayout.getCurrUserID());
+            addStoreAction(name.getValue(), mainLayout.getCurrUserID());
         });
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
@@ -369,7 +368,7 @@ public class StoreManagementView extends VerticalLayout {
         helperParagraph.getStyle().set("font-size","15px");
         removeManager.addContent(headerParagraph, helperParagraph);
 
-        Result<List<UserInfoService>> managersIDefinedRes = userService.getAllManagersIDefined(PresentationLayer.views.MainLayout.getCurrUserID());
+        Result<List<UserInfoService>> managersIDefinedRes = userService.getAllManagersIDefined(mainLayout.getCurrUserID());
         if(managersIDefinedRes.isError()){
             printError(managersIDefinedRes.getMessage());
         }
@@ -398,7 +397,7 @@ public class StoreManagementView extends VerticalLayout {
         helperParagraph.getStyle().set("font-size","15px");
         removeOwner.addContent(headerParagraph, helperParagraph);
 
-        Result<List<UserInfoService>> usersIDefinedRes = userService.getAllOwnersIDefined(PresentationLayer.views.MainLayout.getCurrUserID());
+        Result<List<UserInfoService>> usersIDefinedRes = userService.getAllOwnersIDefined(mainLayout.getCurrUserID());
         if(usersIDefinedRes.isError()){
             printError(usersIDefinedRes.getMessage());
         }
@@ -453,7 +452,7 @@ public class StoreManagementView extends VerticalLayout {
         int storeId = storeIdField.getValue();
 
         if(chosenUserId != -1){
-            Result<Boolean> result = userService.addOwner(PresentationLayer.views.MainLayout.getCurrUserID(), chosenUserId, storeId);
+            Result<Boolean> result = userService.addOwner(mainLayout.getCurrUserID(), chosenUserId, storeId);
 
             if(result.isError()){
                 printError("Error in add Owner:\n"+result.getMessage());
@@ -475,7 +474,7 @@ public class StoreManagementView extends VerticalLayout {
         int storeId = removeOwnerStoreField.getValue();
 
         if(chosenUserId != -1){
-            Result<Boolean> result = userService.removeOwner(PresentationLayer.views.MainLayout.getCurrUserID(), chosenUserId, storeId);
+            Result<Boolean> result = userService.removeOwner(mainLayout.getCurrUserID(), chosenUserId, storeId);
 
             if(result.isError()){
                 printError("Error in Remove Owner:\n"+result.getMessage());
@@ -498,7 +497,7 @@ public class StoreManagementView extends VerticalLayout {
         int storeId = storeIdField.getValue();
 
         if(chosenUserId != -1){
-            Result<Boolean> result = userService.addManager(PresentationLayer.views.MainLayout.getCurrUserID(), chosenUserId, storeId);
+            Result<Boolean> result = userService.addManager(mainLayout.getCurrUserID(), chosenUserId, storeId);
 
             if(result.isError()){
                 printError("Error in Adding Manager:\n"+result.getMessage());
@@ -523,7 +522,7 @@ public class StoreManagementView extends VerticalLayout {
 
         if(chosenUserId != -1 && removeManagerStoreField != null){
             int storeId = removeManagerStoreField.getValue();
-            Result<Boolean> result = userService.removeManager(PresentationLayer.views.MainLayout.getCurrUserID(), chosenUserId, storeId);
+            Result<Boolean> result = userService.removeManager(mainLayout.getCurrUserID(), chosenUserId, storeId);
 
             if(result.isError()){
                 printError("Error in Remove Manager:\n"+result.getMessage());
@@ -812,7 +811,7 @@ public class StoreManagementView extends VerticalLayout {
 
         dialog.setConfirmText("Open");
         dialog.setConfirmButtonTheme("success primary");
-        dialog.addConfirmListener(event -> reOpenStoreAction(getStoreIdOfSelectedRow(storesGrid), PresentationLayer.views.MainLayout.getCurrUserID()));
+        dialog.addConfirmListener(event -> reOpenStoreAction(getStoreIdOfSelectedRow(storesGrid), mainLayout.getCurrUserID()));
 
         add(dialog);
         dialog.open();
@@ -830,7 +829,7 @@ public class StoreManagementView extends VerticalLayout {
 
         dialog.setConfirmText("Close");
         dialog.setConfirmButtonTheme("error primary");
-        dialog.addConfirmListener(event -> closeStoreAction(getStoreIdOfSelectedRow(storesGrid), PresentationLayer.views.MainLayout.getCurrUserID()));
+        dialog.addConfirmListener(event -> closeStoreAction(getStoreIdOfSelectedRow(storesGrid), mainLayout.getCurrUserID()));
 
         add(dialog);
         dialog.open();
@@ -897,7 +896,7 @@ public class StoreManagementView extends VerticalLayout {
 
         int storeId = getStoreIdOfSelectedRow(storesGrid);
 
-        Result<List<ReceiptService>> result = shoppingService.getSellingHistoryOfStoreForManager(storeId, PresentationLayer.views.MainLayout.getCurrUserID());
+        Result<List<ReceiptService>> result = shoppingService.getSellingHistoryOfStoreForManager(storeId, mainLayout.getCurrUserID());
 
 
         if(result.isError()){
@@ -1939,9 +1938,9 @@ public class StoreManagementView extends VerticalLayout {
     }
 
     private void refreshUserGrids() {
-        Result<List<UserInfoService>> result1 = userService.getAllOwnersIDefined(PresentationLayer.views.MainLayout.getCurrUserID());
+        Result<List<UserInfoService>> result1 = userService.getAllOwnersIDefined(mainLayout.getCurrUserID());
         Result<Map<Integer, UserInfoService>> result2 = userService.getAllRegisteredUsers();
-        Result<List<UserInfoService>> result3 = userService.getAllManagersIDefined(PresentationLayer.views.MainLayout.getCurrUserID());
+        Result<List<UserInfoService>> result3 = userService.getAllManagersIDefined(mainLayout.getCurrUserID());
         if(result1.isError()||result1.getValue() == null){
             printError(result1.getMessage());
         }

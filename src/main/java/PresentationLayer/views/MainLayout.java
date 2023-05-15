@@ -18,7 +18,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.theme.lumo.LumoUtility;
@@ -34,34 +33,33 @@ public class MainLayout extends AppLayout {
 
     private H2 viewTitle;
     private H2 user;
-    public static UserService userService;
-    public static ShoppingService shoppingService;
-    private static UserPL currUser;
-    private static AppNavItem loginAndRegister;
-    private static AppNavItem systemAdmin;
-    private static AppNavItem marketOwnerOrManager;
+    public UserService userService;
+    public ShoppingService shoppingService;
+    private UserPL currUser;
+    private AppNavItem loginAndRegister;
+    private AppNavItem systemAdmin;
+    private AppNavItem marketOwnerOrManager;
 
-    private static Button logoutBtn;
-    private static AppNav nav;
+    private Button logoutBtn;
 
     public MainLayout() {
         setPrimarySection(Section.DRAWER);
         addDrawerContent();
-        currUser = UserPL.getInstance();
+        currUser = new UserPL();
         try {
             userService=new UserService();
         } catch (Exception e) {
             printError("Error initialize userService:\n"+e.getMessage());
         }
         addHeaderContent();
-
+        setGuestView();
     }
 
-    public static void setCurrUser(Integer value) {
+    public void setCurrUser(Integer value) {
         currUser.setCurrUserID(value);
     }
 
-    public static Integer getCurrUserID() {
+    public Integer getCurrUserID() {
         return currUser.getCurrUserID();
     }
 
@@ -78,7 +76,7 @@ public class MainLayout extends AppLayout {
         user.getStyle().set("padding", "15px");
 
 
-        nav = new AppNav();
+        AppNav nav = new AppNav();
         nav.addItem(new AppNavItem("My Cart", Cart.class, SHOPPING_CART_SOLID.create()));
         nav.getStyle().set("margin-left", "auto");
         nav.getStyle().set("padding", "15px");
@@ -145,7 +143,7 @@ public class MainLayout extends AppLayout {
         }
     }
 
-    public static void setGuestView() {
+    public void setGuestView() {
         logoutBtn.setVisible(false);
         systemAdmin.setVisible(false);
         marketOwnerOrManager.setVisible(false);
@@ -180,5 +178,11 @@ public class MainLayout extends AppLayout {
     private void printError(String errorMsg) {
         Notification notification = Notification.show(errorMsg, 2000, Notification.Position.BOTTOM_CENTER);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+    }
+
+    public static MainLayout getMainLayout() {
+        MainLayout mainLayout = (MainLayout) UI.getCurrent().getChildren().filter(component -> component.getClass() == MainLayout.class).findFirst().orElse(null);
+        assert mainLayout != null;
+        return mainLayout;
     }
 }

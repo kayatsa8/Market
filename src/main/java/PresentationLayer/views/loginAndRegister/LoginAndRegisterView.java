@@ -31,6 +31,7 @@ public class LoginAndRegisterView extends HorizontalLayout {
     private PasswordField passPF;
     private final int MIN_PASS_LENGTH=6;
     private UserService userService;
+    private MainLayout mainLayout;
 
     public LoginAndRegisterView() {
     /**Initialize*/
@@ -40,6 +41,7 @@ public class LoginAndRegisterView extends HorizontalLayout {
         catch (Exception e) {
             add("Problem initiating Store:( = "+e.getMessage());
         }
+        mainLayout = MainLayout.getMainLayout();
         addClassNames("checkout-form-view");
         addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN, LumoUtility.Height.FULL);
 
@@ -49,7 +51,6 @@ public class LoginAndRegisterView extends HorizontalLayout {
 
         content.add(createLoginForm());
         add(content);
-
     }
     /**
      * Main Section - contain all sub Sections
@@ -138,15 +139,14 @@ public class LoginAndRegisterView extends HorizontalLayout {
         return footer;
     }
     private void handleButtonClick(String action, BiFunction<String, String, Result<Integer>> userServiceMethod) {
+        mainLayout = MainLayout.getMainLayout();
         Result<Integer> result = userServiceMethod.apply(userNameTF.getValue(), passPF.getValue());
         String msg = getResultMsg(result);
         if (!result.isError()){
             //set user ID
-            MainLayout.setCurrUser(result.getValue());
+            mainLayout.setCurrUser(result.getValue());
             //show that id changes
-            printSuccess(action + " " + msg+"\nid="+ MainLayout.getCurrUserID());
-            MainLayout mainLayout = (MainLayout) UI.getCurrent().getChildren().filter(component -> component.getClass() == MainLayout.class).findFirst().orElse(null);
-            assert mainLayout != null;
+            printSuccess(action + " " + msg+"\nid="+ mainLayout.getCurrUserID());
             mainLayout.setUserView();
             UI.getCurrent().navigate(ClientView.class);
         }
