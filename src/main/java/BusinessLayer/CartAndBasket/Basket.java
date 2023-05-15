@@ -201,12 +201,19 @@ public class Basket {
     public void updateBasketWithCoupons(List<String> coupons) throws Exception {
         List<CartItemInfo> updatedBasketItems = getItemsInfo();
         store.updateBasket(updatedBasketItems, coupons);
+        checkIfPurchaseIsValid(updatedBasketItems);
         updateBasketByCartItemInfoList(updatedBasketItems);
     }
 
-    public void updateBasketByCartItemInfoList(List<CartItemInfo> updatedBasketItems){
+    private void updateBasketByCartItemInfoList(List<CartItemInfo> updatedBasketItems) {
         for(CartItemInfo info : updatedBasketItems){
             items.get(info.getItemID()).info = info;
+        }
+    }
+
+    private void checkIfPurchaseIsValid(List<CartItemInfo> updatedBasketItems) throws Exception {
+        if(!store.checkIfPurchaseIsValid(updatedBasketItems)){
+            throw new Exception("ERROR: Basket::checkIfPurchaseIsValid: the purchase is not valid!");
         }
     }
 
