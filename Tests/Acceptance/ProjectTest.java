@@ -31,6 +31,9 @@ public abstract class ProjectTest {
     }
     protected static int user7SystemManagerId = -1;
 
+    public Bridge getBridge(){
+        return bridge;
+    }
 //
 //
 //    protected static int user1GuestId = -1;         //guest - active
@@ -375,18 +378,21 @@ public abstract class ProjectTest {
         return this.bridge.askForSupply(userId, items, supplyService);
     }
 
-    protected boolean addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale){
+    protected int addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale){
         return this.bridge.addVisibleItemsDiscount(storeID, itemsIDs, percent, endOfSale);
     }
 
-    protected  boolean addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale){
+    protected  int addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale){
         return this.bridge.addVisibleCategoryDiscount(storeID, category, percent, endOfSale);
     }
 
 
-    protected boolean addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale){
+    protected int addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale){
         return this.bridge.addConditionalStoreDiscount(storeID, percent, endOfSale);
     }
 
 
+    protected int addHiddenStoreDiscount(int storeId, double percent, String coupon, Calendar calendar) {
+        return this.bridge.addHiddenStoreDiscount(storeId, percent, coupon, calendar);
+    }
 }

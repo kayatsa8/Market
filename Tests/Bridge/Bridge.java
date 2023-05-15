@@ -1,5 +1,7 @@
 package Bridge;
 
+import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
+import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -425,9 +427,19 @@ public interface Bridge {
     List<MessageService> watchNotReadMessages(int id) throws Exception;
 
 
-    boolean addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale);
+    int addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale);
 
-    boolean addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale);
+    int addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale);
 
-    boolean addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale);
+    int addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale);
+
+    int addHiddenStoreDiscount(int storeId, double percent, String coupon, Calendar calender);
+
+    RuleService addDiscountBasketTotalPriceRule(int storeID, int discountID, double minimumPrice);
+
+    RuleService addDiscountQuantityRule(int storeID, int discountID, Map<Integer, Integer> itemsAmounts);
+
+    int wrapDiscounts(int storeID, List<Integer> discountsIDsToWrap, NumericComposites numericCompositeEnum);
+
+    RuleService addDiscountComposite(int storeID, int discountID, LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs);
 }

@@ -1,13 +1,16 @@
 package Acceptance;
 
+import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
+import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
+import ServiceLayer.Objects.RuleService;
 import ServiceLayer.Result;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
+
 import static org.junit.Assert.*;
 
 public class DiscountsTests extends ProjectTest{
@@ -35,8 +38,8 @@ public class DiscountsTests extends ProjectTest{
         ids.add(item2Id);
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.HOUR_OF_DAY, 4);
-        boolean added = this.addVisibleItemsDiscount(store2Id, ids, 50, calendar);
-        assertTrue(added);
+        int id = this.addVisibleItemsDiscount(store2Id, ids, 50, calendar);
+        assertTrue(id >= 0);
     }
 
 
@@ -46,8 +49,8 @@ public class DiscountsTests extends ProjectTest{
         ids.add(-1);
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.HOUR_OF_DAY, 4);
-        boolean added = this.addVisibleItemsDiscount(store2Id, ids, 50, calendar);
-        assertFalse(added);
+        int id = this.addVisibleItemsDiscount(store2Id, ids, 50, calendar);
+        assertTrue(id >= 0);
     }
 
 
@@ -57,8 +60,8 @@ public class DiscountsTests extends ProjectTest{
         ids.add(item1Id);
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.HOUR_OF_DAY, -4);
-        boolean added = this.addVisibleItemsDiscount(store2Id, ids, 50, calendar);
-        assertFalse(added);
+        int id = this.addVisibleItemsDiscount(store2Id, ids, 50, calendar);
+        assertTrue(id < 0);
     }
 
 
@@ -66,16 +69,16 @@ public class DiscountsTests extends ProjectTest{
     public void addVisibleCategoryDiscounts_Valid(){
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.HOUR_OF_DAY, 4);
-        boolean added = this.addVisibleCategoryDiscount(store2Id, "Books", 40, calendar);
-        assertTrue(added);
+        int id = this.addVisibleCategoryDiscount(store2Id, "Books", 40, calendar);
+        assertTrue(id >= 0);
     }
 
     @Test
-    public void addVisibleCategoryDiscounts_NonValidCategory(){
+    public void addVisibleCategoryDiscounts_NonValidStore(){
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.HOUR_OF_DAY, 4);
-        boolean added = this.addVisibleCategoryDiscount(store2Id, "NotValidCategory", 40, calendar);
-        assertFalse(added);
+        int id = this.addVisibleCategoryDiscount(-1, "NotValidCategory", 40, calendar);
+        assertTrue(id < 0);
     }
 
 
@@ -83,25 +86,106 @@ public class DiscountsTests extends ProjectTest{
     public void addConditionalStoreDiscounts_Valid(){
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.HOUR_OF_DAY, 4);
-        boolean added = this.addConditionalStoreDiscount(store2Id,40, calendar);
-        assertTrue(added);
+        int id = this.addConditionalStoreDiscount(store2Id,40, calendar);
+        assertTrue(id >= 0);
 
-        //discountId = this.addConditionalStoreDiscount(store2Id,40, calendar);
-        assertTrue(discountId == -1); //change it to !=
     }
 
-    //do here test of conditionalStore and add Rules, but wait for amir's PR
+   @Test
+   public void addHiddenStoreDiscount_Valid(){
+       Calendar calendar = Calendar.getInstance();
+       calendar.add(Calendar.HOUR_OF_DAY, 4);
+       int id = this.addHiddenStoreDiscount(store2Id, 50, "GG", calendar);
+       assertTrue(id >= 0);
+   }
+
+   @Test
+   public void addDiscountBasketTotalPriceRule_Valid(){
+       Calendar calendar = Calendar.getInstance();
+       calendar.add(Calendar.HOUR_OF_DAY, 4);
+       int id = this.addConditionalStoreDiscount(store2Id,40, calendar);
+
+       RuleService rule = getBridge().addDiscountBasketTotalPriceRule(store2Id, id, 70);
+       assertTrue(rule.getId() > 0);
+       assertTrue(rule.getInfo().contains("total price"));
+   }
 
 
+    @Test
+    public void wrap2DiscountsMAX_Valid(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.HOUR_OF_DAY, 4);
+        int id = this.addHiddenStoreDiscount(store2Id, 40, "GG", calendar);
+        int id2 = this.addHiddenStoreDiscount(store2Id, 50, "GG", calendar);
+
+        int newDiscountId = getBridge().wrapDiscounts(store2Id,Arrays.asList(id2, id) , NumericComposites.MAX);
+        assertTrue(newDiscountId > 0);
+    }
 
 
+    @Test
+    public void wrap2DiscountsMIN_Valid(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.HOUR_OF_DAY, 4);
+        int id = this.addHiddenStoreDiscount(store2Id, 40, "GG", calendar);
+        int id2 = this.addHiddenStoreDiscount(store2Id, 50, "GG", calendar);
+
+        int newDiscountId = getBridge().wrapDiscounts(store2Id,Arrays.asList(id2, id) , NumericComposites.MIN);
+        assertTrue(newDiscountId > 0);
+    }
+
+    @Test
+    public void wrap2DiscountsADD_Valid(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.HOUR_OF_DAY, 4);
+        int id = this.addHiddenStoreDiscount(store2Id, 40, "GG", calendar);
+        int id2 = this.addHiddenStoreDiscount(store2Id, 50, "GG", calendar);
+
+        int newDiscountId = getBridge().wrapDiscounts(store2Id,Arrays.asList(id2, id) , NumericComposites.ADD);
+        assertTrue(newDiscountId > 0);
+    }
 
 
+    @Test
+    public void addRuleCompositeAND_Valid(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.HOUR_OF_DAY, 4);
+        int discountId = this.addConditionalStoreDiscount(store2Id, 40, calendar);
+
+        RuleService rule1 = getBridge().addDiscountBasketTotalPriceRule(store2Id, discountId, 30);
+        Map<Integer, Integer> map = new HashMap<>();
+        map.put(item1Id, 200);
+        RuleService rule2 = getBridge().addDiscountQuantityRule(store2Id, discountId, map);
+        assertTrue(rule1.getId() >= 0);
+        assertTrue(rule2.getId() >= 0);
+
+        RuleService newRule = getBridge().addDiscountComposite(store2Id, discountId, LogicalComposites.AND, Arrays.asList(rule2.getId(), rule1.getId()));
+        assertTrue(newRule.getId() > 0);
+        assertTrue(newRule.getInfo().contains(rule1.getInfo()));
+        assertTrue(newRule.getInfo().contains(rule2.getInfo().strip()));
+        assertTrue(newRule.getInfo().contains("&"));
+    }
 
 
+    @Test
+    public void addRuleCompositeOR_Valid(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.HOUR_OF_DAY, 4);
+        int discountId = this.addConditionalStoreDiscount(store2Id, 40, calendar);
 
+        RuleService rule1 = getBridge().addDiscountBasketTotalPriceRule(store2Id, discountId, 30);
+        Map<Integer, Integer> map = new HashMap<>();
+        map.put(item1Id, 200);
+        RuleService rule2 = getBridge().addDiscountQuantityRule(store2Id, discountId, map);
+        assertTrue(rule1.getId() >= 0);
+        assertTrue(rule2.getId() >= 0);
 
-
+        RuleService newRule = getBridge().addDiscountComposite(store2Id, discountId, LogicalComposites.OR, Arrays.asList(rule2.getId(), rule1.getId()));
+        assertTrue(newRule.getId() > 0);
+        assertTrue(newRule.getInfo().contains(rule1.getInfo()));
+        assertTrue(newRule.getInfo().contains(rule2.getInfo().strip()));
+        assertTrue(newRule.getInfo().contains("|"));
+    }
 
 
 
@@ -130,9 +214,9 @@ public class DiscountsTests extends ProjectTest{
         if(user2LoggedInId != -1){
             return;
         }
-        user2LoggedInId = setUser("User2UserPurchase","User2!", MEMBER, LOGGED);
-        user5ManagerOfStore2ToBeRemoved = setUser("User5UserPurchase", "User5!", MEMBER, NOT_LOGGED);
-        user6OwnerOfStore2 = setUser("User6UserPurchase", "User6!", MEMBER, LOGGED);
+        user2LoggedInId = setUser("User2DiscountClass","User2!", MEMBER, LOGGED);
+        user5ManagerOfStore2ToBeRemoved = setUser("User5DiscountClass", "User5!", MEMBER, NOT_LOGGED);
+        user6OwnerOfStore2 = setUser("User6DiscountClass", "User6!", MEMBER, LOGGED);
         store2Id = createStore(user2LoggedInId, "Store2"); //store is open
         store2ClosedId = createStore(user2LoggedInId, "Store22"); //store is close
         closeStore(user2LoggedInId, store2ClosedId);

@@ -1,9 +1,12 @@
 package Bridge;
 
+import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
+import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
 import ServiceLayer.Objects.*;
+import ServiceLayer.Result;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -415,25 +418,65 @@ public class ProxyBridge implements Bridge {
 
 
     @Override
-    public boolean addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale) {
+    public int addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale) {
         if (real != null) {
             return real.addVisibleItemsDiscount(storeID, itemsIDs, percent, endOfSale);
         }
-        return false;
+        return -1;
     }
 
-    public boolean addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale) {
+    public int addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale) {
         if (real != null) {
             return real.addVisibleCategoryDiscount(storeID, category, percent, endOfSale);
         }
-        return false;
+        return -1;
     }
 
-    public boolean addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale){
+    public int addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale){
         if (real != null) {
             return real.addConditionalStoreDiscount(storeID, percent, endOfSale);
         }
-        return false;
+        return -1;
+    }
+
+    @Override
+    public int addHiddenStoreDiscount(int storeId, double percent, String coupon, Calendar calender) {
+        if (real != null) {
+            return real.addHiddenStoreDiscount(storeId, percent, coupon, calender);
+        }
+        return -1;
+    }
+
+    @Override
+    public RuleService addDiscountBasketTotalPriceRule(int storeID, int discountID, double minimumPrice){
+        if(real != null){
+            return real.addDiscountBasketTotalPriceRule(storeID, discountID, minimumPrice);
+        }
+        return null;
+    }
+
+    @Override
+    public RuleService addDiscountQuantityRule(int storeID, int discountID, Map<Integer, Integer> itemsAmounts){
+        if(real != null){
+            return real.addDiscountQuantityRule(storeID, discountID, itemsAmounts);
+        }
+        return null;
+    }
+
+    @Override
+    public int wrapDiscounts(int storeID, List<Integer> discountsIDsToWrap, NumericComposites numericCompositeEnum){
+        if(real != null){
+            return real.wrapDiscounts(storeID, discountsIDsToWrap, numericCompositeEnum);
+        }
+        return -1;
+    }
+
+    @Override
+    public RuleService addDiscountComposite(int storeID, int discountID, LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs){
+        if(real != null){
+            return real.addDiscountComposite(storeID, discountID, logicalComposite, logicalComponentsIDs);
+        }
+        return null;
     }
 
 }

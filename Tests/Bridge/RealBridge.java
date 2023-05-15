@@ -1,6 +1,8 @@
 package Bridge;
 
 
+import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
+import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -254,25 +256,59 @@ public class RealBridge implements Bridge{
     }
 
     @Override
-    public boolean addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale) {
-        Result<Boolean> result = shoppingService.addVisibleItemsDiscount(storeID, itemsIDs, percent, endOfSale);
-        return handleBoolResult(result);
+    public int addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale) {
+        Result<Integer> result = shoppingService.addVisibleItemsDiscount(storeID, itemsIDs, percent, endOfSale);
+        return handleIntResult(result);
     }
 
-    public boolean addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale){
-        Result<Boolean> result = shoppingService.addVisibleCategoryDiscount(storeID, category, percent, endOfSale);
-        return handleBoolResult(result);
+    public int addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale){
+        Result<Integer> result = shoppingService.addVisibleCategoryDiscount(storeID, category, percent, endOfSale);
+        return handleIntResult(result);
     }
 
-    public boolean addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale){
-        Result<Boolean> result = shoppingService.addConditionalStoreDiscount(storeID, percent, endOfSale);
-        return handleBoolResult(result);
+    public int addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale){
+        Result<Integer> result = shoppingService.addConditionalStoreDiscount(storeID, percent, endOfSale);
+        return handleIntResult(result);
     }
 
+    @Override
+    public int addHiddenStoreDiscount(int storeId, double percent, String coupon, Calendar calender) {
+        Result<Integer> result = shoppingService.addHiddenStoreDiscount(storeId, percent, coupon, calender);
+        return handleIntResult(result);
+    }
 
+    @Override
+    public RuleService addDiscountBasketTotalPriceRule(int storeID, int discountID, double minimumPrice){
+        Result<RuleService> result = shoppingService.addDiscountBasketTotalPriceRule(storeID, discountID, minimumPrice);
+        if(result != null){
+            return result.getValue();
+        }
+        return null;
+    }
 
+    @Override
+    public RuleService addDiscountQuantityRule(int storeID, int discountID, Map<Integer, Integer> itemsAmounts){
+        Result<RuleService> result = shoppingService.addDiscountQuantityRule(storeID, discountID, itemsAmounts);
+        if(result != null){
+            return result.getValue();
+        }
+        return null;
+    }
 
+    @Override
+    public int wrapDiscounts(int storeID, List<Integer> discountsIDsToWrap, NumericComposites numericCompositeEnum){
+        Result<Integer> result = shoppingService.wrapDiscounts(storeID, discountsIDsToWrap, numericCompositeEnum);
+        return handleIntResult(result);
+    }
 
+    @Override
+    public RuleService addDiscountComposite(int storeID, int discountID, LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs){
+        Result<RuleService> result = shoppingService.addDiscountComposite(storeID, discountID, logicalComposite, logicalComponentsIDs);
+        if(result != null){
+            return result.getValue();
+        }
+        return null;
+    }
 
 
     private boolean handleBoolResult(Result<Boolean> result) {
@@ -337,7 +373,6 @@ public class RealBridge implements Bridge{
 
     @Override
     public boolean removeStoreManager(int storeId, int storeOwnerId, int removeUserId) {
-        /** NotForVersion1 */
         Result<Boolean> result = userService.removeManager(storeOwnerId, removeUserId, storeId);
         return handleBoolResult(result);
     }
@@ -345,21 +380,18 @@ public class RealBridge implements Bridge{
 
     @Override
     public boolean removeStoreOwner(int storeId, int storeOwnerId, int newStoreOwnerId) {
-        /** NotForVersion1 */
         Result<Boolean> result = userService.removeOwner(storeOwnerId, newStoreOwnerId, storeId);
         return handleBoolResult(result);
     }
 
     @Override
     public boolean closeStorePermanently(int storeManagerId, int storeId) {
-        /** NotForVersion1 */
         Result<Boolean> result = shoppingService.closeStorePermanently(storeManagerId, storeId);
         return handleBoolResult(result);
     }
 
     @Override
     public boolean reopenStore(int userId, int storeId) {
-        /** NotForVersion1 */
         Result<Boolean> result = shoppingService.reopenStore(userId, storeId);
         return handleBoolResult(result);
     }
