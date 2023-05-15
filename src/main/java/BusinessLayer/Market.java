@@ -570,4 +570,8 @@ public class Market {
     public Basket removeBasketFromCart(int userID, int storeID) throws Exception {
         return userFacade.removeBasketFromCart(userID, storeID);
     }
+
+    public Basket removeBasketFromCart(int userID, int storeID) throws Exception {
+        return userFacade.removeBasketFromCart(userID, storeID);
+    }
 }

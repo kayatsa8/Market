@@ -79,6 +79,7 @@ public class Basket {
 
         if(!store.isItemInCatalog(item.getItemID())){
             throw new Exception("ERROR: Basket::addItemToCart: the item is not in the store!");
+            //throw new Exception("ERROR: Basket::addItemToCart: the item is already in the basket!");
         }
     }
 

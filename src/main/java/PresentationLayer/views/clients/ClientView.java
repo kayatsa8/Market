@@ -331,7 +331,4 @@ class ValidationMessage extends HorizontalLayout implements HasText {
         span.setText(text);
         this.setVisible(text != null && !text.isEmpty());
     }
-
-
 }
-
