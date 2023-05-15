@@ -1,23 +1,21 @@
 package BusinessLayer.NotificationSystem;
 
+import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
 import BusinessLayer.NotificationSystem.Repositories.ChatRepository;
-import BusinessLayer.NotificationSystem.Repositories.NotReadMessagesRepository;
-import BusinessLayer.NotificationSystem.Repositories.ReadMessagesRepository;
-import BusinessLayer.NotificationSystem.Repositories.SentMessagesRepository;
 import BusinessLayer.Users.RegisteredUser;
-import jdk.jshell.spi.ExecutionControl;
-
-import java.util.ArrayList;
 
 public class UserMailbox extends Mailbox {
 
     private final RegisteredUser owner;
+    private NotificationObserver listener;
+
 
     public UserMailbox(RegisteredUser _owner, NotificationHub _hub){
         owner = _owner;
         ownerID = owner.getId();
         chats = new ChatRepository();
         hub = _hub;
+        listener = null;
 
 
 //        notReadMessages = new NotReadMessagesRepository();
@@ -25,9 +23,13 @@ public class UserMailbox extends Mailbox {
 //        sentMessages = new SentMessagesRepository();
     }
 
+    public void listen(NotificationObserver _listener){
+        listener = _listener;
+    }
+
     @Override
     public void notifyOwner() {
-        // TODO: How to do this?
+        listener.notify("A new message is wait for you!");
     }
 
 }
