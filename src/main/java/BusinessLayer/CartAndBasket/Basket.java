@@ -72,6 +72,10 @@ public class Basket {
             //LOG
             throw new Exception("ERROR: Basket::addItemToCart: the item is already in the basket!");
         }
+
+        if(!store.isItemInCatalog(item.getItemID())){
+            throw new Exception("ERROR: Basket::addItemToCart: the item is not in the store!");
+        }
     }
 
     private void validateChangeItemQuantity(int itemID, int quantity) throws Exception {
@@ -194,16 +198,22 @@ public class Basket {
         return items.containsKey(itemID);
     }
 
-    public void updateBasketWithCoupons(List<String> coupons) throws Exception
-    {
+    public void updateBasketWithCoupons(List<String> coupons) throws Exception {
         List<CartItemInfo> updatedBasketItems = getItemsInfo();
         store.updateBasket(updatedBasketItems, coupons);
+        checkIfPurchaseIsValid(updatedBasketItems);
         updateBasketByCartItemInfoList(updatedBasketItems);
     }
 
-    public void updateBasketByCartItemInfoList(List<CartItemInfo> updatedBasketItems){
+    private void updateBasketByCartItemInfoList(List<CartItemInfo> updatedBasketItems) {
         for(CartItemInfo info : updatedBasketItems){
             items.get(info.getItemID()).info = info;
+        }
+    }
+
+    private void checkIfPurchaseIsValid(List<CartItemInfo> updatedBasketItems) throws Exception {
+        if(!store.checkIfPurchaseIsValid(updatedBasketItems)){
+            throw new Exception("ERROR: Basket::checkIfPurchaseIsValid: the purchase is not valid!");
         }
     }
 

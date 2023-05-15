@@ -156,6 +156,7 @@ public class Cart {
      */
     public void empty(){
         baskets.clear();
+        coupons.clear();
     }
 
     public double calculateTotalPrice(){
@@ -200,8 +201,7 @@ public class Cart {
         updateBasketsWithCoupons();
     }
 
-    private void updateBasketsWithCoupons() throws Exception
-    {
+    private void updateBasketsWithCoupons() throws Exception {
         for(Basket basket : baskets.values()){
             basket.updateBasketWithCoupons(coupons);
         }

@@ -44,8 +44,10 @@ public class CartBasketTests {
         userFacade = market.getUserFacade();
         int user1ID = market.register("storeOwnerCartTests", "111111");
         storeOwner = userFacade.getRegisteredUser(user1ID);
+        userFacade.logIn(storeOwner.getUsername(), "111111");
         int user2ID = market.register("clientCartTests", "123456");
         client = userFacade.getRegisteredUser(user2ID);
+        userFacade.logIn(client.getUsername(), "123456");
         int store1ID = market.addStore(storeOwner.getId(), "store1");
         store1 = market.getStoreInfo(store1ID);
         item1 = market.addItemToStore(store1ID, "1", 2, "Books", 1);
@@ -79,13 +81,13 @@ public class CartBasketTests {
 
             //BAD
             //TODO: add after merge
-//            try{
-//                cart.addItem(store1, item3, 3);
-//                fail("The cart added an item of one store to another.");
-//            }
-//            catch (Exception e){
-//                assertEquals("ERROR! requested item is not in store.", e.getMessage());
-//            }
+            try{
+                cart.addItem(store1, item3, 3);
+                fail("The cart added an item of one store to another.");
+            }
+            catch (Exception e){
+                assertEquals("ERROR: Basket::addItemToCart: the item is not in the store!", e.getMessage());
+            }
 
             try{
                 cart.addItem(store2, item4, -17);
