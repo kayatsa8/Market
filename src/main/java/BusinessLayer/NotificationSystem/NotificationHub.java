@@ -9,33 +9,34 @@ import BusinessLayer.Users.RegisteredUser;
 
 /**
  * In order to register to the notification system:
- * NotificationHub.getInstance().registerToMailService(this);
+ * Market.getInstance().getNotificationHub().registerToMailService(this);
  */
 public class NotificationHub {
 
-    private static final Object instanceLock = new Object();
+    //private static final Object instanceLock = new Object();
     // class attributes
-    private static NotificationHub instance = null;
+    //private static NotificationHubImpl instance = null;
+
     // fields
     //private final ConcurrentHashMap<Integer, Mailbox> mailboxes; // <ID, Mailbox>
     private final MailboxesRepository mailboxes;
 
 
     // object methods
-    private NotificationHub() {
+    public NotificationHub() {
         mailboxes = new MailboxesRepository();
         Log.log.info("The notification hub has started successfully.");
     }
 
     // class methods
-    public static NotificationHub getInstance() {
-        synchronized (instanceLock) {
-            if (instance == null) {
-                instance = new NotificationHub();
-            }
-        }
-        return instance;
-    }
+//    public static NotificationHubImpl getInstance() {
+//        synchronized (instanceLock) {
+//            if (instance == null) {
+//                instance = new NotificationHubImpl();
+//            }
+//        }
+//        return instance;
+//    }
 
     public MailboxesRepository getMailboxes() {
         return mailboxes;
@@ -47,7 +48,7 @@ public class NotificationHub {
             Log.log.warning("ERROR: NotificationHub::registerToMailService: the user " + userID + " is already registered!");
             throw new Exception("NotificationHub::registerToMailService: the user " + userID + " is already registered!");
         }
-        UserMailbox mailbox = new UserMailbox(user);
+        UserMailbox mailbox = new UserMailbox(user, this);
         mailboxes.putIfAbsent(userID, mailbox);
 
         Log.log.info("NotificationHub::registerToMailService: user "
@@ -61,7 +62,7 @@ public class NotificationHub {
             Log.log.warning("NotificationHub::registerToMailService: the store " + storeID + " is already registered!");
             throw new Exception("NotificationHub::registerToMailService: the store " + storeID + " is already registered!");
         }
-        StoreMailbox mailbox = new StoreMailbox(store);
+        StoreMailbox mailbox = new StoreMailbox(store, this);
         mailboxes.putIfAbsent(storeID, mailbox);
 
         Log.log.info("NotificationHub::registerToMailService: store " + store.getStoreID()
@@ -104,9 +105,9 @@ public class NotificationHub {
             throw new Exception("NotificationHub::passMessage: the receiver is not registered!");
         }
 
-        if (message.getTitle() == null || message.getTitle().isBlank()) {
-            throw new Exception("NotificationHub::passMessage: the title of the message is invalid!");
-        }
+//        if (message.getTitle() == null || message.getTitle().isBlank()) {
+//            throw new Exception("NotificationHub::passMessage: the title of the message is invalid!");
+//        }
 
         if (message.getContent() == null || message.getContent().isBlank()) {
             throw new Exception("NotificationHub::passMessage: the content of the message is invalid!");

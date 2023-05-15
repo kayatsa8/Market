@@ -75,7 +75,7 @@ public class StoreService {
                 return "Close";
             }
             case PERMANENTLY_CLOSE -> {
-                return "Permanently close";
+                return "Permanently closed";
             }
         }
         return "";

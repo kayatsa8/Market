@@ -1,26 +1,37 @@
 package PresentationLayer.views.systemManagement;
 
 import PresentationLayer.views.MainLayout;
+import ServiceLayer.Objects.ReceiptItemService;
 import ServiceLayer.Objects.ReceiptService;
 import ServiceLayer.Objects.StoreService;
+import ServiceLayer.Objects.UserInfoService;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
+import ServiceLayer.UserService;
 import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.accordion.Accordion;
+import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.grid.editor.Editor;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.selection.SingleSelect;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
@@ -30,73 +41,174 @@ public class SystemManagementView extends VerticalLayout {
 
 
     ShoppingService shoppingService;
-    private int systemManagerId = 1000000;
-    private Grid<StoreService> grid;
+    UserService userService;
     private Map<Integer, StoreService> stores;
+
+    Grid<UserInfoService> loggedOut;
+    Grid<UserInfoService> loggedIn;
+    Grid<StoreService> storeGrid;
 
     public SystemManagementView() {
         setSpacing(false);
 
-        H2 header = new H2("Stores in Market:");
-        header.addClassNames(Margin.Top.XLARGE, Margin.Bottom.MEDIUM);
-        add(header);
-        //add(new Paragraph("It’s a place where you can grow your own UI 🤗"));
+        AccordionPanel managerLayout = new AccordionPanel("Store Info");
+        AccordionPanel userLayout = new AccordionPanel("User Info");
+
+        Accordion accordion = new Accordion();
+        accordion.add(userLayout);
+        accordion.add(managerLayout);
 
         try {
             shoppingService = new ShoppingService();
+            userService = new UserService();
         }
         catch (Exception e) {
             add("Problem initiating Store:(");
         }
-        setSpacing(false);
 
-        Result<Map<Integer, StoreService>> storesRes = shoppingService.getAllStoresInfo();
-        if (storesRes.isError()) {
-            add("Problem getting catalog :(");
-        }
-        else {
-            stores = storesRes.getValue();
-            Grid<StoreService> grid = createGrid();
-            //add(grid);
-            //add another grid of users and show info about them?
-            //add grid of notifications? maybe do another screen of notification?
-
-        }
-
-
+        createGrid(managerLayout);
+        addUsersInfo(userLayout);
+        accordion.setWidthFull();
+        add(accordion);
         setSizeFull();
-        setJustifyContentMode(JustifyContentMode.CENTER);
-        setDefaultHorizontalComponentAlignment(Alignment.CENTER);
+        setJustifyContentMode(JustifyContentMode.START);
         getStyle().set("text-align", "center");
     }
 
+    private void addUsersInfo(AccordionPanel usersSpan) {
+        Result<Map<Integer, UserInfoService>> loggedInUsersRes = userService.getLoggedInUsers();
+        Result<Map<Integer, UserInfoService>> loggedOutUsersRes = userService.getLoggedOutUsers();
 
-    private Grid<StoreService> createGrid() {
+        if (loggedInUsersRes.isError() || loggedOutUsersRes.isError()) {
+            usersSpan.addContent(new H2("Problem getting users :("));
+        }
+        else {
+            loggedIn = new Grid();
+            loggedIn.setItems(loggedInUsersRes.getValue().values());
+            loggedIn.addColumn(UserInfoService::getUsername).setHeader("Username").setSortable(true);
+            loggedOut = new Grid();
+            loggedOut.setItems(loggedOutUsersRes.getValue().values());
+            loggedOut.addColumn(UserInfoService::getUsername).setHeader("Username").setSortable(true);
 
-        grid = new Grid<>();
-        Editor<StoreService> editor = grid.getEditor();
-        grid.setItems(stores.values());
+            final Integer[] trigger = {0};
+            SingleSelect<Grid<UserInfoService>, UserInfoService> selection1 = loggedIn.asSingleSelect();
+            selection1.addValueChangeListener(e -> {
+                if (trigger[0] != 1) {
+                    loggedOut.deselectAll();
+                    trigger[0] = 1;
+                }
+            });
+            SingleSelect<Grid<UserInfoService>, UserInfoService> selection2 = loggedOut.asSingleSelect();
+            selection2.addValueChangeListener(e -> {
+                if (trigger[0] != 2) {
+                    loggedIn.deselectAll();
+                    trigger[0] = 2;
+                }
+            });
 
-        grid.addColumn(StoreService::getStoreId).setHeader("ID").setSortable(true);
-        grid.addColumn(StoreService::getStoreName).setHeader("Name").setSortable(true);
-        grid.addColumn(StoreService::getStoreStatus).setSortable(true).setKey("Status");
+            HorizontalLayout usersGraphs = new HorizontalLayout(loggedIn, loggedOut);
+
+            HorizontalLayout titles = new HorizontalLayout(new Label("Logged in Users"), new Label("Logged out Users"));
+            titles.setPadding(true);
+            titles.setJustifyContentMode(JustifyContentMode.AROUND);
+
+            usersSpan.addContent(titles, usersGraphs);
+            usersSpan.addContent(addDeleteUserButton(loggedIn, loggedOut));
+        }
+    }
+
+    private void resetUserGrids() {
+        Result<Map<Integer, UserInfoService>> loggedInUsersRes = userService.getLoggedInUsers();
+        Result<Map<Integer, UserInfoService>> loggedOutUsersRes = userService.getLoggedOutUsers();
+
+        if (loggedInUsersRes.isError() || loggedOutUsersRes.isError()) {
+            printError("Problem Refreshing grid");
+        } else {
+            loggedIn.setItems(loggedInUsersRes.getValue().values());
+            loggedOut.setItems(loggedOutUsersRes.getValue().values());
+        }
+    }
+
+    private Button addDeleteUserButton(Grid loggedin, Grid loggedout) {
+        Button closePermButton = new Button("Remove User");
+        closePermButton.setEnabled(false);
+        closePermButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+
+        loggedin.addSelectionListener(selection -> {
+            int size = selection.getAllSelectedItems().size();
+            boolean isSingleSelection = size == 1;
+            closePermButton.setEnabled(isSingleSelection);
+        });
+
+        loggedout.addSelectionListener(selection -> {
+            int size = selection.getAllSelectedItems().size();
+            boolean isSingleSelection = size == 1;
+            closePermButton.setEnabled(isSingleSelection);
+        });
+
+        ConfirmDialog dialog = addConfirmationDialog("Remove User?", "Are you sure you want to remove this user from the system?"); //pop up screen for confirmation
+        dialog.addConfirmListener(event -> deleteUser(loggedin, loggedout));  //This is what it does when pressed delete
+
+        closePermButton.addClickListener(e -> dialog.open());
+
+        return closePermButton;
+    }
+
+    private void deleteUser(Grid loggedin, Grid loggedout) {
+        if (loggedin.getSelectedItems().size() == 0) {
+            deleteUser(loggedout);
+        } else deleteUser(loggedin);
+    }
+
+    private void deleteUser(Grid<UserInfoService> grid) {
+        UserInfoService userToRemove = grid.getSelectedItems().stream().toList().get(0);
+        Result<Boolean> result = userService.removeUser(MainLayout.getCurrUserID(), userToRemove.getId());
+        if(result.isError()){
+            printError("Error Removing User:\n" + result.getMessage());
+        }
+        else{
+            printSuccess("Removed User");
+            resetUserGrids();
+        }
+    }
+
+    private void addStoresInfo(Grid grid) {
+        Result<Map<Integer, StoreService>> storesRes = shoppingService.getAllStoresInfo();
+        if (storesRes.isError()) {
+            printError("Problem getting stores :(");
+        }
+        else {
+            grid.setItems(storesRes.getValue().values());
+        }
+    }
+
+
+    private void createGrid(AccordionPanel dropdown) {
+
+        storeGrid = new Grid<StoreService>();
+        Editor<StoreService> editor = storeGrid.getEditor();
+        addStoresInfo(storeGrid);
+
+        storeGrid.addColumn(StoreService::getStoreName).setHeader("Name").setSortable(true);
+        storeGrid.addColumn(StoreService::getStoreStatus).setHeader("Status").setSortable(true);
         Binder<StoreService> binder = new Binder<>(StoreService.class);
         editor.setBinder(binder);
         editor.setBuffered(true);
 
-        HorizontalLayout footer = addButtons();
-        add(grid, footer);
-
-        return grid;
+        dropdown.addContent(storeGrid);
+        HorizontalLayout footer = addButtons(storeGrid);
+        footer.setPadding(true);
+        footer.setJustifyContentMode(JustifyContentMode.CENTER);
+        dropdown.addContent(footer);
 
     }
 
-    private HorizontalLayout addButtons() {
+    private HorizontalLayout addButtons(Grid grid) {
 
         Button closePermButton = new Button("Close Store Permanently");
         closePermButton.setEnabled(false);
         closePermButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        closePermButton.getStyle().set("margin-inline-start", "auto");
+//        closePermButton.getStyle().set("margin-inline-start", "auto");
 
         Button storeReceiptsButton = new Button("Get Store Receipts");
         storeReceiptsButton.setEnabled(false);
@@ -112,67 +224,135 @@ public class SystemManagementView extends VerticalLayout {
         });
 
 
-        ConfirmDialog dialog = addConfirmationDialog(); //pop up screen for confirmation
+        ConfirmDialog dialog = addConfirmationDialog("Delete Store?", "Are you sure you want to permanently delete this store?"); //pop up screen for confirmation
+        dialog.addConfirmListener(event -> closeStorePermanently(grid));  //This is what it does when pressed delete
         closePermButton.addClickListener(e -> dialog.open());
 
         storeReceiptsButton.addClickListener((ComponentEventListener<ClickEvent<Button>>)
-                buttonClickEvent -> getStoreReceipts());
+                buttonClickEvent -> getStoreReceipts(grid));
 
         HorizontalLayout footer = new HorizontalLayout(closePermButton, storeReceiptsButton);
-        //footer.getStyle().set("flex-wrap", "wrap");
-        setPadding(false);
-        setAlignItems(Alignment.AUTO);
+        footer.setPadding(false);
+        footer.setAlignItems(Alignment.CENTER);
         return footer;
     }
 
-    private ConfirmDialog addConfirmationDialog() {
+    private ConfirmDialog addConfirmationDialog(String header, String message) {
         ConfirmDialog dialog = new ConfirmDialog();
-        dialog.setHeader("Delete Store?");
-        dialog.setText("Are you sure you want to permanently delete this store?");
+        dialog.setHeader(header);
+        dialog.setText(message);
 
         dialog.setCancelable(true);
         dialog.addCancelListener(event -> printError("Canceled"));
 
         dialog.setConfirmText("Delete");
         dialog.setConfirmButtonTheme("error primary");
-        dialog.addConfirmListener(event -> closeStorePermanently());  //This is what it does when pressed delete
         return dialog;
     }
 
 
-    private void getStoreReceipts() {
-        int chosenId = getIdOfSelectedRow();
+    private void getStoreReceipts(Grid<StoreService> grid) {
+        int chosenId = getIdOfSelectedRow(grid);
 
         if(chosenId != -1){
-            Result<List<ReceiptService>> result = shoppingService.getSellingHistoryOfStoreForManager(chosenId, systemManagerId);
+            Grid<ReceiptService> receiptsGrid = new Grid<>();
+            Dialog dialog = new Dialog();
+            dialog.setDraggable(true);
+            dialog.setResizable(true);
+            dialog.setHeaderTitle("Receipts");
+            Div div = new Div();
+            div.add(receiptsGrid);
+            dialog.add(div);
+            dialog.setWidth("1000px");
+
+            Result<List<ReceiptService>> result = shoppingService.getSellingHistoryOfStoreForManager(chosenId, MainLayout.getCurrUserID());
+
             if(result.isError()){
-                printError("Error in get receipts!");
+                printError(result.getMessage());
             }
             else{
-                //TODO should print to screen The receipts!
-                System.out.println(result.getValue());
+                if(result.getValue() == null){
+                    printError("Something went wrong");
+                }
+                else{
+                    receiptsGrid.setItems(result.getValue());
+                    receiptsGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+
+                    receiptsGrid.addColumn(ReceiptService:: getId).setHeader("Receipt ID").setSortable(true);
+                    receiptsGrid.addColumn(ReceiptService:: getOwnerId).setHeader("User ID").setSortable(true);
+                    receiptsGrid.addColumn(ReceiptService:: getDate).setHeader("Date").setSortable(true);
+
+                    GridContextMenu<ReceiptService> menu = receiptsGrid.addContextMenu();
+                    menu.setOpenOnClick(true);
+
+                    menu.addItem("View Items", event -> viewReceiptItemsAction(receiptsGrid, result.getValue(),
+                            receiptsGrid.getSelectedItems().stream().toList().get(0).getId()) );
+
+                    Button cancelButton = new Button("exit", e -> dialog.close());
+                    dialog.getFooter().add(cancelButton);
+
+
+                    add(dialog);
+                    dialog.open();
+                    //dialog.add(itemsGrid);
+                    dialog.add(menu);
+                }
             }
         }
     }
 
+    private void viewReceiptItemsAction(Grid<ReceiptService> receiptsGrid, List<ReceiptService> receipts, int receiptId) {
 
-    private void closeStorePermanently() {
-        int chosenId = getIdOfSelectedRow();
+        Grid<ReceiptItemService> itemsGrid = new Grid<>();
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Receipt Items");
+        Div div = new Div();
+        div.add(itemsGrid);
+        dialog.add(div);
+        dialog.setWidth("1000px");
+
+        ReceiptService curr = null;
+        for(ReceiptService receiptService: receipts){
+            if(receiptService.getId() == receiptId)
+                curr = receiptService;
+        }
+        if(curr != null){
+            itemsGrid.setItems(curr.getItemsInList());
+            itemsGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+            itemsGrid.addColumn(ReceiptItemService:: getOwnerId).setHeader("User ID").setSortable(true);
+            itemsGrid.addColumn(ReceiptItemService:: getId).setHeader("Item ID").setSortable(true);
+            itemsGrid.addColumn(ReceiptItemService:: getName).setHeader("Name").setSortable(true);
+            itemsGrid.addColumn(ReceiptItemService:: getAmount).setHeader("Amount").setSortable(true);
+            itemsGrid.addColumn(ReceiptItemService:: getPriceBeforeDiscount).setHeader("Price Before Discount").setSortable(true);
+            itemsGrid.addColumn(ReceiptItemService:: getFinalPrice).setHeader("Final Price").setSortable(true);
+
+            Button cancelButton = new Button("exit", e -> dialog.close());
+            dialog.getFooter().add(cancelButton);
+
+            add(dialog);
+            dialog.open();
+            dialog.add(itemsGrid);
+        }
+    }
+
+    private void closeStorePermanently(Grid grid) {
+        int chosenId = getIdOfSelectedRow(grid);
         if( chosenId!= -1){
 
-            Result<Boolean> result = shoppingService.closeStorePermanently(systemManagerId, chosenId);
+            Result<Boolean> result = shoppingService.closeStorePermanently(MainLayout.getCurrUserID(), chosenId);
             if(result.isError()){
-                printError("Error in close store permanently");
+                printError("Error in close store permanently:\n" + result.getMessage());
             }
             else{
                 if(result.getValue()){
-
-                    //TODO check if its working!!
                     printSuccess("Closed Store");
 
-                    StoreService curr = shoppingService.getStoreInfo(chosenId).getValue();
-                    stores.replace(chosenId, curr);
-                    grid.getDataProvider().refreshItem(curr);
+//                    StoreService curr = shoppingService.getStoreInfo(chosenId).getValue();
+//                    stores.replace(chosenId, curr);
+                    addStoresInfo(grid);
+//                    grid.getDataProvider().refreshItem(curr);
                 }
                 else{
                     printError("Something went wrong");
@@ -183,7 +363,7 @@ public class SystemManagementView extends VerticalLayout {
     }
 
 
-    private int getIdOfSelectedRow() {
+    private int getIdOfSelectedRow(Grid grid) {
         List<StoreService> stores = grid.getSelectedItems().stream().toList();
         if(stores.size() > 1){
             printError("Chosen More than one!");
@@ -200,11 +380,13 @@ public class SystemManagementView extends VerticalLayout {
 
 
     private void printError(String errorMsg) {
-        //How I print to screen?
+        Notification notification = Notification.show(errorMsg, 5000, Notification.Position.BOTTOM_CENTER);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
 
-    private void printSuccess(String closedStore) {
-        //How I print to screen?
+    private void printSuccess(String msg) {
+        Notification notification = Notification.show(msg, 5000, Notification.Position.BOTTOM_CENTER);
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }
 
 

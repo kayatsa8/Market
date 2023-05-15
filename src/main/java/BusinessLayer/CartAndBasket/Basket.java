@@ -102,7 +102,7 @@ public class Basket {
     }
 
     private CatalogItem makeCopyOfCatalogItem(CatalogItem item){
-        return new CatalogItem(item.getItemID(), item.getItemName(), item.getPrice(), item.getCategory(), item.getStoreName(), item.getItemID());
+        return new CatalogItem(item.getItemID(), item.getItemName(), item.getPrice(), item.getCategory(), item.getStoreName(), item.getItemID(), item.getWeight());
     }
 
     public void saveItems(List<String> coupons) throws Exception{
@@ -194,7 +194,8 @@ public class Basket {
         return items.containsKey(itemID);
     }
 
-    public void updateBasketWithCoupons(List<String> coupons){
+    public void updateBasketWithCoupons(List<String> coupons) throws Exception
+    {
         List<CartItemInfo> updatedBasketItems = getItemsInfo();
         store.updateBasket(updatedBasketItems, coupons);
         updateBasketByCartItemInfoList(updatedBasketItems);
@@ -222,7 +223,7 @@ public class Basket {
 
         public ItemWrapper(CatalogItem _item, int quantity){
             item = _item;
-            info = new CartItemInfo(item.getItemID(), quantity, item.getPrice(), _item.getCategory(), _item.getItemName());
+            info = new CartItemInfo(item.getItemID(), quantity, item.getPrice(), _item.getCategory(), _item.getItemName(), _item.getWeight());
         }
     }
 
