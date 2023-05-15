@@ -1,5 +1,6 @@
 package BusinessLayer.Users;
 
+import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.Log;
 import BusinessLayer.CartAndBasket.CartItemInfo;
@@ -356,5 +357,9 @@ public class UserFacade {
         }
 
         users.get(userId).removeCouponFromCart(coupon);
+    }
+
+    public Basket removeBasketFromCart(int userID, int storeID) throws Exception {
+        return getLoggedInUser(userID).removeBasketFromCart(storeID);
     }
 }
