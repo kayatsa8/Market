@@ -29,7 +29,7 @@ public class UserMailbox extends Mailbox {
 
     @Override
     public void notifyOwner() {
-        listener.notify("A new message is wait for you!");
+        listener.notify("A new message is waiting for you!");
     }
 
 }

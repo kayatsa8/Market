@@ -1,6 +1,7 @@
 package PresentationLayer.views;
 
 
+import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
 import PresentationLayer.views.clients.ClientView;
 import PresentationLayer.views.loginAndRegister.UserPL;
 import PresentationLayer.views.storeManagement.StoreManagementView;
@@ -21,6 +22,7 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.theme.lumo.LumoUtility;
@@ -32,7 +34,7 @@ import static org.vaadin.lineawesome.LineAwesomeIcon.SIGN_OUT_ALT_SOLID;
 /**
  * The main view is a top-level placeholder for other views.
  */
-public class MainLayout extends AppLayout {
+public class MainLayout extends AppLayout implements NotificationObserver {
 
     private H2 viewTitle;
     public static UserService userService;
@@ -54,6 +56,16 @@ public class MainLayout extends AppLayout {
         } catch (Exception e) {
             Notification.show("Error initialize userService:\n"+e.getMessage());
         }
+
+        try{
+            listenToNotifications(currUser.getCurrUserID());
+        }
+        catch(Exception e){
+            System.out.println("\n\nERROR: MainLayout::MainLayout: " +
+                    e.getMessage() +
+                    "\n");
+        }
+
         setGuestView();
     }
 
@@ -157,5 +169,17 @@ public class MainLayout extends AppLayout {
     private String getCurrentPageTitle() {
         PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
         return title == null ? "" : title.value();
+    }
+
+    @Override
+    public void notify(String notification) {
+        Notification systemNotification = Notification
+                .show(notification);
+        systemNotification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+    }
+
+    @Override
+    public void listenToNotifications(int userId) throws Exception {
+        userService.listenToNotifications(userId, this);
     }
 }
