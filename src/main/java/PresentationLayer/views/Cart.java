@@ -382,6 +382,7 @@ public class Cart extends Div {
                 else {
                     Notification.show("Succeed to buy");
                     baskets=shoppingService.getCart(currUser).getValue().getAllBaskets();
+                    updateAside(baskets);
                     grid.setItems(baskets);
                 }
                 dialog.close();
