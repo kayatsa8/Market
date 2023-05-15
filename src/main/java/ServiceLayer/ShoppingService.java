@@ -68,7 +68,7 @@ public class ShoppingService {
         }
     }
 
-    public Result<CartService> addItemToCart(int userID, int storeID, int itemID, int quantity) throws Exception {
+    public Result<CartService> addItemToCart(int userID, int storeID, int itemID, int quantity) {
         try {
             Cart cart = market.addItemToCart(userID, storeID, itemID, quantity);
             return new Result<>(false, new CartService(cart));
