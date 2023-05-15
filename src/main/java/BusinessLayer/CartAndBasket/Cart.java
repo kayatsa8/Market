@@ -200,7 +200,8 @@ public class Cart {
         updateBasketsWithCoupons();
     }
 
-    private void updateBasketsWithCoupons(){
+    private void updateBasketsWithCoupons() throws Exception
+    {
         for(Basket basket : baskets.values()){
             basket.updateBasketWithCoupons(coupons);
         }

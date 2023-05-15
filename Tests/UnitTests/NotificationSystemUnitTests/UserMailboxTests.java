@@ -5,7 +5,6 @@ import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.NotificationSystem.UserMailbox;
 import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.UserFacade;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -19,10 +18,9 @@ public class UserMailboxTests {
     static RegisteredUser user1;
     static Market market;
     @BeforeClass
-    public static void setUp() throws Exception
-    {
-        hub = NotificationHub.getInstance();
+    public static void setUp() throws Exception {
         market = Market.getInstance();
+        hub = market.getNotificationHub();
         userFacade = market.getUserFacade();
         int user1ID = market.register("user1UserMailbox", "123456789");
         user1 = userFacade.getRegisteredUser(user1ID);

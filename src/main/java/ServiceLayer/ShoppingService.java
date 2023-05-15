@@ -2,13 +2,14 @@ package ServiceLayer;
 
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
-import BusinessLayer.NotificationSystem.Message;
+import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.Receipts.Receipt.Receipt;
-import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.LogicalComposites;
-import BusinessLayer.Stores.Policies.Conditions.NumericCompositions.NumericComposites;
-import BusinessLayer.Stores.Policies.Discounts.Discount;
-import BusinessLayer.Stores.Policies.Discounts.DiscountsTypes.Visible;
-import BusinessLayer.Stores.Policies.PurchasePolicies.PurchasePolicy;
+import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
+import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
+import BusinessLayer.Stores.Policies.DiscountPolicy;
+import BusinessLayer.Stores.Discounts.Discount;
+import BusinessLayer.Stores.Discounts.DiscountsTypes.Visible;
+import BusinessLayer.Stores.Policies.PurchasePolicy;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -21,6 +22,7 @@ import BusinessLayer.Stores.CatalogItem;
 import ServiceLayer.Objects.*;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public class ShoppingService {
@@ -317,11 +319,11 @@ public class ShoppingService {
         }
     }
 
-    public Result<Boolean> sendMessage(int storeID, int receiverID, String title, String content)
+    public Result<Boolean> sendMessage(int storeID, int receiverID, String content)
     {
         try
         {
-            boolean response = market.sendMessage(storeID, receiverID, title, content);
+            boolean response = market.sendMessage(storeID, receiverID, content);
             log.info("Sent message successfully");
             return new Result<>(false, response);
         } catch (Exception e)
@@ -333,71 +335,71 @@ public class ShoppingService {
 
     }
 
-    public Result<Boolean> markMessageAsRead(int storeID, MessageService messageService){
-        try{
-            market.markMessageAsRead(storeID, new Message(messageService));
-            return new Result<Boolean>(false, true);
-        }
-        catch(Exception e){
-            return new Result<Boolean>(true, e.getMessage());
-        }
-    }
+//    public Result<Boolean> markMessageAsRead(int storeID, MessageService messageService){
+//        try{
+//            market.markMessageAsRead(storeID, new Message(messageService));
+//            return new Result<Boolean>(false, true);
+//        }
+//        catch(Exception e){
+//            return new Result<Boolean>(true, e.getMessage());
+//        }
+//    }
+//
+//    public Result<Boolean> markMessageAsNotRead(int storeID, MessageService messageService){
+//        try{
+//            market.markMessageAsNotRead(storeID, new Message(messageService));
+//            return new Result<Boolean>(false, true);
+//        }
+//        catch(Exception e){
+//            return new Result<Boolean>(true, e.getMessage());
+//        }
+//    }
 
-    public Result<Boolean> markMessageAsNotRead(int storeID, MessageService messageService){
-        try{
-            market.markMessageAsNotRead(storeID, new Message(messageService));
-            return new Result<Boolean>(false, true);
-        }
-        catch(Exception e){
-            return new Result<Boolean>(true, e.getMessage());
-        }
-    }
-
-    public Result<List<MessageService>> watchNotReadMessages(int storeID) throws Exception
-    {
-        List<Message> messages = market.watchNotReadMessages(storeID);
-
-        if(messages == null){
-            return new Result<>(true, "Error");
-        }
-        else{
-            return new Result<>(false, messageListToMessageServiceList(messages));
-        }
-    }
-
-    private List<MessageService> messageListToMessageServiceList(List<Message> messages){
-        List<MessageService> toReturn = new ArrayList<>();
-
-        for(Message message : messages){
-            toReturn.add(new MessageService(message));
-        }
-
-        return toReturn;
-    }
-
-    public Result<List<MessageService>> watchReadMessages(int storeID) throws Exception
-    {
-        List<Message> messages = market.watchReadMessages(storeID);
-
-        if(messages == null){
-            return new Result<List<MessageService>>(true, "Error");
-        }
-        else{
-            return new Result<List<MessageService>>(false, messageListToMessageServiceList(messages));
-        }
-    }
-
-    public Result<List<MessageService>> watchSentMessages(int storeID) throws Exception
-    {
-        List<Message> messages = market.watchSentMessages(storeID);
-
-        if(messages == null){
-            return new Result<List<MessageService>>(true, "Error");
-        }
-        else{
-            return new Result<List<MessageService>>(false, messageListToMessageServiceList(messages));
-        }
-    }
+//    public Result<List<MessageService>> watchNotReadMessages(int storeID) throws Exception
+//    {
+//        List<Message> messages = market.watchNotReadMessages(storeID);
+//
+//        if(messages == null){
+//            return new Result<>(true, "Error");
+//        }
+//        else{
+//            return new Result<>(false, messageListToMessageServiceList(messages));
+//        }
+//    }
+//
+//    private List<MessageService> messageListToMessageServiceList(List<Message> messages){
+//        List<MessageService> toReturn = new ArrayList<>();
+//
+//        for(Message message : messages){
+//            toReturn.add(new MessageService(message));
+//        }
+//
+//        return toReturn;
+//    }
+//
+//    public Result<List<MessageService>> watchReadMessages(int storeID) throws Exception
+//    {
+//        List<Message> messages = market.watchReadMessages(storeID);
+//
+//        if(messages == null){
+//            return new Result<List<MessageService>>(true, "Error");
+//        }
+//        else{
+//            return new Result<List<MessageService>>(false, messageListToMessageServiceList(messages));
+//        }
+//    }
+//
+//    public Result<List<MessageService>> watchSentMessages(int storeID) throws Exception
+//    {
+//        List<Message> messages = market.watchSentMessages(storeID);
+//
+//        if(messages == null){
+//            return new Result<List<MessageService>>(true, "Error");
+//        }
+//        else{
+//            return new Result<List<MessageService>>(false, messageListToMessageServiceList(messages));
+//        }
+//    }
 
     public Result<Boolean> setMailboxAsUnavailable(int storeID) throws Exception
     {
@@ -724,6 +726,117 @@ public class ShoppingService {
         }
     }
 
+    public Result<String> addDiscountPolicyBasketWeightLimitRule(int storeID, double basketWeightLimit)
+    {
+        try {
+            String result = market.addDiscountPolicyBasketWeightLimitRule(storeID, basketWeightLimit);
+            log.info("Succeeded to discount policy of basket weight limit rule");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to add discount policy of basket weight limit rule");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<String> addDiscountPolicyBuyerAgeRule(int storeID, int minimumAge)
+    {
+        try {
+            String result = market.addDiscountPolicyBuyerAgeRule(storeID, minimumAge);
+            log.info("Succeeded to discount policy of buyer age rule");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to add discount policy of buyer age rule");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<String> addDiscountPolicyForbiddenCategoryRule(int storeID, String forbiddenCategory)
+    {
+        try {
+            String result = market.addDiscountPolicyForbiddenCategoryRule(storeID, forbiddenCategory);
+            log.info("Succeeded to discount policy of forbidden category rule");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to add discount policy of forbidden category rule");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<String> addDiscountPolicyForbiddenDatesRule(int storeID, List<Calendar> forbiddenDates)
+    {
+        try {
+            String result = market.addDiscountPolicyForbiddenDatesRule(storeID, forbiddenDates);
+            log.info("Succeeded to discount policy of forbidden dates rule");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to add discount policy of forbidden dates rule");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<String> addDiscountPolicyForbiddenHoursRule(int storeID, int startHour, int endHour)
+    {
+        try {
+            String result = market.addDiscountPolicyForbiddenHoursRule(storeID, startHour, endHour);
+            log.info("Succeeded to discount policy of forbidden hours rule");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to add discount policy of forbidden hours rule");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<String> addDiscountPolicyMustDatesRule(int storeID, List<Calendar> mustDates)
+    {
+        try {
+            String result = market.addDiscountPolicyMustDatesRule(storeID, mustDates);
+            log.info("Succeeded to discount policy of must dates rule");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to add discount policy of must dates rule");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<String> addDiscountPolicyItemsWeightLimitRule(int storeID, Map<Integer, Double> weightsLimits)
+    {
+        try {
+            String result = market.addDiscountPolicyItemsWeightLimitRule(storeID, weightsLimits);
+            log.info("Succeeded to discount policy of items weight limit rule");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to add discount policy of items weight limit rule");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<String> addDiscountPolicyBasketTotalPriceRule(int storeID, double minimumPrice)
+    {
+        try {
+            String result = market.addDiscountPolicyBasketTotalPriceRule(storeID, minimumPrice);
+            log.info("Succeeded to discount policy of basket total price rule");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to add discount policy of basket total price rule");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<String> addDiscountPolicyMustItemsAmountsRule(int storeID, Map<Integer, Integer> itemsAmounts)
+    {
+        try {
+            String result = market.addDiscountPolicyMustItemsAmountsRule(storeID, itemsAmounts);
+            log.info("Succeeded to discount policy of must items amounts rule");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to add discount policy of must items amounts rule");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<Integer> wrapDiscountPolicies(int storeID, List<Integer> discountPoliciesIDsToWrap, LogicalComposites logicalCompositeEnum)
+    {
+        try {
+            int id = market.wrapDiscountPolicies(storeID, discountPoliciesIDsToWrap, logicalCompositeEnum);
+            log.info("Succeeded to wrap discount policies under logical composite of " + logicalCompositeEnum.name());
+            return new Result<>(false, id);
+        } catch (Exception e) {
+            log.info("Failed to wrap discount policies under logical composite of " + logicalCompositeEnum.name());
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
     public Result<List<DiscountService>> getStoreDiscounts(int storeID)
     {
         try {
@@ -761,15 +874,42 @@ public class ShoppingService {
         try {
             Map<Integer, PurchasePolicy> purchasePolicies = market.getStorePurchasePolicies(storeID);
             log.info("Got all purchase policies of store " + storeID);
-            return new Result<>(false, convertToPolicyService(purchasePolicies));
+            return new Result<>(false, convertPurchasePoliciesToPolicyService(purchasePolicies));
         } catch (Exception e) {
             log.info("Failed to get purchase policies of store " + storeID);
             return new Result<>(true, e.getMessage());
         }
     }
 
+    public Result<List<PolicyService>> getStoreDiscountPolicies(int storeID)
+    {
+        try {
+            Map<Integer, DiscountPolicy> discountPolicies = market.getStoreDiscountPolicies(storeID);
+            log.info("Got all discount policies of store " + storeID);
+            return new Result<>(false, convertDiscountPoliciesToPolicyService(discountPolicies));
+        } catch (Exception e) {
+            log.info("Failed to get discount policies of store " + storeID);
+            return new Result<>(true, e.getMessage());
+        }
+    }
 
-    private List<PolicyService> convertToPolicyService(Map<Integer, PurchasePolicy> purchasePolicies) {
+    public Result<HashMap<Integer, ChatService>> getChats(int storeId){
+        try{
+            ConcurrentHashMap<Integer, Chat> _chats = market.getChats(storeId);
+            HashMap<Integer, ChatService> chats = new HashMap<>();
+
+            for(Integer id : _chats.keySet()){
+                chats.put(id, new ChatService(_chats.get(id)));
+            }
+
+            return new Result<>(false, chats);
+        }
+        catch(Exception e){
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    private List<PolicyService> convertPurchasePoliciesToPolicyService(Map<Integer, PurchasePolicy> purchasePolicies) {
         List<PolicyService> policyServices = new ArrayList<>();
         for(Map.Entry<Integer, PurchasePolicy> entry: purchasePolicies.entrySet()){
             policyServices.add(new PolicyService(entry.getValue(), entry.getKey()));
@@ -777,4 +917,11 @@ public class ShoppingService {
         return policyServices;
     }
 
+    private List<PolicyService> convertDiscountPoliciesToPolicyService(Map<Integer, DiscountPolicy> discountPolicies) {
+        List<PolicyService> policyServices = new ArrayList<>();
+        for(Map.Entry<Integer, DiscountPolicy> entry: discountPolicies.entrySet()){
+            policyServices.add(new PolicyService(entry.getValue(), entry.getKey()));
+        }
+        return policyServices;
+    }
 }

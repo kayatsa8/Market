@@ -1,9 +1,9 @@
 package ServiceLayer.Objects;
 
-import BusinessLayer.Stores.Policies.Discounts.Discount;
-import BusinessLayer.Stores.Policies.Discounts.DiscountsTypes.Conditional;
-import BusinessLayer.Stores.Policies.Discounts.DiscountsTypes.Hidden;
-import BusinessLayer.Stores.Policies.Discounts.DiscountsTypes.Visible;
+import BusinessLayer.Stores.Discounts.Discount;
+import BusinessLayer.Stores.Discounts.DiscountsTypes.Conditional;
+import BusinessLayer.Stores.Discounts.DiscountsTypes.Hidden;
+import BusinessLayer.Stores.Discounts.DiscountsTypes.Visible;
 
 public class DiscountService {
 

@@ -14,14 +14,12 @@ public class Message {
 
     private final int senderID;
     private final int receiverID;
-    private final String title;
     private final String content;
     private final LocalDateTime sendingTime;
 
-    public Message(int _senderID, int _receiverID, String _title, String _content){
+    public Message(int _senderID, int _receiverID, String _content){
         senderID = _senderID;
         receiverID = _receiverID;
-        title = _title;
         content = _content;
         sendingTime = LocalDateTime.now();
     }
@@ -29,7 +27,6 @@ public class Message {
     public Message(MessageService message){
         senderID = message.getSenderID();
         receiverID = message.getReceiverID();
-        title = message.getTitle();
         content = message.getContent();
         sendingTime = message.getSendingTime();
     }
@@ -42,18 +39,16 @@ public class Message {
         return receiverID;
     }
 
-    public String getTitle(){
-        return title;
-    }
-
     public String getContent(){
         return content;
     }
 
-    public String getDate(){
+    public String getDateAsString(){
         DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyyy, HH:mm"); // NOTICE: the format may cause problems, if so, try dd-MM-yyyy, HH:mm
         return sendingTime.format(format);
     }
+
+    public LocalDateTime getSendingTime(){return sendingTime;}
 
     @Override
     public boolean equals(Object object){
@@ -63,11 +58,8 @@ public class Message {
 
         return senderID == other.senderID
                 && receiverID == other.receiverID
-                && title.equals(other.title)
                 && content.equals(other.content)
                 && sendingTime.equals(other.sendingTime);
     }
-
-    public LocalDateTime getSendingTime(){return sendingTime;}
 
 }

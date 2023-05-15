@@ -1,9 +1,9 @@
 package ServiceLayer.Objects;
 
-import BusinessLayer.Stores.Policies.PurchasePolicies.PurchasePolicy;
+import BusinessLayer.Stores.Policies.DiscountPolicy;
+import BusinessLayer.Stores.Policies.PurchasePolicy;
 
 public class PolicyService {
-
 
     private int policyId;
 
@@ -21,7 +21,8 @@ public class PolicyService {
         this.policyId = id;
         this.info = purchasePolicy.toString();
     }
-
-
-
+    public PolicyService(DiscountPolicy discountPolicy, int id){
+        this.policyId = id;
+        this.info = discountPolicy.toString();
+    }
 }

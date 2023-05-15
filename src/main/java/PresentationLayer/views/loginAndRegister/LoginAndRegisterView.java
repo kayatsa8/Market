@@ -124,8 +124,13 @@ public class LoginAndRegisterView extends HorizontalLayout {
                 LumoUtility.JustifyContent.BETWEEN, LumoUtility.Margin.Vertical.MEDIUM);
 
         loginB=createNewButton("Login",userService::login);
+        loginB.addClickShortcut(Key.ENTER);
         loginB.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        registerB=createNewButton("Register",userService::register);
+        registerB=createNewButton("Register",(u, p)->{
+            userService.register(u,p);
+            userService.login(u,p);
+            return null;
+        });
         registerB.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
 
         footer.add(registerB, loginB);
@@ -151,7 +156,6 @@ public class LoginAndRegisterView extends HorizontalLayout {
     private Button createNewButton(String action, BiFunction<String, String, Result<Integer>> userServiceMethod) {
         Button button = new Button(action);
         button.addClickListener(e -> handleButtonClick(action, userServiceMethod));
-        button.addClickShortcut(Key.ENTER);
         //add(button);
         return button;
     }

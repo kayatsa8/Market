@@ -1,7 +1,7 @@
 package PresentationLayer.views.storeManagement;
 
-import BusinessLayer.Stores.Policies.Conditions.LogicalCompositions.LogicalComposites;
-import BusinessLayer.Stores.Policies.Conditions.NumericCompositions.NumericComposites;
+import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
+import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
 import PresentationLayer.views.MainLayout;
 import ServiceLayer.Objects.*;
 import ServiceLayer.Result;
