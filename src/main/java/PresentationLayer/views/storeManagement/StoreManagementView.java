@@ -8,7 +8,6 @@ import ServiceLayer.Objects.*;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
 import ServiceLayer.UserService;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
@@ -42,7 +41,6 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.lumo.Lumo;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 import org.apache.commons.lang3.text.WordUtils;
 import org.vaadin.lineawesome.LineAwesomeIcon;
@@ -1044,11 +1042,11 @@ public class StoreManagementView extends VerticalLayout {
         newRuleSubMenu.addItem("Age Limit", e-> policyRuleAgeDialog(rulesGrid, storeId));
         newRuleSubMenu.addItem("Forbidden Category", e-> policyRuleForbiddenCategoryDialog(rulesGrid, storeId));
         newRuleSubMenu.addItem("Forbidden Dates", e-> policyRuleForbiddenAndOrDatesDialog(rulesGrid, storeId, "Forbidden Dates", true));
-        newRuleSubMenu.addItem("Forbidden Hours", e-> {});  //TODO
+        newRuleSubMenu.addItem("Forbidden Hours", e-> policyRulesForbiddenHoursDialog(rulesGrid, storeId));
         newRuleSubMenu.addItem("Must Dates", e-> policyRuleForbiddenAndOrDatesDialog(rulesGrid, storeId, "Must Dates", false));
-        newRuleSubMenu.addItem("Item and Weights", e-> {});  //TODO
+        newRuleSubMenu.addItem("Item and Weights", e-> policyRuleItemsAmountsOrWeightsLimits(rulesGrid, storeId, "Weight"));
         newRuleSubMenu.addItem("Basket Price Limit", e-> policyRuleBasketWeightOrPriceLimitDialog(rulesGrid, storeId, "Price", false));
-        newRuleSubMenu.addItem("Item and Amounts", e-> {});  //TODO
+        newRuleSubMenu.addItem("Item and Amounts", e-> policyRuleItemsAmountsOrWeightsLimits(rulesGrid, storeId, "Amount"));
 
 
 
@@ -1058,6 +1056,98 @@ public class StoreManagementView extends VerticalLayout {
         });
 
         dialog.getFooter().add(menuBar);
+        add(dialog);
+        dialog.open();
+    }
+
+    private void policyRuleItemsAmountsOrWeightsLimits(Grid<RuleService> rulesGrid, int storeId, String value) {
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Items and " + value + "s");
+        dialog.setWidth("800px");
+        //showItems
+        Div itemsDiv = new Div();
+        Grid<CatalogItemService> itemsGrid = new Grid<>();
+        itemsDiv.add(new Paragraph("Items of Store"));
+        itemsDiv.add(itemsGrid);
+        setItemsGridForDiscounts(itemsGrid, storeId);
+        itemsGrid.setSelectionMode(Grid.SelectionMode.NONE);
+
+        Paragraph paragraph = new Paragraph("Map of Items: ");
+        TextField textField = new TextField("ID, " + value);
+
+        Button addButton;
+        Button createButton;
+        if(value.equals("Amount")){  // amount window
+            Map<Integer, Integer> idsMap = new HashMap<>();
+            addButton = getIntIntMapFromUser(idsMap, textField, paragraph);
+            dialog.add(itemsDiv, paragraph, textField, addButton);
+            createButton = new Button("Create", e -> {
+                if(storeId != -1 && idsMap.size() > 0){
+                    dialog.close();
+                    Result<RuleService> result = shoppingService.addPurchasePolicyMustItemsAmountsRule(storeId, idsMap);
+                    handleRuleServiceResult(result, new ArrayList<>(), rulesGrid);
+                }
+            });
+        }
+        else{   // weight window
+            Map<Integer, Double> idsMap = new HashMap<>();
+            addButton = getIntDoubleMapFromUser(idsMap, textField, paragraph);
+            dialog.add(itemsDiv, paragraph, textField, addButton);
+            createButton = new Button("Create", e -> {
+                if(storeId != -1 && idsMap.size() > 0){
+                    dialog.close();
+                    Result<RuleService> result = shoppingService.addPurchasePolicyItemsWeightLimitRule(storeId, idsMap);
+                    handleRuleServiceResult(result, new ArrayList<>(), rulesGrid);
+                }
+            });
+        }
+
+        createButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        Button cancelButton = new Button("Cancel", e -> dialog.close());
+        dialog.getFooter().add(cancelButton, createButton);
+
+        add(dialog);
+        dialog.open();
+    }
+
+    private void policyRulesForbiddenHoursDialog(Grid<RuleService> rulesGrid, int storeId) {
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true); dialog.setResizable(true); dialog.setHeaderTitle("Forbidden Hours");
+
+        IntegerField startHour = new IntegerField("Start");
+        startHour.setValue(10);
+        startHour.setStepButtonsVisible(true);
+        startHour.setMin(0);
+        startHour.setMax(23);
+
+        IntegerField endHour = new IntegerField("End");
+        endHour.setValue(12);
+        endHour.setStepButtonsVisible(true);
+        endHour.setMin(0);
+        endHour.setMax(23);
+
+        VerticalLayout dialogLayout = new VerticalLayout(startHour, endHour);
+        dialogLayout.setPadding(false); dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+        dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
+
+        dialog.add(dialogLayout);
+
+        Button saveButton = new Button("Add", e -> {
+            dialog.close();
+            Integer startHourInt = startHour.getValue();
+            Integer endHourInt = endHour.getValue();
+            if(startHourInt != null && endHourInt != null &&storeId != -1){
+                Result<RuleService> result = shoppingService.addPurchasePolicyForbiddenHoursRule(storeId, startHourInt, endHourInt);
+                handleRuleServiceResult(result, new ArrayList<>(), rulesGrid);
+            }
+        });
+        saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+        Button cancelButton = new Button("Cancel", e -> dialog.close());
+        dialog.getFooter().add(cancelButton, saveButton);
+
         add(dialog);
         dialog.open();
     }
@@ -1824,7 +1914,7 @@ public class StoreManagementView extends VerticalLayout {
         Map<Integer, Integer> idsToAmounts = new HashMap<>();
         Paragraph paragraph = new Paragraph("Map of Items: ");
         TextField textField = new TextField("ID, Amount");
-        Button addButton = getMapFromUser(idsToAmounts, textField, paragraph);
+        Button addButton = getIntIntMapFromUser(idsToAmounts, textField, paragraph);
 
         dialog.add(itemsDiv, paragraph, textField, addButton);
 
@@ -1867,7 +1957,7 @@ public class StoreManagementView extends VerticalLayout {
         return resultRule;
     }
 
-    private Button getMapFromUser(Map<Integer, Integer> idsToAmounts, TextField textField, Paragraph paragraph) {
+    private Button getIntIntMapFromUser(Map<Integer, Integer> idsToAmounts, TextField textField, Paragraph paragraph) {
         textField.setHelperText("Enter an ID a ',' and amount");
         return new Button("Add Id,Amount", e->{
 
@@ -1887,6 +1977,35 @@ public class StoreManagementView extends VerticalLayout {
                     String[] resSplit = res.split(",");
                     try{
                         idsToAmounts.put(Integer.parseInt(resSplit[0]), Integer.parseInt(resSplit[1]));
+                        paragraph.add(resSplit[0] + ":" + resSplit[1]+ "   ");
+                    }catch (Exception e1){
+                        printError("You didn't enter number!");
+                    }
+                }
+            }
+        });
+    }
+
+    private Button getIntDoubleMapFromUser(Map<Integer, Double> idsToWeights, TextField textField, Paragraph paragraph) {
+        textField.setHelperText("Enter an ID a ',' and weight");
+        return new Button("Add Id,Weight", e->{
+
+            if(textField.getValue() == null){
+                printError("Enter an ID and weight please");
+            }
+            else{
+                String res = textField.getValue().replace(" ","");
+                int secondIndex = res.indexOf(',', res.indexOf(',') + 1);
+                if(!res.contains(",")){
+                    printError("You didn't enter a ','");
+                }
+                else if(secondIndex != -1){
+                    printError("You entered too many values");
+                }
+                else {
+                    String[] resSplit = res.split(",");
+                    try{
+                        idsToWeights.put(Integer.parseInt(resSplit[0]), Double.parseDouble(resSplit[1]));
                         paragraph.add(resSplit[0] + ":" + resSplit[1]+ "   ");
                     }catch (Exception e1){
                         printError("You didn't enter number!");
