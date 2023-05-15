@@ -398,20 +398,19 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public List<MessageService> watchNotReadMessages(int id) throws Exception
-    {
-        if(real != null)
-            return real.watchNotReadMessages(id);
-        return null;
-    }
-
-
-    @Override
     public boolean checkIfLoggedIn(int userId) {
         if(real != null){
             return real.checkIfLoggedIn(userId);
         }
         return false;
+    }
+
+    public HashMap<Integer, ChatService> getChats(int id){
+        if(real != null){
+            return real.getChats(id);
+        }
+
+        return null;
     }
 
 }

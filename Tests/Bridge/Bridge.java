@@ -1,5 +1,6 @@
 package Bridge;
 
+import BusinessLayer.NotificationSystem.Chat;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -421,7 +422,9 @@ public interface Bridge {
      * @param id
      * @return list of messages
      */
-    List<MessageService> watchNotReadMessages(int id) throws Exception;
+    //List<MessageService> watchNotReadMessages(int id) throws Exception;
+
+    HashMap<Integer, ChatService> getChats(int id);
 
 
 }
