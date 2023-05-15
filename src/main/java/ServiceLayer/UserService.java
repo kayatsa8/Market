@@ -330,6 +330,26 @@ public class UserService {
         }
     }
 
+    public Result<Boolean> addCouponToCart(int userId, String coupon){
+        try{
+            market.addCouponToCart(userId, coupon);
+            return new Result<>(false, false);
+        }
+        catch(Exception e){
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result<Boolean> removeCouponFromCart(int userId, String coupon){
+        try{
+            market.removeCouponFromCart(userId, coupon);
+            return new Result<>(false, false);
+        }
+        catch(Exception e){
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
     public String getUsername(Integer key) {
         try {
             return market.getUserFacade().getRegisteredUser(key).getUsername();

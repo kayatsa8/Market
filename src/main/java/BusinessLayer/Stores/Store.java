@@ -608,7 +608,7 @@ public class Store {
         }
     }
 
-    private boolean checkIfPurchaseIsValid(List<CartItemInfo> basketItems) throws Exception
+    public boolean checkIfPurchaseIsValid(List<CartItemInfo> basketItems) throws Exception
     {
         for (Map.Entry<Integer, PurchasePolicy> purchasePolicy : purchasePolicies.entrySet())
         {
@@ -1186,6 +1186,10 @@ public class Store {
             }
         }
         item.setDiscountPolicies(result);
+    }
+
+    public boolean isItemInCatalog(int id){
+        return items.containsKey(id);
     }
 
 }

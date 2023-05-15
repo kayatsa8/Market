@@ -557,4 +557,12 @@ public class Market {
     public Map<Integer, RegisteredUser> getLoggedOutUsers() {
         return userFacade.getLoggedOutUsers();
     }
+
+    public void addCouponToCart(int userId, String coupon) throws Exception {
+        userFacade.addCouponToCart(userId, coupon);
+    }
+
+    public void removeCouponFromCart(int userId, String coupon) throws Exception {
+        userFacade.removeCouponFromCart(userId, coupon);
+    }
 }

@@ -341,4 +341,20 @@ public class UserFacade {
     public Map<RegisteredUser, Set<Integer>> getAllManagersIDefined(int ownerId) throws Exception {
         return getRegisteredUser(ownerId).getAllManagersIDefined();
     }
+
+    public void addCouponToCart(int userId, String coupon) throws Exception {
+        if(!users.containsKey(userId)){
+            throw new Exception("ERROR: UserFacade::addCouponToCart: no such user!");
+        }
+
+        users.get(userId).addCouponToCart(coupon);
+    }
+
+    public void removeCouponFromCart(int userId, String coupon) throws Exception {
+        if(!users.containsKey(userId)){
+            throw new Exception("ERROR: UserFacade::removeCouponFromCart: no such user!");
+        }
+
+        users.get(userId).removeCouponFromCart(coupon);
+    }
 }

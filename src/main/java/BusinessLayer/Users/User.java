@@ -64,4 +64,12 @@ public abstract class User {
         cart.empty();
         return cart;
     }
+
+    public void addCouponToCart(String coupon) throws Exception {
+        cart.addCoupon(coupon);
+    }
+
+    public void removeCouponFromCart(String coupon) throws Exception {
+        cart.removeCoupon(coupon);
+    }
 }
