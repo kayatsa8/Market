@@ -79,13 +79,13 @@ public class CartBasketTests {
 
             //BAD
             //TODO: add after merge
-//            try{
-//                cart.addItem(store1, item3, 3);
-//                fail("The cart added an item of one store to another.");
-//            }
-//            catch (Exception e){
-//                assertEquals("ERROR! requested item is not in store.", e.getMessage());
-//            }
+            try{
+                cart.addItem(store1, item3, 3);
+                fail("The cart added an item of one store to another.");
+            }
+            catch (Exception e){
+                assertEquals("ERROR: Basket::addItemToCart: the item is not in the store!", e.getMessage());
+            }
 
             try{
                 cart.addItem(store2, item4, -17);

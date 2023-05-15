@@ -72,6 +72,10 @@ public class Basket {
             //LOG
             throw new Exception("ERROR: Basket::addItemToCart: the item is already in the basket!");
         }
+
+        if(!store.isItemInCatalog(item.getItemID())){
+            throw new Exception("ERROR: Basket::addItemToCart: the item is not in the store!");
+        }
     }
 
     private void validateChangeItemQuantity(int itemID, int quantity) throws Exception {

@@ -440,7 +440,7 @@ public class Store {
         PurchasePolicy policy = new PurchasePolicy(myLogicalComponent);
         int policyId = policiesIDs;
         purchasePolicies.put(policyId, policy);
-        purchasePoliciesIDs++;
+        //purchasePoliciesIDs++;
         return policyId + ":" + policy.toString();
     }
 
@@ -1183,6 +1183,10 @@ public class Store {
             }
         }
         item.setDiscountPolicies(result);
+    }
+
+    public boolean isItemInCatalog(int id){
+        return items.containsKey(id);
     }
 
 }
