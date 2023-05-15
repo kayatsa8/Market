@@ -269,6 +269,10 @@ public class StoreManagementView extends VerticalLayout {
 
     private void addMenuItems(Grid<StoreService> storesGrid, boolean managerMode) {
         GridContextMenu<StoreService> menu = storesGrid.addContextMenu();
+        storesGrid.addSelectionListener(e->
+                            {
+                                if (e.getAllSelectedItems().size()==0) {menu.close();}
+                            });
         menu.setOpenOnClick(true);
         menu.addItem("View Items Of Store", event -> {viewItemsDialog();});
         menu.addItem("View Discounts Of Store", e -> {viewDiscountsDialog();});
@@ -807,7 +811,7 @@ public class StoreManagementView extends VerticalLayout {
         dialog.addCancelListener(event -> printError("Canceled"));
 
         dialog.setConfirmText("Open");
-        dialog.setConfirmButtonTheme("error primary");
+        dialog.setConfirmButtonTheme("success primary");
         dialog.addConfirmListener(event -> reOpenStoreAction(getStoreIdOfSelectedRow(storesGrid), PresentationLayer.views.MainLayout.getCurrUserID()));
 
         add(dialog);

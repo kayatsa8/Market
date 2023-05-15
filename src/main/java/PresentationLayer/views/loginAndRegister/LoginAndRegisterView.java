@@ -145,8 +145,9 @@ public class LoginAndRegisterView extends HorizontalLayout {
             MainLayout.setCurrUser(result.getValue());
             //show that id changes
             printSuccess(action + " " + msg+"\nid="+ MainLayout.getCurrUserID());
-            MainLayout.setUserView();
-            //move screen
+            MainLayout mainLayout = (MainLayout) UI.getCurrent().getChildren().filter(component -> component.getClass() == MainLayout.class).findFirst().orElse(null);
+            assert mainLayout != null;
+            mainLayout.setUserView();
             UI.getCurrent().navigate(ClientView.class);
         }
         else {

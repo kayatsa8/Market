@@ -335,7 +335,7 @@ public class UserService {
             return market.getUserFacade().getRegisteredUser(key).getUsername();
         }
         catch (Exception e) {
-            return e.getMessage();
+            return null;
         }
     }
 }
