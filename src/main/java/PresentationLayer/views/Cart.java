@@ -42,7 +42,7 @@ import java.util.function.Function;
 @PageTitle("Cart")
 @Route(value = "cart", layout = MainLayout.class)
 public class Cart extends Div {
-    private final UserPL currUser =UserPL.getInstance();
+    private final int currUser =MainLayout.getMainLayout().getCurrUserID();
     private Span totalPriceSpan=new Span();
     private float  totalPrice=0;
     private Span discountSpan=new Span();
@@ -52,6 +52,7 @@ public class Cart extends Div {
     private final String TOTAL_PRICE="Total Price:";
     private final String TOTAL_DISCOUNT="Total discount:";
     private final String ORIGINAL_TOTAL_PRICE="Original Total Price:";
+    private Grid<BasketService> grid;
     public static final float ROW_HEIGHT = 120;
     private static final float SUB_ROW_HEIGHT = 70;
     private static final float HEADER_HEIGHT= 60;
@@ -64,7 +65,7 @@ public class Cart extends Div {
     public Cart() {
         try {
             shoppingService = new ShoppingService();
-            baskets = shoppingService.getCart(currUser.getCurrUserID()).getValue().getAllBaskets();
+            baskets = shoppingService.getCart(currUser).getValue().getAllBaskets();
             Notification.show("Succeeded to connect to shoppingService");
         } catch (Exception e) {
             Notification.show("Problem initiating Shefa Isaschar :(");
@@ -80,12 +81,12 @@ public class Cart extends Div {
                 LumoUtility.Margin.Horizontal.XSMALL, LumoUtility.Padding.Bottom.LARGE, LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Position.RELATIVE);
 
 
-        content.add(createCheckoutForm(totalPriceSpan));
-        content.add(createAside(totalPriceSpan));
+        content.add(createCheckoutForm());
+        content.add(createAside(grid));
         add(content);
     }
 
-    private Component createCheckoutForm(Span totalPriceSpan) {
+    private Component createCheckoutForm() {
         Section checkoutForm = new Section();
         checkoutForm.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN, LumoUtility.Flex.GROW, LumoUtility.MaxWidth.FULL);
 
@@ -113,7 +114,8 @@ public class Cart extends Div {
 
         H3 header = new H3("Personal details");
         header.addClassNames(LumoUtility.Margin.Bottom.MEDIUM, LumoUtility.Margin.Top.SMALL, LumoUtility.FontSize.XXLARGE);
-        Grid<BasketService> grid = new Grid<>();
+        //Grid<BasketService> grid = new Grid<>();
+        grid=new Grid<>();
         //TODO REMOVE?
         List<BasketService> baskets = this.baskets;
         grid.setItems(baskets);
@@ -130,7 +132,7 @@ public class Cart extends Div {
 
 
         grid.setSelectionMode(Grid.SelectionMode.NONE);
-        setSubGridCreation(totalPriceSpan, grid, baskets);
+        setSubGridCreation( grid, baskets);
 
         grid.setDetailsVisibleOnClick(false); // disable opening details on click
         grid.addContextMenu();
@@ -168,7 +170,7 @@ public class Cart extends Div {
 
                 //remove from business
                 Result<BasketService> result= shoppingService.removeBasketFromCart(
-                        currUser.getCurrUserID(),
+                        currUser,
                         basket.getStoreId());
                 if (result.isError()){
                     Notification.show("Fail: "+result.getMessage());
@@ -188,7 +190,7 @@ public class Cart extends Div {
         return gridSection;
     }
 
-    private void setSubGridCreation(Span totalPriceSpan, Grid<BasketService> grid, List<BasketService> baskets) {
+    private void setSubGridCreation( Grid<BasketService> grid, List<BasketService> baskets) {
         grid.setItemDetailsRenderer(
                 new ComponentRenderer<>(basket -> {
                     Grid<CartItemInfoService> subGrid = new Grid<>();
@@ -204,13 +206,13 @@ public class Cart extends Div {
                             Result<CartService> result;
                             if (item.getAmount()==1)
                                  result= shoppingService.removeItemFromCart(
-                                        currUser.getCurrUserID(),
+                                        currUser,
                                         basket.getStoreId(),
                                         item.getItemID());
                             else {
                                 //remove from business
                                  result = shoppingService.changeItemQuantityInCart(
-                                        currUser.getCurrUserID(),
+                                        currUser,
                                         basket.getStoreId(),
                                         item.getItemID(),
                                         item.getAmount() - 1);
@@ -237,7 +239,7 @@ public class Cart extends Div {
                                 , event -> {
                             //remove from business
                             Result<CartService> result= shoppingService.changeItemQuantityInCart(
-                                    currUser.getCurrUserID(),
+                                    currUser,
                                     basket.getStoreId(),
                                     item.getItemID(),
                                     item.getAmount()+1);
@@ -275,7 +277,7 @@ public class Cart extends Div {
                         , event -> {
                             //remove from business
                             Result<CartService> result= shoppingService.removeItemFromCart(
-                                currUser.getCurrUserID(),
+                                currUser,
                                 basket.getStoreId(),
                                 item.getItemID());
                             if (result.isError()){
@@ -344,7 +346,7 @@ public class Cart extends Div {
                 .setFlexGrow(0);
     }
 
-    private Aside createAside(Span totalPriceSpan) {
+    private Aside createAside(Grid<BasketService> grid) {
         Aside aside = new Aside();
         aside.addClassNames(LumoUtility.Background.CONTRAST_5, LumoUtility.BoxSizing.BORDER, LumoUtility.Padding.LARGE,
                 LumoUtility.BorderRadius.LARGE, LumoUtility.MaxWidth.SCREEN_SMALL,
@@ -373,12 +375,14 @@ public class Cart extends Div {
             TextField addressField = new TextField("Enter shipping address:");
             Button confirmButton = new Button("BUY", event -> {
                 String address = addressField.getValue();
-                Result<Boolean> result=shoppingService.buyCart(currUser.getCurrUserID(), address);
+                Result<Boolean> result=shoppingService.buyCart(currUser, address);
                 if (result.isError()){
                     Notification.show("Fail to buy: "+result.getMessage());
                 }
                 else {
                     Notification.show("Succeed to buy");
+                    baskets=shoppingService.getCart(currUser).getValue().getAllBaskets();
+                    grid.setItems(baskets);
                 }
                 dialog.close();
             });

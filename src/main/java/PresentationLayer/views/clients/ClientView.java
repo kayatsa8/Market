@@ -180,12 +180,12 @@ public class ClientView extends VerticalLayout {
 
     private void setAmount(CatalogItemService catalogItemService, Integer amount) {
 
-        Result<CartService> result = shoppingService.addItemToCart(MainLayout.getCurrUserID(),catalogItemService.getStoreID(), catalogItemService.getItemID(), amount);
+        Result<CartService> result = shoppingService.addItemToCart(mainLayout.getCurrUserID(),catalogItemService.getStoreID(), catalogItemService.getItemID(), amount);
         if (!result.isError()){
-            Notification.show("Successfully added to " + MainLayout.getCurrUserID()+"'s cart\n");
+            Notification.show("Successfully added to " + mainLayout.getCurrUserID()+"'s cart\n");
         }
         else {
-            Notification.show(MainLayout.getCurrUserID() + result.getMessage());
+            Notification.show(mainLayout.getCurrUserID() + result.getMessage());
         }
     }
 

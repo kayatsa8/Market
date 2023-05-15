@@ -45,20 +45,7 @@ public class CartService {
         return found;
     }
 
-    public static void setAmount(CatalogItemService catalogItemService, Integer amount) throws Exception {
 
-        try {
-            shoppingService = new ShoppingService();
-            Result<CartService> result = shoppingService.addItemToCart(MainLayout.getCurrUserID(),catalogItemService.getStoreID(), catalogItemService.getItemID(), amount);
-            if (!result.isError()){
-                Notification.show("Successfully added to " + MainLayout.getCurrUserID()+"'s cart\n");
-            }
-            else {
-                Notification.show(MainLayout.getCurrUserID() + result.getMessage());
-            }
-        }
-        catch (Exception e) {throw new Exception(e.getMessage());}
-    }
     public List<BasketService> getAllBaskets() {
         return baskets;
     }
