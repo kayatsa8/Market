@@ -359,6 +359,14 @@ public class UserService {
         catch(Exception e){
             return new Result<>(true, e.getMessage());
         }
+    }
 
+    public String getUsername(Integer key) {
+        try {
+            return market.getUserFacade().getRegisteredUser(key).getUsername();
+        }
+        catch (Exception e) {
+            return null;
+        }
     }
 }

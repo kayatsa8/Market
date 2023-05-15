@@ -1,5 +1,7 @@
 package ServiceLayer.Objects;
 
+import BusinessLayer.StorePermissions.StoreManager;
+import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreStatus;
@@ -14,25 +16,50 @@ public class StoreService {
     public final int founderID;
     public final String storeName;
     public final int storeID;
-    private Store store;
-    private Map<CatalogItemService, Integer>  items = new HashMap<>();
-    public StoreService(Store store)
-    {
+    public final StoreStatus storeStatus;
+    private Map<CatalogItemService, Integer> items = new HashMap<>();
+    private Map<Integer, Integer> managers; //id -> person who defined me
+    private Map<Integer, Integer> owners; //id -> person who defined me
+
+    public StoreService(Store store) {
         storeID = store.getStoreID();
         storeName = store.getStoreName();
         founderID = store.getFounderID();
-        this.store = store;
+        storeStatus = store.getStoreStatus();
+        managers = new HashMap<>();
+        owners = new HashMap<>();
+        setManagersAndOwners(store);
         loadItemsAndAmountsFromStore(store);
 
     }
 
+    private void setManagersAndOwners(Store store) {
+        for (StoreManager manager : store.getStoreManagers()) {
+            managers.put(manager.getUserID(), manager.getParentID());
+        }
+        for (StoreOwner owner : store.getStoreOwners()) {
+            owners.put(owner.getUserID(), owner.getParentID());
+        }
+    }
+
+    public int getFounderID() {
+        return founderID;
+    }
+
+    public Map<Integer, Integer> getManagers() {
+        return managers;
+    }
+
+    public Map<Integer, Integer> getOwners() {
+        return owners;
+    }
 
     private Map<CatalogItemService, Integer> loadItemsAndAmountsFromStore(Store store) {
         Map<CatalogItem, Boolean> itemsInStore = store.getCatalog();
-        for(Map.Entry<CatalogItem,Boolean> itemEntry: itemsInStore.entrySet()){
+        for (Map.Entry<CatalogItem, Boolean> itemEntry : itemsInStore.entrySet()) {
             CatalogItemService item = new CatalogItemService(itemEntry.getKey(), itemEntry.getValue());
             int amount = 0;
-            if(itemEntry.getValue()){
+            if (itemEntry.getValue()) {
                 amount = store.getItemAmount(item.getItemID());
                 item.setAmount(amount);
             }
@@ -49,25 +76,20 @@ public class StoreService {
         return storeID;
     }
 
-    public CatalogItemService getItem(int id){
-        for(CatalogItemService catalogItemService: items.keySet()){
+    public CatalogItemService getItem(int id) {
+        for (CatalogItemService catalogItemService : items.keySet()) {
             if (catalogItemService.getItemID() == id)
                 return catalogItemService;
         }
         return null;
-//        CatalogItem item = store.getItem(id);
-//        if(item == null)
-//            return null;
-//        return new CatalogItemService(item, store.getItemAmount(id)>0);
     }
 
     public String getStoreName() {
         return storeName;
     }
 
-    public String getStoreStatus(){
-        StoreStatus status = store.getStoreStatus();
-        switch (status){
+    public String getStoreStatus() {
+        switch (storeStatus) {
             case OPEN -> {
                 return "Open";
             }
@@ -81,7 +103,7 @@ public class StoreService {
         return "";
     }
 
-    public List<CatalogItemService> getItems(){
+    public List<CatalogItemService> getItems() {
         return new ArrayList<>(items.keySet());
     }
 

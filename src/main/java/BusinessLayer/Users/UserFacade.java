@@ -1,5 +1,6 @@
 package BusinessLayer.Users;
 
+import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.Log;
 import BusinessLayer.CartAndBasket.CartItemInfo;
@@ -88,7 +89,7 @@ public class UserFacade {
         if (user!=null&&user.isLoggedIn()) {
             return user;
         }
-        throw new Exception("User " + user.getUsername() + "is not logged in");
+        throw new Exception("User " + userID + "is not logged in");
     }
 
     public int registerUser(String username, String password) throws Exception {
@@ -307,6 +308,10 @@ public class UserFacade {
         return new ArrayList<>(getRegisteredUser(ownerId).getStoresIOwn().keySet());
     }
 
+    public ArrayList<Integer> getStoresIdsIManage(int ownerId) throws Exception {
+        return new ArrayList<>(getRegisteredUser(ownerId).getStoresIManage().keySet());
+    }
+
     public boolean isOwnerOrManager(int currUserID) {
         try {
             RegisteredUser user = getRegisteredUser(currUserID);
@@ -361,5 +366,9 @@ public class UserFacade {
         }
 
         users.get(userId).listenToNotifications(listener);
+    }
+  
+    public Basket removeBasketFromCart(int userID, int storeID) throws Exception {
+        return getLoggedInUser(userID).removeBasketFromCart(storeID);
     }
 }

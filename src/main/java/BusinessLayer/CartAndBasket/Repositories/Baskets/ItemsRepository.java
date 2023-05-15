@@ -17,6 +17,9 @@ public class ItemsRepository {
     public void putIfAbsent(int itemID, Basket.ItemWrapper wrapper){
         items.putIfAbsent(itemID, wrapper);
     }
+    public void put(int itemID, Basket.ItemWrapper wrapper){
+        items.put(itemID, wrapper);
+    }
 
     public Basket.ItemWrapper get(int itemID){
         return items.get(itemID);
@@ -36,6 +39,14 @@ public class ItemsRepository {
 
     public Collection<Basket.ItemWrapper> values(){
         return items.values();
+    }
+    /**
+     @return 0 if not contains key
+     */
+    public int getAmount(int itemID){
+        if (items.containsKey(itemID))
+            return items.get(itemID).info.getAmount();
+        return 0;
     }
 
 

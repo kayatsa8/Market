@@ -8,6 +8,7 @@ public class CartItemInfoService {
     private final double percent;
     private final double originalPrice;
     private final double finalPrice;
+    private final String itemName;
 
     public CartItemInfoService(CartItemInfo info){
         itemID = info.getItemID();
@@ -15,6 +16,7 @@ public class CartItemInfoService {
         percent = info.getPercent();
         originalPrice = info.getFinalPrice();
         finalPrice = info.getFinalPrice();
+        itemName=info.getItemName();
     }
 
     public int getItemID(){
@@ -35,6 +37,9 @@ public class CartItemInfoService {
 
     public double getFinalPrice(){
         return finalPrice;
+    }
+    public String getItemName() {
+        return itemName;
     }
 
 

@@ -33,6 +33,19 @@ public class BasketsRepository {
         baskets.clear();
     }
 
+    /**
+     * @param storeID
+     * key – the key that needs to be removed
+     * @Returns
+     * the previous value associated with key, or null if there was no mapping for key
+     * @Throws
+     * NullPointerException – if the specified key is null
+     *
+     */
+    public Basket remove(int storeID){
+        return baskets.remove(storeID);
+    }
+
     public ConcurrentHashMap<Integer, Basket> getBaskets(){
         return baskets;
     }
