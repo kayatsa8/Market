@@ -222,7 +222,7 @@ public class UserService {
             HashMap<Integer, ChatService> chats = new HashMap<>();
 
             for(Integer id : _chats.keySet()){
-                chats.put(id, new ChatService(_chats.get(id)));
+                chats.put(id, new ChatService(_chats.get(id), market.getNameById(userId), market.getNameById(id)));
             }
 
             return new Result<>(false, chats);
@@ -367,6 +367,16 @@ public class UserService {
         }
         catch (Exception e) {
             return null;
+        }
+    }
+
+    public Result<Integer> getUserIdByName(String name){
+        try{
+            int id = market.getUserIdByName(name);
+            return new Result<>(false, id);
+        }
+        catch(Exception e){
+            return new Result<>(true, e.getMessage());
         }
     }
 }
