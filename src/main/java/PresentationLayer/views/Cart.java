@@ -52,7 +52,7 @@ public class Cart extends Div {
     /**TreeGrid*/
     private List<BasketService> baskets;
     public Cart() {
-        currUser = MainLayout.getMainLayout().getCurrUserID();
+        currUser =MainLayout.getMainLayout().getCurrUserID();
         try {
             shoppingService = new ShoppingService();
             baskets = shoppingService.getCart(currUser).getValue().getAllBaskets();
