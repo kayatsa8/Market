@@ -1,6 +1,5 @@
 package PresentationLayer.views;
 
-import PresentationLayer.views.loginAndRegister.UserPL;
 import ServiceLayer.Objects.*;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
@@ -9,40 +8,30 @@ import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.HeaderRow;
-import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.component.textfield.EmailField;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.textfield.TextFieldVariant;
-import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
-import java.awt.*;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 @PageTitle("Cart")
 @Route(value = "cart", layout = MainLayout.class)
+@PreserveOnRefresh
 public class Cart extends Div {
-    private final int currUser =MainLayout.getMainLayout().getCurrUserID();
+    private int currUser;
     private Span totalPriceSpan=new Span();
     private float  totalPrice=0;
     private Span discountSpan=new Span();
@@ -63,12 +52,13 @@ public class Cart extends Div {
     /**TreeGrid*/
     private List<BasketService> baskets;
     public Cart() {
+        currUser =MainLayout.getMainLayout().getCurrUserID();
         try {
             shoppingService = new ShoppingService();
             baskets = shoppingService.getCart(currUser).getValue().getAllBaskets();
-            Notification.show("Succeeded to connect to shoppingService");
+            printSuccess("Succeeded to connect to shoppingService");
         } catch (Exception e) {
-            Notification.show("Problem initiating Shefa Isaschar :(");
+            printError("Problem initiating Shefa Isaschar :(");
         }
 
 
@@ -173,9 +163,9 @@ public class Cart extends Div {
                         currUser,
                         basket.getStoreId());
                 if (result.isError()){
-                    Notification.show("Fail: "+result.getMessage());
+                    printError("Fail: "+result.getMessage());
                 }else
-                    Notification.show("Succeed remove Basket: "+basket.getStoreName());
+                    printSuccess("Succeed remove Basket: "+basket.getStoreName());
 
                 baskets.remove(basket);
                 updateAside(baskets);
@@ -218,9 +208,9 @@ public class Cart extends Div {
                                         item.getAmount() - 1);
                             }
                             if (result.isError()){
-                                Notification.show("Fail: "+result.getMessage());
+                                printError("Fail: "+result.getMessage());
                             }else
-                                Notification.show("Succeed remove item form store: "+basket.getStoreName());
+                                printSuccess("Succeed remove item form store: "+basket.getStoreName());
 
                             basket.removeItem(item);
                             //updateTotalPrice(priceSpan,baskets);
@@ -244,9 +234,9 @@ public class Cart extends Div {
                                     item.getItemID(),
                                     item.getAmount()+1);
                             if (result.isError()){
-                                Notification.show("Fail: "+result.getMessage());
+                                printError("Fail: "+result.getMessage());
                             }else
-                                Notification.show("Succeed remove item form store: "+basket.getStoreName());
+                                printSuccess("Succeed remove item form store: "+basket.getStoreName());
 
                             basket.removeItem(item);
                             //updateTotalPrice(priceSpan,baskets);
@@ -281,9 +271,9 @@ public class Cart extends Div {
                                 basket.getStoreId(),
                                 item.getItemID());
                             if (result.isError()){
-                                Notification.show("Fail: "+result.getMessage());
+                                printError("Fail: "+result.getMessage());
                             }else
-                                Notification.show("Succeed remove item form store: "+basket.getStoreName());
+                                printSuccess("Succeed remove item form store: "+basket.getStoreName());
 
                         basket.removeItem(item);
                         //updateTotalPrice(priceSpan,baskets);
@@ -373,21 +363,22 @@ public class Cart extends Div {
         pay.addClickListener(e -> {
             ConfirmDialog dialog = new ConfirmDialog();
             TextField addressField = new TextField("Enter shipping address:");
-            Button confirmButton = new Button("BUY", event -> {
+            dialog.addCancelListener( x -> dialog.close());
+            dialog.addConfirmListener( event -> {
                 String address = addressField.getValue();
                 Result<Boolean> result=shoppingService.buyCart(currUser, address);
                 if (result.isError()){
-                    Notification.show("Fail to buy: "+result.getMessage());
+                    printError("Fail to buy: "+result.getMessage());
                 }
                 else {
-                    Notification.show("Succeed to buy");
+                    printSuccess("Succeed to buy");
                     baskets=shoppingService.getCart(currUser).getValue().getAllBaskets();
                     updateAside(baskets);
                     grid.setItems(baskets);
                 }
                 dialog.close();
             });
-            dialog.add(addressField, confirmButton);
+            dialog.add(addressField);
             dialog.open();
         });
 
@@ -421,7 +412,18 @@ public class Cart extends Div {
         item.add(subSection, priceSpan);
         return item;
     }
+
+    private void printSuccess(String msg) {
+        Notification notification = Notification.show(msg, 2000, Notification.Position.BOTTOM_CENTER);
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+
     }
+
+    private void printError(String errorMsg) {
+        Notification notification = Notification.show(errorMsg, 2000, Notification.Position.BOTTOM_CENTER);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+    }
+}
 
 
 

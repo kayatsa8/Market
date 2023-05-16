@@ -15,13 +15,20 @@ import java.util.List;
 public abstract class User {
     protected Cart cart;
     protected ReceiptHandler receiptHandler;
+    int id;
+
     public User(int id) {
+        this.id = id;
         this.cart = new Cart(id);
         this.receiptHandler = new ReceiptHandler();
     }
 
     public Cart getCart() {
         return cart;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public Cart addItemToCart(Store store, CatalogItem item, int quantity) throws Exception {

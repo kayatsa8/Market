@@ -41,6 +41,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 import org.apache.commons.lang3.text.WordUtils;
@@ -53,6 +54,7 @@ import java.time.LocalDate;
 
 @PageTitle("About")
 @Route(value = "stores", layout = MainLayout.class)
+@PreserveOnRefresh
 public class StoreManagementView extends VerticalLayout {
 
 

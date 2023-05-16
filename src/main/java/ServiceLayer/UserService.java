@@ -6,6 +6,7 @@ import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
 import BusinessLayer.Users.RegisteredUser;
+import BusinessLayer.Users.User;
 import ServiceLayer.Objects.ChatService;
 import ServiceLayer.Objects.MessageService;
 import ServiceLayer.Objects.UserInfoService;
@@ -31,6 +32,16 @@ public class UserService {
         market.systemStart();
     }
 
+    public Result<Integer> addGuest() {
+        try {
+            User newGuest = market.addGuest();
+            log.info("Created new guest with ID (Session): " + newGuest.getId());
+            return new Result<Integer>(false, newGuest.getId());
+        }
+        catch (Exception e) {
+            return new Result<>(true, e.getMessage());
+        }
+    }
     public Result<Integer> login(String userName, String pass) {
         try {
             int id=market.login(userName,pass);

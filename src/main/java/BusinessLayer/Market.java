@@ -18,6 +18,7 @@ import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.SystemManager;
+import BusinessLayer.Users.User;
 import BusinessLayer.Users.UserFacade;
 import Globals.FilterValue;
 import Globals.SearchBy;
@@ -46,9 +47,12 @@ public class Market {
                 instance = new Market();
                 instance.createFirstAdmin();
             }
-            instance.userFacade.setGuest();
             return instance;
         }
+    }
+
+    public User addGuest() {
+        return userFacade.setGuest();
     }
 
     public UserFacade getUserFacade() {

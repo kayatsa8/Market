@@ -21,22 +21,31 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.server.VaadinService;
+import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import jakarta.servlet.http.HttpSession;
 import org.vaadin.lineawesome.LineAwesomeIcon;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.vaadin.lineawesome.LineAwesomeIcon.*;
 
 /**
  * The main view is a top-level placeholder for other views.
  */
-public class MainLayout extends AppLayout implements NotificationObserver {
+public class MainLayout extends AppLayout implements NotificationObserver, BeforeEnterObserver {
 
     private H2 viewTitle;
     private H2 user;
     public UserService userService;
     public ShoppingService shoppingService;
-    private UserPL currUser;
+    private static Map<String, UserPL> currUsers = new HashMap<>();
     private AppNavItem loginAndRegister;
     private AppNavItem systemAdmin;
     private AppNavItem marketOwnerOrManager;
@@ -47,20 +56,18 @@ public class MainLayout extends AppLayout implements NotificationObserver {
     public MainLayout() {
         setPrimarySection(Section.DRAWER);
         addDrawerContent();
-        currUser = new UserPL();
         try {
+//            currUsers = new ConcurrentHashMap<>();
             userService=new UserService();
         } catch (Exception e) {
             printError("Error initialize userService:\n"+e.getMessage());
         }
-        addHeaderContent();
-        setGuestView();
     }
 
     public void setCurrUser(Integer value) {
-        currUser.setCurrUserID(value);
+        currUsers.get(getSessionID()).setCurrUserID(value);
         try{
-            listenToNotifications(currUser.getCurrUserID());
+            listenToNotifications(currUsers.get(getSessionID()).getCurrUserID());
         }
         catch(Exception e){
             System.out.println("\n\nERROR: MainLayout::MainLayout: " +
@@ -70,7 +77,7 @@ public class MainLayout extends AppLayout implements NotificationObserver {
     }
 
     public Integer getCurrUserID() {
-        return currUser.getCurrUserID();
+        return currUsers.get(getSessionID()).getCurrUserID();
     }
 
     private void addHeaderContent() {
@@ -97,7 +104,7 @@ public class MainLayout extends AppLayout implements NotificationObserver {
     }
 
     private String getUserName() {
-        String username = userService.getUsername(currUser.getCurrUserID());
+        String username = userService.getUsername(getCurrUserID());
         return username != null ? "Welcome, " + username + "!" : "Guest";
     }
 
@@ -147,9 +154,9 @@ public class MainLayout extends AppLayout implements NotificationObserver {
             printError("Failed to logout: "+result.getMessage());
         }
         else {
-            printSuccess("Succeed to logout currId="+ currUser.getCurrUserID());
+            printSuccess("Succeed to logout currId="+ getCurrUserID());
             setGuestView();
-            currUser.setCurrIdToGuest();
+            currUsers.get(getSessionID()).setCurrIdToGuest();
             user.setText(getUserName());
             UI.getCurrent().navigate(LoginAndRegisterView.class);
         }
@@ -165,7 +172,7 @@ public class MainLayout extends AppLayout implements NotificationObserver {
 
     public void setUserView() {
         logoutBtn.setVisible(true);
-        systemAdmin.setVisible(userService.isAdmin(currUser.getCurrUserID()));
+        systemAdmin.setVisible(userService.isAdmin(getCurrUserID()));
         marketOwnerOrManager.setVisible(true);
         loginAndRegister.setVisible(false);
         mailboxButton.setVisible(true);
@@ -210,5 +217,32 @@ public class MainLayout extends AppLayout implements NotificationObserver {
         MainLayout mainLayout = (MainLayout) UI.getCurrent().getChildren().filter(component -> component.getClass() == MainLayout.class).findFirst().orElse(null);
         assert mainLayout != null;
         return mainLayout;
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+        HttpSession session = getSession();
+        boolean isNewTab = (session.getAttribute("isNewTab") == null);
+
+        if (isNewTab) {
+            // Handle new tab event here
+            System.out.println(session.getId() + " wow!");
+            userService.addGuest();
+            currUsers.put(session.getId(), new UserPL());
+            // Set the session attribute to indicate that the function has been called
+            session.setAttribute("isNewTab", true);
+            addHeaderContent();
+            setGuestView();
+        }
+
+    }
+
+    private String getSessionID() {
+        return getSession().getId();
+    }
+
+    private HttpSession getSession() {
+        VaadinServletRequest request = (VaadinServletRequest) VaadinService.getCurrentRequest();
+        return request.getHttpServletRequest().getSession();
     }
 }

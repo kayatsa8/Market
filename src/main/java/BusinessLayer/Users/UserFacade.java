@@ -31,21 +31,25 @@ public class UserFacade {
     //    private Map<String, RegisteredUser> users;
     private Map<Integer, RegisteredUser> users;
     private UserDAO userDAO;
-    private Guest guest;
+    private Map<Integer, Guest> guests;
 
     public UserFacade() {
 //        users = new HashMap<>();
         users = new HashMap<>();
         userDAO = new UserDAO();
+        guests = new HashMap<>();
         userID = userDAO.getMaxID() + 1;
+        setGuest();
     }
 
     private synchronized int getNewId() {
         return userID++;
     }
 
-    public void setGuest() {
-        this.guest = new Guest();
+    public Guest setGuest() {
+        Guest guest = new Guest();
+        guests.put(Guest.GUEST_USER_ID--, guest);
+        return guest;
     }
 
     public void createAdmin() throws Exception {
@@ -72,14 +76,18 @@ public class UserFacade {
     }
 
     public User getUser(int userID) {
-        if (userID != Guest.GUEST_USER_ID) {
+        if (!isGuest(userID)) {
             return users.get(userID);
         }
-        return this.guest;
+        return guests.get(userID);
+    }
+
+    private boolean isGuest(int userID) {
+        return userID<=Guest.MAX_GUEST_USER_ID && userID > Guest.GUEST_USER_ID;
     }
 
     public RegisteredUser getRegisteredUser(int userID) throws Exception {
-        if (userID== Guest.GUEST_USER_ID) {
+        if (isGuest(userID)) {
             throw new Exception("This is the guest user ID, not registered user");
         }
         if (users==null)
@@ -240,15 +248,15 @@ public class UserFacade {
     }
 
     public Cart addItemToCart(int userID, Store store, CatalogItem item, int quantity) throws Exception {
-        return getLoggedInUser(userID).addItemToCart(store, item, quantity);
+        return getUser(userID).addItemToCart(store, item, quantity);
     }
 
     public Cart removeItemFromCart(int userID, int storeID, int itemID) throws Exception {
-        return getLoggedInUser(userID).removeItemFromCart(storeID, itemID);
+        return getUser(userID).removeItemFromCart(storeID, itemID);
     }
 
     public Cart changeItemQuantityInCart(int userID, int storeID, int itemID, int quantity) throws Exception {
-        return getLoggedInUser(userID).changeItemQuantityInCart(storeID, itemID, quantity);
+        return getUser(userID).changeItemQuantityInCart(storeID, itemID, quantity);
     }
 
     /**
@@ -262,10 +270,13 @@ public class UserFacade {
     }
 
     public HashMap<CatalogItem, CartItemInfo> getItemsInBasket(int userID, String storeName) throws Exception {
-        return getLoggedInUser(userID).getItemsInBasket(storeName);
+        return getUser(userID).getItemsInBasket(storeName);
     }
 
     public Cart buyCart(int userID, String address) throws Exception {
+        if (isGuest(userID)) {
+            return guests.get(userID).buyCart(address);
+        }
         return getLoggedInUser(userID).buyCart(address);
     }
 
@@ -273,7 +284,7 @@ public class UserFacade {
      * empties the cart
      */
     public Cart emptyCart(int userID) throws Exception {
-        return getLoggedInUser(userID).emptyCart();
+        return getUser(userID).emptyCart();
     }
 
     public void addManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) throws Exception {
@@ -368,7 +379,7 @@ public class UserFacade {
             throw new Exception("ERROR: UserFacade::addCouponToCart: no such user!");
         }
 
-        users.get(userId).addCouponToCart(coupon);
+        getUser(userId).addCouponToCart(coupon);
     }
 
     public void removeCouponFromCart(int userId, String coupon) throws Exception {
@@ -376,7 +387,7 @@ public class UserFacade {
             throw new Exception("ERROR: UserFacade::removeCouponFromCart: no such user!");
         }
 
-        users.get(userId).removeCouponFromCart(coupon);
+        getUser(userId).removeCouponFromCart(coupon);
     }
 
     public void listenToNotifications(int userId, NotificationObserver listener) throws Exception {
@@ -384,11 +395,11 @@ public class UserFacade {
             throw new Exception("No such user!");
         }
 
-        users.get(userId).listenToNotifications(listener);
+        getRegisteredUser(userId).listenToNotifications(listener);
     }
   
     public Basket removeBasketFromCart(int userID, int storeID) throws Exception {
-        return getLoggedInUser(userID).removeBasketFromCart(storeID);
+        return getUser(userID).removeBasketFromCart(storeID);
     }
 
     public int findUserByUsername(String username) throws Exception {
