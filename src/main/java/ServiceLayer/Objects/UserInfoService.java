@@ -1,6 +1,7 @@
 package ServiceLayer.Objects;
 
 import BusinessLayer.Users.RegisteredUser;
+import ServiceLayer.ShoppingService;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -11,8 +12,10 @@ public class UserInfoService {
     private int id;
     private ArrayList<Integer> storesIOwn;
     private ArrayList<Integer> storesIManage;
+    private ShoppingService shoppingService;
 
-    public UserInfoService(RegisteredUser user) {
+    public UserInfoService(RegisteredUser user) throws Exception {
+        shoppingService = new ShoppingService();
         this.username = user.getUsername();
         this.id = user.getId();
         this.storesIOwn = new ArrayList<>(user.getStoresIOwn().keySet());
@@ -22,7 +25,8 @@ public class UserInfoService {
 
     //Sets the Store for Owner Screen. Only the Stores he appointed me are here
     //if action is owner than Only storeI Own will be defined.
-    public UserInfoService(RegisteredUser user, Set<Integer> value, String action) {
+    public UserInfoService(RegisteredUser user, Set<Integer> value, String action) throws Exception {
+        this.shoppingService = new ShoppingService();
         this.username = user.getUsername();
         this.id = user.getId();
         if(action.equals("owner")){
@@ -84,7 +88,7 @@ public class UserInfoService {
     public String getStoreIOwnString(){
         StringBuilder res = new StringBuilder();
         for(Integer id : storesIOwn){
-            res.append(id).append(" ,");
+            res.append(id).append(": ").append(shoppingService.getStoreName(id)).append(" ,");
         }
         if(res.length() > 0){
             res.deleteCharAt(res.length() - 1);   //deletes ,
@@ -95,7 +99,7 @@ public class UserInfoService {
     public String getStoreIManageString(){
         StringBuilder res = new StringBuilder();
         for(Integer id : storesIManage){
-            res.append(id).append(" ,");
+            res.append(id).append(": ").append(shoppingService.getStoreName(id)).append(" ,");
         }
         if(res.length() > 0){
             res.deleteCharAt(res.length() - 1);   //deletes ,

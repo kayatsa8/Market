@@ -19,8 +19,8 @@ public class ReceiptItemService {
     public ReceiptItemService(ReceiptItem item) {
         this.id = item.getId();
         this.name = item.getName();
-        this.priceBeforeDiscount = item.getPrice();
         this.amount = item.getAmount();
+        this.priceBeforeDiscount = item.getPrice() * amount;
         this.finalPrice = item.getFinalPrice();
     }
 
