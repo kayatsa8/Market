@@ -4,6 +4,7 @@ import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
 import PresentationLayer.views.MainLayout;
+import PresentationLayer.views.StoreMailbox;
 import ServiceLayer.Objects.*;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
@@ -291,6 +292,17 @@ public class StoreManagementView extends VerticalLayout {
         menu.addItem("Get Staff Info", event -> {getStaffInfoDialog();}).setVisible(!managerMode);  //Requirement 4.11
         menu.addItem("View Store Purchase policies", event -> {viewPoliciesDialog(PURCHASE_POLICY, storesGrid);});
         menu.addItem("View Store Discount policies", event -> {viewPoliciesDialog(DISCOUNT_POLICY, storesGrid);});
+        menu.addItem("Store Mailbox", event -> startMailbox()).setVisible(!managerMode);
+    }
+
+    //mark
+    private void startMailbox(){
+        int storeId = getStoreIdOfSelectedRow(storesIOwnGrid);
+        String storeName = shoppingService.getStoreName(storeId);
+
+        StoreMailbox mailbox = new StoreMailbox(storeId, storeName, shoppingService, userService);
+
+        mailbox.makeMailboxDialog();
     }
 
     private void createStoreDialog() {
