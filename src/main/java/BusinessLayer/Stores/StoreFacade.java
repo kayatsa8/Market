@@ -602,4 +602,15 @@ public class StoreFacade {
         }
         return null;
     }
+
+    public int getIdByStoreName(String name) {
+        for (Store store : stores.values())
+        {
+            if (store.getStoreName().equals(name))
+            {
+                return store.getStoreID();
+            }
+        }
+        return -1;
+    }
 }
