@@ -45,9 +45,9 @@ public class Application implements AppShellConfigurator {
             int itemId = result.getValue().getItemID();
             shoppingService.addItemAmount(amirStoreID, itemId, 50);
             shoppingService.addItemAmount(amirStoreID, itemId + 1, 30);
-            shoppingService.addItemAmount(amirStoreID, itemId + 2, 2);
+            shoppingService.addItemAmount(amirStoreID, itemId + 2, 5);
 
-            shoppingService.addItemToCart(maorID, amirStoreID, itemId, 2);
+            shoppingService.addItemToCart(maorID, amirStoreID, itemId, 5);
             shoppingService.buyCart(maorID, "Address");
 
             userService.logout(amirID);

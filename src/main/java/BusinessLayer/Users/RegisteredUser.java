@@ -3,6 +3,7 @@ package BusinessLayer.Users;
 import BusinessLayer.Market;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.NotificationHub;
+import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
 import BusinessLayer.NotificationSystem.UserMailbox;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.StorePermissions.StoreManager;
@@ -289,5 +290,9 @@ public class RegisteredUser extends User {
         }
 
         return managers;
+    }
+
+    public void listenToNotifications(NotificationObserver listener){
+        mailbox.listen(listener);
     }
 }

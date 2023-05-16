@@ -44,4 +44,9 @@ public class CartService {
         }
         return found;
     }
+
+
+    public List<BasketService> getAllBaskets() {
+        return baskets;
+    }
 }
