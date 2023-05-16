@@ -33,4 +33,8 @@ public class ForbiddenCategoryRule extends Rule {
     {
         return forbiddenCategory.equals(category);
     }
+
+    @Override
+    public void removeItem(int itemID) {
+    }
 }

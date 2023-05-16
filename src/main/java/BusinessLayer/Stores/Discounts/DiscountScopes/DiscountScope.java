@@ -8,4 +8,6 @@ public interface DiscountScope {
     void setItemsPercents(List<CartItemInfo> copyBasket, double percent);
 
     boolean isDiscountApplyForItem(int itemID, String category);
+
+    void removeItem(int itemID);
 }

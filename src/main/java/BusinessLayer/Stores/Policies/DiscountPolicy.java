@@ -39,4 +39,9 @@ public class DiscountPolicy
     {
         return root.isApplyForItem(itemID, category);
     }
+
+    public void removeItem(int itemID)
+    {
+        root.removeItem(itemID);
+    }
 }
