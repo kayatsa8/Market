@@ -64,7 +64,7 @@ public class Basket {
     private void validateAddItem(CatalogItem item, int quantity) throws Exception {
         if(item == null){
             //LOG
-            throw new Exception("ERROR: Basket::addItemToCart: given item is null!");
+            throw new Exception("ERROR: Basket:: the item ID you entered does not exist in the given store");
         }
 
         if(quantity < 1){
