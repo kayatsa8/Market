@@ -972,4 +972,11 @@ public class ShoppingService {
         }
     }
 
+    public String getStoreName(int storeId){
+        try {
+            return market.getStoreName(storeId);
+        } catch (Exception e) {
+            return "";
+        }
+    }
 }

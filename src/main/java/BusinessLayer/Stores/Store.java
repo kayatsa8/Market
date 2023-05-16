@@ -604,7 +604,8 @@ public class Store {
         else
         {
             log.warning("Items wasn't saved for upcoming purchase at store " + storeID + " due to lack of items");
-            throw new Exception("Not enough items in stock");
+            CatalogItem missingItem = getTheMissingItem(basketItems);
+            throw new Exception("Not enough " + missingItem.getItemName() + " in stock of store " + storeName);
         }
     }
 
@@ -665,6 +666,22 @@ public class Store {
             }
         }
         return true;
+    }
+
+    public CatalogItem getTheMissingItem(List<CartItemInfo> basketItems)
+    {
+        int itemID;
+        int itemAmountToSave;
+        int itemCurrentAmount;
+        for (CartItemInfo cartItemInfo : basketItems) {
+            itemID = cartItemInfo.getItemID();
+            itemAmountToSave = cartItemInfo.getAmount();
+            itemCurrentAmount = itemsAmounts.get(itemID);
+            if (itemCurrentAmount < itemAmountToSave) {
+                return items.get(cartItemInfo.getItemID());
+            }
+        }
+        return null;
     }
     
     public void updateBasket(List<CartItemInfo> basketItems, List<String> coupons) throws Exception
