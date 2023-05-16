@@ -51,4 +51,12 @@ public abstract class NumericComposite extends Discount
         }
         return false;
     }
+
+    public void removeItem(int itemID)
+    {
+        for (Discount discount : discounts)
+        {
+            discount.removeItem(itemID);
+        }
+    }
 }

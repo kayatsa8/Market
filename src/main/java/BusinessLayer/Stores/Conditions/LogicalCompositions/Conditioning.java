@@ -8,7 +8,6 @@ public class Conditioning extends LogicalComponent {    // if you break first ->
     private LogicalComponent firstCondition;
     private LogicalComponent secondCondition;
 
-
     public Conditioning(LogicalComponent firstCondition, LogicalComponent secondCondition, int id)
     {
         super(id);
@@ -36,4 +35,9 @@ public class Conditioning extends LogicalComponent {    // if you break first ->
         return (firstCondition.isApplyForItem(itemID, category) || secondCondition.isApplyForItem(itemID, category));
     }
 
+    public void removeItem(int itemID)
+    {
+        firstCondition.removeItem(itemID);
+        secondCondition.removeItem(itemID);
+    }
 }

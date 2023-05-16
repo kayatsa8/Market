@@ -14,4 +14,6 @@ public abstract class LogicalComponent {
     public int getID() { return id; }
 
     public abstract boolean isApplyForItem(int itemID, String category);
+
+    public abstract void removeItem(int itemID);
 }

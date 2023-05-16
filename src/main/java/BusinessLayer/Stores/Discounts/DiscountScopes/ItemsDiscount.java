@@ -36,4 +36,9 @@ public class ItemsDiscount implements DiscountScope {
     {
         return itemIDs.contains(itemID);
     }
+
+    @Override
+    public void removeItem(int itemID) {
+        itemIDs.remove(itemID);
+    }
 }

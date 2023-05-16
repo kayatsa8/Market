@@ -42,7 +42,7 @@ public class Conditional extends DiscountType {
     {
         return  logicalComponent.getID() + ": " + logicalComponent.toString();
     }
-    public String addBasketTotalPriceRule(double minimumPrice)
+    public String addBasketTotalPriceRule(double minimumPrice) throws Exception
     {
         return addRule(new BasketTotalPriceRule(minimumPrice, logicalComponentsIDsCounter++));
     }
@@ -122,5 +122,12 @@ public class Conditional extends DiscountType {
             }
         }
         return null;
+    }
+
+    @Override
+    public void removeItem(int itemID)
+    {
+        super.removeItem(itemID);
+        root.removeItem(itemID);
     }
 }

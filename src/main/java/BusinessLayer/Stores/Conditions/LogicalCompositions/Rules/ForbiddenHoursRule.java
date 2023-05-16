@@ -43,4 +43,8 @@ public class ForbiddenHoursRule extends Rule {
     {
         return false;
     }
+
+    @Override
+    public void removeItem(int itemID) {
+    }
 }

@@ -8,9 +8,11 @@ public class BasketWeightLimitRule extends Rule
 {
     private double basketWeightLimit;
 
-    public BasketWeightLimitRule(double basketWeightLimit, int id)
+    public BasketWeightLimitRule(double basketWeightLimit, int id) throws Exception
     {
         super(id);
+        if (basketWeightLimit<=0)
+            throw new Exception("Error: Basket weight limit must be positive");
         this.basketWeightLimit = basketWeightLimit;
     }
 
@@ -39,5 +41,9 @@ public class BasketWeightLimitRule extends Rule
     public boolean isApplyForItem(int itemID, String category)
     {
         return false;
+    }
+
+    @Override
+    public void removeItem(int itemID) {
     }
 }
