@@ -1,5 +1,6 @@
 package BusinessLayer.Users;
 
+import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
@@ -63,5 +64,17 @@ public abstract class User {
     public Cart emptyCart() {
         cart.empty();
         return cart;
+    }
+
+    public void addCouponToCart(String coupon) throws Exception {
+        cart.addCoupon(coupon);
+    }
+
+    public void removeCouponFromCart(String coupon) throws Exception {
+        cart.removeCoupon(coupon);
+    }
+
+    public Basket removeBasketFromCart(int storeID) throws Exception {
+        return cart.removeBasket(storeID);
     }
 }

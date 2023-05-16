@@ -1,5 +1,6 @@
 package Bridge;
 
+import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
 import Globals.FilterValue;
@@ -424,7 +425,9 @@ public interface Bridge {
      * @param id
      * @return list of messages
      */
-    List<MessageService> watchNotReadMessages(int id) throws Exception;
+    //List<MessageService> watchNotReadMessages(int id) throws Exception;
+
+    HashMap<Integer, ChatService> getChats(int id);
 
 
     int addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale);

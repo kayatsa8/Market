@@ -31,61 +31,61 @@ public class SystemNotificationTests extends ProjectTest{
     /**
      * Live Notification #5
      */
-//    @Test
-//    public void getLiveNotification() throws Exception
-//    {
-//        closeStore(user2LoggedInId, store2Id);
-//
-//        List<MessageService> notifications = watchNotReadMessages(user2LoggedInId);
-//        List<MessageService> notifications2 = watchNotReadMessages(user6OwnerOfStore2);
-//
-//        boolean foundClosed1 = false;
-//        boolean foundClosed2 = false;
-//        for(MessageService msg: notifications) {
-//            if (msg.getTitle().equals("Store closed")){
-//                foundClosed1 = true;
-//                break;
-//            }
-//        }
-//        for(MessageService msg: notifications2) {
-//            if (msg.getTitle().equals("Store closed")){
-//                foundClosed2 = true;
-//                break;
-//            }
-//        }
-//        assertTrue(foundClosed1);
-//        assertTrue(foundClosed2);
-//
-//
-//    }
-//
-//    /**
-//     * delayed Notifications #6
-//     */
-//    @Test
-//    public void delayedNotifications_Valid(){
-//        logOut(user4LoggedInId);
-//
-//        this.closeStore(user4LoggedInId, store4Id);
-//        loginUser("User4", "User4!");
-//
-//        List<MessageService> notifications = null;
-//        try {
-//            notifications = watchNotReadMessages(user4LoggedInId);
-//            boolean foundClosed = false;
-//            for(MessageService msg: notifications) {
-//                if (msg.getTitle().equals("Store closed")){
-//                    foundClosed = true;
-//                    break;
-//                }
-//            }
-//            assertTrue(foundClosed);
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//
-//    }
+    @Test
+    public void getLiveNotification() throws Exception
+    {
+        closeStore(user2LoggedInId, store2Id);
+
+        List<MessageService> notifications = getChats(user2LoggedInId).get(store2Id).getMessages();
+        List<MessageService> notifications2 = getChats(user6OwnerOfStore2).get(store2Id).getMessages();
+
+        boolean foundClosed1 = false;
+        boolean foundClosed2 = false;
+        for(MessageService msg: notifications) {
+            if (msg.getContent().equals("Store Store2 has closed")){
+                foundClosed1 = true;
+                break;
+            }
+        }
+        for(MessageService msg: notifications2) {
+            if (msg.getContent().equals("Store Store2 has closed")){
+                foundClosed2 = true;
+                break;
+            }
+        }
+        assertTrue(foundClosed1);
+        assertTrue(foundClosed2);
+
+
+    }
+
+    /**
+     * delayed Notifications #6
+     */
+    @Test
+    public void delayedNotifications_Valid(){
+        logOut(user4LoggedInId);
+
+        this.closeStore(user4LoggedInId, store4Id);
+        loginUser("User4", "User4!");
+
+        List<MessageService> notifications = null;
+        try {
+            notifications = getChats(user4LoggedInId).get(store4Id).getMessages();
+            boolean foundClosed = false;
+            for(MessageService msg: notifications) {
+                if (msg.getContent().equals("Store Store4 has closed")){
+                    foundClosed = true;
+                    break;
+                }
+            }
+            assertTrue(foundClosed);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
+    }
 
 
 

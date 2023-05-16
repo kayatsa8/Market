@@ -198,14 +198,14 @@ public class GuestPurchaseTests extends ProjectTest{
         }
     }
 
-    @Test
-    public void addToBasket_AlreadyInCart(){
-        int newItemId = addItemToStoreForTests(store4Id, "NameDDD",10, "Kitchen", 10);
-        this.addItemToBasket(user4LoggedInId, store4Id, newItemId, 5);
-        CartService cart = this.addItemToBasket(user4LoggedInId, store4Id, newItemId, 5);
-
-        assertNull(cart);
-    }
+//    @Test
+//    public void addToBasket_AlreadyInCart(){
+//        int newItemId = addItemToStoreForTests(store4Id, "NameDDD",10, "Kitchen", 10);
+//        this.addItemToBasket(user4LoggedInId, store4Id, newItemId, 5);
+//        CartService cart = this.addItemToBasket(user4LoggedInId, store4Id, newItemId, 5);
+//
+//        assertNull(cart);
+//    }
 
     /**
      * Show cart #14

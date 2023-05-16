@@ -401,7 +401,7 @@ public class Store {
         purchasePolicies.put(policiesIDs++, purchasePolicy);
         return (policiesIDs -1) + ": " + purchasePolicy.toString();
     }
-    public int wrapPurchasePolicies(List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
+    public String wrapPurchasePolicies(List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
     {
         List<LogicalComponent> policiesRootsToWrap = new ArrayList<>();
         for (Integer policyID : purchasePoliciesIDsToWrap)
@@ -435,8 +435,11 @@ public class Store {
         {
             purchasePolicies.remove(purchasePolicyID);
         }
-        purchasePolicies.put(policiesIDs, new PurchasePolicy(myLogicalComponent));
-        return policiesIDs++;
+        PurchasePolicy policy = new PurchasePolicy(myLogicalComponent);
+        int policyId = policiesIDs;
+        purchasePolicies.put(policyId, policy);
+        policiesIDs++;
+        return policyId + ":" + policy;
     }
 
     public String addDiscountPolicyBasketWeightLimitRule(double basketWeightLimit)
@@ -502,7 +505,7 @@ public class Store {
         discountPolicies.put(policiesIDs++, discountPolicy);
         return (policiesIDs -1) + ": " + discountPolicy.toString();
     }
-    public int wrapDiscountPolicies(List<Integer> discountPoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
+    public String wrapDiscountPolicies(List<Integer> discountPoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
     {
         List<LogicalComponent> policiesRootsToWrap = new ArrayList<>();
         for (Integer policyID : discountPoliciesIDsToWrap)
@@ -536,8 +539,13 @@ public class Store {
         {
             discountPolicies.remove(discountPolicyID);
         }
-        discountPolicies.put(policiesIDs, new DiscountPolicy(myLogicalComponent));
-        return policiesIDs++;
+        //discountPolicies.put(policiesIDs, new DiscountPolicy(myLogicalComponent));
+        //return policiesIDs++;
+        DiscountPolicy policy = new DiscountPolicy(myLogicalComponent);
+        int policyId = policiesIDs;
+        discountPolicies.put(policyId, policy);
+        policiesIDs++;
+        return policyId + ":" + policy;
     }
 
     public StoreStatus getStoreStatus() {
@@ -600,7 +608,7 @@ public class Store {
         }
     }
 
-    private boolean checkIfPurchaseIsValid(List<CartItemInfo> basketItems) throws Exception
+    public boolean checkIfPurchaseIsValid(List<CartItemInfo> basketItems) throws Exception
     {
         for (Map.Entry<Integer, PurchasePolicy> purchasePolicy : purchasePolicies.entrySet())
         {
@@ -637,10 +645,10 @@ public class Store {
             CartItemInfo copyItem = copyBasketItems.get(i);
             if ((item.getOriginalPrice() != copyItem.getOriginalPrice()) || (item.getPercent() != copyItem.getPercent()))
             {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     public boolean checkIfItemsInStock(List<CartItemInfo> basketItems)
@@ -1178,6 +1186,10 @@ public class Store {
             }
         }
         item.setDiscountPolicies(result);
+    }
+
+    public boolean isItemInCatalog(int id){
+        return items.containsKey(id);
     }
 
 }

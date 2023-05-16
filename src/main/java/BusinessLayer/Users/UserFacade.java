@@ -1,10 +1,12 @@
 package BusinessLayer.Users;
 
+import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.Log;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.Message;
+import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
@@ -87,7 +89,7 @@ public class UserFacade {
         if (user!=null&&user.isLoggedIn()) {
             return user;
         }
-        throw new Exception("User " + user.getUsername() + "is not logged in");
+        throw new Exception("User " + userID + "is not logged in");
     }
 
     public int registerUser(String username, String password) throws Exception {
@@ -306,6 +308,10 @@ public class UserFacade {
         return new ArrayList<>(getRegisteredUser(ownerId).getStoresIOwn().keySet());
     }
 
+    public ArrayList<Integer> getStoresIdsIManage(int ownerId) throws Exception {
+        return new ArrayList<>(getRegisteredUser(ownerId).getStoresIManage().keySet());
+    }
+
     public boolean isOwnerOrManager(int currUserID) {
         try {
             RegisteredUser user = getRegisteredUser(currUserID);
@@ -336,5 +342,33 @@ public class UserFacade {
 
     public Map<RegisteredUser, Set<Integer>> getAllManagersIDefined(int ownerId) throws Exception {
         return getRegisteredUser(ownerId).getAllManagersIDefined();
+    }
+
+    public void addCouponToCart(int userId, String coupon) throws Exception {
+        if(!users.containsKey(userId)){
+            throw new Exception("ERROR: UserFacade::addCouponToCart: no such user!");
+        }
+
+        users.get(userId).addCouponToCart(coupon);
+    }
+
+    public void removeCouponFromCart(int userId, String coupon) throws Exception {
+        if(!users.containsKey(userId)){
+            throw new Exception("ERROR: UserFacade::removeCouponFromCart: no such user!");
+        }
+
+        users.get(userId).removeCouponFromCart(coupon);
+    }
+
+    public void listenToNotifications(int userId, NotificationObserver listener) throws Exception {
+        if(!userExists(userId)){
+            throw new Exception("No such user!");
+        }
+
+        users.get(userId).listenToNotifications(listener);
+    }
+  
+    public Basket removeBasketFromCart(int userID, int storeID) throws Exception {
+        return getLoggedInUser(userID).removeBasketFromCart(storeID);
     }
 }

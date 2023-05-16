@@ -58,6 +58,17 @@ public class Cart {
         baskets.get(storeID).removeItem(itemID, coupons);
         Log.log.info("The item " + itemID + " of store " + storeID + " was removed from the cart");
     }
+    public Basket removeBasket(int storeID) throws Exception {
+        Basket basket=baskets.remove(storeID);
+        if(basket==null){
+            Log.log.warning("Cart::removeBasket: the store " + storeID + " was not found!");
+            throw new Exception("Cart::removeBasket: the store " + storeID + " was not found!");
+        }
+        else
+            Log.log.info("The Basket from user"+userID+" of store " + storeID + " was removed from the cart");
+        return basket;
+
+    }
 
     public void changeItemQuantity(int storeID, int itemID, int quantity) throws Exception {
         if(!baskets.containsKey(storeID)){
@@ -156,6 +167,7 @@ public class Cart {
      */
     public void empty(){
         baskets.clear();
+        coupons.clear();
     }
 
     public double calculateTotalPrice(){
@@ -200,8 +212,7 @@ public class Cart {
         updateBasketsWithCoupons();
     }
 
-    private void updateBasketsWithCoupons() throws Exception
-    {
+    private void updateBasketsWithCoupons() throws Exception {
         for(Basket basket : baskets.values()){
             basket.updateBasketWithCoupons(coupons);
         }

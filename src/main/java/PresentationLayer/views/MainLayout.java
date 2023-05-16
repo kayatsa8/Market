@@ -1,6 +1,7 @@
 package PresentationLayer.views;
 
 
+import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
 import PresentationLayer.views.clients.ClientView;
 import PresentationLayer.views.loginAndRegister.UserPL;
 import PresentationLayer.views.storeManagement.StoreManagementView;
@@ -11,57 +12,64 @@ import PresentationLayer.views.systemManagement.SystemManagementView;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
 import ServiceLayer.UserService;
-import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Footer;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Header;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
-import static org.vaadin.lineawesome.LineAwesomeIcon.SHOPPING_CART_SOLID;
-import static org.vaadin.lineawesome.LineAwesomeIcon.SIGN_OUT_ALT_SOLID;
+import static org.vaadin.lineawesome.LineAwesomeIcon.*;
 
 /**
  * The main view is a top-level placeholder for other views.
  */
-public class MainLayout extends AppLayout {
+public class MainLayout extends AppLayout implements NotificationObserver {
 
     private H2 viewTitle;
-    public static UserService userService;
-    public static ShoppingService shoppingService;
-    private static UserPL currUser;
-    private static AppNavItem loginAndRegister;
-    private static AppNavItem systemAdmin;
-    private static AppNavItem marketOwnerOrManager;
+    private H2 user;
+    public UserService userService;
+    public ShoppingService shoppingService;
+    private UserPL currUser;
+    private AppNavItem loginAndRegister;
+    private AppNavItem systemAdmin;
+    private AppNavItem marketOwnerOrManager;
 
-    private static Button logoutBtn;
+    private Button logoutBtn;
+    private AppNavItem mailboxButton;
 
     public MainLayout() {
         setPrimarySection(Section.DRAWER);
         addDrawerContent();
-        addHeaderContent();
-        currUser = UserPL.getInstance();
+        currUser = new UserPL();
         try {
             userService=new UserService();
         } catch (Exception e) {
-            Notification.show("Error initialize userService:\n"+e.getMessage());
+            printError("Error initialize userService:\n"+e.getMessage());
         }
+        try{
+            listenToNotifications(currUser.getCurrUserID());
+        }
+        catch(Exception e){
+            System.out.println("\n\nERROR: MainLayout::MainLayout: " +
+                    e.getMessage() +
+                    "\n");
+        }
+        addHeaderContent();
         setGuestView();
     }
 
-    public static void setCurrUser(Integer value) {
+    public void setCurrUser(Integer value) {
         currUser.setCurrUserID(value);
     }
 
-    public static Integer getCurrUserID() {
+    public Integer getCurrUserID() {
         return currUser.getCurrUserID();
     }
 
@@ -72,13 +80,25 @@ public class MainLayout extends AppLayout {
         viewTitle = new H2();
         viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
 
-        AppNav nav = new AppNav();
-        nav.addItem(new AppNavItem("My Cart", Cart.class, SHOPPING_CART_SOLID.create()));
+        user = new H2(getUserName());
+        user.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
+        user.getStyle().set("margin-left", "auto");
+        user.getStyle().set("padding", "15px");
+
+
+        HorizontalLayout nav = new HorizontalLayout();
+        mailboxButton = new AppNavItem("", Mailbox.class, ENVELOPE.create());
+        nav.add(mailboxButton);
+        nav.add(new AppNavItem("My Cart", Cart.class, SHOPPING_CART_SOLID.create()));
         nav.getStyle().set("margin-left", "auto");
         nav.getStyle().set("padding", "15px");
 
-        addToNavbar(true, toggle, viewTitle, nav);
+        addToNavbar(true, toggle, viewTitle, user, nav);
+    }
 
+    private String getUserName() {
+        String username = userService.getUsername(currUser.getCurrUserID());
+        return username != null ? "Welcome, " + username + "!" : "Guest";
     }
 
     private void addDrawerContent() {
@@ -124,28 +144,32 @@ public class MainLayout extends AppLayout {
          */
         Result<Boolean> result=userService.logout(getCurrUserID());
         if (result.isError()){
-            Notification.show("Failed to logout: "+result.getMessage());
+            printError("Failed to logout: "+result.getMessage());
         }
         else {
-            Notification.show("Succeed to logout currId="+ currUser.getCurrUserID());
+            printSuccess("Succeed to logout currId="+ currUser.getCurrUserID());
             setGuestView();
+            currUser.setCurrIdToGuest();
+            user.setText(getUserName());
             UI.getCurrent().navigate(LoginAndRegisterView.class);
         }
     }
 
-    private void setGuestView() {
-        currUser.setCurrIdToGuest();
+    public void setGuestView() {
         logoutBtn.setVisible(false);
         systemAdmin.setVisible(false);
         marketOwnerOrManager.setVisible(false);
         loginAndRegister.setVisible(true);
+        mailboxButton.setVisible(false);
     }
 
-    public static void setUserView() {
+    public void setUserView() {
         logoutBtn.setVisible(true);
         systemAdmin.setVisible(userService.isAdmin(currUser.getCurrUserID()));
-        marketOwnerOrManager.setVisible(userService.isOwnerOrManager(currUser.getCurrUserID()));
+        marketOwnerOrManager.setVisible(true);
         loginAndRegister.setVisible(false);
+        mailboxButton.setVisible(true);
+        user.setText(getUserName());
     }
 
     @Override
@@ -157,5 +181,34 @@ public class MainLayout extends AppLayout {
     private String getCurrentPageTitle() {
         PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
         return title == null ? "" : title.value();
+    }
+
+    @Override
+    public void notify(String notification) {
+        Notification systemNotification = Notification
+                .show(notification);
+        systemNotification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+    }
+
+    @Override
+    public void listenToNotifications(int userId) throws Exception {
+        userService.listenToNotifications(userId, this);
+    }
+  
+    private void printSuccess(String msg) {
+        Notification notification = Notification.show(msg, 2000, Notification.Position.BOTTOM_CENTER);
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+
+    }
+
+    private void printError(String errorMsg) {
+        Notification notification = Notification.show(errorMsg, 2000, Notification.Position.BOTTOM_CENTER);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+    }
+
+    public static MainLayout getMainLayout() {
+        MainLayout mainLayout = (MainLayout) UI.getCurrent().getChildren().filter(component -> component.getClass() == MainLayout.class).findFirst().orElse(null);
+        assert mainLayout != null;
+        return mainLayout;
     }
 }

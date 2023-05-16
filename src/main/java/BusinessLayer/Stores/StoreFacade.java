@@ -1,6 +1,8 @@
 package BusinessLayer.Stores;
 
 import BusinessLayer.NotificationSystem.Chat;
+import BusinessLayer.StorePermissions.StoreActionPermissions;
+import BusinessLayer.StorePermissions.StoreManager;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
 import BusinessLayer.Stores.Policies.DiscountPolicy;
@@ -247,7 +249,7 @@ public class StoreFacade {
         Store store = getStore(storeID);
         return store.addPurchasePolicyMustItemsAmountsRule(itemsAmounts);
     }
-    public int wrapPurchasePolicies(int storeID, List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
+    public String wrapPurchasePolicies(int storeID, List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
     {
         Store store = getStore(storeID);
         return store.wrapPurchasePolicies(purchasePoliciesIDsToWrap, logicalCompositeEnum);
@@ -298,7 +300,7 @@ public class StoreFacade {
         Store store = getStore(storeID);
         return store.addDiscountPolicyMustItemsAmountsRule(itemsAmounts);
     }
-    public int wrapDiscountPolicies(int storeID, List<Integer> discountPoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
+    public String wrapDiscountPolicies(int storeID, List<Integer> discountPoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
     {
         Store store = getStore(storeID);
         return store.wrapDiscountPolicies(discountPoliciesIDsToWrap, logicalCompositeEnum);
@@ -400,5 +402,42 @@ public class StoreFacade {
 
     public boolean isStoreExists(int storeID) {
         return stores.containsKey(storeID);
+    }
+
+    public List<String> possibleManagerPermissions() {
+        return parsePermissions(Arrays.stream(StoreActionPermissions.values()).toList());
+    }
+
+    private List<String> parsePermissions(Collection<StoreActionPermissions> values) {
+        return Arrays.stream(values.toArray()).map(permissions -> permissions.toString().replace('_', ' ')).toList();
+    }
+
+    private StoreManager getStoreManager(int userID, int storeId) throws Exception {
+        Store store = getStore(storeId);
+        List<StoreManager> permissions = store.getStoreManagers();
+        for (StoreManager manager : permissions) {
+            if (manager.getUserID() == userID) {
+                return manager;
+            }
+        }
+        return null;
+    }
+
+    public List<String> getManagerInfo(int userID, int storeId) {
+        try {
+            return parsePermissions(getStoreManager(userID, storeId).getStoreActionPermissions());
+        }
+        catch (Exception e) {
+            return null;
+        }
+    }
+
+    public Boolean managerHasPermission(int managerID, int storeID, StoreActionPermissions permission) {
+        try {
+            return getStoreManager(managerID, storeID).hasPermission(permission);
+        }
+        catch (Exception e) {
+            return false;
+        }
     }
 }

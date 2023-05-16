@@ -1,5 +1,6 @@
 package BusinessLayer;
 
+import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Chat;
@@ -369,6 +370,15 @@ public class Market {
         return result;
     }
 
+    public Map<Integer, Store> getStoresIManage(int managerID) throws Exception {
+        ArrayList<Integer> storesIds = userFacade.getStoresIdsIManage(managerID);
+        Map<Integer, Store> result = new HashMap<>();
+        for(Integer storeId: storesIds){
+            result.put(storeId, storeFacade.getStore(storeId));
+        }
+        return result;
+    }
+
     public int addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale) throws Exception
     {
         return storeFacade.addVisibleItemsDiscount(storeID, itemsIDs, percent, endOfSale);
@@ -464,7 +474,7 @@ public class Market {
     {
         return storeFacade.addPurchasePolicyMustItemsAmountsRule(storeID, itemsAmounts);
     }
-    public int wrapPurchasePolicies(int storeID, List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
+    public String wrapPurchasePolicies(int storeID, List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
     {
         return storeFacade.wrapPurchasePolicies(storeID, purchasePoliciesIDsToWrap, logicalCompositeEnum);
     }
@@ -505,7 +515,7 @@ public class Market {
     {
         return storeFacade.addDiscountPolicyMustItemsAmountsRule(storeID, itemsAmounts);
     }
-    public int wrapDiscountPolicies(int storeID, List<Integer> discountPoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
+    public String wrapDiscountPolicies(int storeID, List<Integer> discountPoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
     {
         return storeFacade.wrapDiscountPolicies(storeID, discountPoliciesIDsToWrap, logicalCompositeEnum);
     }
@@ -548,4 +558,18 @@ public class Market {
     public Map<Integer, RegisteredUser> getLoggedOutUsers() {
         return userFacade.getLoggedOutUsers();
     }
+
+    public void addCouponToCart(int userId, String coupon) throws Exception {
+        userFacade.addCouponToCart(userId, coupon);
+    }
+
+    public void removeCouponFromCart(int userId, String coupon) throws Exception {
+        userFacade.removeCouponFromCart(userId, coupon);
+    }
+
+    public Basket removeBasketFromCart(int userID, int storeID) throws Exception {
+        return userFacade.removeBasketFromCart(userID, storeID);
+    }
+
+
 }

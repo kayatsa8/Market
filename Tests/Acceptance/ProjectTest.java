@@ -266,12 +266,6 @@ public abstract class ProjectTest {
         this.bridge.addItemAmount(storeId, itemId, amount);
     }
 
-    protected List<MessageService> watchNotReadMessages(int id) throws Exception
-    {
-        return this.bridge.watchNotReadMessages(id);
-    }
-
-
 
 
     protected boolean checkIfStoreOwner(int userId, int storeId) {
@@ -395,4 +389,8 @@ public abstract class ProjectTest {
     protected int addHiddenStoreDiscount(int storeId, double percent, String coupon, Calendar calendar) {
         return this.bridge.addHiddenStoreDiscount(storeId, percent, coupon, calendar);
     }
+    protected HashMap<Integer, ChatService> getChats(int id){
+        return this.bridge.getChats(id);
+    }
+
 }

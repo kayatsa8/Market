@@ -20,6 +20,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
@@ -44,7 +45,10 @@ import java.util.stream.Stream;
 public class ClientView extends VerticalLayout {
 
     ShoppingService shoppingService;
+    MainLayout mainLayout;
+
     public ClientView() {
+        mainLayout = MainLayout.getMainLayout();
         try {
             shoppingService = new ShoppingService();
         }
@@ -74,7 +78,7 @@ public class ClientView extends VerticalLayout {
         grid.setItems(catalogRes);
 //        grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-        Grid.Column<CatalogItemService> amountColumn = grid.addColumn(CatalogItemService::getAmount).setHeader("Amount").setSortable(true);
+        Grid.Column<CatalogItemService> amountColumn = grid.addColumn(CatalogItemService::getAmount).setHeader("Amount").setSortable(true).setFlexGrow(2);
         Grid.Column<CatalogItemService> addToCartColumn = grid.addComponentColumn(item -> {
             Button cartButton = new Button("Add to Cart");
             cartButton.addClickListener(e -> {
@@ -85,14 +89,15 @@ public class ClientView extends VerticalLayout {
                 amountColumn.setVisible(true);
             });
             return cartButton;
-        }).setWidth("150px").setFlexGrow(0).setFrozenToEnd(true);
-        grid.addColumn(CatalogItemService::getItemName).setSortable(true).setKey("Name");
-        grid.addColumn(CatalogItemService::getCategory).setSortable(true).setKey("Category");
-        grid.addColumn(CatalogItemService::getStoreName).setSortable(true).setKey("Store");
-        grid.addColumn(CatalogItemService::getPrice).setHeader("Price").setSortable(true);
-        grid.addColumn(CatalogItemService::getWeight).setHeader("Weight").setSortable(true);
-        grid.addColumn(e->shoppingService.getStoreInfo(e.getStoreID()).getValue().getStoreStatus()).setHeader("Store Status").setSortable(true);
-        grid.addComponentColumn(e->getDiscountIcon(shoppingService.getStoreDiscounts(e.getStoreID()).getValue().isEmpty())).setHeader("Discounts").setSortable(true);
+        }).setFlexGrow(1).setFrozenToEnd(true);
+        grid.addColumn(CatalogItemService::getItemName).setSortable(true).setKey("Name").setFlexGrow(1);
+        grid.addColumn(CatalogItemService::getCategory).setSortable(true).setKey("Category").setFlexGrow(1);
+        grid.addColumn(CatalogItemService::getStoreName).setSortable(true).setKey("Store").setFlexGrow(1);
+        grid.addColumn(CatalogItemService::getPrice).setHeader("Price").setSortable(true).setFlexGrow(0);
+        grid.addColumn(CatalogItemService::getWeight).setHeader("Weight").setSortable(true).setFlexGrow(0);
+        grid.addColumn(e->shoppingService.getStoreInfo(e.getStoreID()).getValue().getStoreStatus()).setHeader("Store Status").setSortable(true).setFlexGrow(1);
+        grid.addComponentColumn(e->getDiscountIcon(shoppingService.getStoreDiscounts(e.getStoreID()).getValue().isEmpty()))
+                .setHeader("Discounts").setSortable(true).setWidth("150px").setFlexGrow(0);
 //        grid.setItemDetailsRenderer(createPersonDetailsRenderer());
         amountColumn.setVisible(false);
         Binder<CatalogItemService> binder = new Binder<>(CatalogItemService.class);
@@ -101,12 +106,13 @@ public class ClientView extends VerticalLayout {
         IntegerField integerField = new IntegerField();
         integerField.setStepButtonsVisible(true);
         integerField.setMin(0);
+        integerField.setMaxWidth("150px");
         ValidationMessage firstNameValidationMessage = new ValidationMessage();
         binder.forField(integerField)
                 .asRequired("Amount cant be negative")
                 .withValidator(new IntegerRangeValidator("Amount cant be negative", 0, 99999))
                 .withStatusLabel(firstNameValidationMessage)
-                .bind(o->0, CartService::setAmount); //TODO
+                .bind(o->0, this::setAmount);
         amountColumn.setEditorComponent(integerField);
         Button saveButton = new Button("Add", e -> {
 //            Notification.show("items added to cart");
@@ -169,6 +175,18 @@ public class ClientView extends VerticalLayout {
 
     private Component getDiscountIcon(boolean isDiscount) {
         return isDiscount ? LineAwesomeIcon.DOLLAR_SIGN_SOLID.create() : LineAwesomeIcon.FROWN_SOLID.create();
+    }
+
+
+    private void setAmount(CatalogItemService catalogItemService, Integer amount) {
+
+        Result<CartService> result = shoppingService.addItemToCart(mainLayout.getCurrUserID(),catalogItemService.getStoreID(), catalogItemService.getItemID(), amount);
+        if (!result.isError()){
+            Notification.show("Successfully added to " + mainLayout.getCurrUserID()+"'s cart\n");
+        }
+        else {
+            Notification.show(mainLayout.getCurrUserID() + result.getMessage());
+        }
     }
 
     private void setFilters(Grid<CatalogItemService> grid){
@@ -262,6 +280,28 @@ public class ClientView extends VerticalLayout {
             return true;
         }
     }
+
+    /*public void setAmount(CatalogItemService catalogItemService, Integer amount) {
+        Result<CartService> result = shoppingService.addItemToCart(mainLayout.getCurrUserID(),catalogItemService.getStoreID(), catalogItemService.getItemID(), amount);
+        if (!result.isError()){
+            printSuccess("Successfully added to " + mainLayout.getCurrUserID()+"'s cart\n");
+        }
+        else {
+            printError(mainLayout.getCurrUserID() + result.getMessage());
+        }
+    }*/
+
+    private void printSuccess(String msg) {
+        Notification notification = Notification.show(msg, 2000, Notification.Position.BOTTOM_CENTER);
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+
+    }
+
+    private void printError(String errorMsg) {
+        Notification notification = Notification.show(errorMsg, 2000, Notification.Position.BOTTOM_CENTER);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+    }
+
 }
 
 
@@ -292,4 +332,3 @@ class ValidationMessage extends HorizontalLayout implements HasText {
         this.setVisible(text != null && !text.isEmpty());
     }
 }
-
