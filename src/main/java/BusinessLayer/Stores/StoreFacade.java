@@ -9,6 +9,7 @@ import BusinessLayer.Stores.Policies.DiscountPolicy;
 import BusinessLayer.Stores.Discounts.Discount;
 import BusinessLayer.Stores.Discounts.DiscountsTypes.Visible;
 import BusinessLayer.Stores.Policies.PurchasePolicy;
+import BusinessLayer.Users.RegisteredUser;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -439,5 +440,25 @@ public class StoreFacade {
         catch (Exception e) {
             return false;
         }
+    }
+
+    public int getIdByStoreName(String storeName) throws Exception {
+        for(Store store : stores.values()){
+            if(store.getStoreName().equals(storeName)){
+                return store.getStoreID();
+            }
+        }
+
+        throw new Exception("The store " + storeName + "was not found!");
+    }
+
+    public String getStoreNameById(int id){
+        Store store =  stores.get(id);
+
+        if(store != null){
+            return store.getStoreName();
+        }
+
+        return null;
     }
 }

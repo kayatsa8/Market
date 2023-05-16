@@ -924,7 +924,7 @@ public class ShoppingService {
             HashMap<Integer, ChatService> chats = new HashMap<>();
 
             for(Integer id : _chats.keySet()){
-                chats.put(id, new ChatService(_chats.get(id)));
+                chats.put(id, new ChatService(_chats.get(id), market.getNameById(storeId), market.getNameById(id)));
             }
 
             return new Result<>(false, chats);
@@ -960,5 +960,23 @@ public class ShoppingService {
 
     public Boolean managerHasPermission(int managerID, int storeID, StoreActionPermissions permission) {
         return market.getStoreFacade().managerHasPermission(managerID, storeID, permission);
+    }
+
+    public Result<Integer> getStoreIdByName(String name){
+        try{
+            int id = market.getStoreIdByName(name);
+            return new Result<>(false, id);
+        }
+        catch(Exception e){
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public String getStoreName(int storeId){
+        try {
+            return market.getStoreName(storeId);
+        } catch (Exception e) {
+            return "";
+        }
     }
 }

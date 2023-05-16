@@ -348,7 +348,7 @@ public class Market {
     }
 
     public List<Receipt> getSellingHistoryOfStoreForManager(int storeId, int userId) throws Exception {
-        if(storeFacade.checkIfStoreManager(userId, storeId) || isAdmin(userId))
+        if(storeFacade.checkIfStoreManager(userId, storeId) || storeFacade.checkIfStoreOwner(userId, storeId) || isAdmin(userId))
             return storeFacade.getStore(storeId).getReceiptHandler().getAllReceipts();
         return null;
     }
@@ -567,8 +567,30 @@ public class Market {
         userFacade.removeCouponFromCart(userId, coupon);
     }
 
+    public String getStoreName(int storeId) throws Exception {
+        return storeFacade.getStore(storeId).getStoreName();
+    }
+
     public Basket removeBasketFromCart(int userID, int storeID) throws Exception {
         return userFacade.removeBasketFromCart(userID, storeID);
+    }
+
+    public int getUserIdByName(String name) throws Exception {
+        return userFacade.findUserByUsername(name);
+    }
+
+    public int getStoreIdByName(String name) throws Exception {
+        return storeFacade.getIdByStoreName(name);
+    }
+
+    public String getNameById(int id){
+        String name = storeFacade.getStoreNameById(id);
+
+        if(name == null){
+            name = userFacade.getUsernameById(id);
+        }
+
+        return name;
     }
 
 
