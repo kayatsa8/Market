@@ -1,6 +1,9 @@
 package Bridge;
 
 
+import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
+import BusinessLayer.Stores.Conditions.LogicalCompositions.Rules.Rule;
+import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -9,6 +12,7 @@ import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
 import ServiceLayer.UserService;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,11 +99,8 @@ public class RealBridge implements Bridge{
     @Override
     public boolean buyCart(int userId, String deliveryAddress) {
         try {
-            Result result = shoppingService.buyCart(userId, deliveryAddress);
-            if(result.isError())
-                return false;
-            //temp fix, I need it to return boolean
-            return shoppingService.getCart(userId).getValue().isEmpty();
+            Result<Boolean> result = shoppingService.buyCart(userId, deliveryAddress);
+            return handleBoolResult(result);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return false;
@@ -125,7 +126,6 @@ public class RealBridge implements Bridge{
             System.out.println(result.getMessage());
             return false;
         }
-        //item removed
         return true;
     }
 
@@ -257,6 +257,170 @@ public class RealBridge implements Bridge{
     }
 
 
+    @Override
+    public int addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale) {
+        Result<Integer> result = shoppingService.addVisibleItemsDiscount(storeID, itemsIDs, percent, endOfSale);
+        return handleIntResult(result);
+    }
+
+    public int addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale){
+        Result<Integer> result = shoppingService.addVisibleCategoryDiscount(storeID, category, percent, endOfSale);
+        return handleIntResult(result);
+    }
+
+    public int addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale){
+        Result<Integer> result = shoppingService.addConditionalStoreDiscount(storeID, percent, endOfSale);
+        return handleIntResult(result);
+    }
+
+    @Override
+    public int addHiddenStoreDiscount(int storeId, double percent, String coupon, Calendar calender) {
+        Result<Integer> result = shoppingService.addHiddenStoreDiscount(storeId, percent, coupon, calender);
+        return handleIntResult(result);
+    }
+
+    @Override
+    public RuleService addDiscountBasketTotalPriceRule(int storeID, int discountID, double minimumPrice){
+        Result<RuleService> result = shoppingService.addDiscountBasketTotalPriceRule(storeID, discountID, minimumPrice);
+        if(result != null){
+            return result.getValue();
+        }
+        return null;
+    }
+
+    @Override
+    public RuleService addDiscountQuantityRule(int storeID, int discountID, Map<Integer, Integer> itemsAmounts){
+        Result<RuleService> result = shoppingService.addDiscountQuantityRule(storeID, discountID, itemsAmounts);
+        if(result != null){
+            return result.getValue();
+        }
+        return null;
+    }
+
+    @Override
+    public int wrapDiscounts(int storeID, List<Integer> discountsIDsToWrap, NumericComposites numericCompositeEnum){
+        Result<Integer> result = shoppingService.wrapDiscounts(storeID, discountsIDsToWrap, numericCompositeEnum);
+        return handleIntResult(result);
+    }
+
+    @Override
+    public RuleService addDiscountComposite(int storeID, int discountID, LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs){
+        Result<RuleService> result = shoppingService.addDiscountComposite(storeID, discountID, logicalComposite, logicalComponentsIDs);
+        if(result != null){
+            return result.getValue();
+        }
+        return null;
+    }
+
+
+    @Override
+    public boolean removeStoreManager(int storeId, int storeOwnerId, int removeUserId) {
+        Result<Boolean> result = userService.removeManager(storeOwnerId, removeUserId, storeId);
+        return handleBoolResult(result);
+    }
+
+
+    @Override
+    public boolean removeStoreOwner(int storeId, int storeOwnerId, int newStoreOwnerId) {
+        Result<Boolean> result = userService.removeOwner(storeOwnerId, newStoreOwnerId, storeId);
+        return handleBoolResult(result);
+    }
+
+    @Override
+    public boolean closeStorePermanently(int storeManagerId, int storeId) {
+        Result<Boolean> result = shoppingService.closeStorePermanently(storeManagerId, storeId);
+        return handleBoolResult(result);
+    }
+
+    @Override
+    public boolean reopenStore(int userId, int storeId) {
+        Result<Boolean> result = shoppingService.reopenStore(userId, storeId);
+        return handleBoolResult(result);
+    }
+
+    @Override
+    public boolean removeRegisterdUser(int systemManagerId, int userToRemoveId) {
+        Result<Boolean> result = userService.removeUser(systemManagerId, userToRemoveId);
+        return handleBoolResult(result);
+    }
+
+    @Override
+    public Map<Integer, UserInfoService> getLoggedOutUsers(){
+        Result<Map<Integer, UserInfoService>> users =  userService.getLoggedOutUsers();
+        if(users == null)
+            return null;
+        return users.getValue();
+    }
+
+    @Override
+    public Map<Integer, UserInfoService> getLoggedInUsers(){
+        Result<Map<Integer, UserInfoService>> users =  userService.getLoggedInUsers();
+        if(users == null)
+            return null;
+        return users.getValue();
+    }
+
+    @Override
+    public RuleService addDiscountPolicyBuyerAgeRule(int storeID, int minimumAge) {
+        Result<RuleService> result = shoppingService.addDiscountPolicyBuyerAgeRule(storeID, minimumAge);
+        if(result == null)
+            return null;
+        return result.getValue();
+    }
+
+    @Override
+    public RuleService addDiscountPolicyMustItemsAmountsRule(int storeID, Map<Integer, Integer> itemsAmounts) {
+        Result<RuleService> result = shoppingService.addDiscountPolicyMustItemsAmountsRule(storeID, itemsAmounts);
+        if(result == null)
+            return null;
+        return result.getValue();
+    }
+
+    @Override
+    public boolean removeUser(int userID, int userToRemove) {
+        Result<Boolean> result = userService.removeUser(userID, userToRemove);
+        return handleBoolResult(result);
+    }
+
+    @Override
+    public RuleService addPurchasePolicyItemsWeightLimitRule(int storeID, Map<Integer, Double> weightsLimits) {
+        Result<RuleService> result = shoppingService.addPurchasePolicyItemsWeightLimitRule(storeID, weightsLimits);
+        if(result == null)
+            return null;
+        return result.getValue();
+    }
+
+    @Override
+    public RuleService addPurchasePolicyMustDatesRule(int storeID, List<Calendar> mustDates) {
+        Result<RuleService> result = shoppingService.addPurchasePolicyMustDatesRule(storeID, mustDates);
+        if(result == null)
+            return null;
+        return result.getValue();
+    }
+
+    @Override
+    public RuleService wrapPurchasePolicies(int storeID, List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) {
+        Result<RuleService> result = shoppingService.wrapPurchasePolicies(storeID, purchasePoliciesIDsToWrap, logicalCompositeEnum);
+        if(result == null)
+            return null;
+        return result.getValue();
+    }
+
+
+    @Override
+    public HashMap<Integer, ChatService> getChats(int id){
+        Result<HashMap<Integer, ChatService>> result = userService.getChats(id);
+
+        if(result.isError()){
+            result = shoppingService.getChats(id);
+        }
+
+        return result.getValue();
+    }
+
+
+
+
 
 
 
@@ -298,42 +462,6 @@ public class RealBridge implements Bridge{
         return null;
     }
 
-
-    @Override
-    public boolean removeStoreManager(int storeId, int storeOwnerId, int removeUserId) {
-        /** NotForVersion1 */
-        Result<Boolean> result = userService.removeManager(storeOwnerId, removeUserId, storeId);
-        return handleBoolResult(result);
-    }
-
-
-    @Override
-    public boolean removeStoreOwner(int storeId, int storeOwnerId, int newStoreOwnerId) {
-        /** NotForVersion1 */
-        Result<Boolean> result = userService.removeOwner(storeOwnerId, newStoreOwnerId, storeId);
-        return handleBoolResult(result);
-    }
-
-    @Override
-    public boolean closeStorePermanently(int storeManagerId, int storeId) {
-        /** NotForVersion1 */
-        Result<Boolean> result = shoppingService.closeStorePermanently(storeManagerId, storeId);
-        return handleBoolResult(result);
-    }
-
-    @Override
-    public boolean reopenStore(int userId, int storeId) {
-        /** NotForVersion1 */
-        Result<Boolean> result = shoppingService.reopenStore(userId, storeId);
-        return handleBoolResult(result);
-    }
-
-    @Override
-    public boolean removeRegisterdUser(int systemManagerId, int userToRemoveId) {
-        /** NotForVersion1 */
-        //return this.facade.removeRegisterdUser(systemManagerId, userToRemoveId);
-        return false;
-    }
 
     @Override
     public boolean answerComplaint(int userId, HashMap<Integer, String> complaintsAnswers) {
@@ -437,19 +565,6 @@ public class RealBridge implements Bridge{
         /** Not sure...*/
         return false;
     }
-
-    @Override
-    public HashMap<Integer, ChatService> getChats(int id){
-        Result<HashMap<Integer, ChatService>> result = userService.getChats(id);
-
-        if(result.isError()){
-            result = shoppingService.getChats(id);
-        }
-
-        return result.getValue();
-    }
-
-
 
 
 }

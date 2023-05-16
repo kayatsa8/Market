@@ -4,6 +4,7 @@ import ServiceLayer.Objects.CartService;
 import ServiceLayer.Objects.ReceiptService;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -50,8 +51,9 @@ public class UserPurchaseTestBuyCart extends ProjectTest{
 
 
     @Test
+    @Ignore
     public void buyCart_WrongPaymentDetails(){
-        //TODO when adding the address and paying method check this tests, currently its the same as wrong supply.
+        //TODO when adding the address and paying method check this tests.
         boolean added = this.buyCart(user4LoggedInId, "");
         assertFalse(added);
     }

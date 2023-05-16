@@ -1,15 +1,19 @@
 package Bridge;
 
+import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
+import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
 import ServiceLayer.Objects.*;
+import ServiceLayer.Result;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ProxyBridge implements Bridge{
+public class ProxyBridge implements Bridge {
 
     private Bridge real = null;
 
@@ -70,7 +74,7 @@ public class ProxyBridge implements Bridge{
 
     @Override
     public CartService addItemToBasket(int userId, int storeId, int itemId, int amount) {
-        if(real != null){
+        if (real != null) {
             return real.addItemToBasket(userId, storeId, itemId, amount);
         }
         return null;
@@ -101,16 +105,15 @@ public class ProxyBridge implements Bridge{
     }
 
     @Override
-    public void addItemAmount(int storeId, int itemId, int amount) throws Exception
-    {
-        if(real != null){
+    public void addItemAmount(int storeId, int itemId, int amount) throws Exception {
+        if (real != null) {
             real.addItemAmount(storeId, itemId, amount);
         }
     }
 
     @Override
     public boolean removeItemFromStore(int storeId, int itemId) {
-        if(real != null){
+        if (real != null) {
             return real.removeItemFromStore(storeId, itemId);
         }
         return false;
@@ -118,7 +121,7 @@ public class ProxyBridge implements Bridge{
 
     @Override
     public String changeItemName(int storeId, int itemId, String newName) {
-        if(real != null){
+        if (real != null) {
             return real.changeItemName(storeId, itemId, newName);
         }
         return "Not removed";
@@ -126,7 +129,7 @@ public class ProxyBridge implements Bridge{
 
     @Override
     public List<UserStaffInfoService> showStaffInfo(int storeId, int userId) {
-        if(real != null){
+        if (real != null) {
             return real.showStaffInfo(storeId, userId);
         }
         return null;
@@ -134,7 +137,7 @@ public class ProxyBridge implements Bridge{
 
     @Override
     public List<ReceiptService> getSellingHistoryOfStoreForManager(int storeId, int userId) {
-        if(real != null){
+        if (real != null) {
             return real.getSellingHistoryOfStoreForManager(storeId, userId);
         }
         return null;
@@ -404,6 +407,129 @@ public class ProxyBridge implements Bridge{
         }
         return false;
     }
+
+
+    @Override
+    public int addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale) {
+        if (real != null) {
+            return real.addVisibleItemsDiscount(storeID, itemsIDs, percent, endOfSale);
+        }
+        return -1;
+    }
+
+    public int addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale) {
+        if (real != null) {
+            return real.addVisibleCategoryDiscount(storeID, category, percent, endOfSale);
+        }
+        return -1;
+    }
+
+    public int addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale){
+        if (real != null) {
+            return real.addConditionalStoreDiscount(storeID, percent, endOfSale);
+        }
+        return -1;
+    }
+
+    @Override
+    public int addHiddenStoreDiscount(int storeId, double percent, String coupon, Calendar calender) {
+        if (real != null) {
+            return real.addHiddenStoreDiscount(storeId, percent, coupon, calender);
+        }
+        return -1;
+    }
+
+    @Override
+    public RuleService addDiscountBasketTotalPriceRule(int storeID, int discountID, double minimumPrice){
+        if(real != null){
+            return real.addDiscountBasketTotalPriceRule(storeID, discountID, minimumPrice);
+        }
+        return null;
+    }
+
+    @Override
+    public RuleService addDiscountQuantityRule(int storeID, int discountID, Map<Integer, Integer> itemsAmounts){
+        if(real != null){
+            return real.addDiscountQuantityRule(storeID, discountID, itemsAmounts);
+        }
+        return null;
+    }
+
+    @Override
+    public int wrapDiscounts(int storeID, List<Integer> discountsIDsToWrap, NumericComposites numericCompositeEnum){
+        if(real != null){
+            return real.wrapDiscounts(storeID, discountsIDsToWrap, numericCompositeEnum);
+        }
+        return -1;
+    }
+
+    @Override
+    public RuleService addDiscountComposite(int storeID, int discountID, LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs){
+        if(real != null){
+            return real.addDiscountComposite(storeID, discountID, logicalComposite, logicalComponentsIDs);
+        }
+        return null;
+    }
+
+    @Override
+    public Map<Integer, UserInfoService> getLoggedOutUsers(){
+        if(real!=null){
+            return real.getLoggedOutUsers();
+        }
+        return null;
+    }
+
+    @Override
+    public Map<Integer, UserInfoService> getLoggedInUsers(){
+        if(real!=null){
+            return real.getLoggedInUsers();
+        }
+        return null;
+    }
+
+    @Override
+    public RuleService addDiscountPolicyBuyerAgeRule(int storeID, int minimumAge) {
+        if(real != null)
+            return real.addDiscountPolicyBuyerAgeRule(storeID, minimumAge);
+        return null;
+    }
+
+    @Override
+    public RuleService addDiscountPolicyMustItemsAmountsRule(int storeID, Map<Integer, Integer> itemsAmounts) {
+        if(real != null)
+            return real.addDiscountPolicyMustItemsAmountsRule(storeID, itemsAmounts);
+        return null;
+    }
+
+    @Override
+    public boolean removeUser(int userID, int userToRemove) {
+        if(real != null){
+            return real.removeUser(userID, userToRemove);
+        }
+        return false;
+    }
+
+    @Override
+    public RuleService addPurchasePolicyItemsWeightLimitRule(int storeID, Map<Integer, Double> weightsLimits) {
+        if(real != null)
+            return real.addPurchasePolicyItemsWeightLimitRule(storeID, weightsLimits);
+        return null;
+    }
+
+    @Override
+    public RuleService addPurchasePolicyMustDatesRule(int storeID, List<Calendar> mustDates) {
+        if(real != null)
+            return real.addPurchasePolicyMustDatesRule(storeID, mustDates);
+        return null;
+    }
+
+    @Override
+    public RuleService wrapPurchasePolicies(int storeID, List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) {
+        if(real != null)
+            return real.wrapPurchasePolicies(storeID, purchasePoliciesIDsToWrap, logicalCompositeEnum);
+        return null;
+    }
+
 
     public HashMap<Integer, ChatService> getChats(int id){
         if(real != null){

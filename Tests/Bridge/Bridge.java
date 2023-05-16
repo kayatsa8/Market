@@ -1,12 +1,15 @@
 package Bridge;
 
 import BusinessLayer.NotificationSystem.Chat;
+import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
+import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
 import ServiceLayer.Objects.*;
 import ServiceLayer.Result;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -427,4 +430,35 @@ public interface Bridge {
     HashMap<Integer, ChatService> getChats(int id);
 
 
+    int addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale);
+
+    int addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale);
+
+    int addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale);
+
+    int addHiddenStoreDiscount(int storeId, double percent, String coupon, Calendar calender);
+
+    RuleService addDiscountBasketTotalPriceRule(int storeID, int discountID, double minimumPrice);
+
+    RuleService addDiscountQuantityRule(int storeID, int discountID, Map<Integer, Integer> itemsAmounts);
+
+    int wrapDiscounts(int storeID, List<Integer> discountsIDsToWrap, NumericComposites numericCompositeEnum);
+
+    RuleService addDiscountComposite(int storeID, int discountID, LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs);
+
+    Map<Integer, UserInfoService> getLoggedOutUsers();
+
+    Map<Integer, UserInfoService> getLoggedInUsers();
+
+    RuleService addDiscountPolicyBuyerAgeRule(int storeID, int minimumAge);
+
+    RuleService addDiscountPolicyMustItemsAmountsRule(int storeID, Map<Integer, Integer> itemsAmounts);
+
+    boolean removeUser(int userID, int userToRemove);
+
+    RuleService addPurchasePolicyItemsWeightLimitRule(int storeID, Map<Integer, Double> weightsLimits);
+
+    RuleService addPurchasePolicyMustDatesRule(int storeID, List<Calendar> mustDates);
+
+    RuleService wrapPurchasePolicies(int storeID, List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum);
 }

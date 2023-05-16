@@ -142,7 +142,7 @@ public class Cart {
             for(Basket basket : baskets.values()){
                 basket.releaseItems();
             }
-            return null;
+            throw new Exception("Problem with Supply or Purchase");
         }
         else{
             Log.log.info("Cart " + userID + " payment completed");

@@ -1,12 +1,14 @@
 package Acceptance;
 
 import ServiceLayer.Objects.ReceiptService;
+import ServiceLayer.Objects.UserInfoService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -37,15 +39,15 @@ public class SystemManagerTests extends ProjectTest{
     }
 
     /**
-     * Close Store permanently #40  NotForVersion1
+     * Close Store permanently #40
      */
-    /*
+
     @Test
     public void closeStorePermanently_Valid(){
         boolean closed = this.closeStorePermanently(user7SystemManagerId, store2ClosedId);
         //check if user6ManagerOwnerOfStore2 is owner of store2
         assertTrue(closed);
-        boolean stillOwner = this.checkIfStoreOwner(user6ManagerOwnerOfStore2, store2ClosedId);
+        boolean stillOwner = this.checkIfStoreOwner(user2LoggedInId, store2ClosedId);
         assertFalse(stillOwner);
     }
 
@@ -59,19 +61,28 @@ public class SystemManagerTests extends ProjectTest{
     public void closeStorePermanently_NotSystemManager(){
         boolean closed = this.closeStorePermanently(user1GuestId, store2ClosedId);
         assertFalse(closed);
-    }*/
+    }
 
     /**
-     * remove registeredUser #41   NotForVersion1
+     * remove registeredUser #41
      */
-    /*@Test
+
+
+    @Test
     public void removeRegisteredUser_Valid(){
-        boolean removed = this.removeRegisterdUser(user7SystemManagerId, user4LoggedInId);
+        int id = setUser("Name11","passssssss", MEMBER, LOGGED);
+        boolean removed = this.removeRegisterdUser(user7SystemManagerId, id);
         assertTrue(removed);
-        boolean check = this.checkIfStoreOwner(user4LoggedInId, store4Id);
-        assertTrue(check);
         boolean login = this.loginUser("User4", "User4!");
         assertFalse(login);
+    }
+
+    @Test
+    public void removeRegisteredUser_UserIsStoreOwner(){
+        boolean removed = this.removeRegisterdUser(user7SystemManagerId, user4LoggedInId);
+        assertFalse(removed);
+        boolean check = this.checkIfStoreOwner(user4LoggedInId, store4Id);
+        assertTrue(check);
     }
 
     @Test
@@ -84,7 +95,7 @@ public class SystemManagerTests extends ProjectTest{
     public void removeRegisteredUser_NotValidManager(){
         boolean removed = this.removeRegisterdUser(user1GuestId, user4LoggedInId);
         assertFalse(removed);
-    }*/
+    }
 
     /**
      * get information and answer request #42   NotForVersion1
@@ -163,6 +174,42 @@ public class SystemManagerTests extends ProjectTest{
     /**
      * get system activity #44   NotForVersion1
      */
+
+
+    /**
+     * get Users Inf0 #47
+     */
+    @Test
+    public void getUsersLoggedOut_Valid(){
+        int id = setUser("UserName123", "asdadasd", MEMBER, NOT_LOGGED);
+        Map<Integer, UserInfoService> result = getBridge().getLoggedOutUsers();
+        assertNotNull(result);
+        boolean found = false;
+        for(UserInfoService userInfoService: result.values()){
+            if (userInfoService.getId() == id) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found);
+    }
+
+    @Test
+    public void getUsersLoggedIn_Valid(){
+        int id = setUser("UserName1234", "asdadasd", MEMBER, LOGGED);
+        Map<Integer, UserInfoService> result = getBridge().getLoggedInUsers();
+        assertNotNull(result);
+        boolean found = false;
+        for(UserInfoService userInfoService: result.values()){
+            if (userInfoService.getId() == id) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found);
+    }
+
+
 
     /*@Test
     public void getUsersTraffic_Valid(){
