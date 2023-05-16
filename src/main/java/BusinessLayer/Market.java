@@ -348,7 +348,7 @@ public class Market {
     }
 
     public List<Receipt> getSellingHistoryOfStoreForManager(int storeId, int userId) throws Exception {
-        if(storeFacade.checkIfStoreManager(userId, storeId) || isAdmin(userId))
+        if(storeFacade.checkIfStoreManager(userId, storeId) || storeFacade.checkIfStoreOwner(userId, storeId) || isAdmin(userId))
             return storeFacade.getStore(storeId).getReceiptHandler().getAllReceipts();
         return null;
     }
