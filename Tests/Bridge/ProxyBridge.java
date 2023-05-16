@@ -523,6 +523,13 @@ public class ProxyBridge implements Bridge {
         return null;
     }
 
+    @Override
+    public RuleService wrapPurchasePolicies(int storeID, List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) {
+        if(real != null)
+            return real.wrapPurchasePolicies(storeID, purchasePoliciesIDsToWrap, logicalCompositeEnum);
+        return null;
+    }
+
 
     public HashMap<Integer, ChatService> getChats(int id){
         if(real != null){

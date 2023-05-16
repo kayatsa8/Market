@@ -459,4 +459,6 @@ public interface Bridge {
     RuleService addPurchasePolicyItemsWeightLimitRule(int storeID, Map<Integer, Double> weightsLimits);
 
     RuleService addPurchasePolicyMustDatesRule(int storeID, List<Calendar> mustDates);
+
+    RuleService wrapPurchasePolicies(int storeID, List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum);
 }

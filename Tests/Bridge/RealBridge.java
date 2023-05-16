@@ -398,6 +398,14 @@ public class RealBridge implements Bridge{
         return result.getValue();
     }
 
+    @Override
+    public RuleService wrapPurchasePolicies(int storeID, List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) {
+        Result<RuleService> result = shoppingService.wrapPurchasePolicies(storeID, purchasePoliciesIDsToWrap, logicalCompositeEnum);
+        if(result == null)
+            return null;
+        return result.getValue();
+    }
+
 
     @Override
     public HashMap<Integer, ChatService> getChats(int id){
