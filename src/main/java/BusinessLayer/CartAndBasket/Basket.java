@@ -128,9 +128,9 @@ public class Basket {
                 NOTICE: the Store may throw an exception if Basket requests a certain
                 item more than Store can provide.
             */
-            e.printStackTrace();
             savedItems.set(null);
             itemsSaved = false;
+            throw e;
         }
 
 
