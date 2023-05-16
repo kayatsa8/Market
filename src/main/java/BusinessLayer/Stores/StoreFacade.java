@@ -1,5 +1,6 @@
 package BusinessLayer.Stores;
 
+import BusinessLayer.MarketMock;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.StorePermissions.StoreManager;
@@ -31,8 +32,15 @@ public class StoreFacade {
         this.itemsIDs = 0;
     }
 
-    public Store addStore(int founderID, String name) {
+    public Store addStore(int founderID, String name) throws Exception
+    {
         Store newStore = new Store(storesIDs, founderID, name);
+        stores.put(storesIDs++, newStore);
+        return newStore;
+    }
+    public Store addStore(int founderID, String name, MarketMock marketMock) throws Exception
+    {
+        Store newStore = new Store(storesIDs, founderID, name, marketMock);
         stores.put(storesIDs++, newStore);
         return newStore;
     }

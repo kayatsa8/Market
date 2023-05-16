@@ -4,6 +4,7 @@ import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.Log;
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.MarketMock;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
@@ -52,7 +53,11 @@ public class UserFacade {
 //        userDAO.addUser(admin);
         users.put(admin.getId(), admin);
     }
-
+    public void createAdmin(MarketMock marketMock) throws Exception {
+        RegisteredUser admin = new RegisteredUser(adminName, adminPass, getNewId(), true, marketMock);
+//        userDAO.addUser(admin);
+        users.put(admin.getId(), admin);
+    }
     public RegisteredUser getUserByName(String userName) throws Exception {
         for (RegisteredUser user : users.values()) {
             if (user.getUsername().equals(userName)) {
@@ -89,12 +94,26 @@ public class UserFacade {
         if (user!=null&&user.isLoggedIn()) {
             return user;
         }
-        throw new Exception("User " + userID + "is not logged in");
+        throw new Exception("User " + userID + " is not logged in");
     }
 
     public int registerUser(String username, String password) throws Exception {
         if (checkUserName(username) && checkPassword(password)) {
             RegisteredUser tempUser = new RegisteredUser(username, password, getNewId());
+            // add to DB
+            userDAO.addUser(tempUser);
+            //add to cash
+            users.put(tempUser.getId(), tempUser);
+            return tempUser.getId();
+        }
+        else {
+            log.severe("Problem logging in. username or password check returned false but not error");
+            throw new Exception("Problem logging in. username or password check returned false but not error");
+        }
+    }
+    public int registerUser(String username, String password, MarketMock marketMock) throws Exception {
+        if (checkUserName(username) && checkPassword(password)) {
+            RegisteredUser tempUser = new RegisteredUser(username, password, getNewId(), marketMock);
             // add to DB
             userDAO.addUser(tempUser);
             //add to cash

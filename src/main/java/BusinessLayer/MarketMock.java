@@ -57,7 +57,7 @@ public class MarketMock {
     }
 
     private void createFirstAdmin() throws Exception {
-        userFacade.createAdmin();
+        userFacade.createAdmin(this);
     }
 
     public void addAdmin(int newAdmin, SystemManager systemManager) {
@@ -65,7 +65,7 @@ public class MarketMock {
     }
 
     public int register(String username, String pass) throws Exception {
-        return userFacade.registerUser(username, pass);
+        return userFacade.registerUser(username, pass, this);
     }
 
     public int login(String username, String pass) throws Exception {
@@ -131,7 +131,7 @@ public class MarketMock {
 
     public int addStore(int founderID, String name) throws Exception {
         //bc of two-way dependency: store is created with only founder ID then when founder receives store pointer he adds himself to owner list
-        Store store = storeFacade.addStore(founderID, name);
+        Store store = storeFacade.addStore(founderID, name, this);
         userFacade.addStore(founderID, store);
         return store.getStoreID();
     }
