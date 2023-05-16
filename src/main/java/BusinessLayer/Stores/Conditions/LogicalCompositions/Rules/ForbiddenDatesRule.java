@@ -46,4 +46,8 @@ public class ForbiddenDatesRule extends Rule {
     {
         return false;
     }
+
+    @Override
+    public void removeItem(int itemID) {
+    }
 }

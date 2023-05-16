@@ -25,4 +25,12 @@ public abstract class LogicalComposite extends LogicalComponent {
         }
         return false;
     }
+
+    public void removeItem(int itemID)
+    {
+        for (LogicalComponent logicalComponent : components)
+        {
+            logicalComponent.removeItem(itemID);
+        }
+    }
 }
