@@ -451,4 +451,8 @@ public interface Bridge {
     Map<Integer, UserInfoService> getLoggedInUsers();
 
     RuleService addDiscountPolicyBuyerAgeRule(int storeID, int minimumAge);
+
+    RuleService addDiscountPolicyMustItemsAmountsRule(int storeID, Map<Integer, Integer> itemsAmounts);
+
+    boolean removeUser(int userID, int userToRemove);
 }

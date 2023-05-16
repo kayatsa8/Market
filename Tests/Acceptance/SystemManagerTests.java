@@ -64,7 +64,7 @@ public class SystemManagerTests extends ProjectTest{
     }
 
     /**
-     * remove registeredUser #41   NotForVersion1
+     * remove registeredUser #41
      */
 
 
@@ -174,6 +174,11 @@ public class SystemManagerTests extends ProjectTest{
     /**
      * get system activity #44   NotForVersion1
      */
+
+
+    /**
+     * get Users Inf0 #47
+     */
     @Test
     public void getUsersLoggedOut_Valid(){
         int id = setUser("UserName123", "asdadasd", MEMBER, NOT_LOGGED);
@@ -203,6 +208,7 @@ public class SystemManagerTests extends ProjectTest{
         }
         assertTrue(found);
     }
+
 
 
     /*@Test

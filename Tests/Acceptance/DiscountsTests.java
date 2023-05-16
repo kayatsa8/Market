@@ -208,8 +208,23 @@ public class DiscountsTests extends ProjectTest{
         assertTrue(ruleService.getId() < 0);
     }
 
+    @Test
+    public void addDiscountPolicyMustItemsAmountsRule_Valid(){
+        Map<Integer, Integer> map = new HashMap<>();
+        map.put(item1Id, 22); map.put(item2Id, 22);
+        RuleService ruleService = getBridge().addDiscountPolicyMustItemsAmountsRule(store2Id, map);
+        assertTrue(ruleService.getId() >= 0);
+        assertTrue(ruleService.getInfo().contains(String.valueOf(item1Id)));
+        assertTrue(ruleService.getInfo().contains(String.valueOf(item2Id)));
+    }
 
-
+    @Test
+    public void addDiscountPolicyMustItemsAmountsRule_ItemsNotInStore(){
+        Map<Integer, Integer> map = new HashMap<>();
+        map.put(-1, 22);
+        RuleService ruleService = getBridge().addDiscountPolicyMustItemsAmountsRule(store2Id, map);
+        assertTrue(ruleService.getId() < 0);
+    }
 
 
     protected static int discountId = -1;

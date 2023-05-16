@@ -494,6 +494,21 @@ public class ProxyBridge implements Bridge {
         return null;
     }
 
+    @Override
+    public RuleService addDiscountPolicyMustItemsAmountsRule(int storeID, Map<Integer, Integer> itemsAmounts) {
+        if(real != null)
+            return real.addDiscountPolicyMustItemsAmountsRule(storeID, itemsAmounts);
+        return null;
+    }
+
+    @Override
+    public boolean removeUser(int userID, int userToRemove) {
+        if(real != null){
+            return real.removeUser(userID, userToRemove);
+        }
+        return false;
+    }
+
 
     public HashMap<Integer, ChatService> getChats(int id){
         if(real != null){

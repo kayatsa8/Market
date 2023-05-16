@@ -415,6 +415,20 @@ public class RealBridge implements Bridge{
         return result.getValue();
     }
 
+    @Override
+    public RuleService addDiscountPolicyMustItemsAmountsRule(int storeID, Map<Integer, Integer> itemsAmounts) {
+        Result<RuleService> result = shoppingService.addDiscountPolicyMustItemsAmountsRule(storeID, itemsAmounts);
+        if(result == null)
+            return null;
+        return result.getValue();
+    }
+
+    @Override
+    public boolean removeUser(int userID, int userToRemove) {
+        Result<Boolean> result = userService.removeUser(userID, userToRemove);
+        return handleBoolResult(result);
+    }
+
 
     @Override
     public boolean answerComplaint(int userId, HashMap<Integer, String> complaintsAnswers) {
