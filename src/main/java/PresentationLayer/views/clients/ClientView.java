@@ -1,6 +1,5 @@
 package PresentationLayer.views.clients;
 
-import PresentationLayer.views.Cart;
 import PresentationLayer.views.MainLayout;
 import ServiceLayer.Objects.CartService;
 import ServiceLayer.Objects.CatalogItemService;
@@ -31,8 +30,8 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouteAlias;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
 import java.util.List;
@@ -41,14 +40,14 @@ import java.util.stream.Stream;
 
 @PageTitle("Market")
 @Route(value = "client", layout = MainLayout.class)
-@RouteAlias(value = "", layout = MainLayout.class)
+@PreserveOnRefresh
 public class ClientView extends VerticalLayout {
 
     ShoppingService shoppingService;
-    MainLayout mainLayout;
+    MainLayout mainLayout = MainLayout.getMainLayout();
 
     public ClientView() {
-        mainLayout = MainLayout.getMainLayout();
+//        mainLayout
         try {
             shoppingService = new ShoppingService();
         }
@@ -115,9 +114,7 @@ public class ClientView extends VerticalLayout {
                 .bind(o->0, this::setAmount);
         amountColumn.setEditorComponent(integerField);
         Button saveButton = new Button("Add", e -> {
-//            Notification.show("items added to cart");
             editor.save();
-//            editor.cancel();
             amountColumn.setVisible(false);
         });
         Button cancelButton = new Button(VaadinIcon.CLOSE.create(),
@@ -182,10 +179,10 @@ public class ClientView extends VerticalLayout {
 
         Result<CartService> result = shoppingService.addItemToCart(mainLayout.getCurrUserID(),catalogItemService.getStoreID(), catalogItemService.getItemID(), amount);
         if (!result.isError()){
-            Notification.show("Successfully added to " + mainLayout.getCurrUserID()+"'s cart\n");
+            printSuccess("Successfully added to " + mainLayout.getCurrUserID()+"'s cart\n");
         }
         else {
-            Notification.show(mainLayout.getCurrUserID() + result.getMessage());
+            printError(mainLayout.getCurrUserID() + result.getMessage());
         }
     }
 
@@ -280,16 +277,6 @@ public class ClientView extends VerticalLayout {
             return true;
         }
     }
-
-    /*public void setAmount(CatalogItemService catalogItemService, Integer amount) {
-        Result<CartService> result = shoppingService.addItemToCart(mainLayout.getCurrUserID(),catalogItemService.getStoreID(), catalogItemService.getItemID(), amount);
-        if (!result.isError()){
-            printSuccess("Successfully added to " + mainLayout.getCurrUserID()+"'s cart\n");
-        }
-        else {
-            printError(mainLayout.getCurrUserID() + result.getMessage());
-        }
-    }*/
 
     private void printSuccess(String msg) {
         Notification notification = Notification.show(msg, 2000, Notification.Position.BOTTOM_CENTER);

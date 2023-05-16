@@ -1,5 +1,6 @@
 package PresentationLayer.views.loginAndRegister;
 
+import BusinessLayer.Users.Guest;
 import PresentationLayer.views.MainLayout;
 import com.vaadin.flow.component.UI;
 
@@ -9,10 +10,10 @@ public final class UserPL {
 
 
     private int currUserID;
-    private final int GUEST_ID =999999;
+    private int GUEST_ID;
     public UserPL() {
-        // private constructor
-        currUserID= GUEST_ID;
+        GUEST_ID = Guest.GUEST_USER_ID+1;
+        currUserID = Guest.GUEST_USER_ID+1;
 
     }
     public int getCurrUserID() {

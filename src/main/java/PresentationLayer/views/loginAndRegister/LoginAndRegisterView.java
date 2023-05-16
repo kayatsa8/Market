@@ -17,13 +17,14 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
 import java.util.function.BiFunction;
 
 @PageTitle("LogIn/Registration")
 @Route(value = "login", layout = MainLayout.class)
-//@RouteAlias(value = "", layout = MainLayout.class)
+@RouteAlias(value = "", layout = MainLayout.class)
 public class LoginAndRegisterView extends HorizontalLayout {
     private TextField userNameTF;
     private Button loginB;

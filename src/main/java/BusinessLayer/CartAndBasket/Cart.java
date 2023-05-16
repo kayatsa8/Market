@@ -32,15 +32,6 @@ public class Cart {
         Log.log.info("A new cart was created for user " + userID);
     }
 
-    /**
-     * a constructor for not registered user
-     */
-    public Cart(){
-        userID = 999999; // a convention
-        baskets = new BasketsRepository();
-        Log.log.info("A new cart was created for a guest user");
-    }
-
     public void addItem(Store store, CatalogItem item, int quantity) throws Exception {
         baskets.putIfAbsent(store.getStoreID(), new Basket(store));
         baskets.get(store.getStoreID()).addItem(item, quantity, coupons);
