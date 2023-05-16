@@ -1198,7 +1198,11 @@ public class StoreManagementView extends VerticalLayout {
             createButton = new Button("Create", e -> {
                 if(storeId != -1 && idsMap.size() > 0){
                     dialog.close();
-                    Result<RuleService> result = shoppingService.addPurchasePolicyItemsWeightLimitRule(storeId, idsMap);
+                    Result<RuleService> result;
+                    if(policyMode == PURCHASE_POLICY)
+                        result = shoppingService.addPurchasePolicyItemsWeightLimitRule(storeId, idsMap);
+                    else
+                        result = shoppingService.addDiscountPolicyItemsWeightLimitRule(storeId, idsMap);
                     handleRuleServiceResult(result, new ArrayList<>(), rulesGrid);
                 }
             });
