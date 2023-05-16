@@ -62,4 +62,9 @@ public class MustItemsAmountsRule extends Rule{
     {
         return itemsAmounts.containsKey(itemID);
     }
+
+    @Override
+    public void removeItem(int itemID) {
+        itemsAmounts.remove(itemID);
+    }
 }

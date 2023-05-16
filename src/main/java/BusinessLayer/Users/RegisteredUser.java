@@ -1,6 +1,7 @@
 package BusinessLayer.Users;
 
 import BusinessLayer.Market;
+import BusinessLayer.MarketMock;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
@@ -52,6 +53,32 @@ public class RegisteredUser extends User {
             systemManager = new SystemManager(this);
         }
         this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(this);
+    }
+    public RegisteredUser(String username, String pass, int id, boolean isAdmin, MarketMock marketMock) throws Exception {
+        super(id);
+        this.username = username;
+        this.password = Password.hashPassword(pass);
+        this.id = id;
+        this.storesIOwn = new HashMap<>();
+        this.storesIManage = new HashMap<>();
+        this.userDAO = new UserDAO();
+        this.isLoggedIn = false;
+        if (isAdmin) {
+            systemManager = new SystemManager(this);
+        }
+        this.mailbox = marketMock.getNotificationHub().registerToMailService(this);
+    }
+    public RegisteredUser(String username, String pass, int id, MarketMock marketMock) throws Exception {
+        super(id);
+
+        this.username = username;
+        this.password = Password.hashPassword(pass);
+        this.id = id;
+        this.storesIOwn = new HashMap<>();
+        this.storesIManage = new HashMap<>();
+        this.userDAO = new UserDAO();
+        this.isLoggedIn = false;
+        this.mailbox = marketMock.getNotificationHub().registerToMailService(this);
     }
 
     public Map<Integer, StoreOwner> getStoresIOwn() {

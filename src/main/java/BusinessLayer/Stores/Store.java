@@ -3,8 +3,10 @@ package BusinessLayer.Stores;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Log;
 import BusinessLayer.Market;
+import BusinessLayer.MarketMock;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.StoreMailbox;
+import BusinessLayer.NotificationSystem.UserMailbox;
 import BusinessLayer.Receipts.ReceiptHandler;
 import BusinessLayer.StorePermissions.StoreEmployees;
 import BusinessLayer.StorePermissions.StoreManager;
@@ -25,6 +27,7 @@ import BusinessLayer.Stores.Policies.PurchasePolicy;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
+import org.yaml.snakeyaml.error.Mark;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,18 +47,18 @@ public class Store {
     private int auctionsIDs;
     private int discountsIDs;
     private int policiesIDs;
-    private StoreMailbox storeMailBox;
+    private StoreMailbox mailbox;
     private StoreStatus storeStatus;
-    private Map<Integer, Discount> discounts;
-    private Map<Integer, PurchasePolicy> purchasePolicies;
-    private Map<Integer, DiscountPolicy> discountPolicies;
-    private Map<Integer, CatalogItem> items;
-    private Map<Integer, Integer> itemsAmounts;
-    private Map<Integer, Integer> savedItemsAmounts;
-    private Map<Integer, Bid> bids;
-    private Map<Integer, Auction> auctions;
-    private Map<Integer, Lottery> lotteries;
-    private ReceiptHandler receiptHandler;
+    private final Map<Integer, Discount> discounts;
+    private final Map<Integer, PurchasePolicy> purchasePolicies;
+    private final Map<Integer, DiscountPolicy> discountPolicies;
+    private final Map<Integer, CatalogItem> items;
+    private final Map<Integer, Integer> itemsAmounts;
+    private final Map<Integer, Integer> savedItemsAmounts;
+    private final Map<Integer, Bid> bids;
+    private final Map<Integer, Auction> auctions;
+    private final Map<Integer, Lottery> lotteries;
+    private final ReceiptHandler receiptHandler;
     private List<StoreOwner> storeOwners;
     private List<StoreManager> storeManagers;
 
@@ -82,12 +85,37 @@ public class Store {
         this.founderID = founderID;
         this.storeOwners = new ArrayList<>();
         try {
-            this.storeMailBox = Market.getInstance().getNotificationHub().registerToMailService(this);
+            this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(this);
         } catch (Exception ignored) {
         }
         log.info("Store " + storeID + " created with name: " + storeName);
     }
-
+    public Store(int storeID, int founderID, String name, MarketMock marketMock) throws Exception
+    {
+        this.storeID = storeID;
+        this.storeName = name;
+        this.discounts = new HashMap<>();
+        this.purchasePolicies = new HashMap<>();
+        this.discountPolicies = new HashMap<>();
+        this.itemsAmounts = new HashMap<>();
+        this.items = new HashMap<>();
+        this.savedItemsAmounts = new HashMap<>();
+        this.auctions = new HashMap<>();
+        this.lotteries = new HashMap<>();
+        this.bids = new HashMap<>();
+        this.receiptHandler = new ReceiptHandler();
+        this.bidsIDs = 0;
+        this.lotteriesIDs = 0;
+        this.auctionsIDs = 0;
+        this.discountsIDs = 0;
+        this.policiesIDs = 0;
+        this.storeStatus = OPEN;
+        this.storeManagers = new ArrayList<>();
+        this.founderID = founderID;
+        this.storeOwners = new ArrayList<>();
+        this.mailbox = marketMock.getNotificationHub().registerToMailService(this);
+        log.info("Store " + storeID + " created with name: " + storeName);
+    }
     public List<StoreOwner> getStoreOwners() {
         return storeOwners;
     }
@@ -101,7 +129,9 @@ public class Store {
     }
 
     public int getItemAmount(int itemID) {
-        return itemsAmounts.get(itemID);
+        if (itemsAmounts.containsKey(itemID))
+            return itemsAmounts.get(itemID);
+        return -1;
     }
 
     public int getStoreID() {
@@ -116,8 +146,14 @@ public class Store {
         this.storeName = storeName;
     }
 
-    public Discount getDiscount(int discountID) {
-        return discounts.get(discountID);
+    public Discount getDiscount(int discountID) throws Exception
+    {
+        Discount discount = discounts.get(discountID);
+        if (discount == null)
+        {
+            throw new Exception("Error: discount ID " + discountID + " does not exist in store " + storeName);
+        }
+        return discount;
     }
     public PurchasePolicy getPurchasePolicy(int purchasePolicyID)
     {
@@ -184,14 +220,14 @@ public class Store {
     }
 
     private boolean sameCategory(CatalogItem item, String keywords) {
-        return (item.getCategory().toLowerCase()).equals(keywords.toLowerCase());
+        return (item.getCategory()).equalsIgnoreCase(keywords);
     }
 
     private boolean sameName(CatalogItem item, String keywords) {
-        return (item.getItemName().toLowerCase()).equals(keywords.toLowerCase());
+        return (item.getItemName()).equalsIgnoreCase(keywords);
     }
 
-    public boolean belongsToSearch(CatalogItem item, String keywords, SearchBy searchBy) throws Exception {
+    private boolean belongsToSearch(CatalogItem item, String keywords, SearchBy searchBy) throws Exception {
         switch (searchBy) {
             case CATEGORY -> {
                 return sameCategory(item, keywords);
@@ -281,14 +317,18 @@ public class Store {
     }
 
 
-    public String addDiscountBasketTotalPriceRule(int discountID, double minimumPrice)
+    public String addDiscountBasketTotalPriceRule(int discountID, double minimumPrice) throws Exception
     {
         Conditional discount = (Conditional) getDiscount(discountID);
         return discount.addBasketTotalPriceRule(minimumPrice);
     }
-    public String addDiscountQuantityRule(int discountID, Map<Integer, Integer> itemsAmounts)
+    public String addDiscountQuantityRule(int discountID, Map<Integer, Integer> itemsAmounts) throws Exception
     {
         Conditional discount = (Conditional) getDiscount(discountID);
+        if (!items.keySet().containsAll(itemsAmounts.keySet()))
+        {
+            throw new Exception("Error: One or more of the items IDs you entered are not exist in store " + storeName);
+        }
         return discount.addQuantityRule(itemsAmounts);
     }
     public String addDiscountComposite(int discountID, LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs) throws Exception
@@ -338,68 +378,76 @@ public class Store {
     }
 
 
-    public String addPurchasePolicyBasketWeightLimitRule(double basketWeightLimit)
+    public String addPurchasePolicyBasketWeightLimitRule(double basketWeightLimit) throws Exception
     {
         BasketWeightLimitRule basketWeightLimitRule = new BasketWeightLimitRule(basketWeightLimit, policiesIDs);
         PurchasePolicy purchasePolicy = new PurchasePolicy(basketWeightLimitRule);
         purchasePolicies.put(policiesIDs++, purchasePolicy);
-        return (policiesIDs -1) + ": " + purchasePolicy.toString();
+        return (policiesIDs -1) + ": " + purchasePolicy;
     }
-    public String addPurchasePolicyBuyerAgeRule(int minimumAge)
+    public String addPurchasePolicyBuyerAgeRule(int minimumAge) throws Exception
     {
         BuyerAgeRule buyerAgeRule = new BuyerAgeRule(minimumAge, policiesIDs);
         PurchasePolicy purchasePolicy = new PurchasePolicy(buyerAgeRule);
         purchasePolicies.put(policiesIDs++, purchasePolicy);
-        return (policiesIDs -1) + ": " + purchasePolicy.toString();
+        return (policiesIDs -1) + ": " + purchasePolicy;
     }
     public String addPurchasePolicyForbiddenCategoryRule(String forbiddenCategory)
     {
         ForbiddenCategoryRule forbiddenCategoryRule = new ForbiddenCategoryRule(forbiddenCategory, policiesIDs);
         PurchasePolicy purchasePolicy = new PurchasePolicy(forbiddenCategoryRule);
         purchasePolicies.put(policiesIDs++, purchasePolicy);
-        return (policiesIDs -1) + ": " + purchasePolicy.toString();
+        return (policiesIDs -1) + ": " + purchasePolicy;
     }
     public String addPurchasePolicyForbiddenDatesRule(List<Calendar> forbiddenDates)
     {
         ForbiddenDatesRule forbiddenDatesRule = new ForbiddenDatesRule(forbiddenDates, policiesIDs);
         PurchasePolicy purchasePolicy = new PurchasePolicy(forbiddenDatesRule);
         purchasePolicies.put(policiesIDs++, purchasePolicy);
-        return (policiesIDs -1) + ": " + purchasePolicy.toString();
+        return (policiesIDs -1) + ": " + purchasePolicy;
     }
     public String addPurchasePolicyForbiddenHoursRule(int startHour, int endHour)
     {
         ForbiddenHoursRule forbiddenHoursRule = new ForbiddenHoursRule(startHour, endHour, policiesIDs);
         PurchasePolicy purchasePolicy = new PurchasePolicy(forbiddenHoursRule);
         purchasePolicies.put(policiesIDs++, purchasePolicy);
-        return (policiesIDs -1) + ": " + purchasePolicy.toString();
+        return (policiesIDs -1) + ": " + purchasePolicy;
     }
     public String addPurchasePolicyMustDatesRule(List<Calendar> mustDates)
     {
         MustDatesRule mustDatesRule = new MustDatesRule(mustDates, policiesIDs);
         PurchasePolicy purchasePolicy = new PurchasePolicy(mustDatesRule);
         purchasePolicies.put(policiesIDs++, purchasePolicy);
-        return (policiesIDs -1) + ": " + purchasePolicy.toString();
+        return (policiesIDs -1) + ": " + purchasePolicy;
     }
-    public String addPurchasePolicyItemsWeightLimitRule(Map<Integer, Double> weightsLimits)
+    public String addPurchasePolicyItemsWeightLimitRule(Map<Integer, Double> weightsLimits) throws Exception
     {
+        if (!items.keySet().containsAll(weightsLimits.keySet()))
+        {
+            throw new Exception("Error: One or more of the items IDs you entered are not exist in store " + storeName);
+        }
         ItemsWeightLimitRule itemsWeightLimitRule = new ItemsWeightLimitRule(weightsLimits, policiesIDs);
         PurchasePolicy purchasePolicy = new PurchasePolicy(itemsWeightLimitRule);
         purchasePolicies.put(policiesIDs++, purchasePolicy);
-        return (policiesIDs -1) + ": " + purchasePolicy.toString();
+        return (policiesIDs -1) + ": " + purchasePolicy;
     }
-    public String addPurchasePolicyBasketTotalPriceRule(double minimumPrice)
+    public String addPurchasePolicyBasketTotalPriceRule(double minimumPrice) throws Exception
     {
         BasketTotalPriceRule basketTotalPriceRule = new BasketTotalPriceRule(minimumPrice, policiesIDs);
         PurchasePolicy purchasePolicy = new PurchasePolicy(basketTotalPriceRule);
         purchasePolicies.put(policiesIDs++, purchasePolicy);
-        return (policiesIDs -1) + ": " + purchasePolicy.toString();
+        return (policiesIDs -1) + ": " + purchasePolicy;
     }
-    public String addPurchasePolicyMustItemsAmountsRule(Map<Integer, Integer> itemsAmounts)
+    public String addPurchasePolicyMustItemsAmountsRule(Map<Integer, Integer> itemsAmounts) throws Exception
     {
+        if (!items.keySet().containsAll(itemsAmounts.keySet()))
+        {
+            throw new Exception("Error: One or more of the items IDs you entered are not exist in store " + storeName);
+        }
         MustItemsAmountsRule mustItemsAmountsRule = new MustItemsAmountsRule(itemsAmounts, policiesIDs);
         PurchasePolicy purchasePolicy = new PurchasePolicy(mustItemsAmountsRule);
         purchasePolicies.put(policiesIDs++, purchasePolicy);
-        return (policiesIDs -1) + ": " + purchasePolicy.toString();
+        return (policiesIDs -1) + ": " + purchasePolicy;
     }
     public String wrapPurchasePolicies(List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
     {
@@ -442,68 +490,68 @@ public class Store {
         return policyId + ":" + policy;
     }
 
-    public String addDiscountPolicyBasketWeightLimitRule(double basketWeightLimit)
+    public String addDiscountPolicyBasketWeightLimitRule(double basketWeightLimit) throws Exception
     {
         BasketWeightLimitRule basketWeightLimitRule = new BasketWeightLimitRule(basketWeightLimit, policiesIDs);
         DiscountPolicy discountPolicy = new DiscountPolicy(basketWeightLimitRule);
         discountPolicies.put(policiesIDs++, discountPolicy);
-        return (policiesIDs -1) + ": " + discountPolicy.toString();
+        return (policiesIDs -1) + ": " + discountPolicy;
     }
-    public String addDiscountPolicyBuyerAgeRule(int minimumAge)
+    public String addDiscountPolicyBuyerAgeRule(int minimumAge) throws Exception
     {
         BuyerAgeRule buyerAgeRule = new BuyerAgeRule(minimumAge, policiesIDs);
         DiscountPolicy discountPolicy = new DiscountPolicy(buyerAgeRule);
         discountPolicies.put(policiesIDs++, discountPolicy);
-        return (policiesIDs -1) + ": " + discountPolicy.toString();
+        return (policiesIDs -1) + ": " + discountPolicy;
     }
     public String addDiscountPolicyForbiddenCategoryRule(String forbiddenCategory)
     {
         ForbiddenCategoryRule forbiddenCategoryRule = new ForbiddenCategoryRule(forbiddenCategory, policiesIDs);
         DiscountPolicy discountPolicy = new DiscountPolicy(forbiddenCategoryRule);
         discountPolicies.put(policiesIDs++, discountPolicy);
-        return (policiesIDs -1) + ": " + discountPolicy.toString();
+        return (policiesIDs -1) + ": " + discountPolicy;
     }
     public String addDiscountPolicyForbiddenDatesRule(List<Calendar> forbiddenDates)
     {
         ForbiddenDatesRule forbiddenDatesRule = new ForbiddenDatesRule(forbiddenDates, policiesIDs);
         DiscountPolicy discountPolicy = new DiscountPolicy(forbiddenDatesRule);
         discountPolicies.put(policiesIDs++, discountPolicy);
-        return (policiesIDs -1) + ": " + discountPolicy.toString();
+        return (policiesIDs -1) + ": " + discountPolicy;
     }
     public String addDiscountPolicyForbiddenHoursRule(int startHour, int endHour)
     {
         ForbiddenHoursRule forbiddenHoursRule = new ForbiddenHoursRule(startHour, endHour, policiesIDs);
         DiscountPolicy discountPolicy = new DiscountPolicy(forbiddenHoursRule);
         discountPolicies.put(policiesIDs++, discountPolicy);
-        return (policiesIDs -1) + ": " + discountPolicy.toString();
+        return (policiesIDs -1) + ": " + discountPolicy;
     }
     public String addDiscountPolicyMustDatesRule(List<Calendar> mustDates)
     {
         MustDatesRule mustDatesRule = new MustDatesRule(mustDates, policiesIDs);
         DiscountPolicy discountPolicy = new DiscountPolicy(mustDatesRule);
         discountPolicies.put(policiesIDs++, discountPolicy);
-        return (policiesIDs -1) + ": " + discountPolicy.toString();
+        return (policiesIDs -1) + ": " + discountPolicy;
     }
     public String addDiscountPolicyItemsWeightLimitRule(Map<Integer, Double> weightsLimits)
     {
         ItemsWeightLimitRule itemsWeightLimitRule = new ItemsWeightLimitRule(weightsLimits, policiesIDs);
         DiscountPolicy discountPolicy = new DiscountPolicy(itemsWeightLimitRule);
         discountPolicies.put(policiesIDs++, discountPolicy);
-        return (policiesIDs -1) + ": " + discountPolicy.toString();
+        return (policiesIDs -1) + ": " + discountPolicy;
     }
-    public String addDiscountPolicyBasketTotalPriceRule(double minimumPrice)
+    public String addDiscountPolicyBasketTotalPriceRule(double minimumPrice) throws Exception
     {
         BasketTotalPriceRule basketTotalPriceRule = new BasketTotalPriceRule(minimumPrice, policiesIDs);
         DiscountPolicy discountPolicy = new DiscountPolicy(basketTotalPriceRule);
         discountPolicies.put(policiesIDs++, discountPolicy);
-        return (policiesIDs -1) + ": " + discountPolicy.toString();
+        return (policiesIDs -1) + ": " + discountPolicy;
     }
     public String addDiscountPolicyMustItemsAmountsRule(Map<Integer, Integer> itemsAmounts)
     {
         MustItemsAmountsRule mustItemsAmountsRule = new MustItemsAmountsRule(itemsAmounts, policiesIDs);
         DiscountPolicy discountPolicy = new DiscountPolicy(mustItemsAmountsRule);
         discountPolicies.put(policiesIDs++, discountPolicy);
-        return (policiesIDs -1) + ": " + discountPolicy.toString();
+        return (policiesIDs -1) + ": " + discountPolicy;
     }
     public String wrapDiscountPolicies(List<Integer> discountPoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
     {
@@ -539,8 +587,6 @@ public class Store {
         {
             discountPolicies.remove(discountPolicyID);
         }
-        //discountPolicies.put(policiesIDs, new DiscountPolicy(myLogicalComponent));
-        //return policiesIDs++;
         DiscountPolicy policy = new DiscountPolicy(myLogicalComponent);
         int policyId = policiesIDs;
         discountPolicies.put(policyId, policy);
@@ -552,7 +598,12 @@ public class Store {
         return storeStatus;
     }
 
-    public CatalogItem addCatalogItem(int itemID, String itemName, double itemPrice, String itemCategory, double weight) {
+    public CatalogItem addCatalogItem(int itemID, String itemName, double itemPrice, String itemCategory, double weight) throws Exception
+    {
+        if (storeStatus != OPEN)
+        {
+            throw new Exception("Can't add catalog item when store unopened");
+        }
         CatalogItem newItem = new CatalogItem(itemID, itemName, itemPrice, itemCategory, this.storeName, this.storeID, weight);
         itemsAmounts.put(itemID, 0);
         items.put(itemID, newItem);
@@ -572,40 +623,38 @@ public class Store {
         receiptInfo.put(userID, receiptItems);
         receiptHandler.addReceipt(storeID, receiptInfo);
         List<Integer> sendToList = storeOwners.stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
-        storeMailBox.sendMessageToList(sendToList, "User " + userID + " made a purchase in store " + storeName + " where you are one of the owners");
+        mailbox.sendMessageToList(sendToList, "User " + userID + " made a purchase in store " + storeName + " where you are one of the owners");
         log.info("A basket was bought at store " + storeID);
     }
-    public synchronized boolean saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems, List<String> coupons) throws Exception
+    public synchronized void saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems, List<String> coupons) throws Exception
     {
-        if (checkIfItemsInStock(basketItems))
-        {
-            if (checkIfBasketPriceChanged(basketItems, coupons))
-            {
-                updateBasket(basketItems, coupons);
-                log.warning("Trying to buy a basket in store: " + storeName + ", but item price or discount or discount policy changed/removed/added");
-                throw new Exception("One or more of the items or discounts or discounts policies in store : " + storeName + " that affect the basket have been changed");
+        if (storeStatus == OPEN) {
+            if (checkIfItemsInStock(basketItems)) {
+                if (checkIfBasketPriceChanged(basketItems, coupons)) {
+                    updateBasket(basketItems, coupons);
+                    log.warning("Trying to buy a basket in store: " + storeName + ", but item price or discount or discount policy changed/removed/added");
+                    throw new Exception("One or more of the items or discounts or discounts policies in store : " + storeName + " that affect the basket have been changed");
+                }
+                if (!checkIfPurchaseIsValid(basketItems)) {
+                    log.warning("Trying to buy a basket in store: " + storeName + ", but you don't comply with the purchase policies");
+                    throw new Exception("You don't comply with the purchase policies");
+                }
+                int itemID;
+                int itemAmountToSave;
+                for (CartItemInfo cartItemInfo : basketItems) {
+                    itemID = cartItemInfo.getItemID();
+                    itemAmountToSave = cartItemInfo.getAmount();
+                    saveItemAmount(itemID, itemAmountToSave);
+                }
+                log.info("Items was saved for upcoming purchase at store " + storeID);
+            } else {
+                log.warning("Items wasn't saved for upcoming purchase at store " + storeID + " due to lack of items");
+                throw new Exception("Not enough items in stock");
             }
-            if (!checkIfPurchaseIsValid(basketItems))
-            {
-                log.warning("Trying to buy a basket in store: " + storeName + ", but you don't comply with the purchase policies");
-                throw new Exception("You don't comply with the purchase policies");
-            }
-            int itemID;
-            int itemAmountToSave;
-            for (CartItemInfo cartItemInfo : basketItems)
-            {
-                itemID = cartItemInfo.getItemID();
-                itemAmountToSave = cartItemInfo.getAmount();
-                saveItemAmount(itemID, itemAmountToSave);
-            }
-            log.info("Items was saved for upcoming purchase at store " + storeID);
-            return true;
-        }
-        else
-        {
-            log.warning("Items wasn't saved for upcoming purchase at store " + storeID + " due to lack of items");
-            CatalogItem missingItem = getTheMissingItem(basketItems);
-            throw new Exception("Not enough " + missingItem.getItemName() + " in stock of store " + storeName);
+        } else if (storeStatus == CLOSE) {
+            throw new Exception("You can't buy items from a closed store");
+        } else {
+            throw new Exception("You can't buy items from a permanently-closed store");
         }
     }
 
@@ -667,22 +716,6 @@ public class Store {
         }
         return true;
     }
-
-    public CatalogItem getTheMissingItem(List<CartItemInfo> basketItems)
-    {
-        int itemID;
-        int itemAmountToSave;
-        int itemCurrentAmount;
-        for (CartItemInfo cartItemInfo : basketItems) {
-            itemID = cartItemInfo.getItemID();
-            itemAmountToSave = cartItemInfo.getAmount();
-            itemCurrentAmount = itemsAmounts.get(itemID);
-            if (itemCurrentAmount < itemAmountToSave) {
-                return items.get(cartItemInfo.getItemID());
-            }
-        }
-        return null;
-    }
     
     public void updateBasket(List<CartItemInfo> basketItems, List<String> coupons) throws Exception
     {
@@ -727,14 +760,15 @@ public class Store {
         }
     }
 
+
+    //TODO: change the return type to boolean and fix all calls to here to check the return value.
     public void saveItemAmount(int itemID, int amountToSave)
     {
-        int itemAmountToSave = amountToSave;
-        int itemCurrentAmount = itemsAmounts.get(itemID);
-        int itemCurrentSavedAmount = savedItemsAmounts.get(itemID);
-        if ((itemCurrentAmount - amountToSave >= 0) && (itemCurrentSavedAmount + amountToSave >= 0)) {
-            itemsAmounts.put(itemID, itemCurrentAmount - amountToSave);
-            savedItemsAmounts.put(itemID, itemCurrentSavedAmount + amountToSave);
+        int itemNewAmount = itemsAmounts.get(itemID) - amountToSave;
+        int itemNewSavedAmount = savedItemsAmounts.get(itemID) + amountToSave;
+        if ((itemNewAmount >= 0) && (itemNewSavedAmount >= 0)) {
+            itemsAmounts.put(itemID, itemNewAmount);
+            savedItemsAmounts.put(itemID, itemNewSavedAmount);
         }
     }
 
@@ -774,7 +808,7 @@ public class Store {
         List<Integer> sendToList = storeOwnersAndManagers.stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
         newBid.setRepliers(sendToList);
         bids.put(bidsIDs++, newBid);
-        storeMailBox.sendMessageToList(sendToList, "User " + userID + " offered new bid for item " + items.get(itemID).getItemName() + " at store " + storeName + " with price of " + offeredPrice + " while the original price is " + items.get(itemID).getPrice());
+        mailbox.sendMessageToList(sendToList, "User " + userID + " offered new bid for item " + items.get(itemID).getItemName() + " at store " + storeName + " with price of " + offeredPrice + " while the original price is " + items.get(itemID).getPrice());
         log.info("Added new bid for item " + itemID + " at store " + storeID);
     }
 
@@ -790,9 +824,18 @@ public class Store {
         log.info("Added new auction for item " + itemID + " at store " + storeID);
     }
 
-    public void addItemAmount(int itemID, int amountToAdd) {
-        int currentAmount = getItemAmount(itemID);
-        itemsAmounts.put(itemID, currentAmount + amountToAdd);
+    public void addItemAmount(int itemID, int amountToAdd) throws Exception
+    {
+        if (storeStatus != OPEN)
+        {
+            throw new Exception("Can't add item amount to unopened store");
+        }
+        itemsAmounts.put(itemID, getItemAmount(itemID) + amountToAdd);
+        log.info("Added amount by " + amountToAdd + " for item " + itemID + " at store " + storeID);
+    }
+    private void addItemAmountPrivate(int itemID, int amountToAdd)
+    {
+        itemsAmounts.put(itemID, getItemAmount(itemID) + amountToAdd);
         log.info("Added amount by " + amountToAdd + " for item " + itemID + " at store " + storeID);
     }
 
@@ -821,26 +864,28 @@ public class Store {
         addSavedItemAmount(itemID, -1);
         removeBid(bidID);
         if (bid.getHighestCounterOffer() == -1) {
-            storeMailBox.sendMessage(userID, "Hi, your bid for the item: " + items.get(itemID).getItemName() + ", was approved by the store, and the item will be sent to you soon");
+            mailbox.sendMessage(userID, "Hi, your bid for the item: " + items.get(itemID).getItemName() + ", was approved by the store, and the item will be sent to you soon");
             log.info("Bid " + bidID + " was fully approved");
         } else {
-            storeMailBox.sendMessage(userID, "Hi, your bid for the item: " + items.get(itemID).getItemName() + ", was countered by the store with counter-offer of: " + bid.getHighestCounterOffer() + " while the original price is: " + items.get(itemID).getPrice());
+            mailbox.sendMessage(userID, "Hi, your bid for the item: " + items.get(itemID).getItemName() + ", was countered by the store with counter-offer of: " + bid.getHighestCounterOffer() + " while the original price is: " + items.get(itemID).getPrice());
             log.info("Bid " + bidID + " was counter-offered with price of " + bid.getHighestCounterOffer());
         }
     }
 
-    public void finishBidUnsuccessfully(int bidID) {
+    public void finishBidUnsuccessfully(int bidID)
+    {
         Bid bid = bids.get(bidID);
         int itemID = bid.getItemID();
         int userID = bid.getUserID();
-        addItemAmount(itemID, 1);
+        addItemAmountPrivate(itemID, 1);
         addSavedItemAmount(itemID, -1);
         removeBid(bidID);
-        storeMailBox.sendMessage(userID, "Hi, we apologize for the inconvenience, but your bid for the item: " + items.get(itemID).getItemName() + ", was rejected by the store");
+        mailbox.sendMessage(userID, "Hi, we apologize for the inconvenience, but your bid for the item: " + items.get(itemID).getItemName() + ", was rejected by the store");
         log.info("Bid " + bidID + " was rejected");
     }
 
-    public void finishAuctionSuccessfully(int auctionID) {
+    public void finishAuctionSuccessfully(int auctionID)
+    {
         System.out.println("The item is sold to user");
         Auction myAuction = auctions.get(auctionID);
         int winnerID = myAuction.getCurrentWinningUserID();
@@ -849,14 +894,15 @@ public class Store {
         myAuction.getAuctionTimer().cancel();
         myAuction.getAuctionTimer().purge();
         removeAuction(auctionID);
-        storeMailBox.sendMessage(winnerID, "Congratulations, you are the winner in our auction in store " + storeName + " of item " + items.get(itemID).getItemName() + " with an offer of " + myAuction.getCurrentPrice() + " while the original price is " + items.get(itemID).getPrice());
+        mailbox.sendMessage(winnerID, "Congratulations, you are the winner in our auction in store " + storeName + " of item " + items.get(itemID).getItemName() + " with an offer of " + myAuction.getCurrentPrice() + " while the original price is " + items.get(itemID).getPrice());
         log.info("Auction " + auctionID + " finished successfully and item was sold");
     }
 
-    public void finishAuctionUnsuccessfully(int auctionID) {
+    public void finishAuctionUnsuccessfully(int auctionID)
+    {
         Auction myAuction = auctions.get(auctionID);
         int itemID = myAuction.getItemID();
-        addItemAmount(itemID, 1);
+        addItemAmountPrivate(itemID, 1);
         addSavedItemAmount(itemID, -1);
         myAuction.getAuctionTimer().cancel();
         myAuction.getAuctionTimer().purge();
@@ -872,24 +918,25 @@ public class Store {
         myLottery.getLotteryTimer().cancel();
         myLottery.getLotteryTimer().purge();
         removeLottery(lotteryID);
-        storeMailBox.sendMessage(winnerID, "Congratulations, you are the winner in our lottery in store " + storeName + " of item " + items.get(itemID).getItemName());
+        mailbox.sendMessage(winnerID, "Congratulations, you are the winner in our lottery in store " + storeName + " of item " + items.get(itemID).getItemName());
         List<Integer> losers = myLottery.getParticipants();
         losers.remove(winnerID);
-        storeMailBox.sendMessageToList(losers, "We are sorry, but you lost the lottery in store " + storeName + " of item " + items.get(itemID).getItemName());
+        mailbox.sendMessageToList(losers, "We are sorry, but you lost the lottery in store " + storeName + " of item " + items.get(itemID).getItemName());
         log.info("Lottery " + lotteryID + " finished successfully and item was sold to user " + winnerID);
     }
 
-    public void finishLotteryUnsuccessfully(int lotteryID) {
+    public void finishLotteryUnsuccessfully(int lotteryID)
+    {
         Lottery myLottery = lotteries.get(lotteryID);
         int itemID = myLottery.getItemID();
-        addItemAmount(itemID, 1);
+        addItemAmountPrivate(itemID, 1);
         addSavedItemAmount(itemID, -1);
         myLottery.getLotteryTimer().cancel();
         myLottery.getLotteryTimer().purge();
         removeLottery(lotteryID);
         List<Integer> participants = myLottery.getParticipants();
         if (participants.size() > 0)
-            storeMailBox.sendMessageToList(participants, "We are sorry, but the lottery in store " + storeName + " of item " + items.get(itemID).getItemName() + " has canceled due to lack of demand. Your money will be returned.");
+            mailbox.sendMessageToList(participants, "We are sorry, but the lottery in store " + storeName + " of item " + items.get(itemID).getItemName() + " has canceled due to lack of demand. Your money will be returned.");
         log.info("Lottery " + lotteryID + " finished unsuccessfully and item was not sold");
     }
 
@@ -915,7 +962,7 @@ public class Store {
         boolean result = myAuction.offerToAuction(userID, offerPrice);
         double bestOfferNow = myAuction.getCurrentPrice();
         if (result)
-            storeMailBox.sendMessage(winnerBefore, "Hi, we want to inform you that other user passed your offer of " + bestOfferBefore + " with an offer of " + bestOfferNow + " at the auction of item " + itemName + " at store " + storeName);
+            mailbox.sendMessage(winnerBefore, "Hi, we want to inform you that other user passed your offer of " + bestOfferBefore + " with an offer of " + bestOfferNow + " at the auction of item " + itemName + " at store " + storeName);
         log.info("User " + userID + " offered to auction " + auctionID + " with price of " + offerPrice);
         return result;
     }
@@ -964,8 +1011,8 @@ public class Store {
             storeOwnersAndManagers.addAll(storeOwners);
             storeOwnersAndManagers.addAll(storeManagers);
             List<Integer> sendToList = storeOwnersAndManagers.stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
-            storeMailBox.sendMessageToList(sendToList, "Store " + storeName + " has opened");
-            storeMailBox.setMailboxAsAvailable();
+            mailbox.sendMessageToList(sendToList, "Store " + storeName + " has opened");
+            mailbox.setMailboxAsAvailable();
             log.info("Store " + storeID + " opened");
             return true;
         }
@@ -993,8 +1040,8 @@ public class Store {
             storeOwnersAndManagers.addAll(storeOwners);
             storeOwnersAndManagers.addAll(storeManagers);
             List<Integer> sendToList = storeOwnersAndManagers.stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
-            storeMailBox.sendMessageToList(sendToList, "Store " + storeName + " has closed");
-            storeMailBox.setMailboxAsUnavailable();
+            mailbox.sendMessageToList(sendToList, "Store " + storeName + " has closed");
+            mailbox.setMailboxAsUnavailable();
             log.info("Store " + storeID + " closed");
             return true;
         }
@@ -1009,8 +1056,8 @@ public class Store {
             storeOwnersAndManagers.addAll(storeOwners);
             storeOwnersAndManagers.addAll(storeManagers);
             List<Integer> sendToList = storeOwnersAndManagers.stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
-            storeMailBox.sendMessageToList(sendToList, "Store " + storeName + " has closed permanently");
-            storeMailBox.setMailboxAsUnavailable();
+            mailbox.sendMessageToList(sendToList, "Store " + storeName + " has closed permanently");
+            mailbox.setMailboxAsUnavailable();
             storeOwners = new ArrayList<>();
             storeManagers = new ArrayList<>();
             log.info("Store " + storeID + " is permanently closed");
@@ -1052,7 +1099,25 @@ public class Store {
             throw new Exception("Someone participates in an auction for this item, please try again when the auction ends");
         else
             removeItemAuctions(itemID);
+        if (haveActiveBids(itemID))
+            throw new Exception("Someone participates in an bid for this item, please try again when the bid ends");
+        removeItemFromDiscountsAndPolicies(itemID);
         return removeItem(itemID);
+    }
+
+    private void removeItemFromDiscountsAndPolicies(int itemID) {
+        for (Discount discount : discounts.values())
+        {
+            discount.removeItem(itemID);
+        }
+        for (PurchasePolicy purchasePolicy : purchasePolicies.values())
+        {
+            purchasePolicy.removeItem(itemID);
+        }
+        for (DiscountPolicy discountPolicy : discountPolicies.values())
+        {
+            discountPolicy.removeItem(itemID);
+        }
     }
 
     private void removeItemAuctions(int itemID) {
@@ -1077,6 +1142,13 @@ public class Store {
         }
     }
 
+    private boolean haveActiveBids(int itemID) {
+        for (Bid bid : bids.values()) {
+            if (bid.getItemID() == itemID)
+                return true;
+        }
+        return false;
+    }
     private boolean haveActiveNonEmptyAuction(int itemID) {
         for (Auction auction : auctions.values()) {
             if (auction.getItemID() == itemID && auction.getCurrentWinningUserID() != -1)
@@ -1115,23 +1187,23 @@ public class Store {
     }
 
     public StoreMailbox getMailBox(){
-        return storeMailBox;
+        return mailbox;
     }
 
     public void sendMessage(int receiverID, String content){
-        storeMailBox.sendMessage(receiverID, content);
+        mailbox.sendMessage(receiverID, content);
     }
 
     public ConcurrentHashMap<Integer, Chat> getChats(){
-        return storeMailBox.getChats();
+        return mailbox.getChats();
     }
 
     public void setMailboxAsUnavailable(){
-        storeMailBox.setMailboxAsUnavailable();
+        mailbox.setMailboxAsUnavailable();
     }
 
     public void setMailboxAsAvailable(){
-        storeMailBox.setMailboxAsAvailable();
+        mailbox.setMailboxAsAvailable();
     }
 
     public Map<Integer, Discount> getStoreDiscounts()

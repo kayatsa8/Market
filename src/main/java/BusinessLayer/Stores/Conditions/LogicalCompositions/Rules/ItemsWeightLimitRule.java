@@ -12,6 +12,7 @@ public class ItemsWeightLimitRule extends Rule
     public ItemsWeightLimitRule(Map<Integer, Double> weightsLimits, int id)
     {
         super(id);
+
         this.weightsLimits = weightsLimits;
     }
 
@@ -58,5 +59,10 @@ public class ItemsWeightLimitRule extends Rule
     public boolean isApplyForItem(int itemID, String category)
     {
         return weightsLimits.containsKey(itemID);
+    }
+
+    @Override
+    public void removeItem(int itemID) {
+        weightsLimits.remove(itemID);
     }
 }

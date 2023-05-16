@@ -1,5 +1,6 @@
 package BusinessLayer.Stores;
 
+import BusinessLayer.MarketMock;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.StorePermissions.StoreManager;
@@ -9,7 +10,6 @@ import BusinessLayer.Stores.Policies.DiscountPolicy;
 import BusinessLayer.Stores.Discounts.Discount;
 import BusinessLayer.Stores.Discounts.DiscountsTypes.Visible;
 import BusinessLayer.Stores.Policies.PurchasePolicy;
-import BusinessLayer.Users.RegisteredUser;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -20,8 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import static Globals.SearchFilter.STORE_RATING;
 
 public class StoreFacade {
-    private Map<Integer, Store> stores;
-    private Set<String> categoryPool;
+    private final Map<Integer, Store> stores;
+    private final Set<String> categoryPool;
     private int storesIDs;
     private int itemsIDs;
 
@@ -32,8 +32,15 @@ public class StoreFacade {
         this.itemsIDs = 0;
     }
 
-    public Store addStore(int founderID, String name) {
+    public Store addStore(int founderID, String name) throws Exception
+    {
         Store newStore = new Store(storesIDs, founderID, name);
+        stores.put(storesIDs++, newStore);
+        return newStore;
+    }
+    public Store addStore(int founderID, String name, MarketMock marketMock) throws Exception
+    {
+        Store newStore = new Store(storesIDs, founderID, name, marketMock);
         stores.put(storesIDs++, newStore);
         return newStore;
     }
@@ -43,7 +50,6 @@ public class StoreFacade {
         Store store = getStore(storeID);
         store.setStoreName(storeName);
     }
-
 
     public Store getStore(int storeID) throws Exception
     {
@@ -63,6 +69,8 @@ public class StoreFacade {
         Store store = getStore(storeID);
         if (itemPrice <= 0)
             throw new Exception("Item price has to be positive but is " + itemPrice);
+        if (weight <= 0)
+            throw new Exception("Item weight has to be positive but is " + weight);
         categoryPool.add(itemCategory);
         return store.addCatalogItem(itemsIDs++, itemName, itemPrice, itemCategory, weight);
     }
@@ -74,6 +82,10 @@ public class StoreFacade {
     public boolean addItemAmount(int storeID, int itemID, int amountToAdd) throws Exception
     {
         Store store = getStore(storeID);
+        if (amountToAdd <= 0)
+        {
+            return false;
+        }
         store.addItemAmount(itemID, amountToAdd);
 
         //Yonatan added it, don't delete
@@ -131,50 +143,133 @@ public class StoreFacade {
     public boolean closeStorePermanently(int storeID) throws Exception {
         return getStore(storeID).closeStorePermanently();
     }
-
     public int addVisibleItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, Calendar endOfSale) throws Exception
     {
         Store store = getStore(storeID);
+        if (percent < 0)
+        {
+            throw new Exception("Error: Percent " + percent + " is negative");
+        }
+        if (!endOfSale.after(Calendar.getInstance()))
+        {
+            throw new Exception("Error: End of sale date " + getDateString(endOfSale) + " has already passed");
+        }
         return store.addVisibleItemsDiscount(itemsIDs, percent, endOfSale);
     }
     public int addVisibleCategoryDiscount(int storeID, String category, double percent, Calendar endOfSale) throws Exception
     {
         Store store = getStore(storeID);
+        if (!categoryPool.contains(category))
+        {
+            throw new Exception("Error: Category " + category + " does not exists");
+        }
+        if (percent < 0)
+        {
+            throw new Exception("Error: Percent " + percent + " is negative");
+        }
+        if (!endOfSale.after(Calendar.getInstance()))
+        {
+            throw new Exception("Error: End of sale date " + getDateString(endOfSale) + " has already passed");
+        }
         return store.addVisibleCategoryDiscount(category, percent, endOfSale);
     }
     public int addVisibleStoreDiscount(int storeID, double percent, Calendar endOfSale) throws Exception
     {
         Store store = getStore(storeID);
+        if (percent < 0)
+        {
+            throw new Exception("Error: Percent " + percent + " is negative");
+        }
+        if (!endOfSale.after(Calendar.getInstance()))
+        {
+            throw new Exception("Error: End of sale date " + getDateString(endOfSale) + " has already passed");
+        }
         return store.addVisibleStoreDiscount(percent, endOfSale);
     }
     public int addConditionalItemsDiscount(int storeID, double percent, Calendar endOfSale, List<Integer> itemsIDs) throws Exception
     {
         Store store = getStore(storeID);
+        if (percent < 0)
+        {
+            throw new Exception("Error: Percent " + percent + " is negative");
+        }
+        if (!endOfSale.after(Calendar.getInstance()))
+        {
+            throw new Exception("Error: End of sale date " + getDateString(endOfSale) + " has already passed");
+        }
         return store.addConditionalItemsDiscount(percent, endOfSale, itemsIDs);
     }
     public int addConditionalCategoryDiscount(int storeID, double percent, Calendar endOfSale, String category) throws Exception
     {
         Store store = getStore(storeID);
+        if (!categoryPool.contains(category))
+        {
+            throw new Exception("Error: Category " + category + " does not exists");
+        }
+        if (percent < 0)
+        {
+            throw new Exception("Error: Percent " + percent + " is negative");
+        }
+        if (!endOfSale.after(Calendar.getInstance()))
+        {
+            throw new Exception("Error: End of sale date " + getDateString(endOfSale) + " has already passed");
+        }
         return store.addConditionalCategoryDiscount(percent, endOfSale, category);
     }
     public int addConditionalStoreDiscount(int storeID, double percent, Calendar endOfSale) throws Exception
     {
         Store store = getStore(storeID);
+        if (percent < 0)
+        {
+            throw new Exception("Error: Percent " + percent + " is negative");
+        }
+        if (!endOfSale.after(Calendar.getInstance()))
+        {
+            throw new Exception("Error: End of sale date " + getDateString(endOfSale) + " has already passed");
+        }
         return store.addConditionalStoreDiscount(percent, endOfSale);
     }
     public int addHiddenItemsDiscount(int storeID, List<Integer> itemsIDs, double percent, String coupon, Calendar endOfSale) throws Exception
     {
         Store store = getStore(storeID);
+        if (percent < 0)
+        {
+            throw new Exception("Error: Percent " + percent + " is negative");
+        }
+        if (!endOfSale.after(Calendar.getInstance()))
+        {
+            throw new Exception("Error: End of sale date " + getDateString(endOfSale) + " has already passed");
+        }
         return store.addHiddenItemsDiscount(itemsIDs, percent, coupon, endOfSale);
     }
     public int addHiddenCategoryDiscount(int storeID, String category, double percent, String coupon, Calendar endOfSale) throws Exception
     {
         Store store = getStore(storeID);
+        if (!categoryPool.contains(category))
+        {
+            throw new Exception("Error: Category " + category + " does not exists");
+        }
+        if (percent < 0)
+        {
+            throw new Exception("Error: Percent " + percent + " is negative");
+        }
+        if (!endOfSale.after(Calendar.getInstance()))
+        {
+            throw new Exception("Error: End of sale date " + getDateString(endOfSale) + " has already passed");
+        }
         return store.addHiddenCategoryDiscount(category, percent, coupon, endOfSale);
     }
     public int addHiddenStoreDiscount(int storeID, double percent, String coupon, Calendar endOfSale) throws Exception
     {
         Store store = getStore(storeID);
+        if (percent < 0)
+        {
+            throw new Exception("Error: Percent " + percent + " is negative");
+        }
+        if (!endOfSale.after(Calendar.getInstance()))
+        {
+            throw new Exception("Error: End of sale date " + getDateString(endOfSale) + " has already passed");
+        }
         return store.addHiddenStoreDiscount(percent, coupon, endOfSale);
     }
 
@@ -218,11 +313,19 @@ public class StoreFacade {
     public String addPurchasePolicyForbiddenCategoryRule(int storeID, String forbiddenCategory) throws Exception
     {
         Store store = getStore(storeID);
+        if (!categoryPool.contains(forbiddenCategory))
+        {
+            throw new Exception("Error: Category " + forbiddenCategory + " does not exists");
+        }
         return store.addPurchasePolicyForbiddenCategoryRule(forbiddenCategory);
     }
     public String addPurchasePolicyForbiddenDatesRule(int storeID, List<Calendar> forbiddenDates) throws Exception
     {
         Store store = getStore(storeID);
+        if (checkDatesDidNotPassed(forbiddenDates))
+        {
+            throw new Exception("One or more of the dates you chose have already passed");
+        }
         return store.addPurchasePolicyForbiddenDatesRule(forbiddenDates);
     }
     public String addPurchasePolicyForbiddenHoursRule(int storeID, int startHour, int endHour) throws Exception
@@ -233,11 +336,21 @@ public class StoreFacade {
     public String addPurchasePolicyMustDatesRule(int storeID, List<Calendar> mustDates) throws Exception
     {
         Store store = getStore(storeID);
+        if (checkDatesDidNotPassed(mustDates))
+        {
+            throw new Exception("One or more of the dates you chose have already passed");
+        }
         return store.addPurchasePolicyMustDatesRule(mustDates);
     }
     public String addPurchasePolicyItemsWeightLimitRule(int storeID, Map<Integer, Double> weightsLimits) throws Exception
     {
         Store store = getStore(storeID);
+        for (Double weight : weightsLimits.values())
+        {
+            if (weight <= 0) {
+                throw new Exception("Error: One or more of the weights limits you entered are not positive");
+            }
+        }
         return store.addPurchasePolicyItemsWeightLimitRule(weightsLimits);
     }
     public String addPurchasePolicyBasketTotalPriceRule(int storeID, double minimumPrice) throws Exception
@@ -248,6 +361,12 @@ public class StoreFacade {
     public String addPurchasePolicyMustItemsAmountsRule(int storeID, Map<Integer, Integer> itemsAmounts) throws Exception
     {
         Store store = getStore(storeID);
+        for (Integer amount : itemsAmounts.values())
+        {
+            if (amount <= 0) {
+                throw new Exception("Error: One or more of the amounts you entered are not positive");
+            }
+        }
         return store.addPurchasePolicyMustItemsAmountsRule(itemsAmounts);
     }
     public String wrapPurchasePolicies(int storeID, List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
@@ -269,11 +388,19 @@ public class StoreFacade {
     public String addDiscountPolicyForbiddenCategoryRule(int storeID, String forbiddenCategory) throws Exception
     {
         Store store = getStore(storeID);
+        if (!categoryPool.contains(forbiddenCategory))
+        {
+            throw new Exception("Error: Category " + forbiddenCategory + " does not exists");
+        }
         return store.addDiscountPolicyForbiddenCategoryRule(forbiddenCategory);
     }
     public String addDiscountPolicyForbiddenDatesRule(int storeID, List<Calendar> forbiddenDates) throws Exception
     {
         Store store = getStore(storeID);
+        if (checkDatesDidNotPassed(forbiddenDates))
+        {
+            throw new Exception("One or more of the dates you chose have already passed");
+        }
         return store.addDiscountPolicyForbiddenDatesRule(forbiddenDates);
     }
     public String addDiscountPolicyForbiddenHoursRule(int storeID, int startHour, int endHour) throws Exception
@@ -284,11 +411,21 @@ public class StoreFacade {
     public String addDiscountPolicyMustDatesRule(int storeID, List<Calendar> mustDates) throws Exception
     {
         Store store = getStore(storeID);
+        if (checkDatesDidNotPassed(mustDates))
+        {
+            throw new Exception("One or more of the dates you chose have already passed");
+        }
         return store.addDiscountPolicyMustDatesRule(mustDates);
     }
     public String addDiscountPolicyItemsWeightLimitRule(int storeID, Map<Integer, Double> weightsLimits) throws Exception
     {
         Store store = getStore(storeID);
+        for (Double weight : weightsLimits.values())
+        {
+            if (weight <= 0) {
+                throw new Exception("Error: One or more of the weights limits you entered are not positive");
+            }
+        }
         return store.addDiscountPolicyItemsWeightLimitRule(weightsLimits);
     }
     public String addDiscountPolicyBasketTotalPriceRule(int storeID, double minimumPrice) throws Exception
@@ -299,6 +436,12 @@ public class StoreFacade {
     public String addDiscountPolicyMustItemsAmountsRule(int storeID, Map<Integer, Integer> itemsAmounts) throws Exception
     {
         Store store = getStore(storeID);
+        for (Integer amount : itemsAmounts.values())
+        {
+            if (amount <= 0) {
+                throw new Exception("Error: One or more of the amounts you entered are not positive");
+            }
+        }
         return store.addDiscountPolicyMustItemsAmountsRule(itemsAmounts);
     }
     public String wrapDiscountPolicies(int storeID, List<Integer> discountPoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
@@ -357,10 +500,8 @@ public class StoreFacade {
     }
 
     public ConcurrentHashMap<Integer, Chat> getChats(int storeID) throws Exception {
-        if(!isStoreExists(storeID)){
-            throw new Exception("The store does not exist!");
-        }
-        return stores.get(storeID).getChats();
+        Store store = getStore(storeID);
+        return store.getChats();
     }
 
     public void setMailboxAsUnavailable(int storeID) throws Exception
@@ -409,21 +550,6 @@ public class StoreFacade {
         return parsePermissions(Arrays.stream(StoreActionPermissions.values()).toList());
     }
 
-    private List<String> parsePermissions(Collection<StoreActionPermissions> values) {
-        return Arrays.stream(values.toArray()).map(permissions -> permissions.toString().replace('_', ' ')).toList();
-    }
-
-    private StoreManager getStoreManager(int userID, int storeId) throws Exception {
-        Store store = getStore(storeId);
-        List<StoreManager> permissions = store.getStoreManagers();
-        for (StoreManager manager : permissions) {
-            if (manager.getUserID() == userID) {
-                return manager;
-            }
-        }
-        return null;
-    }
-
     public List<String> getManagerInfo(int userID, int storeId) {
         try {
             return parsePermissions(getStoreManager(userID, storeId).getStoreActionPermissions());
@@ -442,23 +568,38 @@ public class StoreFacade {
         }
     }
 
-    public int getIdByStoreName(String storeName) throws Exception {
-        for(Store store : stores.values()){
-            if(store.getStoreName().equals(storeName)){
-                return store.getStoreID();
+
+
+    private String getDateString(Calendar date) //dd.mm.yyyy
+    {
+        return  date.get(5) + "." + date.get(2) + "." + date.get(1);
+    }
+    private boolean checkDatesDidNotPassed(List<Calendar> forbiddenDates)
+    {
+        Calendar today = Calendar.getInstance();
+        today.set(11 ,0);
+        today.set(12 ,0);
+        today.set(13 ,0);
+        for (Calendar date : forbiddenDates)
+        {
+            if (date.before(today))
+            {
+                return true;
             }
         }
-
-        throw new Exception("The store " + storeName + "was not found!");
+        return false;
     }
-
-    public String getStoreNameById(int id){
-        Store store =  stores.get(id);
-
-        if(store != null){
-            return store.getStoreName();
+    private List<String> parsePermissions(Collection<StoreActionPermissions> values) {
+        return Arrays.stream(values.toArray()).map(permissions -> permissions.toString().replace('_', ' ')).toList();
+    }
+    private StoreManager getStoreManager(int userID, int storeId) throws Exception {
+        Store store = getStore(storeId);
+        List<StoreManager> permissions = store.getStoreManagers();
+        for (StoreManager manager : permissions) {
+            if (manager.getUserID() == userID) {
+                return manager;
+            }
         }
-
         return null;
     }
 }

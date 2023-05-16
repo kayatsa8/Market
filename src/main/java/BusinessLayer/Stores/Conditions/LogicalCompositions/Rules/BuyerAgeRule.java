@@ -6,8 +6,11 @@ import java.util.List;
 
 public class BuyerAgeRule extends Rule { //you must be at the minimum age or older to pass the rule.
     private int minimumAge;
-    public BuyerAgeRule(int minimumAge, int id) {
+    public BuyerAgeRule(int minimumAge, int id) throws Exception
+    {
         super(id);
+        if (minimumAge<=0)
+            throw new Exception("Error: Minimum age must be positive");
         this.minimumAge = minimumAge;
     }
 
@@ -26,5 +29,9 @@ public class BuyerAgeRule extends Rule { //you must be at the minimum age or old
     public boolean isApplyForItem(int itemID, String category)
     {
         return false;
+    }
+
+    @Override
+    public void removeItem(int itemID) {
     }
 }

@@ -24,4 +24,8 @@ public class StoreDiscount implements DiscountScope {
     {
         return true;
     }
+
+    @Override
+    public void removeItem(int itemID) {
+    }
 }

@@ -10,9 +10,11 @@ import java.util.List;
 public class BasketTotalPriceRule extends Rule
 {
     double minimumPrice;
-    public BasketTotalPriceRule(double minimumPrice, int id)
+    public BasketTotalPriceRule(double minimumPrice, int id) throws Exception
     {
         super(id);
+        if (minimumPrice<=0)
+            throw new Exception("Error: minimum price must be positive");
         this.minimumPrice = minimumPrice;
     }
 
@@ -41,5 +43,9 @@ public class BasketTotalPriceRule extends Rule
     public boolean isApplyForItem(int itemID, String category)
     {
         return false;
+    }
+
+    @Override
+    public void removeItem(int itemID) {
     }
 }

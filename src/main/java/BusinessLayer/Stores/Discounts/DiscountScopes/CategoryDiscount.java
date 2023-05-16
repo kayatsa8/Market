@@ -34,4 +34,8 @@ public class CategoryDiscount implements DiscountScope {
     {
         return this.category.equals(category);
     }
+
+    @Override
+    public void removeItem(int itemID) {
+    }
 }

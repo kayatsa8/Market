@@ -23,6 +23,10 @@ public abstract class DiscountType extends Discount {
     {
         return  endOfSale.get(5) + "." + endOfSale.get(2) + "." + endOfSale.get(1);
     }
+    public void removeItem(int itemID)
+    {
+        discountScope.removeItem(itemID);
+    }
 
     public DiscountType(int discountID, double percent, Calendar endOfSale, DiscountScope discountScope)
     {
