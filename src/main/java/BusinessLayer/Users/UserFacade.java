@@ -1,10 +1,12 @@
 package BusinessLayer.Users;
 
+import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.Log;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.Message;
+import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
@@ -87,7 +89,7 @@ public class UserFacade {
         if (user!=null&&user.isLoggedIn()) {
             return user;
         }
-        throw new Exception("User " + user.getUsername() + "is not logged in");
+        throw new Exception("User " + userID + "is not logged in");
     }
 
     public int registerUser(String username, String password) throws Exception {
@@ -356,5 +358,17 @@ public class UserFacade {
         }
 
         users.get(userId).removeCouponFromCart(coupon);
+    }
+
+    public void listenToNotifications(int userId, NotificationObserver listener) throws Exception {
+        if(!userExists(userId)){
+            throw new Exception("No such user!");
+        }
+
+        users.get(userId).listenToNotifications(listener);
+    }
+  
+    public Basket removeBasketFromCart(int userID, int storeID) throws Exception {
+        return getLoggedInUser(userID).removeBasketFromCart(storeID);
     }
 }

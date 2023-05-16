@@ -177,6 +177,18 @@ public class ClientView extends VerticalLayout {
         return isDiscount ? LineAwesomeIcon.DOLLAR_SIGN_SOLID.create() : LineAwesomeIcon.FROWN_SOLID.create();
     }
 
+
+    private void setAmount(CatalogItemService catalogItemService, Integer amount) {
+
+        Result<CartService> result = shoppingService.addItemToCart(mainLayout.getCurrUserID(),catalogItemService.getStoreID(), catalogItemService.getItemID(), amount);
+        if (!result.isError()){
+            Notification.show("Successfully added to " + mainLayout.getCurrUserID()+"'s cart\n");
+        }
+        else {
+            Notification.show(mainLayout.getCurrUserID() + result.getMessage());
+        }
+    }
+
     private void setFilters(Grid<CatalogItemService> grid){
         ItemFilter itemFilter = new ItemFilter(grid.getListDataView());
 
@@ -269,7 +281,7 @@ public class ClientView extends VerticalLayout {
         }
     }
 
-    public void setAmount(CatalogItemService catalogItemService, Integer amount) {
+    /*public void setAmount(CatalogItemService catalogItemService, Integer amount) {
         Result<CartService> result = shoppingService.addItemToCart(mainLayout.getCurrUserID(),catalogItemService.getStoreID(), catalogItemService.getItemID(), amount);
         if (!result.isError()){
             printSuccess("Successfully added to " + mainLayout.getCurrUserID()+"'s cart\n");
@@ -277,7 +289,7 @@ public class ClientView extends VerticalLayout {
         else {
             printError(mainLayout.getCurrUserID() + result.getMessage());
         }
-    }
+    }*/
 
     private void printSuccess(String msg) {
         Notification notification = Notification.show(msg, 2000, Notification.Position.BOTTOM_CENTER);
@@ -319,7 +331,4 @@ class ValidationMessage extends HorizontalLayout implements HasText {
         span.setText(text);
         this.setVisible(text != null && !text.isEmpty());
     }
-
-
 }
-

@@ -1,5 +1,6 @@
 package BusinessLayer;
 
+import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.NotificationSystem.Chat;
@@ -569,4 +570,10 @@ public class Market {
     public String getStoreName(int storeId) throws Exception {
         return storeFacade.getStore(storeId).getStoreName();
     }
+
+    public Basket removeBasketFromCart(int userID, int storeID) throws Exception {
+        return userFacade.removeBasketFromCart(userID, storeID);
+    }
+
+
 }

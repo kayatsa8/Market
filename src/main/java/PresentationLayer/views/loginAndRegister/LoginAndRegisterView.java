@@ -130,8 +130,8 @@ public class LoginAndRegisterView extends HorizontalLayout {
         loginB.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         registerB=createNewButton("Register",(u, p)->{
             userService.register(u,p);
-            userService.login(u,p);
-            return null;
+
+            return userService.login(u,p);
         });
         registerB.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
 
