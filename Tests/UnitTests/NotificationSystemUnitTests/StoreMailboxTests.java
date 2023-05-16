@@ -31,10 +31,12 @@ public class StoreMailboxTests {
         userFacade = market.getUserFacade();
         storeFacade = market.getStoreFacade();
         int user1ID = market.register("user1", "123456");
+        market.login("user1", "123456");
         user1 = userFacade.getRegisteredUser(user1ID);
         int store1ID = market.addStore(user1.getId(), "store1");
         store1 = market.getStoreInfo(store1ID);
         int user2ID = market.register("user2", "123456");
+        market.login("user2", "123456");
         user2 = userFacade.getRegisteredUser(user2ID);
         int store2ID = market.addStore(user1.getId(), "store2");
         store2 = market.getStoreInfo(store2ID);

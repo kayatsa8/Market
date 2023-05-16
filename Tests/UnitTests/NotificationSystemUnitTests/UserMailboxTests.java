@@ -25,13 +25,12 @@ public class UserMailboxTests {
         market = Market.getInstance();
         hub = market.getNotificationHub();
         userFacade = market.getUserFacade();
-        int user1ID = market.register("user1", "123456789");
+        int user1ID = market.register("TheBestUser1", "123456789");
+        market.login("TheBestUser1", "123456789");
         user1 = userFacade.getRegisteredUser(user1ID);
-        int user2Id = market.register("user2", "awd1523");
+        int user2Id = market.register("TheBestUser2", "awd1523");
+        market.login("TheBestUser2", "awd1523");
         user2 = userFacade.getRegisteredUser(user2Id);
-
-        userFacade.logIn("user1", "123456789");
-        userFacade.logIn("user2", "awd1523");
     }
 
     @Test
@@ -46,7 +45,7 @@ public class UserMailboxTests {
         String givenNotification = ((SimpleObserver)observer).getGivenNotification();
 
         assertNotNull(givenNotification);
-        assertEquals("A new message is wait for you!", givenNotification);
+        assertEquals("A new message is waiting for you!", givenNotification);
 
         hub.removeFromService(user1.getId());
     }

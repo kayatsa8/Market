@@ -33,12 +33,26 @@ public class StoreEmployeesTest {
         Market market = Market.getInstance();
         storeFacade = market.getStoreFacade();
         userFacade = market.getUserFacade();
-        user1 = userFacade.getRegisteredUser(market.register("testUser1", "testPass"));
-        user2 = userFacade.getRegisteredUser(market.register("testUser2", "testPass"));
-        user3 = userFacade.getRegisteredUser(market.register("testUser3", "testPass"));
-        user4 = userFacade.getRegisteredUser(market.register("testUser4", "testPass"));
-        user5 = userFacade.getRegisteredUser(market.register("testUser5", "testPass"));
-        user6 = userFacade.getRegisteredUser(market.register("testUser6", "testPass"));
+
+        int id1 = market.register("testUser1", "testPass");
+        market.login("testUser1", "testPass");
+        user1 = userFacade.getRegisteredUser(id1);
+        int id2 = market.register("testUser2", "testPass");
+        market.login("testUser2", "testPass");
+        user2 = userFacade.getRegisteredUser(id2);
+        int id3 = market.register("testUser3", "testPass");
+        market.login("testUser3", "testPass");
+        user3 = userFacade.getRegisteredUser(id3);
+        int id4 = market.register("testUser4", "testPass");
+        market.login("testUser4", "testPass");
+        user4 = userFacade.getRegisteredUser(id4);
+        int id5 = market.register("testUser5", "testPass");
+        market.login("testUser5", "testPass");
+        user5 = userFacade.getRegisteredUser(id5);
+        int id6 = market.register("testUser6", "testPass");
+        market.login("testUser6", "testPass");
+        user6 = userFacade.getRegisteredUser(id6);
+
         int store1ID = market.addStore(user1.getId(), "store1");
         store1 = market.getStoreInfo(store1ID);
         StoreOwner storeOwner1 = new StoreOwner(user1.getId(), store1); //Why new and not addOwner method???

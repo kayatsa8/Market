@@ -29,16 +29,27 @@ public class NotificationHubTests {
         hub = market.getNotificationHub();
         userFacade = market.getUserFacade();
         storeFacade = market.getStoreFacade();
+
         int user1ID = market.register("user1C", "123456");
+        market.login("user1C", "123456");
         user1 = userFacade.getRegisteredUser(user1ID);
+
         int user2ID = market.register("user2C", "123456");
+        market.login("user2C", "123456");
         user2 = userFacade.getRegisteredUser(user2ID);
+
         int user3ID = market.register("user3C", "123456");
+        market.login("user3C", "123456");
         user3 = userFacade.getRegisteredUser(user3ID);
+
         int user4ID = market.register("user4C", "123456");
+        market.login("user4C", "123456");
         user4 = userFacade.getRegisteredUser(user4ID);
+
         int user5ID = market.register("user5C", "123456");
+        market.login("user5C", "123456");
         user5 = userFacade.getRegisteredUser(user5ID);
+
         int store1ID = market.addStore(user1.getId(), "store1C");
         store1 = market.getStoreInfo(store1ID);
     }
