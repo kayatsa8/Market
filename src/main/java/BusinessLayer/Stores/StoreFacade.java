@@ -603,7 +603,8 @@ public class StoreFacade {
         return null;
     }
 
-    public int getIdByStoreName(String name) {
+    public int getIdByStoreName(String name)
+    {
         for (Store store : stores.values())
         {
             if (store.getStoreName().equals(name))
@@ -612,5 +613,17 @@ public class StoreFacade {
             }
         }
         return -1;
+    }
+
+    public String getStoreNameById(int id)
+    {
+        for (Store store : stores.values())
+        {
+            if (store.getStoreID() == id)
+            {
+                return store.getStoreName();
+            }
+        }
+        return null;
     }
 }
