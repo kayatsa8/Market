@@ -1,5 +1,10 @@
 package PresentationLayer.views;
 
+import BusinessLayer.NotificationSystem.Message;
+import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
+import ServiceLayer.Objects.CatalogItemService;
+import ServiceLayer.Objects.ChatService;
+import ServiceLayer.Objects.MessageService;
 import ServiceLayer.Objects.StoreService;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
@@ -7,78 +12,97 @@ import ServiceLayer.UserService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.messages.MessageInput;
+import com.vaadin.flow.component.messages.MessageList;
+import com.vaadin.flow.component.messages.MessageListItem;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @PageTitle("Mailbox")
 @Route(value = "mail", layout = MainLayout.class)
-public class Mailbox extends VerticalLayout {
-
+public class Mailbox extends VerticalLayout implements NotificationObserver {
 
     ShoppingService shoppingService;
     UserService userService;
-    private Grid<StoreService> grid;
-    private Map<Integer, StoreService> stores;
+    private Grid<ChatService> grid;
+    private HashMap<Integer, ChatService> chats;
+    private int otherSideId;
+    private String otherSideName;
+    private String myUserName;
+    private int myId;
+    private Dialog chatDialog;
 
     public Mailbox() {
         setSpacing(false);
 
-        H2 header = new H2("Stores in Market:");
+        H2 header = new H2("Mailbox");
         header.addClassNames(Margin.Top.XLARGE, Margin.Bottom.MEDIUM);
         add(header);
-        //add(new Paragraph("It’s a place where you can grow your own UI 🤗"));
 
         try {
+            userService = new UserService();
             shoppingService = new ShoppingService();
         }
         catch (Exception e) {
-            add("Problem initiating Store:(");
+            add("Can't initiate Mailbox!");
         }
         setSpacing(false);
 
-        Result<Map<Integer, StoreService>> storesRes = shoppingService.getAllStoresInfo();
-        if (storesRes.isError()) {
-            add("Problem getting catalog :(");
+        myId = MainLayout.getMainLayout().getCurrUserID();
+        myUserName = userService.getUsername(myId);
+
+        Result<HashMap<Integer, ChatService>> chatsResult = userService.getChats(myId);
+        if (chatsResult.isError()) {
+            add(chatsResult.getMessage());
         }
         else {
-            stores = storesRes.getValue();
-            Grid<StoreService> grid = createGrid();
-            //add(grid);
-            //add another grid of users and show info about them?
-            //add grid of notifications? maybe do another screen of notification?
-
+            chats = chatsResult.getValue();
+            Grid<ChatService> grid = createGrid();
         }
-
 
         setSizeFull();
         setJustifyContentMode(JustifyContentMode.CENTER);
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
-        getStyle().set("text-align", "center");
+        getStyle().set("text-align", "start");
     }
 
-
-    private Grid<StoreService> createGrid() {
-
+    private Grid<ChatService> createGrid() {
         grid = new Grid<>();
-        Editor<StoreService> editor = grid.getEditor();
-        grid.setItems(stores.values());
+        Editor<ChatService> editor = grid.getEditor();
+        grid.setItems(chats.values());
 
-        grid.addColumn(StoreService::getStoreId).setHeader("ID").setSortable(true);
-        grid.addColumn(StoreService::getStoreName).setHeader("Name").setSortable(true);
-        grid.addColumn(StoreService::getStoreStatus).setSortable(true).setKey("Status");
-        Binder<StoreService> binder = new Binder<>(StoreService.class);
+        grid.addColumn(ChatService::getOtherName).setHeader("Name").setSortable(true);
+        Binder<ChatService> binder = new Binder<>(ChatService.class);
         editor.setBinder(binder);
         editor.setBuffered(true);
+
+        Grid.Column<ChatService> enterChatColumn = grid.addComponentColumn(chat -> {
+            Button enterChatButton = new Button("Enter Chat", event -> enterChatPressed(chat));
+            return enterChatButton;
+        }).setFlexGrow(1).setFrozenToEnd(true);
 
         HorizontalLayout footer = addButtons();
         add(grid, footer);
@@ -87,75 +111,303 @@ public class Mailbox extends VerticalLayout {
 
     }
 
-    private HorizontalLayout addButtons() {
+    private void enterChatPressed(ChatService chat){
+        refreshChats();
 
-        Button closePermButton = new Button("Close Store Permanently");
-        closePermButton.setEnabled(false);
-        closePermButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        closePermButton.getStyle().set("margin-inline-start", "auto");
+        otherSideName = chat.getOtherName();
+        otherSideId = chat.getOtherSideId();
 
-        Button storeReceiptsButton = new Button("Get Store Receipts");
-        storeReceiptsButton.setEnabled(false);
+        chatDialog = new Dialog();
+        chatDialog.setDraggable(true);
+        chatDialog.setResizable(true);
+        chatDialog.setHeaderTitle("Chat with " + otherSideName);
+        chatDialog.setWidth("1000px");
+        add(chatDialog);
 
-        //https://vaadin.com/docs/latest/components/button#:~:text=Show%20code-,Global%20vs.%20Selection%2DSpecific%20Actions,-In%20lists%20of
-        grid.setSelectionMode(Grid.SelectionMode.SINGLE);
-        grid.addSelectionListener(selection -> {
-            int size = selection.getAllSelectedItems().size();
-            boolean isSingleSelection = size == 1;
-            closePermButton.setEnabled(isSingleSelection);
-            storeReceiptsButton.setEnabled(isSingleSelection);
-            //Not sure if I need all of this. This was made to multiple selection!
+        //make message list
+        MessageList list = new MessageList();
+
+        //make message input
+        MessageInput input = new MessageInput();
+        input.addSubmitListener(submitEvent -> {
+            MessageListItem newMessage = new MessageListItem(
+                    submitEvent.getValue(), Instant.now(), myUserName);
+            newMessage.setUserColorIndex(0);
+            List<MessageListItem> items = new ArrayList<>(list.getItems());
+            items.add(newMessage);
+            list.setItems(items);
+
+            try {
+                userService.sendMessage(myId, otherSideId, newMessage.getText());
+            } catch (Exception e) {
+                Notification systemNotification = Notification
+                        .show(e.getMessage());
+                systemNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            }
+
+            refreshChats();
         });
 
+        //load chat
+        loadChatToMessageList(list);
 
-        ConfirmDialog dialog = addConfirmationDialog(); //pop up screen for confirmation
-        closePermButton.addClickListener(e -> dialog.open());
+        VerticalLayout chatLayout = new VerticalLayout(list, input);
+        chatLayout.setHeight("500px");
+        chatLayout.setWidth("400px");
+        chatLayout.expand(list);
+        chatLayout.expand(input);
+        add(chatLayout);
 
-        HorizontalLayout footer = new HorizontalLayout(closePermButton, storeReceiptsButton);
-        //footer.getStyle().set("flex-wrap", "wrap");
+        //dialog.add(list);
+        chatDialog.add(chatLayout);
+        chatDialog.add(input);
+
+        //open the dialog
+        chatDialog.open();
+
+
+    }
+
+    private HorizontalLayout addButtons() {
+        Button startNewChat = new Button("New Chat", event -> newChatDialog());
+        startNewChat.setEnabled(true);
+        startNewChat.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        startNewChat.getStyle().set("margin-inline-start", "auto");
+
+        //https://vaadin.com/docs/latest/components/button#:~:text=Show%20code-,Global%20vs.%20Selection%2DSpecific%20Actions,-In%20lists%20of
+
+
+        HorizontalLayout footer = new HorizontalLayout(startNewChat);
+        footer.getStyle().set("flex-wrap", "wrap");
         setPadding(false);
         setAlignItems(Alignment.AUTO);
         return footer;
     }
 
-    private ConfirmDialog addConfirmationDialog() {
-        ConfirmDialog dialog = new ConfirmDialog();
-        dialog.setHeader("Delete Store?");
-        dialog.setText("Are you sure you want to permanently delete this store?");
+    private void newChatDialog(){
+        //make dialog
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Search For A New Chat");
+        dialog.setWidth("1000px");
+        add(dialog);
 
-        dialog.setCancelable(true);
-        dialog.addCancelListener(event -> printError("Canceled"));
+        //make searchbar
+        TextField searchbar = new TextField();
+        searchbar.setPlaceholder("Search");
+        searchbar.setTooltipText("Enter the name of a user or a store");
+        searchbar.setClearButtonVisible(true);
+        //dialog.add(searchbar);
 
-        dialog.setConfirmText("Delete");
-        dialog.setConfirmButtonTheme("error primary");
-        return dialog;
+        //make start chat button
+        Button startChatButton = new Button("Start Chat", event -> startChat(dialog));
+        startChatButton.setEnabled(false);
+        //dialog.add(startChatButton);
+        HorizontalLayout startHorizontalLayout = new HorizontalLayout();
+        startHorizontalLayout.setPadding(true);
+        startHorizontalLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+        startHorizontalLayout.add(startChatButton);
+        dialog.add(startHorizontalLayout);
+
+        //make search button
+        Button searchButton = new Button("Search", event -> searchButtonPressed(searchbar.getValue(), startChatButton));
+        //dialog.add(searchButton);
+
+
+
+
+        //make search horizontal layout
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        horizontalLayout.setPadding(true);
+        horizontalLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+        horizontalLayout.add(searchbar);
+        horizontalLayout.add(searchButton);
+        dialog.add(horizontalLayout);
+
+        //make vertical layout
+        VerticalLayout verticalLayout = new VerticalLayout();
+        verticalLayout.setPadding(true);
+        verticalLayout.setAlignItems(Alignment.START);
+        verticalLayout.add(horizontalLayout);
+        verticalLayout.add(startHorizontalLayout);
+        dialog.add(verticalLayout);
+
+        //open the dialog
+        dialog.open();
     }
 
+    private void searchButtonPressed(String toSearch, Button startChatButton){
+        Result<Integer> userIdRes = userService.getUserIdByName(toSearch);
+        Result<Integer> storeIdRes;
+        boolean found = false;
 
+        if(userIdRes.isError()){
+            storeIdRes = shoppingService.getStoreIdByName(toSearch);
 
-    private int getIdOfSelectedRow() {
-        List<StoreService> stores = grid.getSelectedItems().stream().toList();
-        if(stores.size() > 1){
-            printError("Chosen More than one!");
-            return -1;
-        }
-        else if(stores.size() == 0){
-            printError("You need to choose a User!");
-            return -1;
+            if(!storeIdRes.isError()){
+                found = true;
+                otherSideId = storeIdRes.getValue();
+                otherSideName = toSearch;
+            }
+
         }
         else{
-            return stores.get(0).getStoreId();
+            found = true;
+            otherSideId = userIdRes.getValue();
+            otherSideName = toSearch;
+        }
+
+
+
+        if(found){
+            startChatButton.setEnabled(true);
+
+            //notify the user that he can start the chat.
+            Notification systemNotification = Notification
+                    .show(toSearch + " was found, press \"Start Chat\" in order to start the conversation");
+            systemNotification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        }
+        else{
+            Notification systemNotification = Notification
+                    .show(toSearch + " was not found, please try again");
+            systemNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
         }
     }
 
+    private void startChat(Dialog searchNewChatDialog){
+        //close previous dialog
+        searchNewChatDialog.close();
 
-    private void printError(String errorMsg) {
-        //How I print to screen?
+        //make dialog
+        chatDialog = new Dialog();
+        chatDialog.setDraggable(true);
+        chatDialog.setResizable(true);
+        chatDialog.setHeaderTitle("Chat with " + otherSideName);
+        chatDialog.setWidth("1000px");
+        add(chatDialog);
+
+        //make message list
+        MessageList list = new MessageList();
+
+        //make message input
+        MessageInput input = new MessageInput();
+        input.addSubmitListener(submitEvent -> {
+            MessageListItem newMessage = new MessageListItem(
+                    submitEvent.getValue(), Instant.now(), myUserName);
+            newMessage.setUserColorIndex(0);
+            List<MessageListItem> items = new ArrayList<>(list.getItems());
+            items.add(newMessage);
+            list.setItems(items);
+
+            try {
+                userService.sendMessage(myId, otherSideId, newMessage.getText());
+            } catch (Exception e) {
+                Notification systemNotification = Notification
+                        .show(e.getMessage());
+                systemNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            }
+
+            refreshChats();
+
+        });
+
+        //load chat
+        loadChatToMessageList(list);
+
+        VerticalLayout chatLayout = new VerticalLayout(list, input);
+        chatLayout.setHeight("500px");
+        chatLayout.setWidth("400px");
+        chatLayout.expand(list);
+        chatLayout.expand(input);
+        add(chatLayout);
+
+        //dialog.add(list);
+        chatDialog.add(chatLayout);
+        chatDialog.add(input);
+
+        //open the dialog
+        chatDialog.open();
     }
 
-    private void printSuccess(String closedStore) {
-        //How I print to screen?
+    private void loadChatToMessageList(MessageList list){
+        if(!chats.containsKey(otherSideId)){
+            return;
+        }
+
+        ChatService chat = chats.get(otherSideId);
+        List<MessageListItem> items = new ArrayList<>(list.getItems());
+
+        for(MessageService message : chat.getMessages()){
+            MessageListItem message1 = new MessageListItem(
+                    message.getContent(),
+                    message.getSendingTime().toInstant(ZoneOffset.UTC),
+                    fitUsernameToId(message.getSenderID()));
+            message1.setUserColorIndex(fitColorToId(message.getSenderID()));
+
+            items.add(message1);
+        }
+
+        list.setItems(items);
     }
+
+    private String fitUsernameToId(int id){
+        if(id == otherSideId){
+            return otherSideName;
+        }
+        else{
+            return myUserName;
+        }
+    }
+
+    private int fitColorToId(int id){
+        if(id == otherSideId){
+            return 1;
+        }
+        else{
+            return 0;
+        }
+    }
+
+    private void refreshChats(){
+        Result<HashMap<Integer, ChatService>> chatsResult = userService.getChats(myId);
+        chats = chatsResult.getValue();
+        grid.setItems(chats.values());
+
+        grid.getDataProvider().refreshAll();
+
+        loadChatToMessageList(new MessageList());
+
+    }
+
+    @Override
+    public void notify(String notification) {
+        refreshChats();
+
+    }
+
+    @Override
+    public void listenToNotifications(int userId) throws Exception {
+        userService.listenToNotifications(userId, this);
+    }
+
+
+//    private int getIdOfSelectedRow() {
+//        List<StoreService> stores = grid.getSelectedItems().stream().toList();
+//        if(stores.size() > 1){
+//            printError("Chosen More than one!");
+//            return -1;
+//        }
+//        else if(stores.size() == 0){
+//            printError("You need to choose a User!");
+//            return -1;
+//        }
+//        else{
+//            return stores.get(0).getStoreId();
+//        }
+//    }
+
+
 
 
 }

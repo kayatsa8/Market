@@ -53,6 +53,12 @@ public class MainLayout extends AppLayout implements NotificationObserver {
         } catch (Exception e) {
             printError("Error initialize userService:\n"+e.getMessage());
         }
+        addHeaderContent();
+        setGuestView();
+    }
+
+    public void setCurrUser(Integer value) {
+        currUser.setCurrUserID(value);
         try{
             listenToNotifications(currUser.getCurrUserID());
         }
@@ -61,12 +67,6 @@ public class MainLayout extends AppLayout implements NotificationObserver {
                     e.getMessage() +
                     "\n");
         }
-        addHeaderContent();
-        setGuestView();
-    }
-
-    public void setCurrUser(Integer value) {
-        currUser.setCurrUserID(value);
     }
 
     public Integer getCurrUserID() {

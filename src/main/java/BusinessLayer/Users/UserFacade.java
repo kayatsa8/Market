@@ -371,4 +371,24 @@ public class UserFacade {
     public Basket removeBasketFromCart(int userID, int storeID) throws Exception {
         return getLoggedInUser(userID).removeBasketFromCart(storeID);
     }
+
+    public int findUserByUsername(String username) throws Exception {
+        for(RegisteredUser user : users.values()){
+            if(user.getUsername().equals(username)){
+                return user.getId();
+            }
+        }
+
+        throw new Exception("The user " + username + "was not found!");
+    }
+
+    public String getUsernameById(int id){
+        RegisteredUser user =  users.get(id);
+
+        if(user != null){
+            return user.getUsername();
+        }
+
+        return null;
+    }
 }

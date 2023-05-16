@@ -4,10 +4,13 @@ import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
 import BusinessLayer.NotificationSystem.Repositories.ChatRepository;
 import BusinessLayer.Users.RegisteredUser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class UserMailbox extends Mailbox {
 
     private final RegisteredUser owner;
-    private NotificationObserver listener;
+    private List<NotificationObserver> listeners;
 
 
     public UserMailbox(RegisteredUser _owner, NotificationHub _hub){
@@ -15,7 +18,7 @@ public class UserMailbox extends Mailbox {
         ownerID = owner.getId();
         chats = new ChatRepository();
         hub = _hub;
-        listener = null;
+        listeners = new ArrayList<>();
 
 
 //        notReadMessages = new NotReadMessagesRepository();
@@ -24,12 +27,14 @@ public class UserMailbox extends Mailbox {
     }
 
     public void listen(NotificationObserver _listener){
-        listener = _listener;
+        listeners.add(_listener);
     }
 
     @Override
     public void notifyOwner() {
-        listener.notify("A new message is waiting for you!");
+        for(NotificationObserver listener : listeners){
+            listener.notify("A new message is waiting for you!");
+        }
     }
 
 }

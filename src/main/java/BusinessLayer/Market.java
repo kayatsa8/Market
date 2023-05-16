@@ -571,5 +571,23 @@ public class Market {
         return userFacade.removeBasketFromCart(userID, storeID);
     }
 
+    public int getUserIdByName(String name) throws Exception {
+        return userFacade.findUserByUsername(name);
+    }
+
+    public int getStoreIdByName(String name) throws Exception {
+        return storeFacade.getIdByStoreName(name);
+    }
+
+    public String getNameById(int id){
+        String name = storeFacade.getStoreNameById(id);
+
+        if(name == null){
+            name = userFacade.getUsernameById(id);
+        }
+
+        return name;
+    }
+
 
 }
