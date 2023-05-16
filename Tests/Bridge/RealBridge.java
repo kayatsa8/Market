@@ -109,7 +109,7 @@ public class RealBridge implements Bridge{
 
     @Override
     public CatalogItemService addCatalogItem(int storeId, String itemName, int price, String category) {
-        Result<CatalogItemService> result = shoppingService.addItemToStore(storeId, itemName, price, category, 0);
+        Result<CatalogItemService> result = shoppingService.addItemToStore(storeId, itemName, price, category, 1);
         if(result.isError()){
             System.out.println(result.getMessage());
             return null;

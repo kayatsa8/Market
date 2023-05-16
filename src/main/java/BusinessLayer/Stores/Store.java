@@ -532,8 +532,12 @@ public class Store {
         discountPolicies.put(policiesIDs++, discountPolicy);
         return (policiesIDs -1) + ": " + discountPolicy;
     }
-    public String addDiscountPolicyItemsWeightLimitRule(Map<Integer, Double> weightsLimits)
+    public String addDiscountPolicyItemsWeightLimitRule(Map<Integer, Double> weightsLimits) throws Exception
     {
+        if (!items.keySet().containsAll(weightsLimits.keySet()))
+        {
+            throw new Exception("Error: One or more of the items IDs you entered are not exist in store " + storeName);
+        }
         ItemsWeightLimitRule itemsWeightLimitRule = new ItemsWeightLimitRule(weightsLimits, policiesIDs);
         DiscountPolicy discountPolicy = new DiscountPolicy(itemsWeightLimitRule);
         discountPolicies.put(policiesIDs++, discountPolicy);
@@ -546,8 +550,12 @@ public class Store {
         discountPolicies.put(policiesIDs++, discountPolicy);
         return (policiesIDs -1) + ": " + discountPolicy;
     }
-    public String addDiscountPolicyMustItemsAmountsRule(Map<Integer, Integer> itemsAmounts)
+    public String addDiscountPolicyMustItemsAmountsRule(Map<Integer, Integer> itemsAmounts) throws Exception
     {
+        if (!items.keySet().containsAll(itemsAmounts.keySet()))
+        {
+            throw new Exception("Error: One or more of the items IDs you entered are not exist in the store");
+        }
         MustItemsAmountsRule mustItemsAmountsRule = new MustItemsAmountsRule(itemsAmounts, policiesIDs);
         DiscountPolicy discountPolicy = new DiscountPolicy(mustItemsAmountsRule);
         discountPolicies.put(policiesIDs++, discountPolicy);
@@ -612,7 +620,7 @@ public class Store {
         return newItem;
     }
 
-    public void buyBasket(List<CartItemInfo> basketItems, int userID) {
+    public synchronized void buyBasket(List<CartItemInfo> basketItems, int userID) {
         Map<CatalogItem, CartItemInfo> receiptItems = new HashMap<>();
         for (CartItemInfo cartItemInfo : basketItems) {
             int itemID = cartItemInfo.getItemID();

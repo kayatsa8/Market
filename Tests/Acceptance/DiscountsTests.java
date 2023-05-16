@@ -223,7 +223,7 @@ public class DiscountsTests extends ProjectTest{
         Map<Integer, Integer> map = new HashMap<>();
         map.put(-1, 22);
         RuleService ruleService = getBridge().addDiscountPolicyMustItemsAmountsRule(store2Id, map);
-        assertTrue(ruleService.getId() < 0);
+        assertNull(ruleService);
     }
 
     /**
@@ -244,7 +244,7 @@ public class DiscountsTests extends ProjectTest{
         Map<Integer, Double> map = new HashMap<>();
         map.put(item1Id, -22.5);
         RuleService ruleService = getBridge().addPurchasePolicyItemsWeightLimitRule(store2Id, map);
-        assertTrue(ruleService.getId() < 0);
+        assertNull(ruleService);
     }
 
     @Test
@@ -260,7 +260,7 @@ public class DiscountsTests extends ProjectTest{
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DATE, -6);
         RuleService ruleService = getBridge().addPurchasePolicyMustDatesRule(store2Id, Arrays.asList(calendar));
-        assertTrue(ruleService.getId() < 0);
+        assertNull(ruleService);
     }
 
     @Test
@@ -306,7 +306,7 @@ public class DiscountsTests extends ProjectTest{
         RuleService rule1 = getBridge().addPurchasePolicyMustDatesRule(store2Id, Arrays.asList(calendar));
 
         Map<Integer, Double> map = new HashMap<>();
-        map.put(item1Id, -22.5);
+        map.put(item1Id, 10.0);
         RuleService rule2 = getBridge().addPurchasePolicyItemsWeightLimitRule(store2Id, map);
 
         return Arrays.asList(rule1.getId(), rule2.getId());

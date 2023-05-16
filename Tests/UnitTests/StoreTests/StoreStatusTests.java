@@ -38,6 +38,10 @@ public class StoreStatusTests {
         int id2 = market.register("userName2", "password2");
         int id3 = market.register("userName3", "password3");
         int id4 = market.register("userName4", "password4");
+        market.login("userName1", "password1");
+        market.login("userName2", "password2");
+        market.login("userName3", "password3");
+        market.login("userName4", "password4");
         founder1 = userFacade.getRegisteredUser(id1);
         storeOwner1 = userFacade.getRegisteredUser(id2);
         storeManager1 = userFacade.getRegisteredUser(id3);

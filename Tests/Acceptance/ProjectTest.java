@@ -140,6 +140,7 @@ public abstract class ProjectTest {
         int id = -1;
         if(GuestOrMember == MEMBER){
             id = registerUser(userName, password);
+            loginUser(userName, password);
         }
         else{
             //what to do If it is Guest?

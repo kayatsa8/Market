@@ -37,6 +37,8 @@ public class SystemManagerTest {
         try {
             user1 = market.register(user1Name, user1Name+user1Name);
             user2 = market.register(user2Name, user2Name+user2Name);
+            market.login(user1Name, user1Name+user1Name);
+            market.login(user2Name, user2Name+user2Name);
             user = market.getUserFacade().getRegisteredUser(user1);
             secondUser = market.getUserFacade().getRegisteredUser(user2);
             store1 = market.addStore(user.getId(), "test store 1");

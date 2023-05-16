@@ -1,5 +1,6 @@
-package UnitTests.StoreTests;
+package UnitTests.DiscountsAndPolicies;
 
+import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.Market;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
@@ -10,10 +11,13 @@ import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+
+import java.util.Calendar;
+
 import static org.junit.Assert.*;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class ItemsManagementTests {
+public class DiscountsTests {
     static Market market;
     static StoreFacade storeFacade;
     static UserFacade userFacade;
@@ -23,6 +27,8 @@ public class ItemsManagementTests {
     static RegisteredUser noRole;
     static Store store1;
     static CatalogItem item1;
+    static CatalogItem item2;
+
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -45,46 +51,40 @@ public class ItemsManagementTests {
         store1 = market.getStoreInfo(storeID);
         market.addOwner(founder1.getId(), id6, storeID);
         market.addManager(founder1.getId(), id7, storeID);
+        item1 = market.addItemToStore(storeID, "item1", 10, "Books", 10);
+        item2 = market.addItemToStore(storeID, "item2", 10, "Clothing", 10);
+        market.addItemAmount(storeID, item1.getItemID(), 50);
+
     }
 
     @Test
-    public void aAddCatalogItemSuccessfully(){
+    public void addVisibleCategoryDiscount(){
         try {
-            item1 = storeFacade.addCatalogItem(store1.getStoreID(), "Harry Potter Book", 79.90, "Books", 0.8);
-            assertNotNull("Item added to store",item1);
+            Calendar date = Calendar.getInstance();
+            date.add(5, 1);
+            int vcdID = market.addVisibleCategoryDiscount(store1.getStoreID(), "Books", 0.2, date);
+            assertTrue(vcdID == 0);
+            assertTrue(store1.getStoreVisibleDiscounts().get(vcdID).isDiscountApplyForItem(item1.getItemID(), item1.getCategory()));
+            assertFalse(store1.getStoreDiscounts().get(vcdID).isDiscountApplyForItem(item2.getItemID(), item2.getCategory()));
         } catch (Exception e) {
             fail(e.getMessage());
         }
     }
 
     @Test
-    public void bAddCatalogItemUnsuccessfully(){
+    public void addPurchasePolicy(){
         try {
-            CatalogItem item = storeFacade.addCatalogItem(1656, "Blabla Book", 100, "Books", 0.3);
-            fail("Should throw an error for store not exist");
+            String ppbtprString = market.addPurchasePolicyBasketTotalPriceRule(store1.getStoreID(), 50);
+            market.addItemToCart(noRole.getId(), store1.getStoreID(), item1.getItemID(), 4);
+            market.buyCart(noRole.getId(), "New York");
+            fail("Should have thrown an error");
         } catch (Exception e) {
-            assertTrue("Store not exist", ("No store with ID: " + 1656).equals(e.getMessage()));
+            assertEquals("ERROR: Basket::checkIfPurchaseIsValid: the purchase is not valid!", e.getMessage());
         }
-    }
-
-    @Test
-    public void cRemoveCatalogItemSuccessfully(){
         try {
-            assertNotNull("Item should be found here", store1.getItem(item1.getItemID()));
-            CatalogItem item = storeFacade.removeItemFromStore(store1.getStoreID(), item1.getItemID());
-            assertNull("Item shouldn't be found here", store1.getItem(item1.getItemID()));
-            assertNotNull("Should return non null object", item);
-        } catch (Exception e) {
-            fail(e.getMessage());
-        }
-    }
-
-    @Test
-    public void dRemoveCatalogItemUnsuccessfully(){
-        try {
-            assertNull("Item shouldn't be found here", store1.getItem(item1.getItemID()));
-            CatalogItem item = storeFacade.removeItemFromStore(store1.getStoreID(), item1.getItemID());
-            assertNull("Returned item should be null" ,item);
+            market.changeItemQuantityInCart(noRole.getId(), store1.getStoreID(), item1.getItemID(), 5);
+            Cart cart = market.buyCart(noRole.getId(), "New York");
+            assertTrue(String.valueOf(cart.getBaskets().size()),cart.getBaskets().size() == 0);
         } catch (Exception e) {
             fail(e.getMessage());
         }

@@ -74,7 +74,7 @@ public class Basket {
 
         if(items.containsKey(item.getItemID())){
             //LOG
-            //throw new Exception("ERROR: Basket::addItemToCart: the item is already in the basket!");
+            throw new Exception("ERROR: Basket::addItemToCart: the item is already in the basket!");
         }
 
         if(!store.isItemInCatalog(item.getItemID())){
