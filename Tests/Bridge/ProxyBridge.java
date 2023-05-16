@@ -487,6 +487,13 @@ public class ProxyBridge implements Bridge {
         return null;
     }
 
+    @Override
+    public RuleService addDiscountPolicyBuyerAgeRule(int storeID, int minimumAge) {
+        if(real != null)
+            return real.addDiscountPolicyBuyerAgeRule(storeID, minimumAge);
+        return null;
+    }
+
 
     public HashMap<Integer, ChatService> getChats(int id){
         if(real != null){

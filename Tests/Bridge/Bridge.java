@@ -447,6 +447,8 @@ public interface Bridge {
     RuleService addDiscountComposite(int storeID, int discountID, LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs);
 
     Map<Integer, UserInfoService> getLoggedOutUsers();
+
     Map<Integer, UserInfoService> getLoggedInUsers();
 
+    RuleService addDiscountPolicyBuyerAgeRule(int storeID, int minimumAge);
 }

@@ -2,6 +2,7 @@ package Bridge;
 
 
 import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
+import BusinessLayer.Stores.Conditions.LogicalCompositions.Rules.Rule;
 import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
 import Globals.FilterValue;
 import Globals.SearchBy;
@@ -406,7 +407,13 @@ public class RealBridge implements Bridge{
         return users.getValue();
     }
 
-
+    @Override
+    public RuleService addDiscountPolicyBuyerAgeRule(int storeID, int minimumAge) {
+        Result<RuleService> result = shoppingService.addDiscountPolicyBuyerAgeRule(storeID, minimumAge);
+        if(result == null)
+            return null;
+        return result.getValue();
+    }
 
 
     @Override

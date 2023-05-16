@@ -32,6 +32,9 @@ public class DiscountsTests extends ProjectTest{
     }
 
 
+    /**
+     * Change discount 45
+     */
     @Test
     public void addVisibleItemsDiscounts_Valid(){
         List<Integer> ids = new ArrayList<>();
@@ -188,9 +191,22 @@ public class DiscountsTests extends ProjectTest{
     }
 
 
+    /**
+     * Add discount policy #46
+     */
+    @Test
+    public void addDiscountPolicyBuyerAgeRule_valid(){
+        RuleService ruleService = getBridge().addDiscountPolicyBuyerAgeRule(store2Id, 10);
+        assertTrue(ruleService.getId() >= 0);
+        assertTrue(ruleService.getInfo().contains("10"));
+    }
 
 
-
+    @Test
+    public void addDiscountPolicyBuyerAgeRule_StoreNotExists(){
+        RuleService ruleService = getBridge().addDiscountPolicyBuyerAgeRule(-1, 10);
+        assertTrue(ruleService.getId() < 0);
+    }
 
 
 
