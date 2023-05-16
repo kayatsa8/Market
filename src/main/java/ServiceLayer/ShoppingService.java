@@ -952,4 +952,12 @@ public class ShoppingService {
     public Boolean managerHasPermission(int managerID, int storeID, StoreActionPermissions permission) {
         return market.getStoreFacade().managerHasPermission(managerID, storeID, permission);
     }
+
+    public String getStoreName(int storeId){
+        try {
+            return market.getStoreName(storeId);
+        } catch (Exception e) {
+            return "";
+        }
+    }
 }

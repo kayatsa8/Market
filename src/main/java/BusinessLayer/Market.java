@@ -565,4 +565,8 @@ public class Market {
     public void removeCouponFromCart(int userId, String coupon) throws Exception {
         userFacade.removeCouponFromCart(userId, coupon);
     }
+
+    public String getStoreName(int storeId) throws Exception {
+        return storeFacade.getStore(storeId).getStoreName();
+    }
 }
