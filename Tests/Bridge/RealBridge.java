@@ -99,11 +99,8 @@ public class RealBridge implements Bridge{
     @Override
     public boolean buyCart(int userId, String deliveryAddress) {
         try {
-            Result result = shoppingService.buyCart(userId, deliveryAddress);
-            if(result.isError())
-                return false;
-            //temp fix, I need it to return boolean
-            return shoppingService.getCart(userId).getValue().isEmpty();
+            Result<Boolean> result = shoppingService.buyCart(userId, deliveryAddress);
+            return handleBoolResult(result);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return false;
@@ -129,7 +126,6 @@ public class RealBridge implements Bridge{
             System.out.println(result.getMessage());
             return false;
         }
-        //item removed
         return true;
     }
 
@@ -317,49 +313,6 @@ public class RealBridge implements Bridge{
     }
 
 
-
-
-
-
-
-
-    @Override
-    public boolean sendMsg(int senderId, int receiverId, String msg) {
-        /** NotForVersion1 */
-        return false;
-    }
-
-    @Override
-    public HashMap<Integer, String> getComplaints(int managerId) {
-        //return this.facade.getComplaints(managerId);
-        /** NotForVersion1 */
-        return null;
-    }
-
-
-    @Override
-    public List<String> getPersonalInformation(int userId) {
-        //return this.facade.getPersonalInformation(userId);
-        /** NotForVersion1 */
-        return null;
-    }
-
-    @Override
-    public boolean changePassword(int userId, String oldPassword, String newPassword) {
-        //return this.facade.changePassword(userId, oldPassword, newPassword);
-        /** NotForVersion1 */
-        return false;
-    }
-
-
-    @Override
-    public HashMap<Integer, List<String>> getMsgs(int userId) {
-        //return this.facade.getMsgs(userId);
-        /** NotForVersion1 */
-        return null;
-    }
-
-
     @Override
     public boolean removeStoreManager(int storeId, int storeOwnerId, int removeUserId) {
         Result<Boolean> result = userService.removeManager(storeOwnerId, removeUserId, storeId);
@@ -427,6 +380,78 @@ public class RealBridge implements Bridge{
     public boolean removeUser(int userID, int userToRemove) {
         Result<Boolean> result = userService.removeUser(userID, userToRemove);
         return handleBoolResult(result);
+    }
+
+    @Override
+    public RuleService addPurchasePolicyItemsWeightLimitRule(int storeID, Map<Integer, Double> weightsLimits) {
+        Result<RuleService> result = shoppingService.addPurchasePolicyItemsWeightLimitRule(storeID, weightsLimits);
+        if(result == null)
+            return null;
+        return result.getValue();
+    }
+
+    @Override
+    public RuleService addPurchasePolicyMustDatesRule(int storeID, List<Calendar> mustDates) {
+        Result<RuleService> result = shoppingService.addPurchasePolicyMustDatesRule(storeID, mustDates);
+        if(result == null)
+            return null;
+        return result.getValue();
+    }
+
+
+    @Override
+    public HashMap<Integer, ChatService> getChats(int id){
+        Result<HashMap<Integer, ChatService>> result = userService.getChats(id);
+
+        if(result.isError()){
+            result = shoppingService.getChats(id);
+        }
+
+        return result.getValue();
+    }
+
+
+
+
+
+
+
+
+
+    @Override
+    public boolean sendMsg(int senderId, int receiverId, String msg) {
+        /** NotForVersion1 */
+        return false;
+    }
+
+    @Override
+    public HashMap<Integer, String> getComplaints(int managerId) {
+        //return this.facade.getComplaints(managerId);
+        /** NotForVersion1 */
+        return null;
+    }
+
+
+    @Override
+    public List<String> getPersonalInformation(int userId) {
+        //return this.facade.getPersonalInformation(userId);
+        /** NotForVersion1 */
+        return null;
+    }
+
+    @Override
+    public boolean changePassword(int userId, String oldPassword, String newPassword) {
+        //return this.facade.changePassword(userId, oldPassword, newPassword);
+        /** NotForVersion1 */
+        return false;
+    }
+
+
+    @Override
+    public HashMap<Integer, List<String>> getMsgs(int userId) {
+        //return this.facade.getMsgs(userId);
+        /** NotForVersion1 */
+        return null;
     }
 
 
@@ -532,19 +557,6 @@ public class RealBridge implements Bridge{
         /** Not sure...*/
         return false;
     }
-
-    @Override
-    public HashMap<Integer, ChatService> getChats(int id){
-        Result<HashMap<Integer, ChatService>> result = userService.getChats(id);
-
-        if(result.isError()){
-            result = shoppingService.getChats(id);
-        }
-
-        return result.getValue();
-    }
-
-
 
 
 }

@@ -455,4 +455,8 @@ public interface Bridge {
     RuleService addDiscountPolicyMustItemsAmountsRule(int storeID, Map<Integer, Integer> itemsAmounts);
 
     boolean removeUser(int userID, int userToRemove);
+
+    RuleService addPurchasePolicyItemsWeightLimitRule(int storeID, Map<Integer, Double> weightsLimits);
+
+    RuleService addPurchasePolicyMustDatesRule(int storeID, List<Calendar> mustDates);
 }

@@ -191,6 +191,27 @@ public class DiscountsTests extends ProjectTest{
     }
 
 
+    @Test
+    public void addRuleCompositeCONDITIONING_Valid(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.HOUR_OF_DAY, 4);
+        int discountId = this.addConditionalStoreDiscount(store2Id, 40, calendar);
+
+        RuleService rule1 = getBridge().addDiscountBasketTotalPriceRule(store2Id, discountId, 30);
+        Map<Integer, Integer> map = new HashMap<>();
+        map.put(item1Id, 200);
+        RuleService rule2 = getBridge().addDiscountQuantityRule(store2Id, discountId, map);
+        assertTrue(rule1.getId() >= 0);
+        assertTrue(rule2.getId() >= 0);
+
+        RuleService newRule = getBridge().addDiscountComposite(store2Id, discountId, LogicalComposites.CONDITIONING, Arrays.asList(rule2.getId(), rule1.getId()));
+        assertTrue(newRule.getId() > 0);
+        assertTrue(newRule.getInfo().contains(rule1.getInfo()));
+        assertTrue(newRule.getInfo().contains(rule2.getInfo().strip()));
+        assertTrue(newRule.getInfo().contains("unless"));
+    }
+
+
     /**
      * Add discount policy #46
      */
@@ -225,6 +246,44 @@ public class DiscountsTests extends ProjectTest{
         RuleService ruleService = getBridge().addDiscountPolicyMustItemsAmountsRule(store2Id, map);
         assertTrue(ruleService.getId() < 0);
     }
+
+    /**
+     * Add purchase policy #46
+     */
+    @Test
+    public void addPurchasePolicyItemsWeightLimitRule_Valid(){
+        Map<Integer, Double> map = new HashMap<>();
+        map.put(item1Id, 22.5);
+        RuleService ruleService = getBridge().addPurchasePolicyItemsWeightLimitRule(store2Id, map);
+        assertTrue(ruleService.getId() >= 0);
+        assertTrue(ruleService.getInfo().contains(String.valueOf(item1Id)));
+        assertTrue(ruleService.getInfo().contains("22.5"));
+    }
+
+    @Test
+    public void addPurchasePolicyItemsWeightLimitRule_NegativeWeight(){
+        Map<Integer, Double> map = new HashMap<>();
+        map.put(item1Id, -22.5);
+        RuleService ruleService = getBridge().addPurchasePolicyItemsWeightLimitRule(store2Id, map);
+        assertTrue(ruleService.getId() < 0);
+    }
+
+    @Test
+    public void addPurchasePolicyMustDatesRule_Valid(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, 2);
+        RuleService ruleService = getBridge().addPurchasePolicyMustDatesRule(store2Id, Arrays.asList(calendar));
+        assertTrue(ruleService.getId() >= 0);
+    }
+
+    @Test
+    public void addPurchasePolicyMustDatesRule_DatePassed(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, -6);
+        RuleService ruleService = getBridge().addPurchasePolicyMustDatesRule(store2Id, Arrays.asList(calendar));
+        assertTrue(ruleService.getId() < 0);
+    }
+
 
 
     protected static int discountId = -1;

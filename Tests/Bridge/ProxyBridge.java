@@ -509,6 +509,20 @@ public class ProxyBridge implements Bridge {
         return false;
     }
 
+    @Override
+    public RuleService addPurchasePolicyItemsWeightLimitRule(int storeID, Map<Integer, Double> weightsLimits) {
+        if(real != null)
+            return real.addPurchasePolicyItemsWeightLimitRule(storeID, weightsLimits);
+        return null;
+    }
+
+    @Override
+    public RuleService addPurchasePolicyMustDatesRule(int storeID, List<Calendar> mustDates) {
+        if(real != null)
+            return real.addPurchasePolicyMustDatesRule(storeID, mustDates);
+        return null;
+    }
+
 
     public HashMap<Integer, ChatService> getChats(int id){
         if(real != null){
