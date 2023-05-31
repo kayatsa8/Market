@@ -1,4 +1,4 @@
-package UnitTests;
+package IntegrationTests;
 
 import BusinessLayer.Market;
 import BusinessLayer.NotificationSystem.Mailbox;

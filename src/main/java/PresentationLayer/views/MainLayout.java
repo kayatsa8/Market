@@ -24,6 +24,7 @@ import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.theme.lumo.LumoUtility;
@@ -39,8 +40,11 @@ import static org.vaadin.lineawesome.LineAwesomeIcon.*;
 /**
  * The main view is a top-level placeholder for other views.
  */
+@PageTitle("Main")
+@Route(value = "main")
 public class MainLayout extends AppLayout implements NotificationObserver, BeforeEnterObserver {
 
+    UI ui;
     private H2 viewTitle;
     private H2 user;
     public UserService userService;
@@ -54,6 +58,7 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
     private AppNavItem mailboxButton;
 
     public MainLayout() {
+        ui = UI.getCurrent();
         setPrimarySection(Section.DRAWER);
         addDrawerContent();
         try {
@@ -77,6 +82,10 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
     }
 
     public Integer getCurrUserID() {
+        UserPL currUser = currUsers.get(getSessionID());
+        if (currUser==null) {
+
+        }
         return currUsers.get(getSessionID()).getCurrUserID();
     }
 
@@ -182,6 +191,8 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
     @Override
     protected void afterNavigation() {
         super.afterNavigation();
+        if (viewTitle == null)
+            viewTitle = new H2();
         viewTitle.setText(getCurrentPageTitle());
     }
 
@@ -192,9 +203,10 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
 
     @Override
     public void notify(String notification) {
-        Notification systemNotification = Notification
-                .show(notification);
-        systemNotification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+        ui.access(() -> {
+            Notification systemNotification = Notification
+                            .show(notification);
+            systemNotification.addThemeVariants(NotificationVariant.LUMO_PRIMARY); });
     }
 
     @Override
@@ -214,9 +226,9 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
     }
 
     public static MainLayout getMainLayout() {
-        MainLayout mainLayout = (MainLayout) UI.getCurrent().getChildren().filter(component -> component.getClass() == MainLayout.class).findFirst().orElse(null);
-        assert mainLayout != null;
+        MainLayout mainLayout = (MainLayout) UI.getCurrent().getChildren().filter(component -> component.getClass() == MainLayout.class).findFirst().orElse(new MainLayout());
         return mainLayout;
+
     }
 
     @Override
@@ -224,9 +236,13 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
         HttpSession session = getSession();
         boolean isNewTab = (session.getAttribute("isNewTab") == null);
 
-        if (isNewTab) {
+        if (isNewTab || user == null) {
             // Handle new tab event here
-            System.out.println(session.getId() + " wow!");
+            try {
+                int id = getCurrUserID();
+                userService.logout(id);
+            }
+            catch (NullPointerException e) {}
             userService.addGuest();
             currUsers.put(session.getId(), new UserPL());
             // Set the session attribute to indicate that the function has been called

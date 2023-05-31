@@ -49,6 +49,7 @@ public class Cart {
         baskets.get(storeID).removeItem(itemID, coupons);
         Log.log.info("The item " + itemID + " of store " + storeID + " was removed from the cart");
     }
+
     public Basket removeBasket(int storeID) throws Exception {
         Basket basket=baskets.remove(storeID);
         if(basket==null){
