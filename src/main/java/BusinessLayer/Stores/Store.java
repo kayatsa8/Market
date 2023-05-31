@@ -672,7 +672,7 @@ public class Store {
         {
             if (!purchasePolicy.getValue().isValidForPurchase(basketItems))
             {
-                return false;
+                throw new IllegalStateException("You don't comply with the following purchase policy:\n" + purchasePolicy);
             }
         }
         return true;

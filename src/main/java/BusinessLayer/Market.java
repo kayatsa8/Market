@@ -34,7 +34,7 @@ public class Market {
     private Map<Integer, SystemManager> systemManagerMap;
     private NotificationHub notificationHub;
     private static final Object instanceLock = new Object();
-    private Market() {
+    private Market() throws Exception {
         systemManagerMap = new HashMap<>();
         userFacade = new UserFacade();
         storeFacade = new StoreFacade();
@@ -46,12 +46,13 @@ public class Market {
             if (instance == null) {
                 instance = new Market();
                 instance.createFirstAdmin();
+                instance.userFacade.setGuest();
             }
             return instance;
         }
     }
 
-    public User addGuest() {
+    public User addGuest() throws Exception {
         return userFacade.setGuest();
     }
 
@@ -259,59 +260,6 @@ public class Market {
         return false;
     }
 
-//    public void markMessageAsRead(int ID, Message message) throws Exception {
-//        if(storeFacade.isStoreExists(ID)){
-//            storeFacade.markMessageAsRead(ID, message);
-//        }
-//        if(userFacade.userExists(ID)){
-//            userFacade.markMessageAsRead(ID, message);
-//        }
-//    }
-//
-//    public void markMessageAsNotRead(int ID, Message message) throws Exception {
-//        if(storeFacade.isStoreExists(ID)){
-//            storeFacade.markMessageAsNotRead(ID, message);
-//        }
-//        if(userFacade.userExists(ID)){
-//            userFacade.markMessageAsNotRead(ID, message);
-//        }
-//    }
-//
-//    public List<Message> watchNotReadMessages(int ID) throws Exception
-//    {
-//        if(storeFacade.isStoreExists(ID)){
-//            return storeFacade.watchNotReadMessages(ID);
-//        }
-//        if(userFacade.userExists(ID)){
-//            return userFacade.watchNotReadMessages(ID);
-//        }
-//
-//        return null;
-//    }
-//
-//    public List<Message> watchReadMessages(int ID) throws Exception
-//    {
-//        if(storeFacade.isStoreExists(ID)){
-//            return storeFacade.watchNotReadMessages(ID);
-//        }
-//        if(userFacade.userExists(ID)){
-//            return userFacade.watchReadMessages(ID);
-//        }
-//
-//        return null;
-//    }
-//
-//    public List<Message> watchSentMessages(int ID) throws Exception
-//    {
-//        if(storeFacade.isStoreExists(ID)){
-//            return storeFacade.watchSentMessages(ID);
-//        }
-//        if(userFacade.userExists(ID)){
-//            return userFacade.watchSentMessages(ID);
-//        }
-//
-//        return null;
-//    }
 
     public ConcurrentHashMap<Integer, Chat> getChats(int id) throws Exception {
         if(storeFacade.isStoreExists(id)){

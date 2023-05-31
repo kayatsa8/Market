@@ -184,8 +184,8 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
         systemAdmin.setVisible(userService.isAdmin(getCurrUserID()));
         marketOwnerOrManager.setVisible(true);
         loginAndRegister.setVisible(false);
-        mailboxButton.setVisible(true);
         user.setText(getUserName());
+        mailboxButton.setVisible(true);
     }
 
     @Override
