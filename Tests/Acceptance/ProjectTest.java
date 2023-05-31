@@ -2,6 +2,8 @@ package Acceptance;
 
 import Bridge.Bridge;
 import Bridge.Driver;
+import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -205,7 +207,9 @@ public abstract class ProjectTest {
     }
 
     protected boolean buyCart(int userId, String deliveryAddress) {
-        return this.bridge.buyCart(userId, deliveryAddress);
+        PurchaseInfo purchaseInfo = new PurchaseInfo("number", 1, 2020, "adasd", 23, userId);
+        SupplyInfo supplyInfo = new SupplyInfo("name", "address", "city", "country", "zip");
+        return this.bridge.buyCart(userId, purchaseInfo, supplyInfo);
     }
 
     protected int addCatalogItem(int storeId, String itemName, int price, String category) {

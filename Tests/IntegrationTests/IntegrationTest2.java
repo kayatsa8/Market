@@ -1,6 +1,8 @@
 package IntegrationTests;
 
 import BusinessLayer.CartAndBasket.Cart;
+import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.MarketMock;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
@@ -137,7 +139,7 @@ public class IntegrationTest2 {
             assertTrue(noRoleCart.getItemsInBasket("storeName1").size() == 1);
             boolean logoutResult1 = market.logout(noRoleID);
             assertTrue("returned false, because logout failed", logoutResult1);
-            market.buyCart(noRoleID, "New york");
+            market.buyCart(noRoleID, getPurchaseInfo(), getSupplyInfo());
             fail("ERROR: should have thrown an exception");
         } catch (Exception e) {
             assertEquals(e.getMessage(), "User " + noRoleID + " is not logged in");
@@ -149,5 +151,14 @@ public class IntegrationTest2 {
 //        } catch (Exception e) {
 //            assertTrue(e.getMessage(), e.getMessage().equals("Can't add catalog item when store unopened"));
 //        }
+    }
+
+
+    public PurchaseInfo getPurchaseInfo(){
+        return new PurchaseInfo("123", 1, 2222, "asd", 1222, 1);
+    }
+
+    public SupplyInfo getSupplyInfo(){
+        return new SupplyInfo("Name", "address", "city", "counyrt", "asd");
     }
 }

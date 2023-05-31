@@ -1,5 +1,7 @@
 package PresentationLayer.views;
 
+import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import ServiceLayer.Objects.*;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
@@ -365,7 +367,9 @@ public class Cart extends Div {
             dialog.addCancelListener( x -> dialog.close());
             dialog.addConfirmListener( event -> {
                 String address = addressField.getValue();
-                Result<Boolean> result=shoppingService.buyCart(currUser, address);
+                PurchaseInfo purchaseInfo = new PurchaseInfo("number", 1, 1, "name", 1, 234);
+                SupplyInfo  supplyInfo = new SupplyInfo("name", "adress", "city", "country", "zip");
+                Result<Boolean> result=shoppingService.buyCart(currUser, purchaseInfo,supplyInfo);
                 if (result.isError()){
                     printError("Fail to buy: "+result.getMessage());
                 }
