@@ -397,7 +397,7 @@ public class UserFacade {
             throw new Exception("No such user!");
         }
 
-        getRegisteredUser(userId).listenToNotifications(listener);
+        getUser(userId).listenToNotifications(listener);
     }
   
     public Basket removeBasketFromCart(int userID, int storeID) throws Exception {

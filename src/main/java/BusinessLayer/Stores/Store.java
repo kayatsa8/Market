@@ -634,7 +634,7 @@ public class Store {
         mailbox.sendMessageToList(sendToList, "User " + userID + " made a purchase in store " + storeName + " where you are one of the owners");
         log.info("A basket was bought at store " + storeID);
     }
-    public synchronized void saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems, List<String> coupons) throws Exception
+    public synchronized void saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems, List<String> coupons, int userID) throws Exception
     {
         if (storeStatus == OPEN) {
             if (checkIfItemsInStock(basketItems)) {
@@ -643,9 +643,13 @@ public class Store {
                     log.warning("Trying to buy a basket in store: " + storeName + ", but item price or discount or discount policy changed/removed/added");
                     throw new Exception("One or more of the items or discounts or discounts policies in store : " + storeName + " that affect the basket have been changed");
                 }
-                if (!checkIfPurchaseIsValid(basketItems)) {
+                try {
+                    checkIfPurchaseIsValid(basketItems);
+                }
+                catch (IllegalStateException msg) {
+                    mailbox.sendMessage(userID, msg.getMessage());
                     log.warning("Trying to buy a basket in store: " + storeName + ", but you don't comply with the purchase policies");
-                    throw new Exception("You don't comply with the purchase policies");
+                    throw new IllegalStateException(msg);
                 }
                 int itemID;
                 int itemAmountToSave;

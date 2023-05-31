@@ -117,7 +117,7 @@ public class Cart {
         HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> receiptData = new HashMap<>();
 
         for(Basket basket : baskets.values()){
-            basket.saveItems(coupons);
+            basket.saveItems(coupons, userID);
         }
         Log.log.info("Items of cart " + userID + " are saved");
 

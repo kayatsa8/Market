@@ -33,7 +33,6 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static org.vaadin.lineawesome.LineAwesomeIcon.*;
 
@@ -62,7 +61,6 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
         setPrimarySection(Section.DRAWER);
         addDrawerContent();
         try {
-//            currUsers = new ConcurrentHashMap<>();
             userService=new UserService();
         } catch (Exception e) {
             printError("Error initialize userService:\n"+e.getMessage());
@@ -75,17 +73,11 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
             listenToNotifications(currUsers.get(getSessionID()).getCurrUserID());
         }
         catch(Exception e){
-            System.out.println("\n\nERROR: MainLayout::MainLayout: " +
-                    e.getMessage() +
-                    "\n");
+            throw new RuntimeException("ERROR: MainLayout::MainLayout: " + e.getMessage() + "\n");
         }
     }
 
     public Integer getCurrUserID() {
-        UserPL currUser = currUsers.get(getSessionID());
-        if (currUser==null) {
-
-        }
         return currUsers.get(getSessionID()).getCurrUserID();
     }
 
@@ -147,12 +139,12 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
         Footer layout = new Footer();
 
         logoutBtn = new Button("Logout", SIGN_OUT_ALT_SOLID.create());
-        logoutBtn.addClickListener(e -> LogoutAction());
+        logoutBtn.addClickListener(e -> logoutAction());
         layout.add(logoutBtn);
         return layout;
     }
 
-    private void LogoutAction(){
+    private void logoutAction(){
         /**
          1.default is guest
          2.on login change to the according RegisterUser + load his data if needed
@@ -164,6 +156,7 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
         }
         else {
             printSuccess("Succeed to logout currId="+ getCurrUserID());
+            setCurrUser(getCurrUserID());
             setGuestView();
             currUsers.get(getSessionID()).setCurrIdToGuest();
             user.setText(getUserName());
@@ -176,7 +169,6 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
         systemAdmin.setVisible(false);
         marketOwnerOrManager.setVisible(false);
         loginAndRegister.setVisible(true);
-        mailboxButton.setVisible(false);
     }
 
     public void setUserView() {
@@ -185,7 +177,6 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
         marketOwnerOrManager.setVisible(true);
         loginAndRegister.setVisible(false);
         user.setText(getUserName());
-        mailboxButton.setVisible(true);
     }
 
     @Override
@@ -210,8 +201,11 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
     }
 
     @Override
-    public void listenToNotifications(int userId) throws Exception {
-        userService.listenToNotifications(userId, this);
+    public void listenToNotifications(int userId) {
+        Result result = userService.listenToNotifications(userId, this);
+        if (result.isError()) {
+            printError(result.getMessage());
+        }
     }
   
     private void printSuccess(String msg) {
@@ -244,11 +238,13 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
             }
             catch (NullPointerException e) {}
             userService.addGuest();
-            currUsers.put(session.getId(), new UserPL());
+            UserPL userPL = new UserPL();
+            currUsers.put(session.getId(), userPL);
             // Set the session attribute to indicate that the function has been called
             session.setAttribute("isNewTab", true);
             addHeaderContent();
             setGuestView();
+            setCurrUser(userPL.getCurrUserID());
         }
 
     }
