@@ -305,18 +305,18 @@ public class Cart extends Div {
     private void updateAside(List<BasketService> baskets) {
         double totalPrice = baskets.stream()
                 .flatMap(basket -> basket.getAllItems().stream())
-                .mapToDouble(item -> item.getFinalPrice() * item.getAmount())
+                .mapToDouble(CartItemInfoService::getFinalPrice)
                 .sum();
         double origTotalPrice =baskets.stream()
                 .flatMap(basket -> basket.getAllItems().stream())
-                .mapToDouble(item -> item.getOriginalPrice() * item.getAmount())
+                .mapToDouble(CartItemInfoService::getOriginalPrice)
                 .sum();
         double totalDiscount =totalPrice-origTotalPrice;
         totalPriceSpan.setText(String.valueOf(totalPrice));
         originalPriceSpan.setText(String.valueOf(origTotalPrice));
         discountSpan.setText(String.valueOf(discountPrice));
     }
-    public static  <T> float setHeightByRows(Grid<T> grid, int rows) {
+    public static <T> float setHeightByRows(Grid<T> grid, int rows) {
         float height=0;
         if (rows < 0) {
             throw new IllegalArgumentException("Number of rows must be positive");
