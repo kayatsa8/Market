@@ -35,7 +35,12 @@ public class Basket {
 
         releaseItems();
 
-        updateBasketWithCoupons(coupons);
+        try{
+            updateBasketWithCoupons(coupons);
+        }
+        catch(Exception e){
+            // preventing an unwanted exception
+        }
     }
 
     public void changeItemQuantity(int itemID, int quantity, List<String> coupons) throws Exception {
@@ -45,7 +50,12 @@ public class Basket {
 
         releaseItems();
 
-        updateBasketWithCoupons(coupons);
+        try{
+            updateBasketWithCoupons(coupons);
+        }
+        catch(Exception e){
+            // preventing an unwanted exception
+        }
     }
 
     public void removeItem(int itemID, List<String> coupons) throws Exception {
@@ -58,7 +68,12 @@ public class Basket {
 
         releaseItems();
 
-        updateBasketWithCoupons(coupons);
+        try{
+            updateBasketWithCoupons(coupons);
+        }
+        catch(Exception e){
+            // preventing an unwanted exception
+        }
     }
 
     private void validateAddItem(CatalogItem item, int quantity) throws Exception {
