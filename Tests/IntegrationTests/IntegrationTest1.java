@@ -14,8 +14,8 @@ import static org.junit.Assert.*;
 
 
 
-// Focused on actions with login/logout
-public class Test2 {
+// Focused on actions with store status
+public class IntegrationTest1 {
     static StoreFacade storeFacade;
     static UserFacade userFacade;
     static RegisteredUser founder;
@@ -57,11 +57,9 @@ public class Test2 {
 
 
     @Test
-    public void test3(){
+    public void integrationTest1(){
         int storeID = store.getStoreID();
         int founderID = founder.getId();
-        int ownerID = storeOwner.getId();
-        int managerID = storeManager.getId();
         int noRoleID = noRole.getId();
         int itemID = item.getItemID();
 
@@ -72,32 +70,19 @@ public class Test2 {
         } catch (Exception e) {
             fail("ERROR: " + e.getMessage());
         }
-        //logout all - SUCCESS
+        //add item of closed store to store - FAIL
         try {
-            boolean logoutResult = market.logout(founderID);
-            assertTrue("returned false, because logout failed", logoutResult);
-            logoutResult = market.logout(ownerID);
-            assertTrue("returned false, because logout failed", logoutResult);
-            logoutResult = market.logout(managerID);
-            assertTrue("returned false, because logout failed", logoutResult);
-            //logoutResult = market.logout(noRoleID);
-            //assertTrue("returned false, because logout failed", logoutResult);
+            market.addItemAmount(storeID, itemID, 5);
+            fail("ERROR: should have thrown an exception");
         } catch (Exception e) {
-            fail("ERROR: " + e.getMessage());
+            assertTrue(e.getMessage(), e.getMessage().equals("Can't add item amount to unopened store"));
         }
-        //open store while logout - FAIL
-//        try {
-//            market.reopenStore(founderID, storeID);
-//            fail("ERROR: should have thrown an exception");
-//        } catch (Exception e) {
-//            assertTrue(e.getMessage(), e.getMessage().equals("User is logout and can't open store"));
-//        }
-        //login founder - SUCCESS
+        //add item of closed store to cart - FAIL
         try {
-            int id = market.login("userName1", "password1");
-            assertTrue("returned false, because login failed", id == founderID);
+            market.addItemToCart(noRoleID, storeID, itemID, 3);
+            fail("ERROR: should have thrown an exception");
         } catch (Exception e) {
-            fail("ERROR: " + e.getMessage());
+            assertTrue(e.getMessage(), e.getMessage().equals("Error: Can't add item to cart from unopened store"));
         }
         //open store - SUCCESS
         try {
@@ -106,54 +91,37 @@ public class Test2 {
         } catch (Exception e) {
             fail("ERROR: " + e.getMessage());
         }
-        //logout founder - SUCCESS
+        //add non-existing item to cart - FAIL
         try {
-            boolean founderLogoutResult = market.logout(founderID);
-            assertTrue("returned false, because logout failed", founderLogoutResult);
+            market.addItemToCart(noRoleID, storeID, -1, 3);
+            fail("ERROR: should have thrown an exception");
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), e.getMessage().equals("ERROR: Basket:: the item ID you entered does not exist in the given store"));
+        }
+        //add item to cart - SUCCESS
+        try {
+            Cart noRoleCart = noRole.getCart();
+            assertTrue(noRoleCart.getItemsInBasket("storeName1").size() == 0);
+            noRoleCart = market.addItemToCart(noRoleID, storeID, itemID, 3);
+            assertTrue(noRoleCart.getItemsInBasket("storeName1").size() == 1);
         } catch (Exception e) {
             fail("ERROR: " + e.getMessage());
         }
-        //close store while logout - FAIL
-//        try {
-//            market.closeStore(founderID, storeID);
-//            fail("ERROR: should have thrown an exception");
-//        } catch (Exception e) {
-//            assertTrue(e.getMessage(), e.getMessage().equals("User is logout and can't close store"));
-//        }
-
-        //store manager try to add new store while logout - FAIL
-//        try {
-//            int store2ID = market.addStore(founderID, "store2");
-//            fail("ERROR: should have thrown an exception");
-//        } catch (Exception e) {
-//            assertTrue(e.getMessage(), e.getMessage().equals("User is logout and can't add store"));
-//        }
-
-        //add item to cart while logout - FAIL
+        //buy cart with basket of closed store - FAIL
         try {
-            market.addItemToCart(founderID, storeID, itemID, 3);
+            market.closeStore(founderID, storeID);
+            market.buyCart(noRoleID, "Be'er Sheva");
             fail("ERROR: should have thrown an exception");
         } catch (Exception e) {
-            assertTrue(e.getMessage(), e.getMessage().equals("User " + founderID + " is not logged in"));
+            assertEquals(e.getMessage(), "You can't buy items from a closed store");
         }
-        //buy cart while logout - FAIL
+        //buy cart - SUCCESS
         try {
-            Cart noRoleCart = noRole.getCart();
-            noRoleCart = market.addItemToCart(noRoleID, storeID, itemID, 3);
-            assertTrue(noRoleCart.getItemsInBasket("storeName1").size() == 1);
-            boolean logoutResult1 = market.logout(noRoleID);
-            assertTrue("returned false, because logout failed", logoutResult1);
-            market.buyCart(noRoleID, "New york");
-            fail("ERROR: should have thrown an exception");
+            market.reopenStore(founderID, storeID);
+            market.buyCart(noRoleID, "Be'er Sheva");
+            assertTrue("Item amount hasn't decreased from 20 to 17 after buying 3", store.getItemAmount(itemID) == 17);
         } catch (Exception e) {
-            assertEquals(e.getMessage(), "User " + noRoleID + " is not logged in");
+            fail("ERROR: " + e.getMessage());
         }
-        //add new item to store while logout - FAIL
-//        try {
-//            market.addItemToStore(storeID,"book", 100,"Books", 10);
-//            fail("ERROR: should have thrown an exception");
-//        } catch (Exception e) {
-//            assertTrue(e.getMessage(), e.getMessage().equals("Can't add catalog item when store unopened"));
-//        }
     }
 }

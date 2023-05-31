@@ -9,7 +9,7 @@ public final class UserPL {
 
 
 
-    private int currUserID;
+    private Integer currUserID;
     private int GUEST_ID;
     public UserPL() {
         GUEST_ID = Guest.GUEST_USER_ID+1;
@@ -17,7 +17,7 @@ public final class UserPL {
 
     }
     public int getCurrUserID() {
-        return currUserID;
+        return currUserID != null ? currUserID : GUEST_ID;
     }
 
     public void setCurrUserID(int currUserID) {

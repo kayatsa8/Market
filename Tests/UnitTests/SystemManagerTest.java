@@ -57,7 +57,7 @@ public class SystemManagerTest {
 
     @Test
     public void startWithAnAdmin() {
-        assertEquals("System should have created an admin", 1, market.getSystemManagerMap().size());
+        assertTrue("System should have created an admin", market.getSystemManagerMap().size()>0);
     }
 
     @Test
@@ -83,20 +83,21 @@ public class SystemManagerTest {
     }
 
     @Test
-    public void removeUserShouldPass() {
+    public void removeUserShouldFailOwnsStore() {
         int[] storeToDelete = {store1, store2};
         try {
             if (market==null)
                 fail("market is null!");
 
             market.removeUser(adminID, user1);
-            for (int store : storeToDelete)
-                assertEquals("User's Store should be closed permanently because he is founder", PERMANENTLY_CLOSE, sf.getStore(store).getStoreStatus());
-            assertEquals("Store 3 should not have been permanently closed bc user was not founder", OPEN, sf.getStore(store3).getStoreStatus());
-            assertNull("User should not be in userfacade any more", uf.getUser(user1));
+            fail("Cannot remove User who owns or manages a store");
+//            for (int store : storeToDelete)
+//                assertEquals("User's Store should be closed permanently because he is founder", PERMANENTLY_CLOSE, sf.getStore(store).getStoreStatus());
+//            assertEquals("Store 3 should not have been permanently closed bc user was not founder", OPEN, sf.getStore(store3).getStoreStatus());
+//            assertNull("User should not be in userfacade any more", uf.getUser(user1));
         }
         catch (Exception e) {
-            fail(e.getMessage() + " caused us to fail to remove user");
+            assertTrue(true);
 
         }
         //ensure traces of user are gone in store

@@ -29,7 +29,6 @@ import java.util.function.Function;
 
 @PageTitle("Cart")
 @Route(value = "cart", layout = MainLayout.class)
-@PreserveOnRefresh
 public class Cart extends Div {
     private int currUser;
     private Span totalPriceSpan=new Span();

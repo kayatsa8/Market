@@ -20,7 +20,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @Theme(value = "Market")
 public class Application implements AppShellConfigurator {
     public static void main(String[] args) {
-
         try {
             ShoppingService shoppingService = new ShoppingService();
             UserService userService = new UserService();

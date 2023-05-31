@@ -248,6 +248,8 @@ public class UserFacade {
     }
 
     public Cart addItemToCart(int userID, Store store, CatalogItem item, int quantity) throws Exception {
+        if (!isGuest(userID))
+            getLoggedInUser(userID);
         return getUser(userID).addItemToCart(store, item, quantity);
     }
 
