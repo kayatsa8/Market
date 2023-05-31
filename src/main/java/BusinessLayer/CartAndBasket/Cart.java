@@ -2,7 +2,9 @@ package BusinessLayer.CartAndBasket;
 
 import BusinessLayer.CartAndBasket.Repositories.Carts.BasketsRepository;
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
+import BusinessLayer.ExternalSystems.PurchaseInfo;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.Log;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
@@ -113,7 +115,8 @@ public class Cart {
      * @return a HashMap to give the ReceiptHandler in order to make a receipt
      * @throws Exception if the store throw exception for some reason
      */
-    public HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> buyCart(PurchaseClient purchase, SupplyClient supply, String address) throws Exception {
+    public HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> buyCart(PurchaseClient purchase, SupplyClient supply
+            , PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) throws Exception {
         HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> receiptData = new HashMap<>();
 
         for(Basket basket : baskets.values()){
@@ -123,17 +126,26 @@ public class Cart {
 
         //TODO: should change in future versions
         double finalPrice = calculateTotalPrice();
-        boolean purchaseSuccess = purchase.pay(userID, finalPrice);
+
+        if(!purchase.handShake()){
+            throw new Exception("Problem with connection to external System");
+        }
+
+
+        int purchaseTransId = purchase.pay(purchaseInfo.getCardNumber(), purchaseInfo.getMonth(), purchaseInfo.getYear(),
+                purchaseInfo.getHolderName(), purchaseInfo.getCcv(), purchaseInfo.getBuyerId());
 
         //TODO: should change in future versions
         supply.chooseService();
-        boolean supplySuccess = supply.supply(userID, address);
+        int supplyTransId = supply.supply(supplyInfo.getName(), supplyInfo.getAddress(), supplyInfo.getCity(), supplyInfo.getCountry(), supplyInfo.getZip());
 
 
-        if(!purchaseSuccess || !supplySuccess){
+        if( purchaseTransId == -1 || supplyTransId == -1 ){
             for(Basket basket : baskets.values()){
                 basket.releaseItems();
             }
+            supply.cancelSupply(supplyTransId);
+            purchase.cancelPay(purchaseTransId);
             throw new Exception("Problem with Supply or Purchase");
         }
         else{

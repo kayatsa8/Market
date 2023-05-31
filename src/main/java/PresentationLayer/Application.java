@@ -1,5 +1,7 @@
 package PresentationLayer;
 
+import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import ServiceLayer.Objects.CatalogItemService;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
@@ -49,7 +51,7 @@ public class Application implements AppShellConfigurator {
             shoppingService.addItemAmount(amirStoreID, itemId + 2, 5);
 
             shoppingService.addItemToCart(maorID, amirStoreID, itemId, 5);
-            shoppingService.buyCart(maorID, "Address");
+            shoppingService.buyCart(maorID, getPurchaseInfo(), getSupplyInfo());
 
             userService.logout(amirID);
             userService.logout(maorID);
@@ -59,6 +61,15 @@ public class Application implements AppShellConfigurator {
             return;
         }
         SpringApplication.run(Application.class, args);
+    }
+
+
+    public static PurchaseInfo getPurchaseInfo(){
+        return new PurchaseInfo("123", 1, 2222, "asd", 1222, 1);
+    }
+
+    public static SupplyInfo getSupplyInfo(){
+        return new SupplyInfo("Name", "address", "city", "counyrt", "asd");
     }
 
 }

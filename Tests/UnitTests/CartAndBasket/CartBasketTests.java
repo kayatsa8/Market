@@ -2,8 +2,10 @@ package UnitTests.CartAndBasket;
 
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
+import BusinessLayer.ExternalSystems.PurchaseInfo;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.Market;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
@@ -300,7 +302,7 @@ public class CartBasketTests {
             cart.addItem(store2, item3, 83);
 
             HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> receiptData =
-                    cart.buyCart(new PurchaseClient(), new SupplyClient(), "David Ha'Melekh 7");
+                    cart.buyCart(new PurchaseClient(), new SupplyClient(), getPurchaseInfo(), getSupplyInfo());
 
             assertNotEquals(null, receiptData);
 
@@ -355,7 +357,7 @@ public class CartBasketTests {
             cart.addItem(store2, item3, 83);
 
             HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> receiptData =
-                    cart.buyCart(new PurchaseClient(), new SupplyClient(), "David Ha'Melekh 7");
+                    cart.buyCart(new PurchaseClient(), new SupplyClient(), getPurchaseInfo(), getSupplyInfo());
 
             HashMap<CatalogItem, CartItemInfo> items;
 
@@ -394,7 +396,7 @@ public class CartBasketTests {
             beforeStore2 = new HashMap<>(store2.getItemsAmount());
 
             HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> receiptData =
-                    cart.buyCart(new PurchaseClientMock(false), new SupplyClient(), "David Ha'Melekh 7");
+                    cart.buyCart(new PurchaseClientMock(false), new SupplyClient(), getPurchaseInfo(), getSupplyInfo());
 
         }
         catch(Exception e){
@@ -435,7 +437,7 @@ public class CartBasketTests {
             beforeStore2 = new HashMap<>(store2.getItemsAmount());
 
             HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> receiptData =
-                    cart.buyCart(new PurchaseClient(), new SupplyClientMock(false), "David Ha'Melekh 7");
+                    cart.buyCart(new PurchaseClient(), new SupplyClientMock(false), getPurchaseInfo(), getSupplyInfo());
 
         }
         catch(Exception e){
@@ -552,5 +554,15 @@ public class CartBasketTests {
 
         return null;
     }
+
+
+    public PurchaseInfo getPurchaseInfo(){
+        return new PurchaseInfo("123", 1, 2222, "asd", 1222, 1);
+    }
+
+    public SupplyInfo getSupplyInfo(){
+        return new SupplyInfo("Name", "address", "city", "counyrt", "asd");
+    }
+
 
 }

@@ -1,5 +1,7 @@
 package Bridge;
 
+import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
@@ -100,10 +102,9 @@ public interface Bridge {
     /**
      * buy the cart and
      * @param userId
-     * @param paymentDetails
      * @return
      */
-    boolean buyCart(int userId, String paymentDetails);
+    boolean buyCart(int userId, PurchaseInfo purchaseInfo, SupplyInfo supplyInfo);
 
     /**
      * adds item to and existing store

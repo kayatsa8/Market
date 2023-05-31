@@ -16,14 +16,6 @@ public class SupplyClient {
     }
 
 
-    /** Old Version! delete when refactoring */
-    public boolean supply(int userId, String address){
-        if(proxyAdapter != null){
-            return proxyAdapter.supply(userId, address);
-        }
-        return false;
-    }
-
     public void chooseService(){}
 
 

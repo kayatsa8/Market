@@ -23,18 +23,6 @@ public class ExternalSystemsUnitTests {
      *  Turning to Supply Service #4
      */
     @Test
-    public void turnToSupplyService_Valid(){
-        boolean received = supplyClient.supply(1, "Address");
-        assertTrue(received);
-    }
-
-    @Test
-    public void turnToSupplyService_CustomerWrongDetails(){
-        boolean received = supplyClient.supply(1, "");
-        assertFalse(received);
-    }
-
-    @Test
     public void supply_Valid(){
         try {
             int transId = supplyClient.supply("Name", "Address", "City", "Country", "Zip");

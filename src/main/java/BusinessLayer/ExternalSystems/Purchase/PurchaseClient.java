@@ -19,14 +19,6 @@ public class PurchaseClient {
         adapterToWebVersion3 = new PurchaseAdapterToWeb();
     }
 
-
-    /** Old Version! delete when refactoring */
-    public boolean pay(int userId, double creditNumber){
-        return false;
-    }
-
-
-
     public void chooseService(){}
 
 
