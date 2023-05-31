@@ -73,7 +73,7 @@ public class Mailbox extends VerticalLayout implements NotificationObserver {
         }
         else {
             chats = chatsResult.getValue();
-            Grid<ChatService> grid = createGrid();
+            createGrid();
         }
 
         setSizeFull();
@@ -104,7 +104,12 @@ public class Mailbox extends VerticalLayout implements NotificationObserver {
 
     }
 
+    private void refreshGrid() {
+        grid.setItems(userService.getChats(myId).getValue().values());
+    }
+
     private void enterChatPressed(ChatService chat){
+        refreshGrid();
         refreshChats();
 
         otherSideName = chat.getOtherName();
@@ -384,21 +389,6 @@ public class Mailbox extends VerticalLayout implements NotificationObserver {
         userService.listenToNotifications(userId, this);
     }
 
-
-//    private int getIdOfSelectedRow() {
-//        List<StoreService> stores = grid.getSelectedItems().stream().toList();
-//        if(stores.size() > 1){
-//            printError("Chosen More than one!");
-//            return -1;
-//        }
-//        else if(stores.size() == 0){
-//            printError("You need to choose a User!");
-//            return -1;
-//        }
-//        else{
-//            return stores.get(0).getStoreId();
-//        }
-//    }
 
 
 
