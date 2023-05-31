@@ -531,6 +531,21 @@ public class Market {
         return storeFacade.getStoreDiscounts(storeID);
     }
 
+    public int removeDiscount(int storeID, int discountID) throws Exception
+    {
+        return storeFacade.removeDiscount(storeID, discountID);
+    }
+
+    public int removePolicy(int storeID, int policyID) throws Exception
+    {
+        return storeFacade.removePolicy(storeID, policyID);
+    }
+
+    public int removeDiscountPolicy(int storeID, int policyID) throws Exception
+    {
+        return storeFacade.removeDiscountPolicy(storeID, policyID);
+    }
+
     public Map<Integer, Visible> getStoreVisibleDiscounts(int storeID) throws Exception
     {
         return storeFacade.getStoreVisibleDiscounts(storeID);

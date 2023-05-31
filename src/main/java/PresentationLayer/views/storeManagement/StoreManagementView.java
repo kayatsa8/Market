@@ -1008,11 +1008,38 @@ public class StoreManagementView extends VerticalLayout {
                 Button MINButton = new Button("MIN", e -> newTypeDiscountAction(discountsGrid, NumericComposites.MIN, storeId));
                 Button createButton = new Button("Create New Discount", e -> createNewDiscountDialog(storeId, discountsGrid));
                 Button cancelButton = new Button("exit", e -> dialog.close());
+                Button deleteButton = new Button("Delete", e -> deleteDiscounts(storeId, discountsGrid));
+                deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+                createButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
 
-                dialog.getFooter().add(ADDButton, MAXButton, MINButton, createButton, cancelButton);
+                dialog.getFooter().add(deleteButton, ADDButton, MAXButton, MINButton, createButton, cancelButton);
                 add(dialog);
                 dialog.open();
             }
+        }
+    }
+
+    private void deleteDiscounts(int storeId, Grid<DiscountService> discountsGrid) {
+        Set<DiscountService> discounts = discountsGrid.getSelectedItems();
+        for (DiscountService discountService : discounts) {
+            shoppingService.removeDiscount(storeId, discountService.getId());
+        }
+        discountsGrid.setItems(shoppingService.getStoreDiscounts(storeId).getValue());
+    }
+
+    private void deletePolicies(int storeId, Grid<PolicyService> grid, int policy) {
+        Set<PolicyService> policies = grid.getSelectedItems();
+        if (policy == PURCHASE_POLICY) {
+            for (PolicyService p : policies) {
+                shoppingService.removePolicy(storeId, p.getPolicyId());
+            }
+            grid.setItems(shoppingService.getStorePurchasePolicies(storeId).getValue());
+        }
+        else if (policy == DISCOUNT_POLICY) {
+            for (PolicyService p : policies) {
+                shoppingService.removeDiscountPolicy(storeId, p.getPolicyId());
+            }
+            grid.setItems(shoppingService.getStoreDiscountPolicies(storeId).getValue());
         }
     }
 
@@ -1053,12 +1080,12 @@ public class StoreManagementView extends VerticalLayout {
                 Button createButton = new Button("Create New Policy", e -> {
                     createNewPolicyDialog(policiesGrid, storeId, policy);
                 });
+                createButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
 
                 Button cancelButton = new Button("exit", e -> dialog.close());
-
-                //Button removeButton = new Button("remove", e -> printError("Need implementation"));
-
-                dialog.getFooter().add(createButton,/* removeButton,*/ cancelButton);
+                Button deleteButton = new Button("Delete", e -> deletePolicies(storeId, policiesGrid, policy));
+                deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+                dialog.getFooter().add(createButton, deleteButton, cancelButton);
                 add(dialog);
                 dialog.open();
             }
