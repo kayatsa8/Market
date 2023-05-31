@@ -272,21 +272,21 @@ public class Store {
     }
     public int addConditionalItemsDiscount(double percent, Calendar endOfSale, List<Integer> itemsIDs) {
         DiscountScope discountScope = new ItemsDiscount(itemsIDs);
-        Discount discount = new Conditional(discountsIDs, percent, endOfSale, discountScope);
+        Discount discount = new Conditional(discountsIDs, percent, endOfSale, discountScope, this);
         discounts.put(discountsIDs, discount);
         log.info("Added new conditional discount at store " + storeID);
         return discountsIDs++;
     }
     public int addConditionalCategoryDiscount(double percent, Calendar endOfSale, String category) {
         DiscountScope discountScope = new CategoryDiscount(category);
-        Discount discount = new Conditional(discountsIDs, percent, endOfSale, discountScope);
+        Discount discount = new Conditional(discountsIDs, percent, endOfSale, discountScope, this);
         discounts.put(discountsIDs, discount);
         log.info("Added new conditional discount at store " + storeID);
         return discountsIDs++;
     }
     public int addConditionalStoreDiscount(double percent, Calendar endOfSale) {
         DiscountScope discountScope = new StoreDiscount();
-        Discount discount = new Conditional(discountsIDs, percent, endOfSale, discountScope);
+        Discount discount = new Conditional(discountsIDs, percent, endOfSale, discountScope, this);
         discounts.put(discountsIDs, discount);
         log.info("Added new conditional discount at store " + storeID);
         return discountsIDs++;

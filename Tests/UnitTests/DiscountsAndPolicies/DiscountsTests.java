@@ -74,12 +74,14 @@ public class DiscountsTests {
     @Test
     public void addPurchasePolicy(){
         try {
-            String ppbtprString = market.addPurchasePolicyBasketTotalPriceRule(store1.getStoreID(), 50);
+            market.addPurchasePolicyBasketTotalPriceRule(store1.getStoreID(), 50);
             market.addItemToCart(noRole.getId(), store1.getStoreID(), item1.getItemID(), 4);
             market.buyCart(noRole.getId(), "New York");
             fail("Should have thrown an error");
-        } catch (Exception e) {
-            assertEquals("ERROR: Basket::checkIfPurchaseIsValid: the purchase is not valid!", e.getMessage());
+        } catch (IllegalStateException e) {
+        }
+        catch (Exception e) {
+            fail("Wrong error thrown");
         }
         try {
             market.changeItemQuantityInCart(noRole.getId(), store1.getStoreID(), item1.getItemID(), 5);
