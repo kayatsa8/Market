@@ -1009,7 +1009,8 @@ public class StoreManagementView extends VerticalLayout {
                 Button createButton = new Button("Create New Discount", e -> createNewDiscountDialog(storeId, discountsGrid));
                 Button cancelButton = new Button("exit", e -> dialog.close());
                 Button deleteButton = new Button("Delete", e -> deleteDiscounts(storeId, discountsGrid));
-
+                deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+                createButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
 
                 dialog.getFooter().add(deleteButton, ADDButton, MAXButton, MINButton, createButton, cancelButton);
                 add(dialog);
@@ -1079,10 +1080,11 @@ public class StoreManagementView extends VerticalLayout {
                 Button createButton = new Button("Create New Policy", e -> {
                     createNewPolicyDialog(policiesGrid, storeId, policy);
                 });
+                createButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
 
                 Button cancelButton = new Button("exit", e -> dialog.close());
                 Button deleteButton = new Button("Delete", e -> deletePolicies(storeId, policiesGrid, policy));
-
+                deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
                 dialog.getFooter().add(createButton, deleteButton, cancelButton);
                 add(dialog);
                 dialog.open();
