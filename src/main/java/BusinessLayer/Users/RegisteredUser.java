@@ -143,12 +143,14 @@ public class RegisteredUser extends User {
             throw new RuntimeException("User already manages store");
         }
         storeOwnership.addOwner(newOwner);
+        mailbox.sendMessage(newOwner.getId(), "You have been appointed owner of Store: " + storeOwnership.getStore().getStoreName());
     }
 
     public StoreOwner addStoreOwnership(StoreOwner storeOwnership) {
         int storeID = storeOwnership.getStoreID();
         StoreOwner ownership = new StoreOwner(this.getId(), storeOwnership);
         storesIOwn.put(storeID, ownership);
+        mailbox.getChats().putIfAbsent(storeID, new Chat(id, storeID));
         return ownership;
     }
 
@@ -164,8 +166,8 @@ public class RegisteredUser extends User {
         if (newManager.managesStore(storeID)) {
             throw new RuntimeException("User already manages store");
         }
-
         storeOwnership.addManager(newManager);
+        mailbox.sendMessage(newManager.getId(), "You have been appointed owner of Store: " + storeOwnership.getStore().getStoreName());
     }
 
     public void addStoreManagership(StoreOwner storeOwnerShip) {
