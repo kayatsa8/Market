@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BasketsRepository {
-    //TODO: add DAO
     private final ConcurrentHashMap<Integer, Basket> baskets; // <storeID, Basket>
 
     public BasketsRepository(){
