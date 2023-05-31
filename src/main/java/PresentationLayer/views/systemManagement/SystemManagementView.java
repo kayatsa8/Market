@@ -31,6 +31,7 @@ import com.vaadin.flow.router.Route;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @PageTitle("About")
 @Route(value = "admin", layout = MainLayout.class)
@@ -83,9 +84,14 @@ public class SystemManagementView extends VerticalLayout {
             loggedIn = new Grid();
             loggedIn.setItems(loggedInUsersRes.getValue().values());
             loggedIn.addColumn(UserInfoService::getUsername).setHeader("Username").setSortable(true);
+            loggedIn.addColumn(UserInfoService::getStoreIManageString).setHeader("Manager of Stores");
+            loggedIn.addColumn(UserInfoService::getStoreIOwnString).setHeader("Owner of Stores");
+
             loggedOut = new Grid();
             loggedOut.setItems(loggedOutUsersRes.getValue().values());
             loggedOut.addColumn(UserInfoService::getUsername).setHeader("Username").setSortable(true);
+            loggedOut.addColumn(UserInfoService::getStoreIManageString).setHeader("Manager of Stores");
+            loggedOut.addColumn(UserInfoService::getStoreIOwnString).setHeader("Owner of Stores");
 
             final Integer[] trigger = {0};
             SingleSelect<Grid<UserInfoService>, UserInfoService> selection1 = loggedIn.asSingleSelect();
@@ -187,7 +193,11 @@ public class SystemManagementView extends VerticalLayout {
         addStoresInfo(storeGrid);
 
         storeGrid.addColumn(StoreService::getStoreName).setHeader("Name").setSortable(true);
+        storeGrid.addColumn(entry -> getOwnersString(entry)).setHeader("Owners").setSortable(true);
+        storeGrid.addColumn(entry -> getManagersString(entry)).setHeader("Managers").setSortable(true);
         storeGrid.addColumn(StoreService::getStoreStatus).setHeader("Status").setSortable(true);
+
+
         Binder<StoreService> binder = new Binder<>(StoreService.class);
         editor.setBinder(binder);
         editor.setBuffered(true);
@@ -198,6 +208,20 @@ public class SystemManagementView extends VerticalLayout {
         footer.setJustifyContentMode(JustifyContentMode.CENTER);
         dropdown.addContent(footer);
 
+    }
+
+    private String getOwnersString(StoreService store) {
+        return store.getOwners().keySet()
+                .stream()
+                .map(userService::getUsername)
+                .collect(Collectors.joining(", "));
+    }
+
+    private String getManagersString(StoreService store) {
+        return store.getManagers().keySet()
+                .stream()
+                .map(userService::getUsername)
+                .collect(Collectors.joining(", "));
     }
 
     private HorizontalLayout addButtons(Grid grid) {

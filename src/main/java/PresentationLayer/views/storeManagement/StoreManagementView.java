@@ -381,8 +381,8 @@ public class StoreManagementView extends VerticalLayout {
 
         //userGrid.addColumn(UserInfoService::getId).setHeader("ID").setSortable(true);
         userGrid.addColumn(UserInfoService::getUsername).setHeader("Name").setSortable(true);
-        userGrid.addColumn(UserInfoService::getStoreIManageString).setHeader("Manager of Stores");
-        userGrid.addColumn(UserInfoService::getStoreIOwnString).setHeader("Owner of Stores");
+//        userGrid.addColumn(UserInfoService::getStoreIManageString).setHeader("Manager of Stores");
+//        userGrid.addColumn(UserInfoService::getStoreIOwnString).setHeader("Owner of Stores");
         Binder<UserInfoService> binder = new Binder<>(UserInfoService.class);
         editor.setBinder(binder);
         editor.setBuffered(true);
