@@ -11,6 +11,7 @@ import ServiceLayer.Objects.ChatService;
 import ServiceLayer.Objects.MessageService;
 import ServiceLayer.Objects.UserInfoService;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,9 +54,9 @@ public class UserService {
         }
     }
 
-    public Result<Integer> register(String userName, String pass) {
+    public Result<Integer> register(String userName, String pass, String address, LocalDate bDay) {
         try {
-            int id=market.register(userName, pass);
+            int id=market.register(userName, pass, address, bDay);
             log.info("logIn succeeded");
             return new Result<>(false, id);//login == true,isErr==false
         } catch (Exception e) {
@@ -389,5 +390,25 @@ public class UserService {
         catch(Exception e){
             return new Result<>(true, e.getMessage());
         }
+    }
+    public Result<String> getAddress(int userID){
+        try{
+            String address = market.getUserAddress(userID);
+            return new Result<>(false, address);
+        }
+        catch(Exception e){
+            return new Result<>(true, e.getMessage());
+        }
+
+    }
+    public Result<LocalDate> getBDay(int userID){
+        try{
+            LocalDate bDay = market.getUserBDay(userID);
+            return new Result<>(false, bDay);
+        }
+        catch(Exception e){
+            return new Result<>(true, e.getMessage());
+        }
+
     }
 }

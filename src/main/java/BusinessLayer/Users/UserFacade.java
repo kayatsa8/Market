@@ -15,6 +15,7 @@ import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -107,10 +108,11 @@ public class UserFacade {
         throw new Exception("User " + userID + " is not logged in");
     }
 
-    public int registerUser(String username, String password) throws Exception {
-        if (checkUserName(username) && checkPassword(password)) {
+    public int registerUser(String username, String password, String address, LocalDate bDay) throws Exception {
+        if (checkUserName(username) && checkPassword(password)&& checkAddress(address) && checkBDay(bDay)) {
+            RegisteredUser tempUser = new RegisteredUser(username, password, getNewId(), address, bDay);
             int id = getNewId();
-            RegisteredUser tempUser = new RegisteredUser(username, password, id);
+            RegisteredUser tempUser = new RegisteredUser(username, password, id, address, bDay);
             // add to DB
             userDAO.addUser(tempUser);
             //add to cash
@@ -122,6 +124,7 @@ public class UserFacade {
             throw new Exception("Problem logging in. username or password check returned false but not error");
         }
     }
+
     public int registerUser(String username, String password, MarketMock marketMock) throws Exception {
         if (checkUserName(username) && checkPassword(password)) {
             RegisteredUser tempUser = new RegisteredUser(username, password, getNewId(), marketMock);
@@ -143,6 +146,16 @@ public class UserFacade {
             throw new Exception("Password can't be null");
         if (password.length() < MIN_PASS_LENGTH)
             throw new Exception("Password too short! Must be at least 6 chars");
+        return true;
+    }
+    private boolean checkAddress(String address) throws Exception {
+        if (address == null)
+            throw new Exception("Address can't be null");
+        return true;
+    }
+    private boolean checkBDay(LocalDate bDay) throws Exception {
+        if (bDay == null)
+            throw new Exception("bDay can't be null");
         return true;
     }
 

@@ -4,6 +4,8 @@ import BusinessLayer.Users.UserFacade;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.time.LocalDate;
+
 import static org.junit.Assert.*;
 public class TestUser {
     static Market market;
@@ -13,19 +15,21 @@ public class TestUser {
     static String userName2="avi2";
     static String userName3="avi3";
     static UserFacade userFacade;
+    static String addressOk="addressOk";
+    static LocalDate bDayOk=LocalDate.of(2022, 7, 11);
     static int id1;
 
     @BeforeClass
     public static void setUp() throws Exception {
         market = Market.getInstance();
         userFacade=market.getUserFacade();
-        id1=userFacade.registerUser(userName1,goodPass1);
+        id1=userFacade.registerUser(userName1,goodPass1,addressOk,bDayOk);
     }
 
     @Test
     public void registerShouldPass(){
         try {
-            userFacade.registerUser(userName2,goodPass1);//assume pass
+            userFacade.registerUser(userName2,goodPass1,addressOk,bDayOk);//assume pass
             assertTrue("Registration succeeded",true);
         } catch (Exception e) {
             fail(e.getMessage());
@@ -34,9 +38,9 @@ public class TestUser {
     @Test
     public void registerShouldFailExisted(){
         try {
-            int id=userFacade.registerUser(userName1,goodPass1);//assume pass
+            int id=userFacade.registerUser(userName1,goodPass1,addressOk,bDayOk);//assume pass
 //            NotificationHub.getInstance().removeFromService(id);
-            userFacade.registerUser(userName1,goodPass1);
+            userFacade.registerUser(userName1,goodPass1,addressOk,bDayOk);
             fail("should not pass this test : userName existed");
         } catch (Exception e) {
             assertTrue("Test passed\nException thrown:"+e.getMessage(),true);
@@ -46,7 +50,7 @@ public class TestUser {
     @Test
     public void registerShouldFailPassword(){
         try {
-            userFacade.registerUser(userName3,badPass1);
+            userFacade.registerUser(userName3,badPass1,addressOk,bDayOk);
             fail("should not pass this test : password incorrect");
         } catch (Exception e) {
             assertTrue("Test passed\nException thrown:"+e.getMessage(),true);
@@ -56,7 +60,7 @@ public class TestUser {
     @Test
     public void registerShouldFailPassNull(){
         try {
-            userFacade.registerUser(userName3,null);
+            userFacade.registerUser(userName3,null,addressOk,bDayOk);
             fail("should not pass this test : password is Null");
         } catch (Exception e) {
             assertTrue("Test passed\nException thrown:"+e.getMessage(),true);
@@ -66,13 +70,35 @@ public class TestUser {
     @Test
     public void registerShouldFailUserNull(){
         try {
-            userFacade.registerUser(null,goodPass1);
+            userFacade.registerUser(null,goodPass1,addressOk,bDayOk);
             fail("should not pass this test : user name is Null");
         } catch (Exception e) {
             assertTrue("Test passed\nException thrown:"+e.getMessage(),true);
 
         }
     }
+
+    @Test
+    public void registerShouldFailAddressNull(){
+        try {
+            userFacade.registerUser(null,goodPass1,null,bDayOk);
+            fail("should not pass this test : address is Null");
+        } catch (Exception e) {
+            assertTrue("Test passed\nException thrown:"+e.getMessage(),true);
+
+        }
+    }
+    @Test
+    public void registerShouldFailBDayNull(){
+        try {
+            userFacade.registerUser(null,goodPass1,addressOk,null);
+            fail("should not pass this test : bDay is Null");
+        } catch (Exception e) {
+            assertTrue("Test passed\nException thrown:"+e.getMessage(),true);
+
+        }
+    }
+
     @Test
     public void logInShouldPass(){
         try {

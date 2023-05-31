@@ -12,6 +12,7 @@ import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,11 +26,14 @@ public class RegisteredUser extends User {
     private Map<Integer, StoreManager> storesIManage;
     private SystemManager systemManager;
     private boolean isLoggedIn;
-    public RegisteredUser(String username, String pass, int id) throws Exception {
+    public RegisteredUser(String username, String pass, int id, String address, LocalDate bDay) throws Exception {
         super(id);
 
         this.username = username;
         this.password = Password.hashPassword(pass);
+        this.id = id;
+        this.address=address;
+        this.bDay=bDay;
         this.storesIOwn = new HashMap<>();
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();
@@ -282,4 +286,19 @@ public class RegisteredUser extends User {
         return managers;
     }
 
+    public LocalDate getbDay() {
+        return bDay;
+    }
+
+    public void setbDay(LocalDate bDay) {
+        this.bDay = bDay;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
 }
