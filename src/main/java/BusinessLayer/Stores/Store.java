@@ -1289,4 +1289,8 @@ public class Store {
         return items.containsKey(id);
     }
 
+    public HashMap<Integer, Integer> getItemsAmount(){
+        return new HashMap<>(itemsAmounts);
+    }
+
 }

@@ -10,10 +10,16 @@ import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.UserFacade;
+import UnitTests.CartAndBasket.Mocks.PurchaseClientMock;
+import UnitTests.CartAndBasket.Mocks.SupplyClientMock;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 import static org.junit.Assert.*;
 
@@ -367,6 +373,163 @@ public class CartBasketTests {
         }
     }
 
+    @Test
+    public void buy_unableToPurchase(){
+        HashMap<String, HashMap<CatalogItem, CartItemInfo>> before = new HashMap<>();
+        HashMap<String, HashMap<CatalogItem, CartItemInfo>> after;
+
+        HashMap<Integer, Integer> beforeStore1 = new HashMap<>();
+        HashMap<Integer, Integer> afterStore1 = new HashMap<>();
+
+        HashMap<Integer, Integer> beforeStore2 = new HashMap<>();
+        HashMap<Integer, Integer> afterStore2 = new HashMap<>();
+
+        try{
+            cart.addItem(store1, item1, 1);
+            cart.addItem(store1, item2, 5);
+            cart.addItem(store2, item3, 83);
+
+            before = new HashMap<>(makeMapFor_buy_unableToPurchase());
+            beforeStore1 = new HashMap<>(store1.getItemsAmount());
+            beforeStore2 = new HashMap<>(store2.getItemsAmount());
+
+            HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> receiptData =
+                    cart.buyCart(new PurchaseClientMock(false), new SupplyClient(), "David Ha'Melekh 7");
+
+        }
+        catch(Exception e){
+            assertEquals("Problem with Supply or Purchase", e.getMessage());
+
+            after = new HashMap<>(makeMapFor_buy_unableToPurchase());
+            assertTrue(checkSameQuantitiesInCarts(before, after));
+
+            afterStore1 = new HashMap<>(store1.getItemsAmount());
+            afterStore2 = new HashMap<>(store2.getItemsAmount());
+            assertTrue(checkStoreStockUnchanged(beforeStore1, afterStore1));
+            assertTrue(checkStoreStockUnchanged(beforeStore2, afterStore2));
+        }
+        finally{
+            refillStock();
+            cart.empty();
+        }
+    }
+
+    @Test
+    public void buy_unableToSupply(){
+        HashMap<String, HashMap<CatalogItem, CartItemInfo>> before = new HashMap<>();
+        HashMap<String, HashMap<CatalogItem, CartItemInfo>> after;
+
+        HashMap<Integer, Integer> beforeStore1 = new HashMap<>();
+        HashMap<Integer, Integer> afterStore1 = new HashMap<>();
+
+        HashMap<Integer, Integer> beforeStore2 = new HashMap<>();
+        HashMap<Integer, Integer> afterStore2 = new HashMap<>();
+
+        try{
+            cart.addItem(store1, item1, 1);
+            cart.addItem(store1, item2, 5);
+            cart.addItem(store2, item3, 83);
+
+            before = new HashMap<>(makeMapFor_buy_unableToPurchase());
+            beforeStore1 = new HashMap<>(store1.getItemsAmount());
+            beforeStore2 = new HashMap<>(store2.getItemsAmount());
+
+            HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> receiptData =
+                    cart.buyCart(new PurchaseClient(), new SupplyClientMock(false), "David Ha'Melekh 7");
+
+        }
+        catch(Exception e){
+            assertEquals("Problem with Supply or Purchase", e.getMessage());
+
+            after = new HashMap<>(makeMapFor_buy_unableToPurchase());
+            assertTrue(checkSameQuantitiesInCarts(before, after));
+
+            afterStore1 = new HashMap<>(store1.getItemsAmount());
+            afterStore2 = new HashMap<>(store2.getItemsAmount());
+            assertTrue(checkStoreStockUnchanged(beforeStore1, afterStore1));
+            assertTrue(checkStoreStockUnchanged(beforeStore2, afterStore2));
+        }
+        finally{
+            refillStock();
+            cart.empty();
+        }
+    }
+
+    private HashMap<String, HashMap<CatalogItem, CartItemInfo>> makeMapFor_buy_unableToPurchase(){
+        HashMap<String, HashMap<CatalogItem, CartItemInfo>> map = new HashMap<>();
+        List<String> stores = cart.getStoresOfBaskets();
+
+        try{
+            for(String storeName : stores){
+                map.putIfAbsent(storeName, cart.getItemsInBasket(storeName));
+            }
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+            System.exit(1);
+        }
+
+        return map;
+    }
+
+    private boolean checkSameQuantitiesInCarts(HashMap<String, HashMap<CatalogItem, CartItemInfo>> before,
+                                               HashMap<String, HashMap<CatalogItem, CartItemInfo>> after){
+        HashMap<CatalogItem, CartItemInfo> beforeItems;
+        HashMap<CatalogItem, CartItemInfo> afterItems;
+
+        CatalogItem similar;
+
+        if(before.keySet().size() != after.keySet().size()){
+            return false;
+        }
+
+        for(String storeName : before.keySet()){
+            if(!after.containsKey(storeName)){
+                return false;
+            }
+
+            beforeItems = before.get(storeName);
+            afterItems = after.get(storeName);
+
+            if(beforeItems.keySet().size() != afterItems.keySet().size()){
+                return false;
+            }
+
+            for(CatalogItem item : beforeItems.keySet()){
+                similar = isItemInMap(item, afterItems);
+                if(similar == null){
+                    return false;
+                }
+
+                if(beforeItems.get(item).getAmount() != afterItems.get(similar).getAmount()){
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private boolean checkStoreStockUnchanged(HashMap<Integer, Integer> before, HashMap<Integer, Integer> after){
+
+        if(before.keySet().size() != after.keySet().size()){
+            return false;
+        }
+
+        for(Integer itemId : before.keySet()){
+            if(!after.containsKey(itemId)){
+                return false;
+            }
+
+            if(!Objects.equals(before.get(itemId), after.get(itemId))){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // use after every buy test
     private void refillStock(){
         try{
             market.addItemAmount(store1.getStoreID(), item1.getItemID(), 100);
@@ -380,5 +543,14 @@ public class CartBasketTests {
         }
     }
 
+    private CatalogItem isItemInMap(CatalogItem item, HashMap<CatalogItem, CartItemInfo> map){
+        for(CatalogItem ci : map.keySet()){
+            if(item.equals(ci)){
+                return ci;
+            }
+        }
+
+        return null;
+    }
 
 }
