@@ -87,11 +87,6 @@ public class Basket {
             throw new Exception("ERROR: Basket::addItemToCart: given quantity is not valid!");
         }
 
-        if(items.containsKey(item.getItemID())){
-            //LOG
-            throw new Exception("ERROR: Basket::addItemToCart: the item is already in the basket!");
-        }
-
         if(!store.isItemInCatalog(item.getItemID())){
             throw new Exception("ERROR: Basket::addItemToCart: the item is not in the store!");
             //throw new Exception("ERROR: Basket::addItemToCart: the item is already in the basket!");
