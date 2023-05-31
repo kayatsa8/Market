@@ -6,7 +6,6 @@ import BusinessLayer.Market;
 import BusinessLayer.MarketMock;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.StoreMailbox;
-import BusinessLayer.NotificationSystem.UserMailbox;
 import BusinessLayer.Receipts.ReceiptHandler;
 import BusinessLayer.StorePermissions.StoreEmployees;
 import BusinessLayer.StorePermissions.StoreManager;
@@ -27,7 +26,6 @@ import BusinessLayer.Stores.Policies.PurchasePolicy;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
-import org.yaml.snakeyaml.error.Mark;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -380,42 +378,42 @@ public class Store {
 
     public String addPurchasePolicyBasketWeightLimitRule(double basketWeightLimit) throws Exception
     {
-        BasketWeightLimitRule basketWeightLimitRule = new BasketWeightLimitRule(basketWeightLimit, policiesIDs);
+        BasketWeightLimitRule basketWeightLimitRule = new BasketWeightLimitRule(basketWeightLimit, policiesIDs, this);
         PurchasePolicy purchasePolicy = new PurchasePolicy(basketWeightLimitRule);
         purchasePolicies.put(policiesIDs++, purchasePolicy);
         return (policiesIDs -1) + ": " + purchasePolicy;
     }
     public String addPurchasePolicyBuyerAgeRule(int minimumAge) throws Exception
     {
-        BuyerAgeRule buyerAgeRule = new BuyerAgeRule(minimumAge, policiesIDs);
+        BuyerAgeRule buyerAgeRule = new BuyerAgeRule(minimumAge, policiesIDs, this);
         PurchasePolicy purchasePolicy = new PurchasePolicy(buyerAgeRule);
         purchasePolicies.put(policiesIDs++, purchasePolicy);
         return (policiesIDs -1) + ": " + purchasePolicy;
     }
     public String addPurchasePolicyForbiddenCategoryRule(String forbiddenCategory)
     {
-        ForbiddenCategoryRule forbiddenCategoryRule = new ForbiddenCategoryRule(forbiddenCategory, policiesIDs);
+        ForbiddenCategoryRule forbiddenCategoryRule = new ForbiddenCategoryRule(forbiddenCategory, policiesIDs, this);
         PurchasePolicy purchasePolicy = new PurchasePolicy(forbiddenCategoryRule);
         purchasePolicies.put(policiesIDs++, purchasePolicy);
         return (policiesIDs -1) + ": " + purchasePolicy;
     }
     public String addPurchasePolicyForbiddenDatesRule(List<Calendar> forbiddenDates)
     {
-        ForbiddenDatesRule forbiddenDatesRule = new ForbiddenDatesRule(forbiddenDates, policiesIDs);
+        ForbiddenDatesRule forbiddenDatesRule = new ForbiddenDatesRule(forbiddenDates, policiesIDs, this);
         PurchasePolicy purchasePolicy = new PurchasePolicy(forbiddenDatesRule);
         purchasePolicies.put(policiesIDs++, purchasePolicy);
         return (policiesIDs -1) + ": " + purchasePolicy;
     }
     public String addPurchasePolicyForbiddenHoursRule(int startHour, int endHour)
     {
-        ForbiddenHoursRule forbiddenHoursRule = new ForbiddenHoursRule(startHour, endHour, policiesIDs);
+        ForbiddenHoursRule forbiddenHoursRule = new ForbiddenHoursRule(startHour, endHour, policiesIDs, this);
         PurchasePolicy purchasePolicy = new PurchasePolicy(forbiddenHoursRule);
         purchasePolicies.put(policiesIDs++, purchasePolicy);
         return (policiesIDs -1) + ": " + purchasePolicy;
     }
     public String addPurchasePolicyMustDatesRule(List<Calendar> mustDates)
     {
-        MustDatesRule mustDatesRule = new MustDatesRule(mustDates, policiesIDs);
+        MustDatesRule mustDatesRule = new MustDatesRule(mustDates, policiesIDs, this);
         PurchasePolicy purchasePolicy = new PurchasePolicy(mustDatesRule);
         purchasePolicies.put(policiesIDs++, purchasePolicy);
         return (policiesIDs -1) + ": " + purchasePolicy;
@@ -426,14 +424,14 @@ public class Store {
         {
             throw new Exception("Error: One or more of the items IDs you entered are not exist in store " + storeName);
         }
-        ItemsWeightLimitRule itemsWeightLimitRule = new ItemsWeightLimitRule(weightsLimits, policiesIDs);
+        ItemsWeightLimitRule itemsWeightLimitRule = new ItemsWeightLimitRule(weightsLimits, policiesIDs, this);
         PurchasePolicy purchasePolicy = new PurchasePolicy(itemsWeightLimitRule);
         purchasePolicies.put(policiesIDs++, purchasePolicy);
         return (policiesIDs -1) + ": " + purchasePolicy;
     }
     public String addPurchasePolicyBasketTotalPriceRule(double minimumPrice) throws Exception
     {
-        BasketTotalPriceRule basketTotalPriceRule = new BasketTotalPriceRule(minimumPrice, policiesIDs);
+        BasketTotalPriceRule basketTotalPriceRule = new BasketTotalPriceRule(minimumPrice, policiesIDs, this);
         PurchasePolicy purchasePolicy = new PurchasePolicy(basketTotalPriceRule);
         purchasePolicies.put(policiesIDs++, purchasePolicy);
         return (policiesIDs -1) + ": " + purchasePolicy;
@@ -444,7 +442,7 @@ public class Store {
         {
             throw new Exception("Error: One or more of the items IDs you entered are not exist in store " + storeName);
         }
-        MustItemsAmountsRule mustItemsAmountsRule = new MustItemsAmountsRule(itemsAmounts, policiesIDs);
+        MustItemsAmountsRule mustItemsAmountsRule = new MustItemsAmountsRule(itemsAmounts, policiesIDs, this);
         PurchasePolicy purchasePolicy = new PurchasePolicy(mustItemsAmountsRule);
         purchasePolicies.put(policiesIDs++, purchasePolicy);
         return (policiesIDs -1) + ": " + purchasePolicy;
@@ -461,19 +459,19 @@ public class Store {
         {
             case AND:
             {
-                myLogicalComponent = new And(policiesRootsToWrap, policiesIDs);
+                myLogicalComponent = new And(policiesRootsToWrap, policiesIDs, this);
                 break;
             }
             case OR:
             {
-                myLogicalComponent = new Or(policiesRootsToWrap, policiesIDs);
+                myLogicalComponent = new Or(policiesRootsToWrap, policiesIDs, this);
                 break;
             }
             case CONDITIONING:
             {
                 if (policiesRootsToWrap.size() != 2)
                     throw new Exception("Conditioning logical component for purchase policy expect 2 purchase policies to wrap, but got " + policiesRootsToWrap.size());
-                myLogicalComponent = new Conditioning(policiesRootsToWrap.get(0), policiesRootsToWrap.get(1), policiesIDs);
+                myLogicalComponent = new Conditioning(policiesRootsToWrap.get(0), policiesRootsToWrap.get(1), policiesIDs, this);
                 break;
             }
         }
@@ -492,42 +490,42 @@ public class Store {
 
     public String addDiscountPolicyBasketWeightLimitRule(double basketWeightLimit) throws Exception
     {
-        BasketWeightLimitRule basketWeightLimitRule = new BasketWeightLimitRule(basketWeightLimit, policiesIDs);
+        BasketWeightLimitRule basketWeightLimitRule = new BasketWeightLimitRule(basketWeightLimit, policiesIDs, this);
         DiscountPolicy discountPolicy = new DiscountPolicy(basketWeightLimitRule);
         discountPolicies.put(policiesIDs++, discountPolicy);
         return (policiesIDs -1) + ": " + discountPolicy;
     }
     public String addDiscountPolicyBuyerAgeRule(int minimumAge) throws Exception
     {
-        BuyerAgeRule buyerAgeRule = new BuyerAgeRule(minimumAge, policiesIDs);
+        BuyerAgeRule buyerAgeRule = new BuyerAgeRule(minimumAge, policiesIDs, this);
         DiscountPolicy discountPolicy = new DiscountPolicy(buyerAgeRule);
         discountPolicies.put(policiesIDs++, discountPolicy);
         return (policiesIDs -1) + ": " + discountPolicy;
     }
     public String addDiscountPolicyForbiddenCategoryRule(String forbiddenCategory)
     {
-        ForbiddenCategoryRule forbiddenCategoryRule = new ForbiddenCategoryRule(forbiddenCategory, policiesIDs);
+        ForbiddenCategoryRule forbiddenCategoryRule = new ForbiddenCategoryRule(forbiddenCategory, policiesIDs, this);
         DiscountPolicy discountPolicy = new DiscountPolicy(forbiddenCategoryRule);
         discountPolicies.put(policiesIDs++, discountPolicy);
         return (policiesIDs -1) + ": " + discountPolicy;
     }
     public String addDiscountPolicyForbiddenDatesRule(List<Calendar> forbiddenDates)
     {
-        ForbiddenDatesRule forbiddenDatesRule = new ForbiddenDatesRule(forbiddenDates, policiesIDs);
+        ForbiddenDatesRule forbiddenDatesRule = new ForbiddenDatesRule(forbiddenDates, policiesIDs, this);
         DiscountPolicy discountPolicy = new DiscountPolicy(forbiddenDatesRule);
         discountPolicies.put(policiesIDs++, discountPolicy);
         return (policiesIDs -1) + ": " + discountPolicy;
     }
     public String addDiscountPolicyForbiddenHoursRule(int startHour, int endHour)
     {
-        ForbiddenHoursRule forbiddenHoursRule = new ForbiddenHoursRule(startHour, endHour, policiesIDs);
+        ForbiddenHoursRule forbiddenHoursRule = new ForbiddenHoursRule(startHour, endHour, policiesIDs, this);
         DiscountPolicy discountPolicy = new DiscountPolicy(forbiddenHoursRule);
         discountPolicies.put(policiesIDs++, discountPolicy);
         return (policiesIDs -1) + ": " + discountPolicy;
     }
     public String addDiscountPolicyMustDatesRule(List<Calendar> mustDates)
     {
-        MustDatesRule mustDatesRule = new MustDatesRule(mustDates, policiesIDs);
+        MustDatesRule mustDatesRule = new MustDatesRule(mustDates, policiesIDs, this);
         DiscountPolicy discountPolicy = new DiscountPolicy(mustDatesRule);
         discountPolicies.put(policiesIDs++, discountPolicy);
         return (policiesIDs -1) + ": " + discountPolicy;
@@ -538,14 +536,14 @@ public class Store {
         {
             throw new Exception("Error: One or more of the items IDs you entered are not exist in store " + storeName);
         }
-        ItemsWeightLimitRule itemsWeightLimitRule = new ItemsWeightLimitRule(weightsLimits, policiesIDs);
+        ItemsWeightLimitRule itemsWeightLimitRule = new ItemsWeightLimitRule(weightsLimits, policiesIDs, this);
         DiscountPolicy discountPolicy = new DiscountPolicy(itemsWeightLimitRule);
         discountPolicies.put(policiesIDs++, discountPolicy);
         return (policiesIDs -1) + ": " + discountPolicy;
     }
     public String addDiscountPolicyBasketTotalPriceRule(double minimumPrice) throws Exception
     {
-        BasketTotalPriceRule basketTotalPriceRule = new BasketTotalPriceRule(minimumPrice, policiesIDs);
+        BasketTotalPriceRule basketTotalPriceRule = new BasketTotalPriceRule(minimumPrice, policiesIDs, this);
         DiscountPolicy discountPolicy = new DiscountPolicy(basketTotalPriceRule);
         discountPolicies.put(policiesIDs++, discountPolicy);
         return (policiesIDs -1) + ": " + discountPolicy;
@@ -556,7 +554,7 @@ public class Store {
         {
             throw new Exception("Error: One or more of the items IDs you entered are not exist in the store");
         }
-        MustItemsAmountsRule mustItemsAmountsRule = new MustItemsAmountsRule(itemsAmounts, policiesIDs);
+        MustItemsAmountsRule mustItemsAmountsRule = new MustItemsAmountsRule(itemsAmounts, policiesIDs, this);
         DiscountPolicy discountPolicy = new DiscountPolicy(mustItemsAmountsRule);
         discountPolicies.put(policiesIDs++, discountPolicy);
         return (policiesIDs -1) + ": " + discountPolicy;
@@ -573,19 +571,19 @@ public class Store {
         {
             case AND:
             {
-                myLogicalComponent = new And(policiesRootsToWrap, policiesIDs);
+                myLogicalComponent = new And(policiesRootsToWrap, policiesIDs, this);
                 break;
             }
             case OR:
             {
-                myLogicalComponent = new Or(policiesRootsToWrap, policiesIDs);
+                myLogicalComponent = new Or(policiesRootsToWrap, policiesIDs, this);
                 break;
             }
             case CONDITIONING:
             {
                 if (policiesRootsToWrap.size() != 2)
                     throw new Exception("Conditioning logical component for discount policy expect 2 discount policies to wrap, but got " + policiesRootsToWrap.size());
-                myLogicalComponent = new Conditioning(policiesRootsToWrap.get(0), policiesRootsToWrap.get(1), policiesIDs);
+                myLogicalComponent = new Conditioning(policiesRootsToWrap.get(0), policiesRootsToWrap.get(1), policiesIDs, this);
                 break;
             }
         }

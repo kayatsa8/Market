@@ -1,6 +1,7 @@
 package BusinessLayer.Stores.Conditions.LogicalCompositions.Rules;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.Stores.Store;
 
 import java.util.List;
 import java.util.Map;
@@ -8,9 +9,9 @@ import java.util.Map;
 public class MustItemsAmountsRule extends Rule{
 
     private Map<Integer, Integer> itemsAmounts;
-    public MustItemsAmountsRule(Map<Integer, Integer> itemsAmounts, int id)
+    public MustItemsAmountsRule(Map<Integer, Integer> itemsAmounts, int id, Store store)
     {
-        super(id);
+        super(id, store);
         this.itemsAmounts = itemsAmounts;
     }
 
@@ -51,7 +52,7 @@ public class MustItemsAmountsRule extends Rule{
     {
         String result = "";
         for (Map.Entry<Integer, Integer> itemAmount : itemsAmounts.entrySet()) {
-            result += "; " + itemAmount.getValue() + " of item ID " + itemAmount.getKey();
+            result += "; " + itemAmount.getValue() + " of item ID " + store.getItem(itemAmount.getKey()).getItemName();
         }
         if (result.length()>1)
             result = result.substring(2);

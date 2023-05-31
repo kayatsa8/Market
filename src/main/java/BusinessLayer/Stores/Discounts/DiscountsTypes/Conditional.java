@@ -44,11 +44,11 @@ public class Conditional extends DiscountType {
     }
     public String addBasketTotalPriceRule(double minimumPrice) throws Exception
     {
-        return addRule(new BasketTotalPriceRule(minimumPrice, logicalComponentsIDsCounter++));
+        return addRule(new BasketTotalPriceRule(minimumPrice, logicalComponentsIDsCounter++, root.getStore()));
     }
     public String addQuantityRule(Map<Integer, Integer> itemsAmounts)
     {
-        return addRule(new MustItemsAmountsRule(itemsAmounts, logicalComponentsIDsCounter++));
+        return addRule(new MustItemsAmountsRule(itemsAmounts, logicalComponentsIDsCounter++, root.getStore()));
     }
     public String addComposite(LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs) throws Exception
     {
@@ -66,14 +66,14 @@ public class Conditional extends DiscountType {
         {
             case AND:
             {
-                LogicalComposite and = new And(logicalComponents, logicalComponentsIDsCounter++);
+                LogicalComposite and = new And(logicalComponents, logicalComponentsIDsCounter++, root.getStore());
                 removeLogicalComponentsFromInProgressList(logicalComponentsIDs);
                 inProgressList.add(and);
                 return getConditionString(and);
             }
             case OR:
             {
-                LogicalComposite or = new Or(logicalComponents, logicalComponentsIDsCounter++);
+                LogicalComposite or = new Or(logicalComponents, logicalComponentsIDsCounter++, root.getStore());
                 removeLogicalComponentsFromInProgressList(logicalComponentsIDs);
                 inProgressList.add(or);
                 return getConditionString(or);

@@ -1,6 +1,7 @@
 package BusinessLayer.Stores.Conditions.LogicalCompositions.Rules;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.Stores.Store;
 
 import java.util.List;
 
@@ -10,9 +11,9 @@ import java.util.List;
 public class BasketTotalPriceRule extends Rule
 {
     double minimumPrice;
-    public BasketTotalPriceRule(double minimumPrice, int id) throws Exception
+    public BasketTotalPriceRule(double minimumPrice, int id, Store store) throws Exception
     {
-        super(id);
+        super(id, store);
         if (minimumPrice<=0)
             throw new Exception("Error: minimum price must be positive");
         this.minimumPrice = minimumPrice;

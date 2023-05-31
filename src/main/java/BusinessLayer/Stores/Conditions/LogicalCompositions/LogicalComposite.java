@@ -1,12 +1,14 @@
 package BusinessLayer.Stores.Conditions.LogicalCompositions;
 
+import BusinessLayer.Stores.Store;
+
 import java.util.List;
 
 public abstract class LogicalComposite extends LogicalComponent {
     private List<LogicalComponent> components;
-    public LogicalComposite(List<LogicalComponent> components, int id)
+    public LogicalComposite(List<LogicalComponent> components, int id, Store store)
     {
-        super(id);
+        super(id, store);
         this.components = components;
     }
 

@@ -1,6 +1,7 @@
 package BusinessLayer.Stores.Conditions.LogicalCompositions.Rules;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.Stores.Store;
 
 import java.util.List;
 
@@ -8,9 +9,9 @@ public class BasketWeightLimitRule extends Rule
 {
     private double basketWeightLimit;
 
-    public BasketWeightLimitRule(double basketWeightLimit, int id) throws Exception
+    public BasketWeightLimitRule(double basketWeightLimit, int id, Store store) throws Exception
     {
-        super(id);
+        super(id, store);
         if (basketWeightLimit<=0)
             throw new Exception("Error: Basket weight limit must be positive");
         this.basketWeightLimit = basketWeightLimit;

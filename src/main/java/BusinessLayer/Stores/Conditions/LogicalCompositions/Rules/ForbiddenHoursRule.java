@@ -1,6 +1,7 @@
 package BusinessLayer.Stores.Conditions.LogicalCompositions.Rules;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.Stores.Store;
 
 import java.util.Calendar;
 import java.util.List;
@@ -8,8 +9,8 @@ import java.util.List;
 public class ForbiddenHoursRule extends Rule {
     private int startHour;
     private int endHour;
-    public ForbiddenHoursRule(int startHour, int endHour, int id) {
-        super(id);
+    public ForbiddenHoursRule(int startHour, int endHour, int id, Store store) {
+        super(id, store);
         this.startHour = startHour%24;
         this.endHour = endHour%24;
     }
