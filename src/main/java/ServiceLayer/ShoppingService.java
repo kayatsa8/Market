@@ -874,6 +874,33 @@ public class ShoppingService {
         }
     }
 
+    public Result<Integer> removeDiscount(int storeID, int discountID)
+    {
+        try {
+            return new Result<>(false, market.removeDiscount(storeID, discountID));
+        } catch (Exception e) {
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result<Integer> removePolicy(int storeID, int policyID)
+    {
+        try {
+            return new Result<>(false, market.removePolicy(storeID, policyID));
+        } catch (Exception e) {
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result<Integer> removeDiscountPolicy(int storeID, int policyID)
+    {
+        try {
+            return new Result<>(false, market.removeDiscountPolicy(storeID, policyID));
+        } catch (Exception e) {
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
     private List<DiscountService> convertToServiceDiscounts(Map<Integer, Discount> discounts) {
         List<DiscountService> discountServices = new ArrayList<>();
         for(Discount discount: discounts.values()){
