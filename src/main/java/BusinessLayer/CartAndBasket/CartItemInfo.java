@@ -1,7 +1,12 @@
 package BusinessLayer.CartAndBasket;
 
-public class CartItemInfo {
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
+@Entity
+public class CartItemInfo {
+    @Id
+    private int id;
     private int itemID;
     private int amount;
     private double percent;
@@ -9,7 +14,9 @@ public class CartItemInfo {
     private String category;
     private String itemName;
     private double weight;
+
     public CartItemInfo(int itemID, int amount, double originalPrice, String category, String itemName, double weight){
+        this.id = itemID;
         this.itemID = itemID;
         this.amount = amount;
         this.percent = 0;
@@ -20,6 +27,7 @@ public class CartItemInfo {
     }
 
     public CartItemInfo(CartItemInfo other){
+        this.id = other.id;
         itemID = other.itemID;
         amount = other.amount;
         percent = other.percent;
@@ -29,20 +37,36 @@ public class CartItemInfo {
         weight = other.weight;
     }
 
+    public CartItemInfo(){
+
+    }
+
     public int getItemID() { return itemID; }
+
     public int getAmount() { return amount; }
+
     public double getPercent() { return percent; }
+
     public double getOriginalPrice() { return originalPrice; }
+
     public String getCategory() { return category; }
+
     public String getItemName() { return itemName; }
+
     public double getWeight() { return weight; }
+
     public void setPercent(double percent) { this.percent = percent; }
+
     public void setOriginalPrice(double newPrice) { originalPrice = newPrice; }
+
     public void setAmount(int _amount){
         amount = _amount;
     }
+
     public void setCategory(String newCategory) { category = newCategory; }
+
     public void setItemName(String newItemName) { itemName = newItemName; }
+
     public void setWeight(double newWeight) { weight = newWeight; }
 
     @Override
@@ -60,4 +84,16 @@ public class CartItemInfo {
     }
 
     public double getFinalPrice() { return originalPrice*amount*(1-percent); }
+
+    public void setItemID(int itemID) {
+        this.itemID = itemID;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 }

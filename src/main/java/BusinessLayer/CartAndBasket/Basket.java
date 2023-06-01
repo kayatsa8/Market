@@ -17,12 +17,21 @@ public class Basket {
     private boolean itemsSaved; // true if the store saves the items inside the basket for the user
     private List<CartItemInfo> savedItems;
 
+    private int userId; // for Basket & CartItemInfo
+    private int storeId; // for CartItemInfo
+
     //methods
-    public Basket(Store _store){
+    public Basket(Store _store, int _userId){
         store = _store;
         items = new ConcurrentHashMap<>();
         itemsSaved = false;
         savedItems = new ArrayList<>();
+        userId = _userId;
+        storeId = store.getStoreID();
+    }
+
+    public Basket(){
+
     }
 
     public void addItem(CatalogItem item, int quantity, List<String> coupons) throws Exception {
@@ -233,7 +242,45 @@ public class Basket {
         }
     }
 
+    public void setStore(Store store) {
+        this.store = store;
+    }
 
+    public void setItems(ConcurrentHashMap<Integer, ItemWrapper> items) {
+        this.items = items;
+    }
+
+    public boolean isItemsSaved() {
+        return itemsSaved;
+    }
+
+    public void setItemsSaved(boolean itemsSaved) {
+        this.itemsSaved = itemsSaved;
+    }
+
+    public List<CartItemInfo> getSavedItems() {
+        return savedItems;
+    }
+
+    public void setSavedItems(List<CartItemInfo> savedItems) {
+        this.savedItems = savedItems;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public int getStoreId() {
+        return storeId;
+    }
+
+    public void setStoreId(int storeId) {
+        this.storeId = storeId;
+    }
 
 
 

@@ -36,7 +36,7 @@ public class Cart {
     }
 
     public void addItem(Store store, CatalogItem item, int quantity) throws Exception {
-        baskets.putIfAbsent(store.getStoreID(), new Basket(store));
+        baskets.putIfAbsent(store.getStoreID(), new Basket(store, userID));
         baskets.get(store.getStoreID()).addItem(item, quantity, coupons);
 
         Log.log.info("The item " + item.getItemID() + " of store " +
