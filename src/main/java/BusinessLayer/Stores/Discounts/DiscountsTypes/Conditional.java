@@ -6,6 +6,7 @@ import BusinessLayer.Stores.Conditions.LogicalCompositions.Rules.Rule;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.Rules.BasketTotalPriceRule;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.Rules.MustItemsAmountsRule;
 import BusinessLayer.Stores.Discounts.DiscountScopes.DiscountScope;
+import BusinessLayer.Stores.Store;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -19,14 +20,15 @@ public class Conditional extends DiscountType {
     private boolean finished;
     private List<LogicalComponent> inProgressList;
     private int logicalComponentsIDsCounter;
-
-    public Conditional(int discountID, double percent, Calendar endOfSale, DiscountScope discountScope)
+    private Store store;
+    public Conditional(int discountID, double percent, Calendar endOfSale, DiscountScope discountScope, Store store)
     {
         super(discountID, percent, endOfSale, discountScope);
         this.root = null;
         finished = false;
         inProgressList = new ArrayList<>();
         logicalComponentsIDsCounter = 1;
+        this.store = store;
     }
 
     protected boolean checkConditions(List<CartItemInfo> basketItems, List<String> coupons)
@@ -36,19 +38,19 @@ public class Conditional extends DiscountType {
     @Override
     public String toString()
     {
-        return super.toString() + ", the condition is: " + root.toString();
+        return super.toString() + ", the condition is: " + (root==null ? "" : root.toString());
     }
     private String getConditionString(LogicalComponent logicalComponent)
     {
-        return  logicalComponent.getID() + ": " + logicalComponent.toString();
+        return  logicalComponent.getID() + ": " + logicalComponent;
     }
     public String addBasketTotalPriceRule(double minimumPrice) throws Exception
     {
-        return addRule(new BasketTotalPriceRule(minimumPrice, logicalComponentsIDsCounter++));
+        return addRule(new BasketTotalPriceRule(minimumPrice, logicalComponentsIDsCounter++, store));
     }
     public String addQuantityRule(Map<Integer, Integer> itemsAmounts)
     {
-        return addRule(new MustItemsAmountsRule(itemsAmounts, logicalComponentsIDsCounter++));
+        return addRule(new MustItemsAmountsRule(itemsAmounts, logicalComponentsIDsCounter++, store));
     }
     public String addComposite(LogicalComposites logicalComposite, List<Integer> logicalComponentsIDs) throws Exception
     {
@@ -66,14 +68,14 @@ public class Conditional extends DiscountType {
         {
             case AND:
             {
-                LogicalComposite and = new And(logicalComponents, logicalComponentsIDsCounter++);
+                LogicalComposite and = new And(logicalComponents, logicalComponentsIDsCounter++, store);
                 removeLogicalComponentsFromInProgressList(logicalComponentsIDs);
                 inProgressList.add(and);
                 return getConditionString(and);
             }
             case OR:
             {
-                LogicalComposite or = new Or(logicalComponents, logicalComponentsIDsCounter++);
+                LogicalComposite or = new Or(logicalComponents, logicalComponentsIDsCounter++, store);
                 removeLogicalComponentsFromInProgressList(logicalComponentsIDs);
                 inProgressList.add(or);
                 return getConditionString(or);

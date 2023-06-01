@@ -87,11 +87,6 @@ public class Basket {
             throw new Exception("ERROR: Basket::addItemToCart: given quantity is not valid!");
         }
 
-        if(items.containsKey(item.getItemID())){
-            //LOG
-            throw new Exception("ERROR: Basket::addItemToCart: the item is already in the basket!");
-        }
-
         if(!store.isItemInCatalog(item.getItemID())){
             throw new Exception("ERROR: Basket::addItemToCart: the item is not in the store!");
             //throw new Exception("ERROR: Basket::addItemToCart: the item is already in the basket!");
@@ -129,11 +124,11 @@ public class Basket {
         return new CatalogItem(item.getItemID(), item.getItemName(), item.getPrice(), item.getCategory(), item.getStoreName(), item.getItemID(), item.getWeight());
     }
 
-    public void saveItems(List<String> coupons) throws Exception{
+    public void saveItems(List<String> coupons, int userID) throws Exception{
         savedItems.set(getItemsInfo());
 
         try{
-            store.saveItemsForUpcomingPurchase(getItemsInfo(), coupons);
+            store.saveItemsForUpcomingPurchase(getItemsInfo(), coupons, userID);
             itemsSaved = true;
         }
         catch(Exception e){

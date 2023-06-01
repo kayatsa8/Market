@@ -309,7 +309,7 @@ public class SystemManagementView extends VerticalLayout {
                     menu.addItem("View Items", event -> viewReceiptItemsAction(receiptsGrid, result.getValue(),
                             receiptsGrid.getSelectedItems().stream().toList().get(0).getId()) );
 
-                    Button cancelButton = new Button("exit", e -> dialog.close());
+                    Button cancelButton = new Button("Exit", e -> dialog.close());
                     dialog.getFooter().add(cancelButton);
 
 
@@ -349,7 +349,7 @@ public class SystemManagementView extends VerticalLayout {
             itemsGrid.addColumn(ReceiptItemService:: getPriceBeforeDiscount).setHeader("Price Before Discount").setSortable(true);
             itemsGrid.addColumn(ReceiptItemService:: getFinalPrice).setHeader("Final Price").setSortable(true);
 
-            Button cancelButton = new Button("exit", e -> dialog.close());
+            Button cancelButton = new Button("Exit", e -> dialog.close());
             dialog.getFooter().add(cancelButton);
 
             add(dialog);

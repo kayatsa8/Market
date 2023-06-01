@@ -126,10 +126,9 @@ public class CartBasketTests {
         try{
             cart.addItem(store1, item1, 1);
             cart.addItem(store1, item1, 1);
-            fail("The cart added an item twice");
         }
         catch(Exception e){
-            assertEquals("ERROR: Basket::addItemToCart: the item is already in the basket!", e.getMessage());
+            fail("should be able to increase the amount in the cart. got error:\n" + e.getMessage());
         }
 
         cart.empty();

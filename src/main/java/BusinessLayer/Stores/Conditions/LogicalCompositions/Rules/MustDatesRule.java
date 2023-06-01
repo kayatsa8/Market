@@ -1,14 +1,15 @@
 package BusinessLayer.Stores.Conditions.LogicalCompositions.Rules;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.Stores.Store;
 
 import java.util.Calendar;
 import java.util.List;
 
 public class MustDatesRule extends Rule {
     private List<Calendar> mustDates;
-    public MustDatesRule(List<Calendar> mustDates, int id) {
-        super(id);
+    public MustDatesRule(List<Calendar> mustDates, int id, Store store) {
+        super(id, store);
         this.mustDates = mustDates;
     }
     @Override

@@ -39,7 +39,7 @@ public class Cart {
         baskets.get(store.getStoreID()).addItem(item, quantity, coupons);
 
         Log.log.info("The item " + item.getItemID() + " of store " +
-                store.getStoreID() + " was added (" + quantity + " unites)");
+                store.getStoreID() + " was added (" + quantity + " units)");
     }
 
     public void removeItem(int storeID, int itemID) throws Exception {
@@ -120,7 +120,7 @@ public class Cart {
         HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> receiptData = new HashMap<>();
 
         for(Basket basket : baskets.values()){
-            basket.saveItems(coupons);
+            basket.saveItems(coupons, userID);
         }
         Log.log.info("Items of cart " + userID + " are saved");
 

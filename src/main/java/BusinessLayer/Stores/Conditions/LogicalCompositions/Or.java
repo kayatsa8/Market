@@ -1,14 +1,15 @@
 package BusinessLayer.Stores.Conditions.LogicalCompositions;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.Stores.Store;
 
 import java.util.List;
 
 public class Or extends LogicalComposite {
 
-    public Or(List<LogicalComponent> components, int id)
+    public Or(List<LogicalComponent> components, int id, Store store)
     {
-        super(components, id);
+        super(components, id, store);
     }
 
     public boolean checkConditions(List<CartItemInfo> basketItems)

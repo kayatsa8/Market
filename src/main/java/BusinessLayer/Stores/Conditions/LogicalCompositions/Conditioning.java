@@ -1,6 +1,7 @@
 package BusinessLayer.Stores.Conditions.LogicalCompositions;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.Stores.Store;
 
 import java.util.List;
 
@@ -8,9 +9,9 @@ public class Conditioning extends LogicalComponent {    // if you break first ->
     private LogicalComponent firstCondition;
     private LogicalComponent secondCondition;
 
-    public Conditioning(LogicalComponent firstCondition, LogicalComponent secondCondition, int id)
+    public Conditioning(LogicalComponent firstCondition, LogicalComponent secondCondition, int id, Store store)
     {
-        super(id);
+        super(id, store);
         this.firstCondition = firstCondition;
         this.secondCondition = secondCondition;
     }

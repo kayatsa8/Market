@@ -6,6 +6,10 @@ import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.ExternalSystems.PurchaseInfo;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
+import BusinessLayer.Market;
+import BusinessLayer.NotificationSystem.Chat;
+import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
+import BusinessLayer.NotificationSystem.UserMailbox;
 import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.Receipts.ReceiptHandler;
 import BusinessLayer.Stores.CatalogItem;
@@ -13,13 +17,15 @@ import BusinessLayer.Stores.Store;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class User {
     protected Cart cart;
     protected ReceiptHandler receiptHandler;
-    int id;
+    protected int id;
+    protected UserMailbox mailbox;
 
-    public User(int id) {
+    public User(int id) throws Exception {
         this.id = id;
         this.cart = new Cart(id);
         this.receiptHandler = new ReceiptHandler();
@@ -86,4 +92,21 @@ public abstract class User {
     public Basket removeBasketFromCart(int storeID) throws Exception {
         return cart.removeBasket(storeID);
     }
+
+    public UserMailbox getMailbox(){
+        return mailbox;
+    }
+
+    public void sendMessage(int receiverID, String content){
+        mailbox.sendMessage(receiverID, content);
+    }
+
+    public ConcurrentHashMap<Integer, Chat> getChats(){
+        return mailbox.getChats();
+    }
+
+    public void listenToNotifications(NotificationObserver listener){
+        mailbox.listen(listener);
+    }
+
 }

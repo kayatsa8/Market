@@ -1,14 +1,15 @@
 package BusinessLayer.Stores.Conditions.LogicalCompositions.Rules;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.Stores.Store;
 
 import java.util.List;
 
 public class BuyerAgeRule extends Rule { //you must be at the minimum age or older to pass the rule.
     private int minimumAge;
-    public BuyerAgeRule(int minimumAge, int id) throws Exception
+    public BuyerAgeRule(int minimumAge, int id, Store store) throws Exception
     {
-        super(id);
+        super(id, store);
         if (minimumAge<=0)
             throw new Exception("Error: Minimum age must be positive");
         this.minimumAge = minimumAge;

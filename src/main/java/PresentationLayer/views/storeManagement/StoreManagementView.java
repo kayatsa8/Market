@@ -910,7 +910,7 @@ public class StoreManagementView extends VerticalLayout {
         Button addItem = new Button("Add Item", e -> {
             addItemDialog(itemsGrid, storeId);
         });
-        Button cancelButton = new Button("exit", e -> dialog.close());
+        Button cancelButton = new Button("Exit", e -> dialog.close());
         dialog.getFooter().add(addItem, cancelButton);
 
 
@@ -959,7 +959,7 @@ public class StoreManagementView extends VerticalLayout {
 
                 menu.addItem("View Items", event -> viewReceiptItemsAction(receiptsGrid, result.getValue(), getIdOfSelectedReceiptRow(receiptsGrid)) );
 
-                Button cancelButton = new Button("exit", e -> dialog.close());
+                Button cancelButton = new Button("Exit", e -> dialog.close());
                 dialog.getFooter().add(cancelButton);
 
 
@@ -1007,7 +1007,7 @@ public class StoreManagementView extends VerticalLayout {
                 Button MAXButton = new Button("MAX", e -> newTypeDiscountAction(discountsGrid, NumericComposites.MAX, storeId));
                 Button MINButton = new Button("MIN", e -> newTypeDiscountAction(discountsGrid, NumericComposites.MIN, storeId));
                 Button createButton = new Button("Create New Discount", e -> createNewDiscountDialog(storeId, discountsGrid));
-                Button cancelButton = new Button("exit", e -> dialog.close());
+                Button cancelButton = new Button("Exit", e -> dialog.close());
                 Button deleteButton = new Button("Delete", e -> deleteDiscounts(storeId, discountsGrid));
                 deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
                 createButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
@@ -1082,7 +1082,7 @@ public class StoreManagementView extends VerticalLayout {
                 });
                 createButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
 
-                Button cancelButton = new Button("exit", e -> dialog.close());
+                Button cancelButton = new Button("Exit", e -> dialog.close());
                 Button deleteButton = new Button("Delete", e -> deletePolicies(storeId, policiesGrid, policy));
                 deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
                 dialog.getFooter().add(createButton, deleteButton, cancelButton);
@@ -1557,7 +1557,7 @@ public class StoreManagementView extends VerticalLayout {
             dialog.close();
             //refreshDiscountsFromBusiness(storeId, discountsGrid);
         });
-        Button cancelButton = new Button("exit", e -> dialog.close());
+        Button cancelButton = new Button("Exit", e -> dialog.close());
 
         dialog.add(datePicker, percentField);
         dialog.add(tabSheet);
@@ -1588,7 +1588,7 @@ public class StoreManagementView extends VerticalLayout {
         TextField couponField = new TextField("Enter Coupon here");
         couponField.setMinLength(0);
 
-        Button Addbutton = new Button("Add Coupon",e -> {
+        Button addButton = new Button("Add Coupon",e -> {
             if(couponField.getValue().length() == 0){
                 printError("Enter a coupon please");
             }
@@ -1597,10 +1597,10 @@ public class StoreManagementView extends VerticalLayout {
                 dialog.close();
             }
         });
-        Button cancelButton = new Button("exit", e -> dialog.close());
+        Button cancelButton = new Button("Exit", e -> dialog.close());
 
         dialog.add(couponField);
-        dialog.getFooter().add(Addbutton, cancelButton);
+        dialog.getFooter().add(addButton, cancelButton);
         add(dialog);
         dialog.open();
     }
@@ -1778,7 +1778,7 @@ public class StoreManagementView extends VerticalLayout {
             itemsGrid.addColumn(ReceiptItemService:: getPriceBeforeDiscount).setHeader("Price Before Discount").setSortable(true);
             itemsGrid.addColumn(ReceiptItemService:: getFinalPrice).setHeader("Final Price").setSortable(true);
 
-            Button cancelButton = new Button("exit", e -> dialog.close());
+            Button cancelButton = new Button("Exit", e -> dialog.close());
             dialog.getFooter().add(cancelButton);
 
             add(dialog);
@@ -2319,13 +2319,9 @@ public class StoreManagementView extends VerticalLayout {
 
                 menu.addItem("View Permissions", event -> getPermissions(staffInfo, result.getValue()));
 
-//                Button cancelButton = new Button("exit", e -> dialog.close());
-//                dialog.getFooter().add(cancelButton);
-
                 add(dialog);
                 dialog.open();
-                //dialog.add(itemsGrid);
-//                dialog.add(menu);
+
             }
         }
     }
@@ -2344,7 +2340,7 @@ public class StoreManagementView extends VerticalLayout {
         dialog.add(div);
         dialog.setWidth("1000px");
 
-        Button cancelButton = new Button("exit", e -> dialog.close());
+        Button cancelButton = new Button("Exit", e -> dialog.close());
         dialog.getFooter().add(cancelButton);
 
         add(dialog);

@@ -214,8 +214,8 @@ public class DiscountsTests extends ProjectTest{
         map.put(item1Id, 22); map.put(item2Id, 22);
         RuleService ruleService = getBridge().addDiscountPolicyMustItemsAmountsRule(store2Id, map);
         assertTrue(ruleService.getId() >= 0);
-        assertTrue(ruleService.getInfo().contains(String.valueOf(item1Id)));
-        assertTrue(ruleService.getInfo().contains(String.valueOf(item2Id)));
+        assertTrue(ruleService.getInfo().contains("item1"));
+        assertTrue(ruleService.getInfo().contains("item2"));
     }
 
     @Test
@@ -235,7 +235,7 @@ public class DiscountsTests extends ProjectTest{
         map.put(item1Id, 22.5);
         RuleService ruleService = getBridge().addPurchasePolicyItemsWeightLimitRule(store2Id, map);
         assertTrue(ruleService.getId() >= 0);
-        assertTrue(ruleService.getInfo().contains(String.valueOf(item1Id)));
+        assertTrue(ruleService.getInfo().contains("item1"));
         assertTrue(ruleService.getInfo().contains("22.5"));
     }
 
@@ -268,7 +268,7 @@ public class DiscountsTests extends ProjectTest{
         List<Integer> ids = setUp2Rules();
         RuleService ruleService = getBridge().wrapPurchasePolicies(store2Id, ids, LogicalComposites.AND);
         assertTrue(ruleService.getId() >= 0);
-        assertTrue(ruleService.getInfo().contains(String.valueOf(item1Id)));
+        assertTrue(ruleService.getInfo().contains("item1"));
         assertTrue(ruleService.getInfo().contains("&"));
     }
 
@@ -278,7 +278,7 @@ public class DiscountsTests extends ProjectTest{
         List<Integer> ids = setUp2Rules();
         RuleService ruleService = getBridge().wrapPurchasePolicies(store2Id, ids, LogicalComposites.OR);
         assertTrue(ruleService.getId() >= 0);
-        assertTrue(ruleService.getInfo().contains(String.valueOf(item1Id)));
+        assertTrue(ruleService.getInfo().contains("item1"));
         assertTrue(ruleService.getInfo().contains("|"));
 
     }
@@ -288,7 +288,7 @@ public class DiscountsTests extends ProjectTest{
         List<Integer> ids = setUp2Rules();
         RuleService ruleService = getBridge().wrapPurchasePolicies(store2Id, ids, LogicalComposites.CONDITIONING);
         assertTrue(ruleService.getId() >= 0);
-        assertTrue(ruleService.getInfo().contains(String.valueOf(item1Id)));
+        assertTrue(ruleService.getInfo().contains("item1"));
         assertTrue(ruleService.getInfo().contains("unless"));
     }
 

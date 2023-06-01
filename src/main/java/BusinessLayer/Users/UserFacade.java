@@ -35,20 +35,20 @@ public class UserFacade {
     private UserDAO userDAO;
     private Map<Integer, Guest> guests;
 
-    public UserFacade() {
+    public UserFacade() throws Exception {
 //        users = new HashMap<>();
         users = new HashMap<>();
         userDAO = new UserDAO();
         guests = new HashMap<>();
         userID = userDAO.getMaxID() + 1;
-        setGuest();
+//        setGuest();
     }
 
     private synchronized int getNewId() {
         return userID++;
     }
 
-    public Guest setGuest() {
+    public Guest setGuest() throws Exception {
         Guest guest = new Guest();
         guests.put(Guest.GUEST_USER_ID--, guest);
         return guest;
@@ -74,7 +74,7 @@ public class UserFacade {
     }
 
     public boolean userExists(int ID){
-        return users.containsKey(ID);
+        return users.containsKey(ID) || guests.containsKey(ID);
     }
 
     public User getUser(int userID) {
@@ -109,12 +109,13 @@ public class UserFacade {
 
     public int registerUser(String username, String password) throws Exception {
         if (checkUserName(username) && checkPassword(password)) {
-            RegisteredUser tempUser = new RegisteredUser(username, password, getNewId());
+            int id = getNewId();
+            RegisteredUser tempUser = new RegisteredUser(username, password, id);
             // add to DB
             userDAO.addUser(tempUser);
             //add to cash
-            users.put(tempUser.getId(), tempUser);
-            return tempUser.getId();
+            users.put(id, tempUser);
+            return id;
         }
         else {
             log.severe("Problem logging in. username or password check returned false but not error");
@@ -329,8 +330,7 @@ public class UserFacade {
         if(!userExists(userID)){
             throw new Exception("The user was not found!");
         }
-
-        return users.get(userID).getChats();
+        return getUser(userID).getChats();
     }
 
     public Map<Integer, RegisteredUser> getAllRegisteredUsers() {
@@ -399,7 +399,7 @@ public class UserFacade {
             throw new Exception("No such user!");
         }
 
-        getRegisteredUser(userId).listenToNotifications(listener);
+        getUser(userId).listenToNotifications(listener);
     }
   
     public Basket removeBasketFromCart(int userID, int storeID) throws Exception {
