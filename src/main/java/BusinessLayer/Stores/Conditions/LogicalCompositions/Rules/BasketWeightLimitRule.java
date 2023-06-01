@@ -18,7 +18,7 @@ public class BasketWeightLimitRule extends Rule
     }
 
     @Override
-    public boolean checkConditions(List<CartItemInfo> basketItems)
+    public boolean checkConditions(List<CartItemInfo> basketItems, int age)
     {
         return getBasketTotalWeight(basketItems) <= basketWeightLimit;
     }

@@ -13,7 +13,7 @@ public abstract class LogicalComponent {
         this.id = id;
         this.store = store;
     }
-    public abstract boolean checkConditions(List<CartItemInfo> basketItems);
+    public abstract boolean checkConditions(List<CartItemInfo> basketItems, int age);
     public int getID() { return id; }
 
     public abstract boolean isApplyForItem(int itemID, String category);

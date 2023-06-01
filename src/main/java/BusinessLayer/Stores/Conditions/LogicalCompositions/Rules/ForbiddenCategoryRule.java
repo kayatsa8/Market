@@ -13,7 +13,7 @@ public class ForbiddenCategoryRule extends Rule {
     }
 
     @Override
-    public boolean checkConditions(List<CartItemInfo> basketItems) {
+    public boolean checkConditions(List<CartItemInfo> basketItems, int age) {
         for (CartItemInfo item : basketItems)
         {
             if (item.getCategory() == forbiddenCategory)

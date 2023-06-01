@@ -16,9 +16,9 @@ public class Conditioning extends LogicalComponent {    // if you break first ->
         this.secondCondition = secondCondition;
     }
 
-    public boolean checkConditions(List<CartItemInfo> basketItems)
+    public boolean checkConditions(List<CartItemInfo> basketItems, int age)
     {
-        if (!firstCondition.checkConditions(basketItems) && !secondCondition.checkConditions(basketItems))
+        if (!firstCondition.checkConditions(basketItems, age) && !secondCondition.checkConditions(basketItems, age))
         {
             return false;
         }

@@ -18,11 +18,11 @@ public class PurchasePolicy
         return root;
     }
 
-    public boolean isValidForPurchase(List<CartItemInfo> basketItems) throws Exception
+    public boolean isValidForPurchase(List<CartItemInfo> basketItems, int age) throws Exception
     {
         if (root != null)
         {
-            return root.checkConditions(basketItems);
+            return root.checkConditions(basketItems, age);
         }
         else
         {

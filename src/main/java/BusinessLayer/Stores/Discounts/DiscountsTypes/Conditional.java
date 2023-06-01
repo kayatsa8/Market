@@ -33,7 +33,7 @@ public class Conditional extends DiscountType {
 
     protected boolean checkConditions(List<CartItemInfo> basketItems, List<String> coupons)
     {
-        return finished && root.checkConditions(basketItems);
+        return finished && root.checkConditions(basketItems, -1);
     }
     @Override
     public String toString()

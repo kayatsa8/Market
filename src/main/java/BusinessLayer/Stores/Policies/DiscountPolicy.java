@@ -2,6 +2,7 @@ package BusinessLayer.Stores.Policies;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComponent;
+import BusinessLayer.Stores.Conditions.LogicalCompositions.Rules.BuyerAgeRule;
 
 import java.util.List;
 
@@ -18,11 +19,11 @@ public class DiscountPolicy
         return root;
     }
 
-    public boolean isValidForDiscount(List<CartItemInfo> basketItems) throws Exception
+    public boolean isValidForDiscount(List<CartItemInfo> basketItems, int age) throws Exception
     {
         if (root != null)
         {
-            return root.checkConditions(basketItems);
+            return root.checkConditions(basketItems, age);
         }
         else
         {

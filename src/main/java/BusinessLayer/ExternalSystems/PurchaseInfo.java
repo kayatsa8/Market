@@ -48,6 +48,8 @@ public class PurchaseInfo {
     }
 
     public int getAge(){
+        if(birthday == null)
+            return -1;
         LocalDate now = LocalDate.now();
         Period period = Period.between(now, birthday);
         return period.getYears();

@@ -18,7 +18,7 @@ public class ItemsWeightLimitRule extends Rule
     }
 
     @Override
-    public boolean checkConditions(List<CartItemInfo> basketItems)
+    public boolean checkConditions(List<CartItemInfo> basketItems, int age)
     {
         for (CartItemInfo item : basketItems)
         {
