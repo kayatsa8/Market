@@ -2,6 +2,7 @@ package PresentationLayer;
 
 import BusinessLayer.ExternalSystems.PurchaseInfo;
 import BusinessLayer.ExternalSystems.SupplyInfo;
+import PresentationLayer.initialize.Loader;
 import ServiceLayer.Objects.CatalogItemService;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
@@ -25,11 +26,15 @@ import java.time.LocalDate;
 @Theme(value = "Market")
 @Push
 public class Application implements AppShellConfigurator {
+    private static final String relativePath = "src/main/java/PresentationLayer/initialize/data.json";
+
     public static void main(String[] args) {
         String addressOk="addressOk";
         LocalDate bDayOk=LocalDate.of(2022, 7, 11);
+        Loader loader=new Loader();
+        loader.load(relativePath);
 
-        try {
+        /*try {
             ShoppingService shoppingService = new ShoppingService();
             UserService userService = new UserService();
             int amirID = userService.register("Amir", "amirsPass",addressOk,bDayOk).getValue();
@@ -64,7 +69,7 @@ public class Application implements AppShellConfigurator {
         catch (Exception e) {
             System.out.println("Problem initiating Market");
             return;
-        }
+        }*/
         SpringApplication.run(Application.class, args);
     }
 
