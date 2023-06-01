@@ -11,6 +11,8 @@ import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,10 +36,12 @@ public class StoreStatusTests {
         market = Market.getInstance();
         storeFacade = market.getStoreFacade();
         userFacade = market.getUserFacade();
-        int id1 = market.register("userName1", "password1");
-        int id2 = market.register("userName2", "password2");
-        int id3 = market.register("userName3", "password3");
-        int id4 = market.register("userName4", "password4");
+        String addressOk="addressOk";
+        LocalDate bDayOk=LocalDate.of(2022, 7, 11);
+        int id1 = market.register("userName1", "password1",addressOk,bDayOk);
+        int id2 = market.register("userName2", "password2",addressOk,bDayOk);
+        int id3 = market.register("userName3", "password3",addressOk,bDayOk);
+        int id4 = market.register("userName4", "password4",addressOk,bDayOk);
         market.login("userName1", "password1");
         market.login("userName2", "password2");
         market.login("userName3", "password3");

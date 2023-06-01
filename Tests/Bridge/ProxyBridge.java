@@ -10,6 +10,7 @@ import Globals.SearchFilter;
 import ServiceLayer.Objects.*;
 import ServiceLayer.Result;
 
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -26,9 +27,9 @@ public class ProxyBridge implements Bridge {
 
 
     @Override
-    public int registerUser(String userName, String password) {
+    public int registerUser(String userName, String password,String address,LocalDate bDay) {
         if(real != null){
-            return real.registerUser(userName, password);
+            return real.registerUser(userName, password, "address", LocalDate.of(1999,2,2));
         }
         return 1;
     }

@@ -9,6 +9,7 @@ import Globals.SearchBy;
 import Globals.SearchFilter;
 import ServiceLayer.Objects.*;
 
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -175,7 +176,7 @@ public abstract class ProjectTest {
 
 
     public int registerUser(String userName, String password) {
-        return this.bridge.registerUser(userName, password);
+        return this.bridge.registerUser(userName, password, "String address", LocalDate.of(1999,2,2));
     }
 
     protected boolean loginUser(String name, String password) {

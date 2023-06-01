@@ -9,6 +9,9 @@ import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.UserFacade;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.time.LocalDate;
+
 import static org.junit.Assert.*;
 
 
@@ -25,10 +28,12 @@ public class UserMailboxTests {
         market = Market.getInstance();
         hub = market.getNotificationHub();
         userFacade = market.getUserFacade();
-        int user1ID = market.register("TheBestUser1", "123456789");
+        String addressOk="addressOk";
+        LocalDate bDayOk=LocalDate.of(2022, 7, 11);
+        int user1ID = market.register("TheBestUser1", "123456789",addressOk,bDayOk);
         market.login("TheBestUser1", "123456789");
         user1 = userFacade.getRegisteredUser(user1ID);
-        int user2Id = market.register("TheBestUser2", "awd1523");
+        int user2Id = market.register("TheBestUser2", "awd1523",addressOk,bDayOk);
         market.login("TheBestUser2", "awd1523");
         user2 = userFacade.getRegisteredUser(user2Id);
     }

@@ -8,6 +8,9 @@ import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.UserFacade;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.time.LocalDate;
+
 import static org.junit.Assert.*;
 
 
@@ -29,24 +32,26 @@ public class NotificationHubTests {
         hub = market.getNotificationHub();
         userFacade = market.getUserFacade();
         storeFacade = market.getStoreFacade();
+        String addressOk="addressOk";
+        LocalDate bDayOk=LocalDate.of(2022, 7, 11);
 
-        int user1ID = market.register("user1C", "123456");
+        int user1ID = market.register("user1C", "123456",addressOk,bDayOk);
         market.login("user1C", "123456");
         user1 = userFacade.getRegisteredUser(user1ID);
 
-        int user2ID = market.register("user2C", "123456");
+        int user2ID = market.register("user2C", "123456",addressOk,bDayOk);
         market.login("user2C", "123456");
         user2 = userFacade.getRegisteredUser(user2ID);
 
-        int user3ID = market.register("user3C", "123456");
+        int user3ID = market.register("user3C", "123456",addressOk,bDayOk);
         market.login("user3C", "123456");
         user3 = userFacade.getRegisteredUser(user3ID);
 
-        int user4ID = market.register("user4C", "123456");
+        int user4ID = market.register("user4C", "123456",addressOk,bDayOk);
         market.login("user4C", "123456");
         user4 = userFacade.getRegisteredUser(user4ID);
 
-        int user5ID = market.register("user5C", "123456");
+        int user5ID = market.register("user5C", "123456",addressOk,bDayOk);
         market.login("user5C", "123456");
         user5 = userFacade.getRegisteredUser(user5ID);
 

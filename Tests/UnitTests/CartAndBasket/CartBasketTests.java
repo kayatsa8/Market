@@ -19,8 +19,10 @@ import org.junit.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static org.junit.Assert.*;
@@ -50,10 +52,12 @@ public class CartBasketTests {
         market = Market.getInstance();
         storeFacade = market.getStoreFacade();
         userFacade = market.getUserFacade();
-        int user1ID = market.register("storeOwnerCartTests", "111111");
+        String addressOk="addressOk";
+        LocalDate bDayOk=LocalDate.of(1999, 7, 11);
+        int user1ID = market.register("storeOwnerCartTests", "111111",addressOk,bDayOk);
         storeOwner = userFacade.getRegisteredUser(user1ID);
         userFacade.logIn(storeOwner.getUsername(), "111111");
-        int user2ID = market.register("clientCartTests", "123456");
+        int user2ID = market.register("clientCartTests", "123456",addressOk,bDayOk);
         client = userFacade.getRegisteredUser(user2ID);
         userFacade.logIn(client.getUsername(), "123456");
         int store1ID = market.addStore(storeOwner.getId(), "store1");
@@ -300,7 +304,7 @@ public class CartBasketTests {
             cart.addItem(store1, item2, 5);
             cart.addItem(store2, item3, 83);
 
-            HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> receiptData =
+            Map<Integer, Map<CatalogItem, CartItemInfo>> receiptData =
                     cart.buyCart(new PurchaseClient(), new SupplyClient(), getPurchaseInfo(), getSupplyInfo());
 
             assertNotEquals(null, receiptData);
@@ -311,7 +315,7 @@ public class CartBasketTests {
             assertTrue("The store is not in the receipt!",
                     receiptData.containsKey(store2.getStoreID()));
 
-            HashMap<CatalogItem, CartItemInfo> items;
+            Map<CatalogItem, CartItemInfo> items;
 
             items = receiptData.get(store1.getStoreID());
 
@@ -355,10 +359,10 @@ public class CartBasketTests {
             cart.addItem(store1, item2, 5);
             cart.addItem(store2, item3, 83);
 
-            HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> receiptData =
+            Map<Integer, Map<CatalogItem, CartItemInfo>> receiptData =
                     cart.buyCart(new PurchaseClient(), new SupplyClient(), getPurchaseInfo(), getSupplyInfo());
 
-            HashMap<CatalogItem, CartItemInfo> items;
+            Map<CatalogItem, CartItemInfo> items;
 
             items = receiptData.get(store1.getStoreID());
             assertFalse(items.containsKey(item4));
@@ -394,7 +398,7 @@ public class CartBasketTests {
             beforeStore1 = new HashMap<>(store1.getItemsAmount());
             beforeStore2 = new HashMap<>(store2.getItemsAmount());
 
-            HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> receiptData =
+            Map<Integer, Map<CatalogItem, CartItemInfo>> receiptData =
                     cart.buyCart(new PurchaseClientMock(false), new SupplyClient(), getPurchaseInfo(), getSupplyInfo());
 
         }
@@ -435,7 +439,7 @@ public class CartBasketTests {
             beforeStore1 = new HashMap<>(store1.getItemsAmount());
             beforeStore2 = new HashMap<>(store2.getItemsAmount());
 
-            HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> receiptData =
+            Map<Integer, Map<CatalogItem, CartItemInfo>> receiptData =
                     cart.buyCart(new PurchaseClient(), new SupplyClientMock(false), getPurchaseInfo(), getSupplyInfo());
 
         }
