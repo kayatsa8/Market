@@ -26,6 +26,7 @@ import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -78,8 +79,8 @@ public class Market {
         systemManagerMap.put(newAdmin, systemManager);
     }
 
-    public int register(String username, String pass) throws Exception {
-        return userFacade.registerUser(username, pass);
+    public int register(String username, String pass, String address, LocalDate bDay) throws Exception {
+        return userFacade.registerUser(username, pass, address, bDay);
     }
 
     public int login(String username, String pass) throws Exception {
@@ -560,6 +561,12 @@ public class Market {
         }
 
         return name;
+    }
+    public String getUserAddress(int id){
+        return userFacade.getUser(id).getAddress();
+    }
+    public LocalDate getUserBDay(int id){
+        return userFacade.getUser(id).getbDay();
     }
 
 

@@ -15,12 +15,15 @@ import BusinessLayer.Receipts.ReceiptHandler;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class User {
     protected Cart cart;
+    protected LocalDate bDay=null;
+    protected String address=null;
     protected ReceiptHandler receiptHandler;
     protected int id;
     protected UserMailbox mailbox;
@@ -69,7 +72,7 @@ public abstract class User {
     }
 
     public Cart buyCart(PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) throws Exception {
-        cart.buyCart(new PurchaseClient(), new SupplyClient(), purchaseInfo, supplyInfo);
+        receiptHandler.addReceipt(id,cart.buyCart(new PurchaseClient(), new SupplyClient(), purchaseInfo, supplyInfo));
         return cart;
     }
 
@@ -109,4 +112,19 @@ public abstract class User {
         mailbox.listen(listener);
     }
 
+    public LocalDate getbDay() {
+        return bDay;
+    }
+
+    public void setbDay(LocalDate bDay) {
+        this.bDay = bDay;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
 }

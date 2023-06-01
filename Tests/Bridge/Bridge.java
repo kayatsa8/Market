@@ -11,6 +11,7 @@ import Globals.SearchFilter;
 import ServiceLayer.Objects.*;
 import ServiceLayer.Result;
 
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +26,7 @@ public interface Bridge {
      * @param password
      * @return id of the registered user, -1 if fails
      */
-    int registerUser(String userName, String password);
+    int registerUser(String userName, String password, String address, LocalDate bDay);
 
     /**
      * Login User

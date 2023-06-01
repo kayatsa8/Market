@@ -9,6 +9,9 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -20,6 +23,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
+import java.time.LocalDate;
 import java.util.function.BiFunction;
 
 @PageTitle("LogIn/Registration")
@@ -129,11 +133,62 @@ public class LoginAndRegisterView extends HorizontalLayout {
         loginB=createNewButton("Login",userService::login);
         loginB.addClickShortcut(Key.ENTER);
         loginB.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        registerB=createNewButton("Register",(u, p)->{
-            userService.register(u,p);
 
-            return userService.login(u,p);
+        registerB = new Button("Register");
+        registerB.addClickListener(e -> {
+            //dialogSection for address and birthDay
+            ConfirmDialog dialog = new ConfirmDialog();
+            FormLayout formLayout = new FormLayout();
+            dialog.setHeight("200px");
+            dialog.setWidth("800px");
+            TextField addressField = new TextField("Enter shipping address:");
+            DatePicker dateOfBirth = new DatePicker("Birthday");
+            dateOfBirth.setWidth("50px");
+            dateOfBirth.addValueChangeListener(event -> {
+                dateOfBirth.setPlaceholder(event.getValue().toString());
+            });
+
+            formLayout.add(addressField,dateOfBirth);
+            dialog.addCancelListener( x -> dialog.close());
+            dialog.addConfirmListener( event -> {
+                String address = addressField.getValue();
+                LocalDate bDay=dateOfBirth.getValue();
+
+
+                //loginSection
+                mainLayout = MainLayout.getMainLayout();
+                Result<Integer> resultRegister =userService.register(
+                        userNameTF.getValue(), passPF.getValue(),address,bDay);
+                String msg = getResultMsg(resultRegister);
+                if (!resultRegister.isError()){
+                    //set user ID
+                    int id=resultRegister.getValue();
+                    mainLayout.setCurrUser(id);
+                    //show that id changes
+                    printSuccess("Register" + " " + msg+"\nid="+ mainLayout.getCurrUserID());
+
+                    //navigate to main page
+                    mainLayout.setUserView();
+                    userService.login( userNameTF.getValue(), passPF.getValue());
+                    UI.getCurrent().navigate(ClientView.class);
+                }
+                else {
+                    printError(resultRegister.getMessage());
+                }
+
+
+
+                dialog.close();
+            });
+            dialog.add(formLayout);
+            dialog.open();
+
+
+
         });
+
+
+
         registerB.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
 
         footer.add(registerB, loginB);

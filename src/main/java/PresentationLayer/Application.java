@@ -12,6 +12,8 @@ import com.vaadin.flow.theme.Theme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.time.LocalDate;
+
 /**
  * The entry point of the Spring Boot application.
  *
@@ -24,15 +26,18 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @Push
 public class Application implements AppShellConfigurator {
     public static void main(String[] args) {
+        String addressOk="addressOk";
+        LocalDate bDayOk=LocalDate.of(2022, 7, 11);
+
         try {
             ShoppingService shoppingService = new ShoppingService();
             UserService userService = new UserService();
-            int amirID = userService.register("Amir", "amirsPass").getValue();
-            int tomerID = userService.register("Tomer", "tomersPass").getValue();
-            int yonatanID = userService.register("Yonatan", "yonantansPass").getValue();
-            int sagiID = userService.register("Sagi", "sagisPass").getValue();
-            int meitarID = userService.register("Meitar", "meitarsPass").getValue();
-            int maorID = userService.register("Maor", "maorsPass").getValue();
+            int amirID = userService.register("Amir", "amirsPass",addressOk,bDayOk).getValue();
+            int tomerID = userService.register("Tomer", "tomersPass",addressOk,bDayOk).getValue();
+            int yonatanID = userService.register("Yonatan", "yonantansPass",addressOk,bDayOk).getValue();
+            int sagiID = userService.register("Sagi", "sagisPass",addressOk,bDayOk).getValue();
+            int meitarID = userService.register("Meitar", "meitarsPass",addressOk,bDayOk).getValue();
+            int maorID = userService.register("Maor", "maorsPass",addressOk,bDayOk).getValue();
 
             userService.login("Amir", "amirsPass");
             userService.login("Maor", "maorsPass");

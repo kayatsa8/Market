@@ -10,6 +10,7 @@ import Globals.SearchBy;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,10 +33,12 @@ public class SearchTests {
         market = Market.getInstance();
         storeFacade = market.getStoreFacade();
         userFacade = market.getUserFacade();
-        int id9 = market.register("userName9K", "password9");
-        int id10 = market.register("userName10K", "password10");
-        int id11 = market.register("userName11K", "password11");
-        int id12 = market.register("userName12K", "password12");
+        String addressOk="addressOk";
+        LocalDate bDayOk= LocalDate.of(2022, 7, 11);
+        int id9 = market.register("userName9K", "password9",addressOk,bDayOk);
+        int id10 = market.register("userName10K", "password10",addressOk,bDayOk);
+        int id11 = market.register("userName11K", "password11",addressOk,bDayOk);
+        int id12 = market.register("userName12K", "password12",addressOk,bDayOk);
         market.login("userName9K", "password9");
         market.login("userName10K", "password10");
         market.login("userName11K", "password11");

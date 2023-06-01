@@ -14,6 +14,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import java.time.LocalDate;
 import java.util.Calendar;
 
 import static org.junit.Assert.*;
@@ -37,10 +38,12 @@ public class DiscountsTests {
         market = Market.getInstance();
         storeFacade = market.getStoreFacade();
         userFacade = market.getUserFacade();
-        int id5 = market.register("userName05", "password5");
-        int id6 = market.register("userName06", "password6");
-        int id7 = market.register("userName07", "password7");
-        int id8 = market.register("userName08", "password8");
+        String addressOk="addressOk";
+        LocalDate bDayOk=LocalDate.of(2022, 7, 11);
+        int id5 = market.register("userName05", "password5",addressOk,bDayOk);
+        int id6 = market.register("userName06", "password6",addressOk,bDayOk);
+        int id7 = market.register("userName07", "password7",addressOk,bDayOk);
+        int id8 = market.register("userName08", "password8",addressOk,bDayOk);
         market.login("userName05", "password5");
         market.login("userName06", "password6");
         market.login("userName07", "password7");

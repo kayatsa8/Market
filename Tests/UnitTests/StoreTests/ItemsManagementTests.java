@@ -10,6 +10,9 @@ import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+
+import java.time.LocalDate;
+
 import static org.junit.Assert.*;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -29,10 +32,12 @@ public class ItemsManagementTests {
         market = Market.getInstance();
         storeFacade = market.getStoreFacade();
         userFacade = market.getUserFacade();
-        int id5 = market.register("userName5", "password5");
-        int id6 = market.register("userName6", "password6");
-        int id7 = market.register("userName7", "password7");
-        int id8 = market.register("userName8", "password8");
+        String addressOk="addressOk";
+        LocalDate bDayOk= LocalDate.of(2022, 7, 11);
+        int id5 = market.register("userName5", "password5",addressOk,bDayOk);
+        int id6 = market.register("userName6", "password6",addressOk,bDayOk);
+        int id7 = market.register("userName7", "password7",addressOk,bDayOk);
+        int id8 = market.register("userName8", "password8",addressOk,bDayOk);
         market.login("userName5", "password5");
         market.login("userName6", "password6");
         market.login("userName7", "password7");

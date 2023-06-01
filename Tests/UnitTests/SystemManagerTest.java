@@ -8,6 +8,8 @@ import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.time.LocalDate;
+
 import static BusinessLayer.Stores.StoreStatus.OPEN;
 import static BusinessLayer.Stores.StoreStatus.PERMANENTLY_CLOSE;
 import static org.junit.Assert.*;
@@ -34,9 +36,11 @@ public class SystemManagerTest {
         sf = market.getStoreFacade();
         uf = market.getUserFacade();
         adminID = uf.getUserByName(adminName).getId();
+        String addressOk="addressOk";
+        LocalDate bDayOk= LocalDate.of(2022, 7, 11);
         try {
-            user1 = market.register(user1Name, user1Name+user1Name);
-            user2 = market.register(user2Name, user2Name+user2Name);
+            user1 = market.register(user1Name, user1Name+user1Name,addressOk,bDayOk);
+            user2 = market.register(user2Name, user2Name+user2Name,addressOk,bDayOk);
             market.login(user1Name, user1Name+user1Name);
             market.login(user2Name, user2Name+user2Name);
             user = market.getUserFacade().getRegisteredUser(user1);

@@ -14,6 +14,7 @@ import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
 import ServiceLayer.UserService;
 
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -35,8 +36,8 @@ public class RealBridge implements Bridge{
 
 
     @Override
-    public int registerUser(String userName, String password) {
-        Result<Integer> result = userService.register(userName, password);
+    public int registerUser(String userName, String password, String address, LocalDate bDay) {
+        Result<Integer> result = userService.register(userName, password, address,  bDay);
         return handleIntResult(result);
     }
 
