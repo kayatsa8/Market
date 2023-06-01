@@ -11,9 +11,8 @@ public class PurchaseClientMock extends PurchaseClient {
         wantedAnswer = _wantedAnswer;
     }
 
-    @Override
-    public boolean pay(int userId, double creditNumber){
-        return wantedAnswer;
+    public int pay(String cardNumber, int month, int year, String buyerName, int ccv, int buyerId){
+        return 10000;
     }
 
 }

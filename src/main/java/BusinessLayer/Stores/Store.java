@@ -375,6 +375,17 @@ public class Store {
         return discountsIDs++;
     }
 
+    public int removeDiscount(Integer discountID) {
+        return discounts.remove(discountID).getDiscountID();
+    }
+
+    public int removePolicy(Integer policyID) {
+        return purchasePolicies.remove(policyID).getRoot().getID();
+    }
+
+    public int removeDiscountPolicy(Integer policyID) {
+        return discountPolicies.remove(policyID).getRoot().getID();
+    }
 
     public String addPurchasePolicyBasketWeightLimitRule(double basketWeightLimit) throws Exception
     {

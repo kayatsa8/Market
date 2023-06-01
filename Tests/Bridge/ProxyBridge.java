@@ -1,5 +1,7 @@
 package Bridge;
 
+import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
 import Globals.FilterValue;
@@ -89,9 +91,9 @@ public class ProxyBridge implements Bridge {
     }
 
     @Override
-    public boolean buyCart(int userId, String paymentDetails) {
+    public boolean buyCart(int userId, PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) {
         if(real != null){
-            return real.buyCart(userId, paymentDetails);
+            return real.buyCart(userId, purchaseInfo, supplyInfo);
         }
         return true;
     }

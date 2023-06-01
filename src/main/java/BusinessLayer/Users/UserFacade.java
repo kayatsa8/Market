@@ -2,6 +2,8 @@ package BusinessLayer.Users;
 
 import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.Cart;
+import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.Log;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.MarketMock;
@@ -276,11 +278,11 @@ public class UserFacade {
         return getUser(userID).getItemsInBasket(storeName);
     }
 
-    public Cart buyCart(int userID, String address) throws Exception {
+    public Cart buyCart(int userID, PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) throws Exception {
         if (isGuest(userID)) {
-            return guests.get(userID).buyCart(address);
+            return guests.get(userID).buyCart(purchaseInfo, supplyInfo);
         }
-        return getLoggedInUser(userID).buyCart(address);
+        return getLoggedInUser(userID).buyCart(purchaseInfo, supplyInfo);
     }
 
     /**

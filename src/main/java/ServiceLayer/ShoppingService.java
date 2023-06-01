@@ -3,6 +3,8 @@ package ServiceLayer;
 import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
@@ -126,9 +128,9 @@ public class ShoppingService {
         return market.getItemsInBasket(userID, storeName);
     }
 
-    public Result<Boolean> buyCart(int userID, String address)  {
+    public Result<Boolean> buyCart(int userID, PurchaseInfo purchaseInfo, SupplyInfo supplyInfo)  {
         try {
-            market.buyCart(userID, address);
+            market.buyCart(userID, purchaseInfo, supplyInfo);
             return new Result<>(false, true);
         } catch (Exception e) {
             log.info("Cart could not be purchased");
@@ -870,6 +872,33 @@ public class ShoppingService {
             return new Result<>(false, convertToServiceDiscounts(discounts));
         } catch (Exception e) {
             log.info("Failed to get discounts of store " + storeID);
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result<Integer> removeDiscount(int storeID, int discountID)
+    {
+        try {
+            return new Result<>(false, market.removeDiscount(storeID, discountID));
+        } catch (Exception e) {
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result<Integer> removePolicy(int storeID, int policyID)
+    {
+        try {
+            return new Result<>(false, market.removePolicy(storeID, policyID));
+        } catch (Exception e) {
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result<Integer> removeDiscountPolicy(int storeID, int policyID)
+    {
+        try {
+            return new Result<>(false, market.removeDiscountPolicy(storeID, policyID));
+        } catch (Exception e) {
             return new Result<>(true, e.getMessage());
         }
     }

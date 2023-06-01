@@ -3,6 +3,8 @@ package BusinessLayer.ExternalSystems.Supply;
 public interface SupplyTarget {
 
 
-    public boolean supply(int userId, String address);
+    int supply(String buyerName, String address, String city, String country, String zip) throws Exception;
+
+    boolean cancelSupply(int transactionId) throws Exception;
 
 }

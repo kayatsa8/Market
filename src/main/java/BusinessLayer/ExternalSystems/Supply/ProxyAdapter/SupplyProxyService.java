@@ -1,4 +1,4 @@
-package BusinessLayer.ExternalSystems.Supply;
+package BusinessLayer.ExternalSystems.Supply.ProxyAdapter;
 
 public class SupplyProxyService {
 

@@ -11,7 +11,7 @@ public class SupplyClientMock extends SupplyClient {
         wantedAnswer = _wantedAnswer;
     }
 
-    @Override
+
     public boolean supply(int userId, String address){
         return wantedAnswer;
     }

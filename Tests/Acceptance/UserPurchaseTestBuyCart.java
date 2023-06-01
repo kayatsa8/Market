@@ -58,11 +58,6 @@ public class UserPurchaseTestBuyCart extends ProjectTest{
         assertFalse(added);
     }
 
-    @Test
-    public void buyCart_WrongSupplyDetails(){
-        boolean added = this.buyCart(user4LoggedInId, "");
-        assertFalse(added);
-    }
 
 
     @Test

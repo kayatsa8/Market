@@ -4,11 +4,13 @@ import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
+import BusinessLayer.ExternalSystems.PurchaseInfo;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
 import BusinessLayer.Market;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
 import BusinessLayer.NotificationSystem.UserMailbox;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.Receipts.ReceiptHandler;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
@@ -66,8 +68,8 @@ public abstract class User {
         return cart.getItemsInBasket(storeName);
     }
 
-    public Cart buyCart(String address) throws Exception {
-        cart.buyCart(new PurchaseClient(), new SupplyClient(), address);
+    public Cart buyCart(PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) throws Exception {
+        cart.buyCart(new PurchaseClient(), new SupplyClient(), purchaseInfo, supplyInfo);
         return cart;
     }
 

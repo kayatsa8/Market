@@ -1,6 +1,8 @@
 package IntegrationTests;
 
 import BusinessLayer.CartAndBasket.Cart;
+import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.MarketMock;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
@@ -110,7 +112,7 @@ public class IntegrationTest1 {
         //buy cart with basket of closed store - FAIL
         try {
             market.closeStore(founderID, storeID);
-            market.buyCart(noRoleID, "Be'er Sheva");
+            market.buyCart(noRoleID, getPurchaseInfo(), getSupplyInfo());
             fail("ERROR: should have thrown an exception");
         } catch (Exception e) {
             assertEquals(e.getMessage(), "You can't buy items from a closed store");
@@ -118,10 +120,22 @@ public class IntegrationTest1 {
         //buy cart - SUCCESS
         try {
             market.reopenStore(founderID, storeID);
-            market.buyCart(noRoleID, "Be'er Sheva");
+            market.buyCart(noRoleID, getPurchaseInfo(), getSupplyInfo());
             assertTrue("Item amount hasn't decreased from 20 to 17 after buying 3", store.getItemAmount(itemID) == 17);
         } catch (Exception e) {
             fail("ERROR: " + e.getMessage());
         }
     }
+
+
+
+    public PurchaseInfo getPurchaseInfo(){
+        return new PurchaseInfo("123", 1, 2222, "asd", 1222, 1);
+    }
+
+    public SupplyInfo getSupplyInfo(){
+        return new SupplyInfo("Name", "address", "city", "counyrt", "asd");
+    }
+
+
 }
