@@ -6,16 +6,20 @@ import java.util.Map;
 import static BusinessLayer.Stores.BidReplies.*;
 
 public class Bid {
+    private int bidID;
     private int itemID;
     private double offeredPrice;
+    private double originalPrice;
     private int userID;
     private boolean bidRejected;
     private double highestCounterOffer;
     private Map<Integer, BidReplies> repliers;
-    public Bid(int itemID, int userID, double offeredPrice)
+    public Bid(int bidID, int itemID, int userID, double offeredPrice, double originalPrice)
     {
+        this.bidID = bidID;
         this.itemID = itemID;
         this.offeredPrice = offeredPrice;
+        this.originalPrice = originalPrice;
         this.userID = userID;
         this.highestCounterOffer = -1;
         this.bidRejected = false;
@@ -28,6 +32,12 @@ public class Bid {
             repliers.put(replierID, null);
         }
     }
+    public boolean isUserNeedToReply(int userID)
+    {
+        return (repliers.containsKey(userID) && repliers.get(userID) == null);
+    }
+
+    public int getBidID() { return bidID; }
     public int getItemID()
     {
         return itemID;
@@ -41,7 +51,6 @@ public class Bid {
     {
         if (!repliers.keySet().contains(replierUserID))
         {
-            //return false;
             throw new Exception("The user " + replierUserID + " is not allowed to reply to bid in this store");
         }
         if (repliers.get(replierUserID) != null)
@@ -51,7 +60,6 @@ public class Bid {
         repliers.put(replierUserID, APPROVED);
         if (allReplied())
         {
-            //finishBid();
             return true;
         }
         return false;

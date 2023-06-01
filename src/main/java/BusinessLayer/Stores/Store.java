@@ -820,9 +820,28 @@ public class Store {
         return true;
     }
 
-    public void addBid(int itemID, int userID, double offeredPrice) {
+    public List<Bid> getUserBidsToReply(int userID)
+    {
+        List<Bid> bidsToReply = new ArrayList<>();
+        for (Bid bid : bids.values())
+        {
+            if (bid.isUserNeedToReply(userID))
+            {
+                bidsToReply.add(bid);
+            }
+        }
+        return bidsToReply;
+    }
+
+    public void addBid(int itemID, int userID, double offeredPrice) throws Exception
+    {
+        if (!items.containsKey(itemID))
+        {
+            throw new Exception("Item ID: " + itemID + " does not exist");
+        }
         saveItemAmount(itemID, 1);
-        Bid newBid = new Bid(itemID, userID, offeredPrice);
+        double originalPrice = getItem(itemID).getPrice();
+        Bid newBid = new Bid(bidsIDs, itemID, userID, offeredPrice, originalPrice);
         List<StoreEmployees> storeOwnersAndManagers = new ArrayList<>();
         storeOwnersAndManagers.addAll(storeOwners);
         storeOwnersAndManagers.addAll(storeManagers.stream().filter(manager -> manager.hasPermission(BID_MANAGEMENT)).toList());
@@ -989,6 +1008,10 @@ public class Store {
     }
 
     public boolean approve(int bidID, int replierUserID) throws Exception {
+        if (!bids.containsKey(bidID))
+        {
+            throw new Exception("Bid ID: " + bidID + " does not exist");
+        }
         boolean finishedBid = bids.get(bidID).approve(replierUserID);
         log.info("User " + replierUserID + " approved bid " + bidID);
         if (finishedBid) {
