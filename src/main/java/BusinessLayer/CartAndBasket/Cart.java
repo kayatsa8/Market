@@ -116,8 +116,11 @@ public class Cart {
      * @return a HashMap to give the ReceiptHandler in order to make a receipt
      * @throws Exception if the store throw exception for some reason
      */
-    public Map<Integer, Map<CatalogItem, CartItemInfo>> buyCart(PurchaseClient purchase, SupplyClient supply, String address) throws Exception {
+    public Map<Integer, Map<CatalogItem, CartItemInfo>> buyCart(PurchaseClient purchase, SupplyClient supply, PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) throws Exception {
         HashMap<Integer, Map<CatalogItem, CartItemInfo>> receiptData = new HashMap<>();
+        if(!purchase.handShake()){
+            throw new Exception("Problem with connection to external System");
+        }
         for(Basket basket : baskets.values()){
             basket.saveItems(coupons, userID);
         }
@@ -126,9 +129,7 @@ public class Cart {
         //TODO: should change in future versions
         double finalPrice = calculateTotalPrice();
 
-        if(!purchase.handShake()){
-            throw new Exception("Problem with connection to external System");
-        }
+
 
 
         int purchaseTransId = purchase.pay(purchaseInfo.getCardNumber(), purchaseInfo.getMonth(), purchaseInfo.getYear(),

@@ -110,7 +110,6 @@ public class UserFacade {
 
     public int registerUser(String username, String password, String address, LocalDate bDay) throws Exception {
         if (checkUserName(username) && checkPassword(password)&& checkAddress(address) && checkBDay(bDay)) {
-            RegisteredUser tempUser = new RegisteredUser(username, password, getNewId(), address, bDay);
             int id = getNewId();
             RegisteredUser tempUser = new RegisteredUser(username, password, id, address, bDay);
             // add to DB
