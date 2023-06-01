@@ -13,6 +13,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.*;
@@ -67,6 +68,7 @@ public class Cart extends Div {
     private TextField address;
     private TextField city;
     private TextField state;
+    private DatePicker dateOfBirth;
     //private String CARD_REGEX = "^(?:4[0-9]{12}(?:[0-9]{3})?|[25][1-7][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35d{3})d{11})$";
     private String CARD_REGEX="[0-9]{8,19}";
 
@@ -257,7 +259,7 @@ public class Cart extends Div {
                             if (result.isError()){
                                 printError("Fail: "+result.getMessage());
                             }else
-                                printSuccess("Succeed add item form basket: "+basket.getStoreName());
+                                printSuccess("Succeed add item to basket: "+basket.getStoreName());
 
                             //basket.removeItem(item);
                             //updateTotalPrice(priceSpan,baskets);
@@ -391,19 +393,11 @@ public class Cart extends Div {
             dialog.setWidth("500px");
 
             Button buy =new Button("buy",event -> {
-                boolean isValid=!expiration.isInvalid()&year.getValue()!=null&month.getValue()!=null
-                        &!name.isInvalid()&name!=null
-                        &!cardholderId.isInvalid()&cardholderId.getValue()!=null
-                        &!cardNumber.isInvalid()&cardNumber.getValue()!=null
-                        &!cvv.isInvalid()&cvv.getValue()!=null
-                        &!address.isInvalid()&address.getValue()!=null
-                        &!zip.isInvalid()&zip.getValue()!=null
-                        &!city.isInvalid()&city.getValue()!=null
-                        &!state.isInvalid()&state.getValue()!=null;
+                boolean isValid= isAllFieldsValid();
                 if (isValid){
                     PurchaseInfo purchaseInfo = new PurchaseInfo(
                             cardNumber.getValue(), month.getValue(), year.getValue(),
-                            name.getValue(), cvv.getValue(), cardholderId.getValue());
+                            name.getValue(), cvv.getValue(), cardholderId.getValue(),dateOfBirth.getValue());
                     SupplyInfo  supplyInfo = new SupplyInfo(
                             name.getValue(), address.getValue(), city.getValue(), state.getValue(), zip.getValue());
                     Result<Boolean> result=shoppingService.buyCart(currUser, purchaseInfo,supplyInfo);
@@ -416,7 +410,7 @@ public class Cart extends Div {
                         updateAside(baskets);
                         grid.setItems(baskets);
                         dialog.close();
-                        //ReceiptHandler.addReceipt(result.getValue());
+                        //ReceiptHandler.addReceipt(result.getValue());[User::buyCart handle it]
                     }
 
                 }
@@ -456,6 +450,27 @@ public class Cart extends Div {
         updateAside(baskets);
         return aside;
     }
+
+    private boolean isAllFieldsValid() {
+        /*if (expiration.isInvalid()) expiration.setError(true);
+        if (name.isInvalid()) name.setValue(null);
+        if (cardholderId.isInvalid()) cardholderId.setValue("");
+        if (cardNumber.isInvalid()) cardNumber.setInvalid(true);
+        if (cvv.isInvalid()) cvv.setInvalid(true);*/
+
+
+        return !expiration.isInvalid() & year.getValue() != null & month.getValue() != null
+                & !name.isInvalid() & name != null
+                & !cardholderId.isInvalid() & cardholderId.getValue() != null
+                & !cardNumber.isInvalid() & cardNumber.getValue() != null
+                & !cvv.isInvalid() & cvv.getValue() != null
+                & !address.isInvalid() & address.getValue() != null
+                & !zip.isInvalid() & zip.getValue() != null
+                & !city.isInvalid() & city.getValue() != null
+                & !state.isInvalid() & state.getValue() != null
+                & !dateOfBirth.isInvalid() & dateOfBirth.getValue() != null;
+    }
+
     private ListItem createListItem(String primary, String secondary, Span priceSpan) {
         ListItem item = new ListItem();
         item.addClassNames(LumoUtility.Display.FLEX, LumoUtility.JustifyContent.BETWEEN);
@@ -479,7 +494,7 @@ public class Cart extends Div {
     }
 
     private void printError(String errorMsg) {
-        Notification notification = Notification.show(errorMsg, 5000, Notification.Position.BOTTOM_CENTER);
+        Notification notification = Notification.show(errorMsg, 2000, Notification.Position.BOTTOM_CENTER);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
 
@@ -507,6 +522,9 @@ public class Cart extends Div {
         cardNumber.setAllowedCharPattern("[\\d ]");
         cardNumber.setRequired(true);
         cardNumber.setErrorMessage("This field is required");
+        cardNumber.setMinLength(8);
+        cardNumber.setMaxLength(19);
+
 
         cardholderId = new TextField("ID");
         cardholderId.setPattern("[0-9]{9}");
@@ -545,10 +563,20 @@ public class Cart extends Div {
         cvv.setErrorMessage("ID must contains 3 or 4 digits.");
         cvv.setRequiredIndicatorVisible(true);
 
+        dateOfBirth = new DatePicker("Birthday");
+        dateOfBirth.setWidth("150px");
+        dateOfBirth.addValueChangeListener(event -> {
+            dateOfBirth.setPlaceholder(event.getValue().toString());
+        });
+        dateOfBirth.setRequired(true);
+        dateOfBirth.setErrorMessage("This field is required");
+
+
         HorizontalLayout nameIdLayout=new HorizontalLayout(name,cardholderId);
         HorizontalLayout expDateCvv=new HorizontalLayout(expiration,cvv);
+        HorizontalLayout bDayCardNum=new HorizontalLayout(cardNumber,dateOfBirth);
         FormLayout formLayout = new FormLayout();
-        formLayout.add(nameIdLayout,cardNumber,expDateCvv);
+        formLayout.add(nameIdLayout,bDayCardNum,expDateCvv);
         return formLayout;
     }
     private Component createSupplyFormLayout() {
