@@ -16,7 +16,7 @@ public class MustItemsAmountsRule extends Rule{
     }
 
     @Override
-    public boolean checkConditions(List<CartItemInfo> basketItems)
+    public boolean checkConditions(List<CartItemInfo> basketItems, int age)
     {
         for (Map.Entry<Integer, Integer> itemAmount : itemsAmounts.entrySet())
         {

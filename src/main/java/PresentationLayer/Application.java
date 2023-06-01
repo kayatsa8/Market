@@ -75,7 +75,7 @@ public class Application implements AppShellConfigurator {
 
 
     public static PurchaseInfo getPurchaseInfo(){
-        return new PurchaseInfo("123", 1, 2222, "asd", 1222, 1);
+        return new PurchaseInfo("123", 1, 2222, "asd", 1222, 1, LocalDate.of(2000, 1, 1));
     }
 
     public static SupplyInfo getSupplyInfo(){

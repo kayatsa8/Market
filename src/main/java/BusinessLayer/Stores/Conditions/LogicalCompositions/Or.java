@@ -12,11 +12,11 @@ public class Or extends LogicalComposite {
         super(components, id, store);
     }
 
-    public boolean checkConditions(List<CartItemInfo> basketItems)
+    public boolean checkConditions(List<CartItemInfo> basketItems, int age)
     {
         for (LogicalComponent component : getComponents())
         {
-            if (component.checkConditions(basketItems))
+            if (component.checkConditions(basketItems, age))
             {
                 return true;
             }

@@ -1115,7 +1115,8 @@ public class StoreManagementView extends VerticalLayout {
         menuBar.addItem("Conditional", e-> conditioningDialog(rulesGrid, storeId, LogicalComposites.CONDITIONING, policyMode));
 
         newRuleSubMenu.addItem("Basket Weight Limit", e-> ruleBasketWeightOrPriceLimitDialog(rulesGrid, storeId, "Weight", true, policyMode));
-        newRuleSubMenu.addItem("Age Limit", e-> ruleAgeDialog(rulesGrid, storeId, policyMode));
+        if(policyMode == PURCHASE_POLICY)
+            newRuleSubMenu.addItem("Age Limit", e-> ruleAgeDialog(rulesGrid, storeId, policyMode));
         newRuleSubMenu.addItem("Forbidden Category", e-> ruleForbiddenCategoryDialog(rulesGrid, storeId, policyMode));
         newRuleSubMenu.addItem("Forbidden Dates", e-> ruleForbiddenAndOrDatesDialog(rulesGrid, storeId, "Forbidden Dates", true, policyMode));
         newRuleSubMenu.addItem("Forbidden Hours", e-> rulesForbiddenHoursDialog(rulesGrid, storeId, policyMode));

@@ -122,7 +122,8 @@ public class Cart {
             throw new Exception("Problem with connection to external System");
         }
         for(Basket basket : baskets.values()){
-            basket.saveItems(coupons, userID);
+
+            basket.saveItems(coupons, userID, purchaseInfo.getAge());
         }
         Log.log.info("Items of cart " + userID + " are saved");
 
@@ -135,7 +136,6 @@ public class Cart {
         int purchaseTransId = purchase.pay(purchaseInfo.getCardNumber(), purchaseInfo.getMonth(), purchaseInfo.getYear(),
                 purchaseInfo.getHolderName(), purchaseInfo.getCcv(), purchaseInfo.getBuyerId());
 
-        //TODO: should change in future versions
         supply.chooseService();
         int supplyTransId = supply.supply(supplyInfo.getName(), supplyInfo.getAddress(), supplyInfo.getCity(), supplyInfo.getCountry(), supplyInfo.getZip());
 

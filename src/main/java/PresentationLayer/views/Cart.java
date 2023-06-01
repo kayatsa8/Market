@@ -397,8 +397,7 @@ public class Cart extends Div {
                 if (isValid){
                     PurchaseInfo purchaseInfo = new PurchaseInfo(
                             cardNumber.getValue(), month.getValue(), year.getValue(),
-                            name.getValue(),  Integer.parseInt(cvv.getValue()), Integer.parseInt(cardholderId.getValue())
-                    );//,dateOfBirth.getValue());TODO
+                            name.getValue(),  Integer.parseInt(cvv.getValue()), Integer.parseInt(cardholderId.getValue()),dateOfBirth.getValue());
                     SupplyInfo  supplyInfo = new SupplyInfo(
                             name.getValue(), address.getValue(), city.getValue(), state.getValue(), zip.getValue());
                     Result<Boolean> result=shoppingService.buyCart(currUser, purchaseInfo,supplyInfo);

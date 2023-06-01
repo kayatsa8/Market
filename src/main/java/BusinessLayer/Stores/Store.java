@@ -643,7 +643,7 @@ public class Store {
         mailbox.sendMessageToList(sendToList, "User " + userID + " made a purchase in store " + storeName + " where you are one of the owners");
         log.info("A basket was bought at store " + storeID);
     }
-    public synchronized void saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems, List<String> coupons, int userID) throws Exception
+    public synchronized void saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems, List<String> coupons, int userID, int age) throws Exception
     {
         if (storeStatus == OPEN) {
             if (checkIfItemsInStock(basketItems)) {
@@ -653,7 +653,7 @@ public class Store {
                     throw new Exception("One or more of the items or discounts or discounts policies in store : " + storeName + " that affect the basket have been changed");
                 }
                 try {
-                    checkIfPurchaseIsValid(basketItems);
+                    checkIfPurchaseIsValid(basketItems, age);
                 }
                 catch (IllegalStateException msg) {
                     mailbox.sendMessage(userID, msg.getMessage());
@@ -679,11 +679,11 @@ public class Store {
         }
     }
 
-    public boolean checkIfPurchaseIsValid(List<CartItemInfo> basketItems) throws Exception
+    public boolean checkIfPurchaseIsValid(List<CartItemInfo> basketItems, int age) throws Exception
     {
         for (Map.Entry<Integer, PurchasePolicy> purchasePolicy : purchasePolicies.entrySet())
         {
-            if (!purchasePolicy.getValue().isValidForPurchase(basketItems))
+            if (!purchasePolicy.getValue().isValidForPurchase(basketItems, age))
             {
                 throw new IllegalStateException("You don't comply with the following purchase policy:\n" + purchasePolicy);
             }
@@ -694,7 +694,7 @@ public class Store {
     {
         for (Map.Entry<Integer, DiscountPolicy> discountPolicy : discountPolicies.entrySet())
         {
-            if (!discountPolicy.getValue().isValidForDiscount(basketItems))
+            if (!discountPolicy.getValue().isValidForDiscount(basketItems, -1))
             {
                 return false;
             }
