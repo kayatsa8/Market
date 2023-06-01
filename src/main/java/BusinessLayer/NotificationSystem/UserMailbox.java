@@ -3,17 +3,18 @@ package BusinessLayer.NotificationSystem;
 import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
 import BusinessLayer.NotificationSystem.Repositories.ChatRepository;
 import BusinessLayer.Users.RegisteredUser;
+import BusinessLayer.Users.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserMailbox extends Mailbox {
 
-    private final RegisteredUser owner;
+    private final User owner;
     private List<NotificationObserver> listeners;
 
 
-    public UserMailbox(RegisteredUser _owner, NotificationHub _hub){
+    public UserMailbox(User _owner, NotificationHub _hub){
         owner = _owner;
         ownerID = owner.getId();
         chats = new ChatRepository();

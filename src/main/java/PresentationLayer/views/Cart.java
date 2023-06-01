@@ -1,5 +1,7 @@
 package PresentationLayer.views;
 
+import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import ServiceLayer.Objects.*;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
@@ -29,7 +31,6 @@ import java.util.function.Function;
 
 @PageTitle("Cart")
 @Route(value = "cart", layout = MainLayout.class)
-@PreserveOnRefresh
 public class Cart extends Div {
     private int currUser;
     private Span totalPriceSpan=new Span();
@@ -56,7 +57,6 @@ public class Cart extends Div {
         try {
             shoppingService = new ShoppingService();
             baskets = shoppingService.getCart(currUser).getValue().getAllBaskets();
-            printSuccess("Succeeded to connect to shoppingService");
         } catch (Exception e) {
             printError("Problem initiating Shefa Isaschar :(");
         }
@@ -210,7 +210,7 @@ public class Cart extends Div {
                             if (result.isError()){
                                 printError("Fail: "+result.getMessage());
                             }else
-                                printSuccess("Succeed remove item form store: "+basket.getStoreName());
+                                printSuccess("Succeed remove item from basket: "+basket.getStoreName());
 
                             basket.removeItem(item);
                             //updateTotalPrice(priceSpan,baskets);
@@ -236,7 +236,7 @@ public class Cart extends Div {
                             if (result.isError()){
                                 printError("Fail: "+result.getMessage());
                             }else
-                                printSuccess("Succeed remove item form store: "+basket.getStoreName());
+                                printSuccess("Succeed remove item from basket: "+basket.getStoreName());
 
                             basket.removeItem(item);
                             //updateTotalPrice(priceSpan,baskets);
@@ -273,7 +273,7 @@ public class Cart extends Div {
                             if (result.isError()){
                                 printError("Fail: "+result.getMessage());
                             }else
-                                printSuccess("Succeed remove item form store: "+basket.getStoreName());
+                                printSuccess("Succeed remove item from basket: "+basket.getStoreName());
 
                         basket.removeItem(item);
                         //updateTotalPrice(priceSpan,baskets);
@@ -352,9 +352,9 @@ public class Cart extends Div {
         UnorderedList ul = new UnorderedList();
         ul.addClassNames(LumoUtility.MaxWidth.SCREEN_MEDIUM,LumoUtility.ListStyleType.NONE, LumoUtility.Margin.NONE, LumoUtility.Padding.NONE, LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN, LumoUtility.Gap.MEDIUM);
 
-        ul.add(createListItem(ORIGINAL_TOTAL_PRICE, ORIGINAL_TOTAL_PRICE, originalPriceSpan));
-        ul.add(createListItem(TOTAL_DISCOUNT, TOTAL_DISCOUNT, discountSpan));
-        ul.add(createListItem(TOTAL_PRICE, TOTAL_PRICE, totalPriceSpan));
+        ul.add(createListItem(ORIGINAL_TOTAL_PRICE, null, originalPriceSpan));
+        ul.add(createListItem(TOTAL_DISCOUNT, null, discountSpan));
+        ul.add(createListItem(TOTAL_PRICE, null, totalPriceSpan));
 
         aside.add(headerSection, ul);
         //TODO BUY
@@ -366,12 +366,14 @@ public class Cart extends Div {
             dialog.addCancelListener( x -> dialog.close());
             dialog.addConfirmListener( event -> {
                 String address = addressField.getValue();
-                Result<Boolean> result=shoppingService.buyCart(currUser, address);
+                PurchaseInfo purchaseInfo = new PurchaseInfo("number", 1, 1, "name", 1, 234);
+                SupplyInfo  supplyInfo = new SupplyInfo("name", "adress", "city", "country", "zip");
+                Result<Boolean> result=shoppingService.buyCart(currUser, purchaseInfo,supplyInfo);
                 if (result.isError()){
                     printError("Fail to buy: "+result.getMessage());
                 }
                 else {
-                    printSuccess("Succeed to buy");
+                    printSuccess("Purchase Successful");
                     baskets=shoppingService.getCart(currUser).getValue().getAllBaskets();
                     updateAside(baskets);
                     grid.setItems(baskets);
@@ -420,48 +422,7 @@ public class Cart extends Div {
     }
 
     private void printError(String errorMsg) {
-        Notification notification = Notification.show(errorMsg, 2000, Notification.Position.BOTTOM_CENTER);
+        Notification notification = Notification.show(errorMsg, 5000, Notification.Position.BOTTOM_CENTER);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
-}
-
-
-
-
-
-
-
-
-
-
-
-class ValidationMessage extends HorizontalLayout implements HasText {
-
-    private final Span span = new Span();
-
-    public ValidationMessage() {
-        setVisible(false);
-        setAlignItems(Alignment.CENTER);
-        getStyle().set("color", "var(--lumo-error-text-color)");
-        getThemeList().clear();
-        getThemeList().add("spacing-s");
-
-        Icon icon = VaadinIcon.EXCLAMATION_CIRCLE_O.create();
-        icon.setSize("16px");
-        add(icon, span);
-    }
-
-    @Override
-    public String getText() {
-        return span.getText();
-    }
-
-    @Override
-    public void setText(String text) {
-        span.setText(text);
-        this.setVisible(text != null && !text.isEmpty());
-    }
-
-
-
 }

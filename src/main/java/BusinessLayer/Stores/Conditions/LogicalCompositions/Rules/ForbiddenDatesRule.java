@@ -1,14 +1,15 @@
 package BusinessLayer.Stores.Conditions.LogicalCompositions.Rules;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.Stores.Store;
 
 import java.util.Calendar;
 import java.util.List;
 
 public class ForbiddenDatesRule extends Rule {
     private List<Calendar> forbiddenDates;
-    public ForbiddenDatesRule(List<Calendar> forbiddenDates, int id) {
-        super(id);
+    public ForbiddenDatesRule(List<Calendar> forbiddenDates, int id, Store store) {
+        super(id, store);
         this.forbiddenDates = forbiddenDates;
     }
 

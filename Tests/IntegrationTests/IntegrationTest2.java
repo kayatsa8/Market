@@ -1,6 +1,8 @@
 package IntegrationTests;
 
 import BusinessLayer.CartAndBasket.Cart;
+import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.MarketMock;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
@@ -15,7 +17,7 @@ import static org.junit.Assert.*;
 
 
 // Focused on actions with login/logout
-public class Test2 {
+public class IntegrationTest2 {
     static StoreFacade storeFacade;
     static UserFacade userFacade;
     static RegisteredUser founder;
@@ -53,11 +55,12 @@ public class Test2 {
         market.addManager(founder.getId(), id3, storeID);
         item = market.addItemToStore(storeID, "item1", 49.90, "Clothing", 0.2);
         market.addItemAmount(storeID, item.getItemID(), 20);
+
     }
 
 
     @Test
-    public void test3(){
+    public void integrationTest2(){
         int storeID = store.getStoreID();
         int founderID = founder.getId();
         int ownerID = storeOwner.getId();
@@ -86,13 +89,6 @@ public class Test2 {
             fail("ERROR: " + e.getMessage());
         }
         //open store while logout - FAIL
-//        try {
-//            market.reopenStore(founderID, storeID);
-//            fail("ERROR: should have thrown an exception");
-//        } catch (Exception e) {
-//            assertTrue(e.getMessage(), e.getMessage().equals("User is logout and can't open store"));
-//        }
-        //login founder - SUCCESS
         try {
             int id = market.login("userName1", "password1");
             assertTrue("returned false, because login failed", id == founderID);
@@ -143,7 +139,7 @@ public class Test2 {
             assertTrue(noRoleCart.getItemsInBasket("storeName1").size() == 1);
             boolean logoutResult1 = market.logout(noRoleID);
             assertTrue("returned false, because logout failed", logoutResult1);
-            market.buyCart(noRoleID, "New york");
+            market.buyCart(noRoleID, getPurchaseInfo(), getSupplyInfo());
             fail("ERROR: should have thrown an exception");
         } catch (Exception e) {
             assertEquals(e.getMessage(), "User " + noRoleID + " is not logged in");
@@ -155,5 +151,14 @@ public class Test2 {
 //        } catch (Exception e) {
 //            assertTrue(e.getMessage(), e.getMessage().equals("Can't add catalog item when store unopened"));
 //        }
+    }
+
+
+    public PurchaseInfo getPurchaseInfo(){
+        return new PurchaseInfo("123", 1, 2222, "asd", 1222, 1);
+    }
+
+    public SupplyInfo getSupplyInfo(){
+        return new SupplyInfo("Name", "address", "city", "counyrt", "asd");
     }
 }

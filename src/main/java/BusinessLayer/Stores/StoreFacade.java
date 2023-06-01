@@ -444,6 +444,22 @@ public class StoreFacade {
         }
         return store.addDiscountPolicyMustItemsAmountsRule(itemsAmounts);
     }
+
+    public int removeDiscount(int storeID, int discountID) throws Exception {
+        Store store = getStore(storeID);
+        return store.removeDiscount(discountID);
+    }
+
+    public int removePolicy(int storeID, int policyID) throws Exception {
+        Store store = getStore(storeID);
+        return store.removePolicy(policyID);
+    }
+
+    public int removeDiscountPolicy(int storeID, int policyID) throws Exception {
+        Store store = getStore(storeID);
+        return store.removeDiscountPolicy(policyID);
+    }
+
     public String wrapDiscountPolicies(int storeID, List<Integer> discountPoliciesIDsToWrap, LogicalComposites logicalCompositeEnum) throws Exception
     {
         Store store = getStore(storeID);

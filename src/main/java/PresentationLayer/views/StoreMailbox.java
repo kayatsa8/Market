@@ -57,7 +57,7 @@ public class StoreMailbox extends VerticalLayout implements NotificationObserver
         }
         else {
             chats = chatsResult.getValue();
-            Grid<ChatService> grid = createGrid();
+            createGrid();
         }
     }
 

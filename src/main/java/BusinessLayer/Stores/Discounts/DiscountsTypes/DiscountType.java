@@ -3,6 +3,7 @@ package BusinessLayer.Stores.Discounts.DiscountsTypes;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Stores.Discounts.Discount;
 import BusinessLayer.Stores.Discounts.DiscountScopes.DiscountScope;
+import BusinessLayer.Stores.Store;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -12,7 +13,7 @@ public abstract class DiscountType extends Discount {
     protected double percent;
     protected Calendar endOfSale;
     private DiscountScope discountScope;
-
+    protected Store store;
     @Override
     public String toString() {
         return  "Percent is: " + percent + ", " +

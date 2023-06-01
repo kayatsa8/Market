@@ -1,6 +1,8 @@
 package Bridge;
 
 
+import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.Rules.Rule;
 import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
@@ -97,9 +99,9 @@ public class RealBridge implements Bridge{
     }
 
     @Override
-    public boolean buyCart(int userId, String deliveryAddress) {
+    public boolean buyCart(int userId, PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) {
         try {
-            Result<Boolean> result = shoppingService.buyCart(userId, deliveryAddress);
+            Result<Boolean> result = shoppingService.buyCart(userId, purchaseInfo, supplyInfo);
             return handleBoolResult(result);
         } catch (Exception e) {
             System.out.println(e.getMessage());

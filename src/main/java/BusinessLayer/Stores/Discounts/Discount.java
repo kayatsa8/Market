@@ -6,7 +6,7 @@ import BusinessLayer.Stores.Discounts.DiscountScopes.DiscountScope;
 import java.util.List;
 
 public abstract class Discount {
-    int discountID;
+    private int discountID;
     public Discount(int discountID)
     {
         this.discountID = discountID;

@@ -19,61 +19,96 @@ public class ExternalSystemsUnitTests {
     }
 
 
+    /**
+     *  Turning to Supply Service #4
+     */
+    @Test
+    public void supply_Valid(){
+        try {
+            int transId = supplyClient.supply("Name", "Address", "City", "Country", "Zip");
+            assertTrue(transId >= 10000);
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void cancelSupply_Valid(){
+        try {
+            int transId = supplyClient.supply("Name", "Address", "City", "Country", "Zip");
+            boolean supplied = transId >= 10000 ;
+            if(supplied){
+                boolean canceled = supplyClient.cancelSupply(transId);
+                assertTrue(canceled);
+            }
+        } catch (Exception e) {
+            fail();
+        }
+    }
 
 
     /**
      * Turning to payment service #3
      */
-
     @Test
-    public void turnToPaymentService_Valid(){
-        boolean paid = purchaseClient.pay(1, 123456789);
-        assertTrue(paid);
+    public void testHandShake_Valid(){
+        try {
+            boolean check = purchaseClient.handShake();
+            assertTrue(check);
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     @Test
-    public void turnToPaymentService_TransactionInfoInValid(){
-        boolean paid = purchaseClient.pay(1, -1);
-        assertFalse(paid);
+    public void testPay_Valid(){
+        try{
+            boolean check = purchaseClient.handShake();
+            if(check){
+                int transId = purchaseClient.pay("2222333344445555", 4, 2021, "Israel Israelovice", 262, 20444444);
+                assertTrue(transId >= 10000);
+            }
+        } catch (Exception e){
+            fail();
+        }
     }
-
-//    @Test
-//    public void turnToPaymentService_ServiceNotExisting(){
-//        this.purchaseClient.chooseService();
-//        assertFalse(paid);
-//    }
-
-
-    /**
-     *  Turning to Supply Service #4
-     */
-    @Test
-    public void turnToSupplyService_Valid(){
-        boolean received = supplyClient.supply(1, "Address");
-        assertTrue(received);
-    }
-
-//    @Test
-//    public void turnToSupplyService_ItemsWrongDetails(){
-//        List<CatalogItemService> wrongItems = new ArrayList<>();
-//        boolean received = this.askForSupply(user1GuestId, wrongItems, "SupplyService1");
-//        assertFalse(received);
-//    }
 
     @Test
-    public void turnToSupplyService_CustomerWrongDetails(){
-        boolean received = supplyClient.supply(1, "");
-        assertFalse(received);
+    public void testPay_NoHandShaken(){
+        try{
+            int transId = purchaseClient.pay("2222333344445555", 4, 2021, "Israel Israelovice", 262, 20444444);
+            assertFalse(transId >= 10000);
+        } catch (Exception e){
+            fail();
+        }
     }
 
-//    @Test
-//    public void turnToSupplyService_ServiceNotExisting(){
-//        List<CatalogItemService> items = new ArrayList<>();
-//        boolean received = this.askForSupply(user1GuestId, items, "SupplyServiceNotExisting");
-//        assertFalse(received);
-//    }
+    @Test
+    public void testCancelPay_Valid(){
+        try{
+            boolean check = purchaseClient.handShake();
+            if(check){
+                int transId = purchaseClient.pay("2222333344445555", 4, 2021, "Israel Israelovice", 262, 20444444);
+                boolean paid = transId >= 10000;
+                if(paid){
+                    boolean canceled = purchaseClient.cancelPay(transId);
+                    assertTrue(canceled);
+                }
+            }
+        } catch (Exception e){
+            fail();
+        }
+    }
 
-
-
+    @Test
+    public void testCancelPay_NotHandShaken(){
+        try{
+            int transId = 100000;
+            boolean canceled = purchaseClient.cancelPay(transId);
+            assertFalse(canceled);
+        } catch (Exception e){
+            fail();
+        }
+    }
 
 }

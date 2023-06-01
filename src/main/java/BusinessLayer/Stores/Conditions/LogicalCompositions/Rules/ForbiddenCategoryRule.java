@@ -1,13 +1,14 @@
 package BusinessLayer.Stores.Conditions.LogicalCompositions.Rules;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.Stores.Store;
 
 import java.util.List;
 
 public class ForbiddenCategoryRule extends Rule {
     private String forbiddenCategory;
-    public ForbiddenCategoryRule(String forbiddenCategory, int id) {
-        super(id);
+    public ForbiddenCategoryRule(String forbiddenCategory, int id, Store store) {
+        super(id, store);
         this.forbiddenCategory = forbiddenCategory;
     }
 

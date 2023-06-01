@@ -1,6 +1,7 @@
 package BusinessLayer.Stores.Conditions.LogicalCompositions.Rules;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.Stores.Store;
 
 import java.util.List;
 import java.util.Map;
@@ -9,9 +10,9 @@ public class ItemsWeightLimitRule extends Rule
 {
     private Map<Integer, Double> weightsLimits;
 
-    public ItemsWeightLimitRule(Map<Integer, Double> weightsLimits, int id)
+    public ItemsWeightLimitRule(Map<Integer, Double> weightsLimits, int id, Store store)
     {
-        super(id);
+        super(id, store);
 
         this.weightsLimits = weightsLimits;
     }
@@ -49,7 +50,7 @@ public class ItemsWeightLimitRule extends Rule
     {
         String result = "";
         for (Map.Entry<Integer, Double> weightLimit : weightsLimits.entrySet()) {
-            result += "; " + weightLimit.getValue() + " KG of item ID " + weightLimit.getKey();
+            result += "; " + weightLimit.getValue() + " KG of item " + store.getItem(weightLimit.getKey()).getItemName();
         }
         if (result.length()>1)
             result = result.substring(2);

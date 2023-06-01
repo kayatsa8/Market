@@ -1,6 +1,8 @@
 package UnitTests.DiscountsAndPolicies;
 
 import BusinessLayer.CartAndBasket.Cart;
+import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.Market;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
@@ -35,14 +37,14 @@ public class DiscountsTests {
         market = Market.getInstance();
         storeFacade = market.getStoreFacade();
         userFacade = market.getUserFacade();
-        int id5 = market.register("userName5", "password5");
-        int id6 = market.register("userName6", "password6");
-        int id7 = market.register("userName7", "password7");
-        int id8 = market.register("userName8", "password8");
-        market.login("userName5", "password5");
-        market.login("userName6", "password6");
-        market.login("userName7", "password7");
-        market.login("userName8", "password8");
+        int id5 = market.register("userName05", "password5");
+        int id6 = market.register("userName06", "password6");
+        int id7 = market.register("userName07", "password7");
+        int id8 = market.register("userName08", "password8");
+        market.login("userName05", "password5");
+        market.login("userName06", "password6");
+        market.login("userName07", "password7");
+        market.login("userName08", "password8");
         founder1 = userFacade.getRegisteredUser(id5);
         storeOwner1 = userFacade.getRegisteredUser(id6);
         storeManager1 = userFacade.getRegisteredUser(id7);
@@ -74,19 +76,29 @@ public class DiscountsTests {
     @Test
     public void addPurchasePolicy(){
         try {
-            String ppbtprString = market.addPurchasePolicyBasketTotalPriceRule(store1.getStoreID(), 50);
+            market.addPurchasePolicyBasketTotalPriceRule(store1.getStoreID(), 50);
             market.addItemToCart(noRole.getId(), store1.getStoreID(), item1.getItemID(), 4);
-            market.buyCart(noRole.getId(), "New York");
+            market.buyCart(noRole.getId(), getPurchaseInfo(), getSupplyInfo());
             fail("Should have thrown an error");
-        } catch (Exception e) {
-            assertEquals("ERROR: Basket::checkIfPurchaseIsValid: the purchase is not valid!", e.getMessage());
+        } catch (IllegalStateException e) {
+        }
+        catch (Exception e) {
+            fail("Wrong error thrown");
         }
         try {
             market.changeItemQuantityInCart(noRole.getId(), store1.getStoreID(), item1.getItemID(), 5);
-            Cart cart = market.buyCart(noRole.getId(), "New York");
+            Cart cart = market.buyCart(noRole.getId(), getPurchaseInfo(), getSupplyInfo());
             assertTrue(String.valueOf(cart.getBaskets().size()),cart.getBaskets().size() == 0);
         } catch (Exception e) {
             fail(e.getMessage());
         }
+    }
+
+    public PurchaseInfo getPurchaseInfo(){
+        return new PurchaseInfo("123", 1, 2222, "asd", 1222, 1);
+    }
+
+    public SupplyInfo getSupplyInfo(){
+        return new SupplyInfo("Name", "address", "city", "counyrt", "asd");
     }
 }

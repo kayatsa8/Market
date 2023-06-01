@@ -2,6 +2,8 @@ package BusinessLayer.Users;
 
 import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.Cart;
+import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.Log;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.MarketMock;
@@ -33,20 +35,20 @@ public class UserFacade {
     private UserDAO userDAO;
     private Map<Integer, Guest> guests;
 
-    public UserFacade() {
+    public UserFacade() throws Exception {
 //        users = new HashMap<>();
         users = new HashMap<>();
         userDAO = new UserDAO();
         guests = new HashMap<>();
         userID = userDAO.getMaxID() + 1;
-        setGuest();
+//        setGuest();
     }
 
     private synchronized int getNewId() {
         return userID++;
     }
 
-    public Guest setGuest() {
+    public Guest setGuest() throws Exception {
         Guest guest = new Guest();
         guests.put(Guest.GUEST_USER_ID--, guest);
         return guest;
@@ -72,7 +74,7 @@ public class UserFacade {
     }
 
     public boolean userExists(int ID){
-        return users.containsKey(ID);
+        return users.containsKey(ID) || guests.containsKey(ID);
     }
 
     public User getUser(int userID) {
@@ -107,12 +109,13 @@ public class UserFacade {
 
     public int registerUser(String username, String password) throws Exception {
         if (checkUserName(username) && checkPassword(password)) {
-            RegisteredUser tempUser = new RegisteredUser(username, password, getNewId());
+            int id = getNewId();
+            RegisteredUser tempUser = new RegisteredUser(username, password, id);
             // add to DB
             userDAO.addUser(tempUser);
             //add to cash
-            users.put(tempUser.getId(), tempUser);
-            return tempUser.getId();
+            users.put(id, tempUser);
+            return id;
         }
         else {
             log.severe("Problem logging in. username or password check returned false but not error");
@@ -248,6 +251,8 @@ public class UserFacade {
     }
 
     public Cart addItemToCart(int userID, Store store, CatalogItem item, int quantity) throws Exception {
+        if (!isGuest(userID))
+            getLoggedInUser(userID);
         return getUser(userID).addItemToCart(store, item, quantity);
     }
 
@@ -273,11 +278,11 @@ public class UserFacade {
         return getUser(userID).getItemsInBasket(storeName);
     }
 
-    public Cart buyCart(int userID, String address) throws Exception {
+    public Cart buyCart(int userID, PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) throws Exception {
         if (isGuest(userID)) {
-            return guests.get(userID).buyCart(address);
+            return guests.get(userID).buyCart(purchaseInfo, supplyInfo);
         }
-        return getLoggedInUser(userID).buyCart(address);
+        return getLoggedInUser(userID).buyCart(purchaseInfo, supplyInfo);
     }
 
     /**
@@ -325,8 +330,7 @@ public class UserFacade {
         if(!userExists(userID)){
             throw new Exception("The user was not found!");
         }
-
-        return users.get(userID).getChats();
+        return getUser(userID).getChats();
     }
 
     public Map<Integer, RegisteredUser> getAllRegisteredUsers() {
@@ -395,7 +399,7 @@ public class UserFacade {
             throw new Exception("No such user!");
         }
 
-        getRegisteredUser(userId).listenToNotifications(listener);
+        getUser(userId).listenToNotifications(listener);
     }
   
     public Basket removeBasketFromCart(int userID, int storeID) throws Exception {

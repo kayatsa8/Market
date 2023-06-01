@@ -5,6 +5,7 @@ import BusinessLayer.Log;
 import BusinessLayer.NotificationSystem.Repositories.MailboxesRepository;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Users.RegisteredUser;
+import BusinessLayer.Users.User;
 
 
 /**
@@ -42,10 +43,9 @@ public class NotificationHub {
         return mailboxes;
     }
 
-    public UserMailbox registerToMailService(RegisteredUser user) throws Exception {
-        int userID = user.getId();
+    public UserMailbox registerToMailService(int userID, User user) throws Exception {
         if (isRegistered(userID)) {
-            Log.log.warning("ERROR: NotificationHub::registerToMailService: the user " + userID + " is already registered!");
+            Log.log.severe("ERROR: NotificationHub::registerToMailService: the user " + userID + " is already registered!");
             throw new Exception("NotificationHub::registerToMailService: the user " + userID + " is already registered!");
         }
         UserMailbox mailbox = new UserMailbox(user, this);

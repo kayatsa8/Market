@@ -1,10 +1,13 @@
 package PresentationLayer;
 
+import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import ServiceLayer.Objects.CatalogItemService;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
 import ServiceLayer.UserService;
 import com.vaadin.flow.component.page.AppShellConfigurator;
+import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.theme.Theme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,9 +21,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication
 @Theme(value = "Market")
+@Push
 public class Application implements AppShellConfigurator {
     public static void main(String[] args) {
-
         try {
             ShoppingService shoppingService = new ShoppingService();
             UserService userService = new UserService();
@@ -48,7 +51,7 @@ public class Application implements AppShellConfigurator {
             shoppingService.addItemAmount(amirStoreID, itemId + 2, 5);
 
             shoppingService.addItemToCart(maorID, amirStoreID, itemId, 5);
-            shoppingService.buyCart(maorID, "Address");
+            shoppingService.buyCart(maorID, getPurchaseInfo(), getSupplyInfo());
 
             userService.logout(amirID);
             userService.logout(maorID);
@@ -58,6 +61,15 @@ public class Application implements AppShellConfigurator {
             return;
         }
         SpringApplication.run(Application.class, args);
+    }
+
+
+    public static PurchaseInfo getPurchaseInfo(){
+        return new PurchaseInfo("123", 1, 2222, "asd", 1222, 1);
+    }
+
+    public static SupplyInfo getSupplyInfo(){
+        return new SupplyInfo("Name", "address", "city", "counyrt", "asd");
     }
 
 }

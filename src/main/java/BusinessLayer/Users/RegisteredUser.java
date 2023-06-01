@@ -20,9 +20,7 @@ import java.util.*;
 public class RegisteredUser extends User {
     private String username;
     private String password;
-    private int id;
     private UserDAO userDAO;
-    private UserMailbox mailbox;
     private Map<Integer, StoreOwner> storesIOwn;
     private Map<Integer, StoreManager> storesIManage;
     private SystemManager systemManager;
@@ -32,19 +30,17 @@ public class RegisteredUser extends User {
 
         this.username = username;
         this.password = Password.hashPassword(pass);
-        this.id = id;
         this.storesIOwn = new HashMap<>();
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();
         this.isLoggedIn = false;
-        this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(this);
+        this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(id, this);
     }
 
     public RegisteredUser(String username, String pass, int id, boolean isAdmin) throws Exception {
         super(id);
         this.username = username;
         this.password = Password.hashPassword(pass);
-        this.id = id;
         this.storesIOwn = new HashMap<>();
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();
@@ -52,13 +48,12 @@ public class RegisteredUser extends User {
         if (isAdmin) {
             systemManager = new SystemManager(this);
         }
-        this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(this);
+        this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(id, this);
     }
     public RegisteredUser(String username, String pass, int id, boolean isAdmin, MarketMock marketMock) throws Exception {
         super(id);
         this.username = username;
         this.password = Password.hashPassword(pass);
-        this.id = id;
         this.storesIOwn = new HashMap<>();
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();
@@ -66,19 +61,17 @@ public class RegisteredUser extends User {
         if (isAdmin) {
             systemManager = new SystemManager(this);
         }
-        this.mailbox = marketMock.getNotificationHub().registerToMailService(this);
+        this.mailbox = marketMock.getNotificationHub().registerToMailService(id,this);
     }
     public RegisteredUser(String username, String pass, int id, MarketMock marketMock) throws Exception {
         super(id);
-
         this.username = username;
         this.password = Password.hashPassword(pass);
-        this.id = id;
         this.storesIOwn = new HashMap<>();
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();
         this.isLoggedIn = false;
-        this.mailbox = marketMock.getNotificationHub().registerToMailService(this);
+        this.mailbox = marketMock.getNotificationHub().registerToMailService(id,this);
     }
 
     public Map<Integer, StoreOwner> getStoresIOwn() {
@@ -143,12 +136,14 @@ public class RegisteredUser extends User {
             throw new RuntimeException("User already manages store");
         }
         storeOwnership.addOwner(newOwner);
+        mailbox.sendMessage(newOwner.getId(), "You have been appointed owner of Store: " + storeOwnership.getStore().getStoreName());
     }
 
     public StoreOwner addStoreOwnership(StoreOwner storeOwnership) {
         int storeID = storeOwnership.getStoreID();
         StoreOwner ownership = new StoreOwner(this.getId(), storeOwnership);
         storesIOwn.put(storeID, ownership);
+        mailbox.getChats().putIfAbsent(storeID, new Chat(id, storeID));
         return ownership;
     }
 
@@ -164,8 +159,8 @@ public class RegisteredUser extends User {
         if (newManager.managesStore(storeID)) {
             throw new RuntimeException("User already manages store");
         }
-
         storeOwnership.addManager(newManager);
+        mailbox.sendMessage(newManager.getId(), "You have been appointed owner of Store: " + storeOwnership.getStore().getStoreName());
     }
 
     public void addStoreManagership(StoreOwner storeOwnerShip) {
@@ -241,38 +236,6 @@ public class RegisteredUser extends User {
         this.isLoggedIn = false;
     }
 
-    public UserMailbox getMailbox(){
-        return mailbox;
-    }
-
-    public void sendMessage(int receiverID, String content){
-        mailbox.sendMessage(receiverID, content);
-    }
-
-//    public void markMessageAsRead(Message message) throws Exception {
-//        mailbox.markMessageAsRead(message);
-//    }
-//
-//    public void markMessageAsNotRead(Message message) throws Exception {
-//        mailbox.markMessageAsNotRead(message);
-//    }
-//
-//    public List<Message> watchNotReadMessages(){
-//        return mailbox.watchNotReadMessages();
-//    }
-//
-//    public List<Message> watchReadMessages(){
-//        return mailbox.watchReadMessages();
-//    }
-//
-//    public List<Message> watchSentMessages(){
-//        return mailbox.watchSentMessages();
-//    }
-
-    public ConcurrentHashMap<Integer, Chat> getChats(){
-        return mailbox.getChats();
-    }
-
 
     public Map<RegisteredUser, Set<Integer>> getAllOwnersIDefined() {
         Map<Integer, StoreOwner> storeOwnership = getStoresIOwn();
@@ -319,7 +282,4 @@ public class RegisteredUser extends User {
         return managers;
     }
 
-    public void listenToNotifications(NotificationObserver listener){
-        mailbox.listen(listener);
-    }
 }

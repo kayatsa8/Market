@@ -3,6 +3,8 @@ package BusinessLayer;
 import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.Receipts.Receipt.Receipt;
@@ -34,7 +36,7 @@ public class Market {
     private Map<Integer, SystemManager> systemManagerMap;
     private NotificationHub notificationHub;
     private static final Object instanceLock = new Object();
-    private Market() {
+    private Market() throws Exception {
         systemManagerMap = new HashMap<>();
         userFacade = new UserFacade();
         storeFacade = new StoreFacade();
@@ -46,12 +48,13 @@ public class Market {
             if (instance == null) {
                 instance = new Market();
                 instance.createFirstAdmin();
+                instance.userFacade.setGuest();
             }
             return instance;
         }
     }
 
-    public User addGuest() {
+    public User addGuest() throws Exception {
         return userFacade.setGuest();
     }
 
@@ -187,8 +190,8 @@ public class Market {
         return userFacade.getItemsInBasket(userID, storeName);
     }
 
-    public Cart buyCart(int userID, String address) throws Exception {
-        return userFacade.buyCart(userID, address);
+    public Cart buyCart(int userID, PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) throws Exception {
+        return userFacade.buyCart(userID, purchaseInfo, supplyInfo);
     }
 
     /**
@@ -259,59 +262,6 @@ public class Market {
         return false;
     }
 
-//    public void markMessageAsRead(int ID, Message message) throws Exception {
-//        if(storeFacade.isStoreExists(ID)){
-//            storeFacade.markMessageAsRead(ID, message);
-//        }
-//        if(userFacade.userExists(ID)){
-//            userFacade.markMessageAsRead(ID, message);
-//        }
-//    }
-//
-//    public void markMessageAsNotRead(int ID, Message message) throws Exception {
-//        if(storeFacade.isStoreExists(ID)){
-//            storeFacade.markMessageAsNotRead(ID, message);
-//        }
-//        if(userFacade.userExists(ID)){
-//            userFacade.markMessageAsNotRead(ID, message);
-//        }
-//    }
-//
-//    public List<Message> watchNotReadMessages(int ID) throws Exception
-//    {
-//        if(storeFacade.isStoreExists(ID)){
-//            return storeFacade.watchNotReadMessages(ID);
-//        }
-//        if(userFacade.userExists(ID)){
-//            return userFacade.watchNotReadMessages(ID);
-//        }
-//
-//        return null;
-//    }
-//
-//    public List<Message> watchReadMessages(int ID) throws Exception
-//    {
-//        if(storeFacade.isStoreExists(ID)){
-//            return storeFacade.watchNotReadMessages(ID);
-//        }
-//        if(userFacade.userExists(ID)){
-//            return userFacade.watchReadMessages(ID);
-//        }
-//
-//        return null;
-//    }
-//
-//    public List<Message> watchSentMessages(int ID) throws Exception
-//    {
-//        if(storeFacade.isStoreExists(ID)){
-//            return storeFacade.watchSentMessages(ID);
-//        }
-//        if(userFacade.userExists(ID)){
-//            return userFacade.watchSentMessages(ID);
-//        }
-//
-//        return null;
-//    }
 
     public ConcurrentHashMap<Integer, Chat> getChats(int id) throws Exception {
         if(storeFacade.isStoreExists(id)){
@@ -527,6 +477,21 @@ public class Market {
     public Map<Integer, Discount> getStoreDiscounts(int storeID) throws Exception
     {
         return storeFacade.getStoreDiscounts(storeID);
+    }
+
+    public int removeDiscount(int storeID, int discountID) throws Exception
+    {
+        return storeFacade.removeDiscount(storeID, discountID);
+    }
+
+    public int removePolicy(int storeID, int policyID) throws Exception
+    {
+        return storeFacade.removePolicy(storeID, policyID);
+    }
+
+    public int removeDiscountPolicy(int storeID, int policyID) throws Exception
+    {
+        return storeFacade.removeDiscountPolicy(storeID, policyID);
     }
 
     public Map<Integer, Visible> getStoreVisibleDiscounts(int storeID) throws Exception
