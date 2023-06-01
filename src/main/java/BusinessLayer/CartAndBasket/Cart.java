@@ -10,6 +10,7 @@ import BusinessLayer.Stores.Store;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Cart {
@@ -113,8 +114,8 @@ public class Cart {
      * @return a HashMap to give the ReceiptHandler in order to make a receipt
      * @throws Exception if the store throw exception for some reason
      */
-    public HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> buyCart(PurchaseClient purchase, SupplyClient supply, String address) throws Exception {
-        HashMap<Integer, HashMap<CatalogItem, CartItemInfo>> receiptData = new HashMap<>();
+    public Map<Integer, Map<CatalogItem, CartItemInfo>> buyCart(PurchaseClient purchase, SupplyClient supply, String address) throws Exception {
+        HashMap<Integer, Map<CatalogItem, CartItemInfo>> receiptData = new HashMap<>();
 
         for(Basket basket : baskets.values()){
             basket.saveItems(coupons);
