@@ -18,8 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Cart {
 
     //fields
-    private final int userID;
-    private final BasketsRepository baskets;
+    private int userID;
+    private ConcurrentHashMap<Integer, Basket> baskets; // <storeID, Basket>
     private List<String> coupons;
 
 
@@ -30,7 +30,7 @@ public class Cart {
      */
     public Cart(int _userID){
         userID = _userID;
-        baskets = new BasketsRepository();
+        baskets = new ConcurrentHashMap<>();
         coupons = new ArrayList<>();
         Log.log.info("A new cart was created for user " + userID);
     }
@@ -189,7 +189,7 @@ public class Cart {
     }
 
     public ConcurrentHashMap<Integer, Basket> getBaskets() {
-        return baskets.getBaskets();
+        return baskets;
     }
 
     public void addCoupon(String coupon) throws Exception {

@@ -8,26 +8,27 @@ import BusinessLayer.Stores.Store;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Basket {
     //fields
-    private final Store store;
-    private final ItemsRepository items;
+    private Store store;
+    private ConcurrentHashMap<Integer, Basket.ItemWrapper> items;
     private boolean itemsSaved; // true if the store saves the items inside the basket for the user
-    private SavedItemsRepository savedItems;
+    private List<CartItemInfo> savedItems;
 
     //methods
     public Basket(Store _store){
         store = _store;
-        items = new ItemsRepository();
+        items = new ConcurrentHashMap<>();
         itemsSaved = false;
-        savedItems = new SavedItemsRepository();
+        savedItems = new ArrayList<>();
     }
 
     public void addItem(CatalogItem item, int quantity, List<String> coupons) throws Exception {
         validateAddItem(item, quantity);
         if (items.containsKey(item.getItemID())){
-            int prevAmount= items.getAmount(item.getItemID());
+            int prevAmount= items.get(item.getItemID()).info.getAmount();;
             items.put(item.getItemID(), new ItemWrapper(item, quantity+prevAmount));
         }
         else
@@ -125,7 +126,7 @@ public class Basket {
     }
 
     public void saveItems(List<String> coupons, int userID) throws Exception{
-        savedItems.set(getItemsInfo());
+        savedItems = getItemsInfo();
 
         try{
             store.saveItemsForUpcomingPurchase(getItemsInfo(), coupons, userID);
@@ -138,7 +139,7 @@ public class Basket {
                 NOTICE: the Store may throw an exception if Basket requests a certain
                 item more than Store can provide.
             */
-            savedItems.set(null);
+            savedItems = null;
             itemsSaved = false;
             throw e;
         }
@@ -167,7 +168,7 @@ public class Basket {
         }
 
         try{
-            store.buyBasket(savedItems.getList(), userID);
+            store.buyBasket(savedItems, userID);
         }
         catch(Exception e){
             //LOG
@@ -194,8 +195,8 @@ public class Basket {
     public void releaseItems() throws Exception {
         if(itemsSaved){
             itemsSaved = false;
-            store.reverseSavedItems(savedItems.getList());
-            savedItems.set(null);
+            store.reverseSavedItems(savedItems);
+            savedItems = null;
         }
     }
 
