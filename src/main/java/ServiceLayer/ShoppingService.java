@@ -7,6 +7,7 @@ import BusinessLayer.ExternalSystems.PurchaseInfo;
 import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.Receipts.Receipt.Receipt;
+import BusinessLayer.Stores.Bid;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
 import BusinessLayer.Stores.Policies.DiscountPolicy;
@@ -1006,6 +1007,61 @@ public class ShoppingService {
             return market.getStoreName(storeId);
         } catch (Exception e) {
             return "";
+        }
+    }
+    public Map<Integer, List<Bid>> getUserBidsToReply(int userID)
+    {
+        try {
+            Map<Integer, List<Bid>> result = market.getUserBidsToReply(userID);
+            log.info("Got the user's bids that he should reply to");
+            return result;
+        } catch (Exception e) {
+            log.info("Failed to get the user's bids");
+            return null;
+        }
+    }
+    public Result<Boolean> addBid(int storeID, int itemID, int userID, double offeredPrice)
+    {
+        try {
+            market.addBid(storeID, itemID, userID, offeredPrice);
+            log.info("Added new bid");
+            return new Result<>(false, true);
+        } catch (Exception e) {
+            log.info("Failed to add new bid");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<Boolean> approve(int storeID, int bidID, int replierUserID)
+    {
+        try {
+            boolean result = market.approve(storeID, bidID, replierUserID);
+            log.info("Bid approved");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to approve bid");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<Boolean> reject(int storeID, int bidID, int replierUserID)
+    {
+        try {
+            boolean result = market.reject(storeID, bidID, replierUserID);
+            log.info("Bid rejected");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to reject bid");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<Boolean> counterOffer(int storeID, int bidID, int replierUserID, double counterOffer)
+    {
+        try {
+            boolean result = market.counterOffer(storeID, bidID, replierUserID, counterOffer);
+            log.info("Bid got a counter offer");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to counter bid");
+            return new Result<>(true, e.getMessage());
         }
     }
 }

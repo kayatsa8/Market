@@ -9,6 +9,7 @@ import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
+import BusinessLayer.Stores.Bid;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
@@ -507,6 +508,27 @@ public class Market {
     public Map<Integer, DiscountPolicy> getStoreDiscountPolicies(int storeID) throws Exception
     {
         return storeFacade.getStoreDiscountPolicies(storeID);
+    }
+
+    public Map<Integer, List<Bid>> getUserBidsToReply(int userID) throws Exception
+    {
+        return storeFacade.getUserBidsToReply(userID);
+    }
+    public void addBid(int storeID, int itemID, int userID, double offeredPrice) throws Exception
+    {
+        storeFacade.addBid(storeID, itemID, userID, offeredPrice);
+    }
+    public boolean approve(int storeID, int bidID, int replierUserID) throws Exception
+    {
+        return storeFacade.approve(storeID, bidID, replierUserID);
+    }
+    public boolean reject(int storeID, int bidID, int replierUserID) throws Exception
+    {
+        return storeFacade.reject(storeID, bidID, replierUserID);
+    }
+    public boolean counterOffer(int storeID, int bidID, int replierUserID, double counterOffer) throws Exception
+    {
+        return storeFacade.counterOffer(storeID, bidID, replierUserID, counterOffer);
     }
 
     public Map<RegisteredUser, Set<Integer>> getAllOwnersIDefined(int ownerId) throws Exception {

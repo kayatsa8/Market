@@ -91,6 +91,20 @@ public class StoreFacade {
         //Yonatan added it, don't delete
         return true;
     }
+
+    public Map<Integer, List<Bid>> getUserBidsToReply(int userID) throws Exception
+    {
+        Map<Integer, List<Bid>> result = new HashMap<>();
+        List<Bid> bids;
+        for (Store store : stores.values())
+        {
+            bids = store.getUserBidsToReply(userID);
+            if (bids.size() > 0)
+                result.put(store.getStoreID(), bids);
+        }
+        return result;
+    }
+
     public void addBid(int storeID, int itemID, int userID, double offeredPrice) throws Exception
     {
         Store store = getStore(storeID);
