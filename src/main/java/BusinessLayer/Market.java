@@ -517,6 +517,9 @@ public class Market {
     }
     public Bid addBid(int storeID, int itemID, int userID, double offeredPrice) throws Exception
     {
+        if(!userFacade.userExists(userID)){
+            throw new Exception("User does not exists!");
+        }
         return storeFacade.addBid(storeID, itemID, userID, offeredPrice);
     }
 

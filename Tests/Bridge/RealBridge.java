@@ -447,6 +447,14 @@ public class RealBridge implements Bridge{
         return handleBoolResult(result);
     }
 
+    @Override
+    public List<BidService> getUserBidsToReply(int userID) {
+        Result<List<BidService>> result = shoppingService.getUserBidsToReply(userID);
+        if(result == null)
+            return null;
+        return result.getValue();
+    }
+
 
     @Override
     public HashMap<Integer, ChatService> getChats(int id){

@@ -576,6 +576,13 @@ public class ProxyBridge implements Bridge {
     }
 
     @Override
+    public List<BidService> getUserBidsToReply(int userID) {
+        if(real != null)
+            return real.getUserBidsToReply(userID);
+        return null;
+    }
+
+    @Override
     public HashMap<Integer, ChatService> getChats(int id){
         if(real != null){
             return real.getChats(id);

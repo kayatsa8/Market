@@ -475,4 +475,5 @@ public interface Bridge {
     boolean reject(int storeID, int bidID, int replierUserID);
 
     boolean counterOffer(int storeID, int bidID, int replierUserID, double counterOffer);
+    List<BidService> getUserBidsToReply(int userID);
 }
