@@ -1009,17 +1009,29 @@ public class ShoppingService {
             return "";
         }
     }
-    public Map<Integer, List<Bid>> getUserBidsToReply(int userID)
+    public Result<List<BidService>> getUserBidsToReply(int userID)
     {
         try {
             Map<Integer, List<Bid>> result = market.getUserBidsToReply(userID);
             log.info("Got the user's bids that he should reply to");
-            return result;
+            return new Result<>(false, convertToBidService(result));
         } catch (Exception e) {
             log.info("Failed to get the user's bids");
-            return null;
+            return new Result<>(true, e.getMessage());
         }
     }
+
+    private List<BidService> convertToBidService(Map<Integer, List<Bid>> result) {
+        List<BidService> bidsServices = new ArrayList<>();
+        for(Map.Entry<Integer, List<Bid>> entry : result.entrySet()){
+            int storeId = entry.getKey();
+            for(Bid bid : entry.getValue()){
+                bidsServices.add(new BidService(bid));
+            }
+        }
+        return bidsServices;
+    }
+
     public Result<Boolean> addBid(int storeID, int itemID, int userID, double offeredPrice)
     {
         try {
@@ -1031,6 +1043,23 @@ public class ShoppingService {
             return new Result<>(true, e.getMessage());
         }
     }
+
+    public Result<List<BidService>> getUserBids(int userID)
+    {
+        try {
+            List<Bid> bids = market.getUserBids(userID);
+            log.info("got bids");
+            List<BidService> resBids = new ArrayList<>();
+            for (Bid bid : bids) {
+                resBids.add(new BidService(bid));
+            }
+            return new Result<>(false, resBids);
+        } catch (Exception e) {
+            log.info("Failed to add new bid");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
     public Result<Boolean> approve(int storeID, int bidID, int replierUserID)
     {
         try {
@@ -1042,6 +1071,19 @@ public class ShoppingService {
             return new Result<>(true, e.getMessage());
         }
     }
+
+    public Result<Boolean> replyToCounterOffer(int storeID, int bidID, boolean accepted)
+    {
+        try {
+            boolean result = market.replyToCounterOffer(storeID, bidID, accepted);
+            log.info("Bid approved");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to approve bid");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
     public Result<Boolean> reject(int storeID, int bidID, int replierUserID)
     {
         try {
@@ -1061,6 +1103,28 @@ public class ShoppingService {
             return new Result<>(false, result);
         } catch (Exception e) {
             log.info("Failed to counter bid");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result<Boolean> payForBid(int storeId, int bidID, PurchaseInfo p, SupplyInfo s) {
+        try {
+            boolean result = market.payForBid(storeId, bidID, p, s);
+            log.info("Bid paid for");
+            return new Result<>(false, result);
+        } catch (Exception e) {
+            log.info("Failed to Complete Purcase of bid");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result cancelBid(int storeId, int id) {
+        try {
+            market.cancelBid(storeId, id);
+            return new Result<>(false, null);
+        }
+        catch (Exception e) {
+            log.info("Failed to Cancel bid");
             return new Result<>(true, e.getMessage());
         }
     }

@@ -1,12 +1,12 @@
 [
   {
-    "username": "Amir1",
+    "username": "Amir",
     "password": "amirsPass",
     "address": "addressOk",
     "bDay": "1999-07-11",
     "stores": [
       {
-        "founderName": "Amir1",
+        "founderName": "Amir",
         "storeName": "amir1s Store",
         "itemList": [
           {
@@ -35,27 +35,27 @@
     ]
   },
   {
-    "username": "Tomer1",
+    "username": "Tomer",
     "password": "tomersPass",
     "address": "addressOk",
     "bDay": "1999-07-11",
     "stores": []
   },
   {
-    "username": "Yonatan1",
+    "username": "Yonatan",
     "password": "yonantansPass",
     "address": "addressOk",
     "bDay": "1999-07-11",
     "stores": []
   },
   {
-    "username": "Sagi1",
+    "username": "Sagi",
     "password": "sagisPass",
     "address": "addressOk",
     "bDay": "1999-07-11",
     "stores": [
       {
-        "founderName": "Sagi1",
+        "founderName": "Sagi",
         "storeName": "Sagi1 Store",
         "itemList": [
           {
@@ -98,14 +98,14 @@
     ]
   },
   {
-    "username": "Meitar1",
+    "username": "Meitar",
     "password": "meitarsPass",
     "address": "addressOk",
     "bDay": "1999-07-11",
     "stores": []
   },
   {
-    "username": "Maor1",
+    "username": "Maor",
     "password": "maorsPass",
     "address": "addressOk",
     "bDay": "1999-07-11",

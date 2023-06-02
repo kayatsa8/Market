@@ -70,6 +70,7 @@ public class StoreManagementView extends VerticalLayout {
 
     Grid<StoreService> storesIOwnGrid;
     Grid<StoreService> storesManagedGrid;
+    Grid<BidService> bidsGrid;
 
     //uncomment
     boolean isStoreOwner;
@@ -276,7 +277,10 @@ public class StoreManagementView extends VerticalLayout {
 
         Button createStore = new Button("Create Store", e-> createStoreDialog());
         owning.addContent(createStore);
-        storesDiv.add(accordion);
+
+        Button getBids = new Button("Get Bids Waiting", e-> createBidDialog());
+
+        storesDiv.add(getBids, accordion);
     }
 
     private void addMenuItems(Grid<StoreService> storesGrid, boolean managerMode) {
@@ -647,6 +651,21 @@ public class StoreManagementView extends VerticalLayout {
         }
         else{
             return items.get(0).getItemID();
+        }
+    }
+
+    private BidService getSelectedBidFromGrid(Grid<BidService> grid) {
+        List<BidService> bids = grid.getSelectedItems().stream().toList();
+        if(bids.size() > 1){
+            printError("Chosen More than one!");
+            return null;
+        }
+        else if(bids.size() == 0){
+            printError("You need to choose a Bid!");
+            return null;
+        }
+        else{
+            return bids.get(0);
         }
     }
 
@@ -2346,5 +2365,156 @@ public class StoreManagementView extends VerticalLayout {
 
         add(dialog);
         dialog.open();
+    }
+
+    private void refreshBidsGrid() {
+        Result<List<BidService>> result = shoppingService.getUserBidsToReply(mainLayout.getCurrUserID());
+        if(!result.isError()) {
+            List<BidService> bids;
+            if (result.getValue() == null) {
+                bids = new ArrayList<>();
+            } else
+                bids = result.getValue();
+            bidsGrid.setItems(bids);
+        }
+    }
+
+    private void createBidDialog() {
+
+        bidsGrid = new Grid<>();
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Open Bids");
+        Div div = new Div();
+        div.add(bidsGrid);
+        dialog.add(div);
+        dialog.setWidth("1000px");
+
+        Result<List<BidService>> result = shoppingService.getUserBidsToReply(mainLayout.getCurrUserID());
+        if(!result.isError()) {
+            List<BidService> bids;
+            if(result.getValue() == null){
+                bids = new ArrayList<>();
+            }
+            else
+                bids = result.getValue();
+            bidsGrid.setItems(bids);
+            bidsGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+
+            bidsGrid.addColumn(e -> shoppingService.getStoreName(e.getStoreId())).setHeader("Store").setSortable(true);
+            bidsGrid.addColumn(e -> userService.getUsername(e.getUserId())).setHeader("User").setSortable(true);
+            bidsGrid.addColumn(BidService::getItemName).setHeader("Item").setSortable(true);
+            bidsGrid.addColumn(BidService::getOriginalPrice).setHeader("Original Price").setSortable(true);
+            bidsGrid.addColumn(BidService::getNewPrice).setHeader("Offered Price").setSortable(true);
+            bidsGrid.addColumn(e -> {double max = e.getCounterOffer(); return max==-1 ? "No Counters Yet" : max;})
+                    .setHeader("Max Counter Offer").setSortable(true);
+
+            GridContextMenu<BidService> menu = bidsGrid.addContextMenu();
+            menu.setOpenOnClick(true);
+
+            menu.addItem("Accept", event -> acceptBid(bidsGrid));
+            menu.addItem("Reject", event -> rejectBid(bidsGrid));
+            menu.addItem("Counter Offer", event -> counterOfferBid(bidsGrid));
+
+
+            Button cancelButton = new Button("Exit", e -> dialog.close());
+            dialog.getFooter().add(cancelButton);
+
+            add(dialog);
+            dialog.open();
+            dialog.add(menu);
+        }
+    }
+
+    private void counterOfferBid(Grid<BidService> bidsGrid) {
+        BidService bidService = getSelectedBidFromGrid(bidsGrid);
+        if (bidService == null)
+            printError("You didn't choose a Bid");
+        else {
+            Dialog dialog = new Dialog();
+            dialog.setDraggable(true);
+            dialog.setResizable(true);
+            dialog.setHeaderTitle("Create Counter Offer");
+            dialog.setWidth("1000px");
+            NumberField numberField = new NumberField();
+            numberField.setStepButtonsVisible(true);
+            numberField.setMin(Math.max(bidService.getNewPrice(), bidService.getCounterOffer()));
+            numberField.setValue(bidService.getNewPrice()+1);
+            numberField.setMax(bidService.getOriginalPrice()-1);
+            Button saveButton = new Button("Counter Offer", e -> {
+                Result<Boolean> result = shoppingService.counterOffer(bidService.getStoreId(), bidService.getId(), MainLayout.getMainLayout().getCurrUserID(), numberField.getValue());
+                handleCounterRes(result);
+                dialog.close();
+                refreshBidsGrid();
+            });
+            Button cancelButton = new Button(VaadinIcon.CLOSE.create(),
+                    e -> {
+                        printError("Cancelled");
+                        dialog.close();
+                    });
+            cancelButton.addThemeVariants(ButtonVariant.LUMO_ICON,
+                    ButtonVariant.LUMO_ERROR);
+            HorizontalLayout actions = new HorizontalLayout(numberField, saveButton,
+                    cancelButton);
+            actions.setPadding(false);
+            dialog.add(actions);
+            dialog.open();
+        }
+    }
+    private void handleCounterRes(Result<Boolean> result) {
+        if(result.isError()){
+            printError(result.getMessage());
+        }
+        else{
+            if(result.getValue()){
+                printSuccess("All Managers answered, Counter Offer had been sent to Buyer");
+            }
+            else{
+                printSuccess("Counter offer received, Waiting for other managers to respond");
+            }
+        }
+    }
+
+    private void rejectBid(Grid<BidService> bidsGrid) {
+        BidService bidService = getSelectedBidFromGrid(bidsGrid);
+        if(bidService == null)
+            printError("You didn't choose a Bid");
+        else{
+            Result<Boolean> result = shoppingService.reject(bidService.getStoreId(), bidService.getId(), mainLayout.getCurrUserID());
+            if(result.isError()){
+                printError(result.getMessage());
+            }
+            else{
+                if(result.getValue()){
+                    printSuccess("Rejected Bid");
+                }
+                else{
+                    printError("Something went wrong");
+                }
+            }
+        }
+        refreshBidsGrid();
+    }
+
+    private void acceptBid(Grid<BidService> bidsGrid) {
+        BidService bidService = getSelectedBidFromGrid(bidsGrid);
+        if(bidService == null)
+            printError("You didn't choose a Bid");
+        else{
+            Result<Boolean> result = shoppingService.approve(bidService.getStoreId(), bidService.getId(), mainLayout.getCurrUserID());
+            if(result.isError()){
+                printError(result.getMessage());
+            }
+            else{
+                if(result.getValue()){
+                    printSuccess("All managers accepted the Bid");
+                }
+                else{
+                    printSuccess("Accepted, waiting for other managers to respond");
+                }
+            }
+        }
+        refreshBidsGrid();
     }
 }

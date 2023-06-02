@@ -1,5 +1,7 @@
 package BusinessLayer.Stores;
 
+import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.MarketMock;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
@@ -110,6 +112,16 @@ public class StoreFacade {
         Store store = getStore(storeID);
         store.addBid(itemID, userID, offeredPrice);
     }
+
+    public List<Bid> getUserBids(int userID)
+    {
+        List<Bid> bids = new ArrayList<>();
+        for (Store store : stores.values()) {
+            bids.addAll(store.getUserBids(userID));
+        }
+        return bids;
+    }
+
     public void addLottery(int storeID, int itemID, double price, int lotteryPeriodInDays) throws Exception
     {
         Store store = getStore(storeID);
@@ -130,11 +142,18 @@ public class StoreFacade {
         Store store = getStore(storeID);
         return store.offerToAuction(auctionID, userID, offerPrice);
     }
-    public boolean approve(int storeID, int bidID, int replierUserID) throws Exception
+    public BidReplies approve(int storeID, int bidID, int replierUserID) throws Exception
     {
         Store store = getStore(storeID);
         return store.approve(bidID, replierUserID);
     }
+
+    public boolean replyToCounterOffer(int storeID, int bidID, boolean accepted) throws Exception
+    {
+        Store store = getStore(storeID);
+        return store.replyToCounterOffer(bidID, accepted);
+    }
+
     public boolean reject(int storeID, int bidID, int replierUserID) throws Exception
     {
         Store store = getStore(storeID);
@@ -655,5 +674,15 @@ public class StoreFacade {
             }
         }
         return null;
+    }
+
+    public boolean payForBid(int storeID, int bidID, PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) throws Exception {
+        Store store = getStore(storeID);
+        return store.payForBid(bidID, purchaseInfo, supplyInfo);
+    }
+
+    public void cancelBid(int storeId, int id) throws Exception {
+        Store store = getStore(storeId);
+        store.cancelBid(id);
     }
 }
