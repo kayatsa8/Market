@@ -3,7 +3,6 @@ package BusinessLayer.CartAndBasket;
 import BusinessLayer.CartAndBasket.Repositories.Carts.BasketsRepository;
 import BusinessLayer.ExternalSystems.ESPurchaseManager;
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
-import BusinessLayer.ExternalSystems.PurchaseInfo;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
 import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.Log;
@@ -13,6 +12,7 @@ import BusinessLayer.Stores.Store;
 import DataAccessLayer.Hibernate.DBConnector;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import BusinessLayer.ExternalSystems.PurchaseInfo;
 
 import javax.persistence.*;
 import java.util.ArrayList;
