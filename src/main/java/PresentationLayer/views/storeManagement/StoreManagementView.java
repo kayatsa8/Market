@@ -51,6 +51,7 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 import java.time.ZoneId;
 import java.util.*;
 import java.time.LocalDate;
+import java.util.stream.Collectors;
 
 
 @PageTitle("About")
@@ -64,7 +65,9 @@ public class StoreManagementView extends VerticalLayout {
     private Map<Integer, UserInfoService> users;
     private Map<Integer, StoreService> storesIOwn;
     private Map<Integer, StoreService> storesIManage;
-    IntegerField storeIdField;
+    Select<String>  storeSelectorAdd;
+    Select<String>  storeSelectorRemoveManager;
+    Select<String>  storeSelectorRemoveOwner;
     Grid<UserInfoService> userGrid;
     Grid<UserInfoService> ownersIDefinedGrid;
     Grid<UserInfoService> managersIDefinedGrid;
@@ -115,7 +118,7 @@ public class StoreManagementView extends VerticalLayout {
             users = usersRes.getValue();
             storesIOwn = storesIOwnRes.getValue();
             storesIManage = storesIManageRes.getValue();
-
+            refreshStoreList();
             updateStoresGrid();
 
             Div storesDiv = new Div();
@@ -414,12 +417,8 @@ public class StoreManagementView extends VerticalLayout {
             managersIDefinedGrid.addColumn(UserInfoService::getStoreIManageString).setHeader("Manager appointed by me to Stores");
 
             Button removeManagerbutton = new Button("Remove Manager");
-            IntegerField removeManagerStoreField = new IntegerField("StoreId");
-            removeManagerStoreField.setMin(0);
-            removeManagerStoreField.setHelperText("Select a Manager you want to remove and write his Store ID");
-            removeManagerStoreField.setErrorMessage("Enter a valid StoreId!");
-            removeManagerbutton.addClickListener(e -> removeManagerAction(removeManagerStoreField));
-            removeManager.addContent(managersIDefinedGrid, removeManagerStoreField, removeManagerbutton);
+            removeManagerbutton.addClickListener(e -> removeManagerAction(Integer.parseInt(storeSelectorRemoveManager.getValue().split(":")[0])));
+            removeManager.addContent(managersIDefinedGrid, storeSelectorRemoveManager, removeManagerbutton);
         }
         usersDiv.add(removeManager);
     }
@@ -444,29 +443,41 @@ public class StoreManagementView extends VerticalLayout {
             ownersIDefinedGrid.addColumn(UserInfoService::getStoreIOwnString).setHeader("Owner appointed by me to Stores");
 
             Button removeOwnerbutton = new Button("Remove Owner");
-            IntegerField removeOwnerStoreField = new IntegerField("StoreId");
-            removeOwnerStoreField.setMin(0);
-            removeOwnerStoreField.setHelperText("Select an Owner you want to remove and write his Store ID");
-            removeOwnerStoreField.setErrorMessage("Enter a valid StoreId!");
-            removeOwnerbutton.addClickListener(e-> removeOwnerAction(removeOwnerStoreField));
-            removeOwner.addContent(ownersIDefinedGrid, removeOwnerStoreField, removeOwnerbutton);
+            removeOwnerbutton.addClickListener(e-> removeOwnerAction(Integer.parseInt(storeSelectorRemoveOwner.getValue().split(":")[0])));
+            removeOwner.addContent(ownersIDefinedGrid, storeSelectorRemoveOwner, removeOwnerbutton);
         }
         usersDiv.add(removeOwner);
 
     }
 
+    private void refreshStoreList() {
+        List<String> stores = storesIOwn.entrySet().stream().map(e->e.getKey()+": "+e.getValue().getStoreName()).collect(Collectors.toList());
+        if (storeSelectorAdd == null) {
+            storeSelectorAdd = new Select<>();
+            storeSelectorRemoveManager = new Select<>();
+            storeSelectorRemoveOwner = new Select<>();
+
+            storeSelectorAdd.setLabel("Store");
+            storeSelectorAdd.setHelperText("Select a User  from grid and select the Store from dropdown");
+
+            storeSelectorRemoveManager.setLabel("Store");
+            storeSelectorRemoveManager.setHelperText("Select a User  from grid and select the Store from dropdown");
+
+            storeSelectorRemoveOwner.setLabel("Store");
+            storeSelectorRemoveOwner.setHelperText("Select a User  from grid and select the Store from dropdown");
+        }
+
+        storeSelectorAdd.setItems(stores);
+        storeSelectorAdd.setValue(stores.get(0));
+
+        storeSelectorRemoveManager.setItems(stores);
+        storeSelectorRemoveManager.setValue(stores.get(0));
+
+        storeSelectorRemoveOwner.setItems(stores);
+        storeSelectorRemoveOwner.setValue(stores.get(0));
+
+    }
     private HorizontalLayout addButtons() {
-        Select<String> select = new Select<>();
-        select.setLabel("Store");
-        select.setItems();
-        select.setValue("Most recent first");
-
-        add(select);
-        storeIdField = new IntegerField("StoreId");
-        storeIdField.setMin(0);
-        storeIdField.setErrorMessage("Enter a valid StoreId!");
-        storeIdField.setHelperText("Select a User you want to add and write the Store ID to associate with him");
-
         Button addOwnerButton = new Button("Add Owner");
         addOwnerButton.addClickListener(e -> addOwnerAction());
 
@@ -476,7 +487,7 @@ public class StoreManagementView extends VerticalLayout {
         setPadding(false);
         setAlignItems(Alignment.AUTO);
 
-        HorizontalLayout horizontalLayout1 = new HorizontalLayout(storeIdField, addOwnerButton, addManagerButton);
+        HorizontalLayout horizontalLayout1 = new HorizontalLayout(storeSelectorAdd, addOwnerButton, addManagerButton);
 
         horizontalLayout1.setAlignItems(FlexComponent.Alignment.BASELINE);
         return horizontalLayout1;
@@ -485,7 +496,7 @@ public class StoreManagementView extends VerticalLayout {
 
     private void addOwnerAction() {
         int chosenUserId = getIdOfSelectedRow(userGrid);
-        int storeId = storeIdField.getValue();
+        int storeId = Integer.parseInt(storeSelectorAdd.getValue().split(":")[0]);
 
         if(chosenUserId != -1){
             Result<Boolean> result = userService.addOwner(mainLayout.getCurrUserID(), chosenUserId, storeId);
@@ -505,9 +516,8 @@ public class StoreManagementView extends VerticalLayout {
         }
     }
 
-    private void removeOwnerAction(IntegerField removeOwnerStoreField) {
+    private void removeOwnerAction(int storeId) {
         int chosenUserId = getIdOfSelectedRow(ownersIDefinedGrid);
-        int storeId = removeOwnerStoreField.getValue();
 
         if(chosenUserId != -1){
             Result<Boolean> result = userService.removeOwner(mainLayout.getCurrUserID(), chosenUserId, storeId);
@@ -530,7 +540,7 @@ public class StoreManagementView extends VerticalLayout {
 
     private void addManagerAction() {
         int chosenUserId = getIdOfSelectedRow(userGrid);
-        int storeId = storeIdField.getValue();
+        int storeId = Integer.parseInt(storeSelectorAdd.getValue().split(":")[0]);
 
         if(chosenUserId != -1){
             Result<Boolean> result = userService.addManager(mainLayout.getCurrUserID(), chosenUserId, storeId);
@@ -553,11 +563,10 @@ public class StoreManagementView extends VerticalLayout {
         }
     }
 
-    private void removeManagerAction(IntegerField removeManagerStoreField) {
+    private void removeManagerAction(int storeId) {
         int chosenUserId = getIdOfSelectedRow(managersIDefinedGrid);
 
-        if(chosenUserId != -1 && removeManagerStoreField != null){
-            int storeId = removeManagerStoreField.getValue();
+        if(chosenUserId != -1){
             Result<Boolean> result = userService.removeManager(mainLayout.getCurrUserID(), chosenUserId, storeId);
 
             if(result.isError()){
@@ -2262,6 +2271,7 @@ public class StoreManagementView extends VerticalLayout {
     }
 
     private void refreshUserGrids() {
+        refreshStoreList();
         Result<List<UserInfoService>> result1 = userService.getAllOwnersIDefined(mainLayout.getCurrUserID());
         Result<Map<Integer, UserInfoService>> result2 = userService.getAllRegisteredUsers();
         Result<List<UserInfoService>> result3 = userService.getAllManagersIDefined(mainLayout.getCurrUserID());
