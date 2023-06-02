@@ -1,6 +1,7 @@
 package BusinessLayer.Stores.Conditions.LogicalCompositions;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.Stores.Conditions.LogicalCompositions.Rules.BuyerAgeRule;
 import BusinessLayer.Stores.Store;
 
 import java.util.List;
@@ -11,11 +12,11 @@ public class And extends LogicalComposite {
         super(components, id, store);
     }
 
-    public boolean checkConditions(List<CartItemInfo> basketItems)
+    public boolean checkConditions(List<CartItemInfo> basketItems, int age)
     {
         for (LogicalComponent component : getComponents())
         {
-            if (!component.checkConditions(basketItems))
+            if (!component.checkConditions(basketItems, age))
             {
                 return false;
             }

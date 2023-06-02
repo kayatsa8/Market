@@ -13,7 +13,7 @@ public class MustDatesRule extends Rule {
         this.mustDates = mustDates;
     }
     @Override
-    public boolean checkConditions(List<CartItemInfo> basketItems) {
+    public boolean checkConditions(List<CartItemInfo> basketItems, int age) {
         Calendar now = Calendar.getInstance();
         for (Calendar date : mustDates) {
             if (now.get(6) == date.get(6)) //6 = DAY_OF_YEAR (1-365, or 1-366 on leap years)

@@ -16,6 +16,7 @@ import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,10 +29,19 @@ public abstract class User {
     protected int id;
     protected UserMailbox mailbox;
 
+
     public User(int id) throws Exception {
         this.id = id;
         this.cart = new Cart(id);
         this.receiptHandler = new ReceiptHandler();
+    }
+
+    private int getAge() {
+        if(bDay == null)
+            return -1;
+        LocalDate now = LocalDate.now();
+        Period period = Period.between(now, bDay);
+        return period.getYears();
     }
 
     public Cart getCart() {
@@ -72,7 +82,7 @@ public abstract class User {
     }
 
     public Cart buyCart(PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) throws Exception {
-        receiptHandler.addReceipt(id,cart.buyCart(new PurchaseClient(), new SupplyClient(), purchaseInfo, supplyInfo));
+        receiptHandler.addReceipt(id,cart.buyCart(purchaseInfo, supplyInfo));
         return cart;
     }
 

@@ -208,7 +208,7 @@ public abstract class ProjectTest {
     }
 
     protected boolean buyCart(int userId, String deliveryAddress) {
-        PurchaseInfo purchaseInfo = new PurchaseInfo("number", 1, 2020, "adasd", 23, userId);
+        PurchaseInfo purchaseInfo = new PurchaseInfo("number", 1, 2020, "adasd", 23, userId, LocalDate.of(2000, 1, 1));
         SupplyInfo supplyInfo = new SupplyInfo("name", "address", "city", "country", "zip");
         return this.bridge.buyCart(userId, purchaseInfo, supplyInfo);
     }

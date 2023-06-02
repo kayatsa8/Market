@@ -124,11 +124,11 @@ public class Basket {
         return new CatalogItem(item.getItemID(), item.getItemName(), item.getPrice(), item.getCategory(), item.getStoreName(), item.getItemID(), item.getWeight());
     }
 
-    public void saveItems(List<String> coupons, int userID) throws Exception{
+    public void saveItems(List<String> coupons, int userID, int age) throws Exception{
         savedItems.set(getItemsInfo());
 
         try{
-            store.saveItemsForUpcomingPurchase(getItemsInfo(), coupons, userID);
+            store.saveItemsForUpcomingPurchase(getItemsInfo(), coupons, userID, age);
             itemsSaved = true;
         }
         catch(Exception e){
@@ -216,7 +216,7 @@ public class Basket {
     public void updateBasketWithCoupons(List<String> coupons) throws Exception {
         List<CartItemInfo> updatedBasketItems = getItemsInfo();
         store.updateBasket(updatedBasketItems, coupons);
-        checkIfPurchaseIsValid(updatedBasketItems);
+        //checkIfPurchaseIsValid(updatedBasketItems, age);
         updateBasketByCartItemInfoList(updatedBasketItems);
     }
 
@@ -226,8 +226,8 @@ public class Basket {
         }
     }
 
-    private void checkIfPurchaseIsValid(List<CartItemInfo> updatedBasketItems) throws Exception {
-        if(!store.checkIfPurchaseIsValid(updatedBasketItems)){
+    private void checkIfPurchaseIsValid(List<CartItemInfo> updatedBasketItems, int age) throws Exception {
+        if(!store.checkIfPurchaseIsValid(updatedBasketItems, age)){
             throw new Exception("ERROR: Basket::checkIfPurchaseIsValid: the purchase is not valid!");
         }
     }

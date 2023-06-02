@@ -51,6 +51,7 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
     private static Map<String, UserPL> currUsers = new HashMap<>();
     private AppNavItem loginAndRegister;
     private AppNavItem systemAdmin;
+    private AppNavItem bidview;
     private AppNavItem marketOwnerOrManager;
 
     private Button logoutBtn;
@@ -127,10 +128,11 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
         loginAndRegister = new AppNavItem("Login/Register", LoginAndRegisterView.class, LineAwesomeIcon.PERSON_BOOTH_SOLID.create());
         marketOwnerOrManager = new AppNavItem("Store Management", StoreManagementView.class, LineAwesomeIcon.TRUCK_LOADING_SOLID.create());
         systemAdmin = new AppNavItem("System Management", SystemManagementView.class, LineAwesomeIcon.WRENCH_SOLID.create());
-
+        bidview = new AppNavItem("My Bids", BidView.class, MONEY_BILL_WAVE_SOLID.create());
         nav.addItem(new AppNavItem("Explore Market", ClientView.class, SHOPPING_CART_SOLID.create()));
         nav.addItem(loginAndRegister);
         nav.addItem(marketOwnerOrManager);
+        nav.addItem(bidview);
         nav.addItem(systemAdmin);
         return nav;
     }
@@ -169,6 +171,7 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
         systemAdmin.setVisible(false);
         marketOwnerOrManager.setVisible(false);
         loginAndRegister.setVisible(true);
+        bidview.setVisible(false);
     }
 
     public void setUserView() {
@@ -176,6 +179,7 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
         systemAdmin.setVisible(userService.isAdmin(getCurrUserID()));
         marketOwnerOrManager.setVisible(true);
         loginAndRegister.setVisible(false);
+        bidview.setVisible(true);
         user.setText(getUserName());
     }
 

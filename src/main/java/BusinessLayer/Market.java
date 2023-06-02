@@ -9,15 +9,13 @@ import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
-import BusinessLayer.Stores.CatalogItem;
+import BusinessLayer.Stores.*;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
 import BusinessLayer.Stores.Policies.DiscountPolicy;
 import BusinessLayer.Stores.Discounts.Discount;
 import BusinessLayer.Stores.Discounts.DiscountsTypes.Visible;
 import BusinessLayer.Stores.Policies.PurchasePolicy;
-import BusinessLayer.Stores.Store;
-import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.SystemManager;
 import BusinessLayer.Users.User;
@@ -193,6 +191,10 @@ public class Market {
 
     public Cart buyCart(int userID, PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) throws Exception {
         return userFacade.buyCart(userID, purchaseInfo, supplyInfo);
+    }
+
+    public boolean payForBid(int storeID, int bidID, PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) throws Exception {
+        return storeFacade.payForBid(storeID, bidID, purchaseInfo, supplyInfo);
     }
 
     /**
@@ -509,6 +511,50 @@ public class Market {
         return storeFacade.getStoreDiscountPolicies(storeID);
     }
 
+    public Map<Integer, List<Bid>> getUserBidsToReply(int userID) throws Exception
+    {
+        return storeFacade.getUserBidsToReply(userID);
+    }
+    public void addBid(int storeID, int itemID, int userID, double offeredPrice) throws Exception
+    {
+        storeFacade.addBid(storeID, itemID, userID, offeredPrice);
+    }
+
+    public List<Bid> getUserBids(int userID)
+    {
+        return storeFacade.getUserBids(userID);
+    }
+
+    public boolean approve(int storeID, int bidID, int replierUserID) throws Exception
+    {
+        BidReplies reply = storeFacade.approve(storeID, bidID, replierUserID);
+        switch (reply) {
+            case REJECTED, COUNTERED -> {
+                return false;
+            }
+            case APPROVED -> {
+                //add to cart
+                //
+                return true;
+            }
+        }
+        throw new RuntimeException("Illegeal Reply from approve");
+    }
+
+    public boolean replyToCounterOffer(int storeID, int bidID, boolean accepted) throws Exception
+    {
+        return storeFacade.replyToCounterOffer(storeID, bidID, accepted);
+    }
+
+    public boolean reject(int storeID, int bidID, int replierUserID) throws Exception
+    {
+        return storeFacade.reject(storeID, bidID, replierUserID);
+    }
+    public boolean counterOffer(int storeID, int bidID, int replierUserID, double counterOffer) throws Exception
+    {
+        return storeFacade.counterOffer(storeID, bidID, replierUserID, counterOffer);
+    }
+
     public Map<RegisteredUser, Set<Integer>> getAllOwnersIDefined(int ownerId) throws Exception {
         return userFacade.getAllOwnersIDefined(ownerId);
     }
@@ -570,4 +616,7 @@ public class Market {
     }
 
 
+    public void cancelBid(int storeId, int id) throws Exception {
+        storeFacade.cancelBid(storeId, id);
+    }
 }

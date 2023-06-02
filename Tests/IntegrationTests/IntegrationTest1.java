@@ -12,6 +12,8 @@ import BusinessLayer.Users.UserFacade;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.time.LocalDate;
+
 import static org.junit.Assert.*;
 
 
@@ -130,7 +132,7 @@ public class IntegrationTest1 {
 
 
     public PurchaseInfo getPurchaseInfo(){
-        return new PurchaseInfo("123", 1, 2222, "asd", 1222, 1);
+        return new PurchaseInfo("123", 1, 2222, "asd", 1222, 1, LocalDate.of(2000, 1, 1));
     }
 
     public SupplyInfo getSupplyInfo(){

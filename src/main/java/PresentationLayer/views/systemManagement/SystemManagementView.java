@@ -27,6 +27,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.selection.SingleSelect;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.Route;
 
 import java.util.List;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 
 @PageTitle("About")
 @Route(value = "admin", layout = MainLayout.class)
+@PreserveOnRefresh
 public class SystemManagementView extends VerticalLayout {
 
 
