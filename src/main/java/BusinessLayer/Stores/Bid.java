@@ -92,31 +92,42 @@ public class Bid {
         if (bidRejected)
             return false;
         bidRejected = true;
-        //finishBid();
         return true;
     }
-
-    public boolean counterOffer(int replierUserID, double counterOffer) throws Exception {
-        if (!repliers.keySet().contains(replierUserID)) {
-            //return false;
+    public boolean counterOffer(int replierUserID, double counterOffer) throws Exception
+    {
+        if (!repliers.keySet().contains(replierUserID))
+        {
             throw new Exception("The user " + replierUserID + " is not allowed to reply to bid in this store");
         }
-        if (repliers.get(replierUserID) != null) {
+        if (repliers.get(replierUserID) != null)
+        {
             throw new Exception("The user " + replierUserID + " has already replied to this bid");
         }
+        if (counterOffer <= 0)
+        {
+            throw new Exception("The counter offer must be positive");
+        }
+        if (counterOffer <= offeredPrice)
+        {
+            throw new Exception("The counter offer must be higher than the offered price of the buyer");
+        }
         repliers.put(replierUserID, COUNTERED);
-        if (counterOffer > highestCounterOffer) {
+        if (counterOffer > highestCounterOffer)
+        {
             highestCounterOffer = counterOffer;
         }
-        if (allReplied()) {
-            //finishBid();
+        if (allReplied())
+        {
             return true;
         }
         return false;
     }
 
-    private boolean allReplied() {
-        for (Map.Entry<Integer, BidReplies> entry : repliers.entrySet()) {
+    private boolean allReplied()
+    {
+        for (Map.Entry<Integer, BidReplies> entry : repliers.entrySet())
+        {
             if (entry.getValue() == null) {
                 return false;
             }

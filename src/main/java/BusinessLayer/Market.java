@@ -515,9 +515,9 @@ public class Market {
     {
         return storeFacade.getUserBidsToReply(userID);
     }
-    public void addBid(int storeID, int itemID, int userID, double offeredPrice) throws Exception
+    public Bid addBid(int storeID, int itemID, int userID, double offeredPrice) throws Exception
     {
-        storeFacade.addBid(storeID, itemID, userID, offeredPrice);
+        return storeFacade.addBid(storeID, itemID, userID, offeredPrice);
     }
 
     public List<Bid> getUserBids(int userID)

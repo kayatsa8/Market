@@ -1035,7 +1035,7 @@ public class ShoppingService {
     public Result<Boolean> addBid(int storeID, int itemID, int userID, double offeredPrice)
     {
         try {
-            market.addBid(storeID, itemID, userID, offeredPrice);
+            Bid newBid = market.addBid(storeID, itemID, userID, offeredPrice);
             log.info("Added new bid");
             return new Result<>(false, true);
         } catch (Exception e) {
