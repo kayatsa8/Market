@@ -8,6 +8,7 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +45,7 @@ public class Basket {
     })
     private List<CartItemInfo> savedItems;
 
-    private int userId; // for Basket & CartItemInfo
+    private int userId;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -411,6 +412,25 @@ public class Basket {
         this.storeId = storeId;
     }
 
+    @Override
+    public String toString() {
+        return "Basket{" +
+                "store=" + store +
+                ", storeId=" + storeId +
+                ", items=" + items +
+                ", itemsSaved=" + itemsSaved +
+                ", savedItems=" + savedItems +
+                ", userId=" + userId +
+                ", id=" + id +
+                '}';
+    }
+
+
+
+
+
+
+
     @Entity
     @Table(name = "itemwrapper")
     /**
@@ -432,12 +452,6 @@ public class Basket {
         @OneToOne
         @JoinColumn(name = "infoId")
         public CartItemInfo info;
-
-        //jess
-        private int userId;
-        //jess
-        private int storeId;
-
 
         public ItemWrapper(CatalogItem _item, int quantity){
             item = _item;
@@ -481,22 +495,6 @@ public class Basket {
         //jess
         public void setItemId(int itemId) {
             this.itemId = itemId;
-        }
-
-        public int getUserId() {
-            return userId;
-        }
-
-        public void setUserId(int userId) {
-            this.userId = userId;
-        }
-
-        public int getStoreId() {
-            return storeId;
-        }
-
-        public void setStoreId(int storeId) {
-            this.storeId = storeId;
         }
 
         @Override
