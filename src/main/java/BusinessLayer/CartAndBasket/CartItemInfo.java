@@ -1,11 +1,14 @@
 package BusinessLayer.CartAndBasket;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
 public class CartItemInfo {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private int itemID;
     private int amount;
@@ -16,7 +19,6 @@ public class CartItemInfo {
     private double weight;
 
     public CartItemInfo(int itemID, int amount, double originalPrice, String category, String itemName, double weight){
-        this.id = itemID;
         this.itemID = itemID;
         this.amount = amount;
         this.percent = 0;
@@ -95,5 +97,19 @@ public class CartItemInfo {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return "CartItemInfo{" +
+                "id=" + id +
+                ", itemID=" + itemID +
+                ", amount=" + amount +
+                ", percent=" + percent +
+                ", originalPrice=" + originalPrice +
+                ", category='" + category + '\'' +
+                ", itemName='" + itemName + '\'' +
+                ", weight=" + weight +
+                '}';
     }
 }

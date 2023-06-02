@@ -27,6 +27,7 @@ import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
 
+import javax.persistence.Entity;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 import static BusinessLayer.StorePermissions.StoreActionPermissions.BID_MANAGEMENT;
 import static BusinessLayer.Stores.StoreStatus.*;
 
+//@Entity
 public class Store {
     private static final Logger log = Log.log;
     private final int founderID;

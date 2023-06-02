@@ -246,7 +246,7 @@ public class SystemManagerTests extends ProjectTest{
 //
 //        HashMap<Integer,List<ReceiptService>> receipts = this.getSellingHistoryOfUser(user7SystemManagerId, user2LoggedInId);
 //        assertNotNull(receipts);
-//        //assertEquals(receipts.get(0).getItems().get(0).getName(), "Tomato");
+//        //assertEquals(receipts.get(0).getItemsAsMap().get(0).getName(), "Tomato");
 //    }
     */
 

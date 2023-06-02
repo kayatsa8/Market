@@ -22,6 +22,7 @@ import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.SystemManager;
 import BusinessLayer.Users.User;
 import BusinessLayer.Users.UserFacade;
+import DataAccessLayer.Hibernate.ConnectorConfigurations;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -37,6 +38,9 @@ public class Market {
     private Map<Integer, SystemManager> systemManagerMap;
     private NotificationHub notificationHub;
     private static final Object instanceLock = new Object();
+
+    private ConnectorConfigurations configurations;
+
     private Market() throws Exception {
         systemManagerMap = new HashMap<>();
         userFacade = new UserFacade();
@@ -53,6 +57,14 @@ public class Market {
             }
             return instance;
         }
+    }
+
+    public void setConfigurations(String unitName, String url, String username, String password, String driver){
+        configurations = new ConnectorConfigurations(unitName, url, username, password, driver);
+    }
+
+    public ConnectorConfigurations getConfigurations(){
+        return configurations;
     }
 
     public User addGuest() throws Exception {

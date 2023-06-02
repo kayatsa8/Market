@@ -104,8 +104,8 @@ public class DBConnector<T>{
         start();
 
         String queryString = "UPDATE " + clazz.getName() + " x " +
-                "SET x." + attributeName + " = :newValue " +
-                "WHERE x.id = :_id";
+                             "SET x." + attributeName + " = :newValue " +
+                             "WHERE x.id = :_id";
 
         Query query = manager.createQuery(queryString);
         query.setParameter("newValue", newValue);
@@ -136,6 +136,34 @@ public class DBConnector<T>{
         Query query = manager.createQuery(queryString);
 
         noValueQuery(query);
+    }
+
+    //send here an object after an update
+    public void saveState(T updatedObject){
+        start();
+
+        EntityTransaction et = null;
+
+        try {
+            // Get transaction and start
+            et = manager.getTransaction();
+            et.begin();
+
+            // Save the customer object
+            manager.persist(updatedObject);
+            et.commit();
+        }
+        catch (Exception ex) {
+            // If there is an exception rollback changes
+            if (et != null) {
+                et.rollback();
+            }
+            ex.printStackTrace();
+        }
+        finally {
+            // Close EntityManager
+            manager.close();
+        }
     }
 
 

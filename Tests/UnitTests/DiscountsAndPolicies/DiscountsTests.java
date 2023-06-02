@@ -91,7 +91,7 @@ public class DiscountsTests {
         try {
             market.changeItemQuantityInCart(noRole.getId(), store1.getStoreID(), item1.getItemID(), 5);
             Cart cart = market.buyCart(noRole.getId(), getPurchaseInfo(), getSupplyInfo());
-            assertTrue(String.valueOf(cart.getBaskets().size()),cart.getBaskets().size() == 0);
+            assertTrue(String.valueOf(cart.getBasketsAsHashMap().size()),cart.getBasketsAsHashMap().size() == 0);
         } catch (Exception e) {
             fail(e.getMessage());
         }

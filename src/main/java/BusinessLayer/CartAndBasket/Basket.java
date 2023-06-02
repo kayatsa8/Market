@@ -1,32 +1,64 @@
 package BusinessLayer.CartAndBasket;
 
-import BusinessLayer.CartAndBasket.Repositories.Baskets.ItemsRepository;
-import BusinessLayer.CartAndBasket.Repositories.Baskets.SavedItemsRepository;
+import BusinessLayer.Market;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
+import DataAccessLayer.Hibernate.DBConnector;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * DBConnector must have a separate query, and NOT use getById
+ */
+@Entity
 public class Basket {
     //fields
+//    @ManyToOne
+//    @JoinColumn(name = "storeId")
+    @Transient
     private Store store;
-    private ConcurrentHashMap<Integer, Basket.ItemWrapper> items;
+    //jess
+    private int storeId;
+
+    @OneToMany()
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @CollectionTable(name = "ItemWrapper",
+                    joinColumns = {
+                        @JoinColumn(name = "userId", referencedColumnName = "userId"),
+                        @JoinColumn(name = "storeId", referencedColumnName = "storeId")
+                    }) //BUG POTENTIAL: CollectionTable may cause problems
+    private List<Basket.ItemWrapper> items;
+
     private boolean itemsSaved; // true if the store saves the items inside the basket for the user
+    @OneToMany()
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @CollectionTable(name = "savedItems",
+            joinColumns = {
+            @JoinColumn(name = "userId", referencedColumnName = "userId"),
+            @JoinColumn(name = "storeId", referencedColumnName = "storeId")
+    })
     private List<CartItemInfo> savedItems;
 
     private int userId; // for Basket & CartItemInfo
-    private int storeId; // for CartItemInfo
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
     //methods
     public Basket(Store _store, int _userId){
         store = _store;
-        items = new ConcurrentHashMap<>();
+        items = new ArrayList<>();
         itemsSaved = false;
         savedItems = new ArrayList<>();
         userId = _userId;
+
+        //jess
         storeId = store.getStoreID();
     }
 
@@ -36,12 +68,28 @@ public class Basket {
 
     public void addItem(CatalogItem item, int quantity, List<String> coupons) throws Exception {
         validateAddItem(item, quantity);
-        if (items.containsKey(item.getItemID())){
-            int prevAmount= items.get(item.getItemID()).info.getAmount();;
-            items.put(item.getItemID(), new ItemWrapper(item, quantity+prevAmount));
+        ItemWrapper wrapper = searchInItemsById(item.getItemID());
+
+        DBConnector<CartItemInfo> infoConnector =
+                new DBConnector<>(CartItemInfo.class, Market.getInstance().getConfigurations());
+
+        DBConnector<ItemWrapper> wrapperConnector =
+                new DBConnector<>(ItemWrapper.class, Market.getInstance().getConfigurations());
+
+
+        if (wrapper != null){
+            int prevAmount= wrapper.info.getAmount();
+            wrapper.info.setAmount(quantity + prevAmount);
+
+            infoConnector.saveState(wrapper.info);
         }
-        else
-            items.putIfAbsent(item.getItemID(), new ItemWrapper(item, quantity));
+        else{
+            wrapper = new ItemWrapper(item, quantity);
+            items.add(wrapper);
+
+            infoConnector.insert(wrapper.info);
+            wrapperConnector.insert(wrapper);
+        }
 
         releaseItems();
 
@@ -56,7 +104,13 @@ public class Basket {
     public void changeItemQuantity(int itemID, int quantity, List<String> coupons) throws Exception {
         validateChangeItemQuantity(itemID, quantity);
 
-        items.get(itemID).info.setAmount(quantity);
+        ItemWrapper wrapper = searchInItemsById(itemID);
+        wrapper.info.setAmount(quantity);
+
+        DBConnector<CartItemInfo> connector =
+                new DBConnector<>(CartItemInfo.class, Market.getInstance().getConfigurations());
+
+        connector.saveState(wrapper.info);
 
         releaseItems();
 
@@ -69,12 +123,23 @@ public class Basket {
     }
 
     public void removeItem(int itemID, List<String> coupons) throws Exception {
-        if(!items.containsKey(itemID)){
+        ItemWrapper wrapper = searchInItemsById(itemID);
+
+        if(wrapper == null){
             //LOG
             throw new Exception("ERROR: Basket::removeItemFromCart: no such item in basket!");
         }
 
-        items.remove(itemID);
+        items.remove(wrapper);
+
+        DBConnector<CartItemInfo> infoConnector =
+                new DBConnector<>(CartItemInfo.class, Market.getInstance().getConfigurations());
+
+        DBConnector<ItemWrapper> wrapperConnector =
+                new DBConnector<>(ItemWrapper.class, Market.getInstance().getConfigurations());
+
+        infoConnector.delete(wrapper.info.getId());
+        wrapperConnector.delete(wrapper.id);
 
         releaseItems();
 
@@ -109,7 +174,7 @@ public class Basket {
             throw new Exception("ERROR: Basket::changeItemQuantityInCart: given quantity is not valid!");
         }
 
-        if(!items.containsKey(itemID)){
+        if(searchInItemsById(itemID) == null){
             //LOG
             throw new Exception("ERROR: Basket::changeItemQuantityInCart: the item is not in the basket!");
         }
@@ -119,15 +184,19 @@ public class Basket {
         return store;
     }
 
-    public HashMap<CatalogItem, CartItemInfo> getItems(){
+    public HashMap<CatalogItem, CartItemInfo> getItemsAsMap(){
         HashMap<CatalogItem, CartItemInfo> inBasket = new HashMap<>();
 
-        for(Integer itemID : items.keySet()){
-            inBasket.putIfAbsent(makeCopyOfCatalogItem(items.get(itemID).item),
-                    new CartItemInfo(items.get(itemID).info));
+        for(ItemWrapper wrapper : items){
+            inBasket.putIfAbsent(makeCopyOfCatalogItem(wrapper.item),
+                    new CartItemInfo(wrapper.info));
         }
 
         return inBasket;
+    }
+
+    public List<ItemWrapper> getItems(){
+        return items;
     }
 
     private CatalogItem makeCopyOfCatalogItem(CatalogItem item){
@@ -140,6 +209,11 @@ public class Basket {
         try{
             store.saveItemsForUpcomingPurchase(getItemsInfo(), coupons, userID);
             itemsSaved = true;
+
+            DBConnector<Basket> basketConnector =
+                    new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
+
+            basketConnector.saveState(this);
         }
         catch(Exception e){
             //LOG
@@ -148,8 +222,16 @@ public class Basket {
                 NOTICE: the Store may throw an exception if Basket requests a certain
                 item more than Store can provide.
             */
+
+            DBConnector<Basket> basketConnector =
+                    new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
+
             savedItems = null;
             itemsSaved = false;
+
+            //NOTE: maybe need to delete every CartItemInfo in savedItems -> possible solution: empty savedItems, save, make null, save
+
+            basketConnector.saveState(this);
             throw e;
         }
 
@@ -160,7 +242,7 @@ public class Basket {
     private List<CartItemInfo> getItemsInfo(){
         List<CartItemInfo> infos = new ArrayList<>();
 
-        for(ItemWrapper wrapper : items.values()){
+        for(ItemWrapper wrapper : items){
             infos.add(new CartItemInfo(wrapper.info));
         }
 
@@ -190,7 +272,7 @@ public class Basket {
     private HashMap<CatalogItem, CartItemInfo> prepareItemsForReceipt(){
         HashMap<CatalogItem, CartItemInfo> data = new HashMap<>();
 
-        for(ItemWrapper item : items.values()){
+        for(ItemWrapper item : items){
             data.putIfAbsent(item.item, item.info);
         }
 
@@ -202,17 +284,34 @@ public class Basket {
      * asks the store to release the saved items
      */
     public void releaseItems() throws Exception {
+        DBConnector<Basket> basketConnector =
+                new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
+        DBConnector<CartItemInfo> infoConnector =
+                new DBConnector<>(CartItemInfo.class, Market.getInstance().getConfigurations());
+
+
         if(itemsSaved){
             itemsSaved = false;
             store.reverseSavedItems(savedItems);
+
+//            for(CartItemInfo info : savedItems){
+//                infoConnector.delete(info.getId());
+//            }
+
+            savedItems.clear();
+
+            basketConnector.saveState(this);
+
             savedItems = null;
+
+            basketConnector.saveState(this);
         }
     }
 
     public double calculateTotalPrice(){
         double price = 0;
 
-        for(ItemWrapper wrapper : items.values()){
+        for(ItemWrapper wrapper : items){
             price += wrapper.info.getFinalPrice();
         }
 
@@ -220,7 +319,7 @@ public class Basket {
     }
 
     public boolean isItemInBasket(int itemID){
-        return items.containsKey(itemID);
+        return searchInItemsById(itemID) != null;
     }
 
     public void updateBasketWithCoupons(List<String> coupons) throws Exception {
@@ -230,10 +329,21 @@ public class Basket {
         updateBasketByCartItemInfoList(updatedBasketItems);
     }
 
-    private void updateBasketByCartItemInfoList(List<CartItemInfo> updatedBasketItems) {
+    private void updateBasketByCartItemInfoList(List<CartItemInfo> updatedBasketItems) throws Exception {
+        DBConnector<CartItemInfo> infoConnector =
+                new DBConnector<>(CartItemInfo.class, Market.getInstance().getConfigurations());
+        DBConnector<ItemWrapper> wrapperConnector =
+                new DBConnector<>(ItemWrapper.class, Market.getInstance().getConfigurations());
+
         for(CartItemInfo info : updatedBasketItems){
-            items.get(info.getItemID()).info = info;
+            infoConnector.delete(searchInItemsById(info.getItemID()).info.getId());
+            infoConnector.insert(info);
+
+            searchInItemsById(info.getItemID()).info = info;
+
+            wrapperConnector.saveState(searchInItemsById(info.getItemID()));
         }
+
     }
 
     private void checkIfPurchaseIsValid(List<CartItemInfo> updatedBasketItems) throws Exception {
@@ -246,7 +356,7 @@ public class Basket {
         this.store = store;
     }
 
-    public void setItems(ConcurrentHashMap<Integer, ItemWrapper> items) {
+    public void setItems(List<ItemWrapper> items) {
         this.items = items;
     }
 
@@ -274,29 +384,129 @@ public class Basket {
         this.userId = userId;
     }
 
+    private ItemWrapper searchInItemsById(int id){
+        for(ItemWrapper wrapper : items){
+            if(wrapper.item.getItemID() == id){
+                return wrapper;
+            }
+        }
+
+        return null;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    //jess
     public int getStoreId() {
         return storeId;
     }
-
+    //jess
     public void setStoreId(int storeId) {
         this.storeId = storeId;
     }
 
-
-
-
-
+    @Entity
+    @Table(name = "itemwrapper")
     /**
      * <CatalogItem, quantity>
      * this class is a wrapper for Basket use only
      */
-    public class ItemWrapper{
+    public static class ItemWrapper{
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        int id;
+        //@Column(name = "id")
+//        @ManyToOne
+//        @JoinColumn(name = "itemId")
+        @Transient
         public CatalogItem item;
+        //jess
+        private int itemId;
+
+        @OneToOne
+        @JoinColumn(name = "infoId")
         public CartItemInfo info;
+
+        //jess
+        private int userId;
+        //jess
+        private int storeId;
+
 
         public ItemWrapper(CatalogItem _item, int quantity){
             item = _item;
             info = new CartItemInfo(item.getItemID(), quantity, item.getPrice(), _item.getCategory(), _item.getItemName(), _item.getWeight());
+
+            //jess
+            itemId = item.getItemID();
+        }
+
+        public ItemWrapper() {
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public CatalogItem getItem() {
+            return item;
+        }
+
+        public void setItem(CatalogItem item) {
+            this.item = item;
+        }
+
+        public CartItemInfo getInfo() {
+            return info;
+        }
+
+        public void setInfo(CartItemInfo info) {
+            this.info = info;
+        }
+
+        //jess
+        public int getItemId() {
+            return itemId;
+        }
+        //jess
+        public void setItemId(int itemId) {
+            this.itemId = itemId;
+        }
+
+        public int getUserId() {
+            return userId;
+        }
+
+        public void setUserId(int userId) {
+            this.userId = userId;
+        }
+
+        public int getStoreId() {
+            return storeId;
+        }
+
+        public void setStoreId(int storeId) {
+            this.storeId = storeId;
+        }
+
+        @Override
+        public String toString() {
+            return "ItemWrapper{" +
+                    "id=" + id +
+                    ", item=" + item +
+                    ", itemId=" + itemId +
+                    ", info=" + info +
+                    '}';
         }
     }
 

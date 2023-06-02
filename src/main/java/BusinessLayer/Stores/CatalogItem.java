@@ -4,9 +4,11 @@ import BusinessLayer.Stores.Policies.DiscountPolicy;
 import BusinessLayer.Stores.Discounts.Discount;
 import BusinessLayer.Stores.Policies.PurchasePolicy;
 
+import javax.persistence.Entity;
 import java.util.ArrayList;
 import java.util.List;
 
+//@Entity
 public class CatalogItem {
     private String itemName;
     private double price;

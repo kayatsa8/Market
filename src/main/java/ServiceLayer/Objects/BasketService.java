@@ -19,7 +19,7 @@ public class BasketService {
     }
 
     public boolean isEmpty() {
-        return basket.getItems().isEmpty();
+        return basket.getItemsAsMap().isEmpty();
     }
 
     public int getStoreId(){
@@ -33,7 +33,7 @@ public class BasketService {
     }
     public List<CartItemInfoService> getAllItems(){
         List<CartItemInfoService> serviceItemsList =new LinkedList<>();
-        basket.getItems().values().forEach(cartItemInfo -> serviceItemsList.add(new CartItemInfoService(cartItemInfo)));
+        basket.getItemsAsMap().values().forEach(cartItemInfo -> serviceItemsList.add(new CartItemInfoService(cartItemInfo)));
         return serviceItemsList;
     }
 

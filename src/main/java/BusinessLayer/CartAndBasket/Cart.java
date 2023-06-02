@@ -1,25 +1,39 @@
 package BusinessLayer.CartAndBasket;
 
-import BusinessLayer.CartAndBasket.Repositories.Carts.BasketsRepository;
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.ExternalSystems.PurchaseInfo;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
 import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.Log;
+import BusinessLayer.Market;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
+import DataAccessLayer.Hibernate.DBConnector;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Entity
 public class Cart {
 
     //fields
+    @Id
     private int userID;
-    private ConcurrentHashMap<Integer, Basket> baskets; // <storeID, Basket>
+
+    @OneToMany()
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @JoinColumn(name = "userId")
+    private List<Basket> baskets;
+
+    @ElementCollection
+    @CollectionTable(name = "cart_coupons", joinColumns = @JoinColumn(name="userId"))
+    @Column(name="coupon")
     private List<String> coupons;
 
 
@@ -30,48 +44,75 @@ public class Cart {
      */
     public Cart(int _userID){
         userID = _userID;
-        baskets = new ConcurrentHashMap<>();
+        baskets = new ArrayList<>();
         coupons = new ArrayList<>();
         Log.log.info("A new cart was created for user " + userID);
     }
 
+    public Cart(){
+
+    }
+
     public void addItem(Store store, CatalogItem item, int quantity) throws Exception {
-        baskets.putIfAbsent(store.getStoreID(), new Basket(store, userID));
-        baskets.get(store.getStoreID()).addItem(item, quantity, coupons);
+        Basket b = baskets_getBasketByStoreId(store.getStoreID());
+        if(b == null){
+            b = new Basket(store, userID);
+            baskets.add(b);
+
+            DBConnector<Basket> basketConnector =
+                    new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
+
+            basketConnector.insert(b);
+        }
+
+        b.addItem(item, quantity, coupons);
 
         Log.log.info("The item " + item.getItemID() + " of store " +
                 store.getStoreID() + " was added (" + quantity + " units)");
     }
 
     public void removeItem(int storeID, int itemID) throws Exception {
-        if(!baskets.containsKey(storeID)){
+        Basket basket = baskets_getBasketByStoreId(storeID);
+
+        if(basket == null){
             Log.log.warning("Cart::removeItemFromCart: the store " + storeID + " was not found!");
             throw new Exception("Cart::removeItemFromCart: the store " + storeID + " was not found!");
         }
 
-        baskets.get(storeID).removeItem(itemID, coupons);
+        basket.removeItem(itemID, coupons);
         Log.log.info("The item " + itemID + " of store " + storeID + " was removed from the cart");
     }
 
     public Basket removeBasket(int storeID) throws Exception {
-        Basket basket=baskets.remove(storeID);
-        if(basket==null){
+        Basket basket = baskets_getBasketByStoreId(storeID);
+
+        if(basket == null){
             Log.log.warning("Cart::removeBasket: the store " + storeID + " was not found!");
             throw new Exception("Cart::removeBasket: the store " + storeID + " was not found!");
         }
-        else
-            Log.log.info("The Basket from user"+userID+" of store " + storeID + " was removed from the cart");
-        return basket;
+        else {
+            baskets.remove(basket);
 
+            DBConnector<Basket> basketConnector =
+                    new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
+
+            basketConnector.delete(basket.getId());
+
+            Log.log.info("The Basket from user"+userID+" of store " + storeID + " was removed from the cart");
+        }
+
+        return basket;
     }
 
     public void changeItemQuantity(int storeID, int itemID, int quantity) throws Exception {
-        if(!baskets.containsKey(storeID)){
+        Basket basket = baskets_getBasketByStoreId(storeID);
+
+        if(basket == null){
             Log.log.warning("Cart::changeItemQuantityInCart: the store " + storeID + " was not found!");
             throw new Exception("Cart::changeItemQuantityInCart: the store " + storeID + " was not found!");
         }
 
-        baskets.get(storeID).changeItemQuantity(itemID, quantity, coupons);
+        basket.changeItemQuantity(itemID, quantity, coupons);
         Log.log.info("The quantity of item " + itemID + "was changed");
     }
 
@@ -83,7 +124,7 @@ public class Cart {
     public List<String> getStoresOfBaskets(){
         List<String> names = new ArrayList<>();
 
-        for(Basket basket : baskets.values()){
+        for(Basket basket : baskets){
             names.add(basket.getStore().getStoreName());
         }
 
@@ -98,11 +139,11 @@ public class Cart {
             throw new Exception("Cart::getItemsInBasket: the store " + storeName + " was not found!");
         }
 
-        return baskets.get(storeID).getItems();
+        return baskets_getBasketByStoreId(storeID).getItemsAsMap();
     }
 
     private int findStoreWithName(String name){
-        for(Basket basket : baskets.values()){
+        for(Basket basket : baskets){
             if(basket.getStore().getStoreName().equals(name)){
                 return basket.getStore().getStoreID();
             }
@@ -118,12 +159,15 @@ public class Cart {
      */
     public Map<Integer, Map<CatalogItem, CartItemInfo>> buyCart(PurchaseClient purchase, SupplyClient supply, PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) throws Exception {
         HashMap<Integer, Map<CatalogItem, CartItemInfo>> receiptData = new HashMap<>();
+
         if(!purchase.handShake()){
             throw new Exception("Problem with connection to external System");
         }
-        for(Basket basket : baskets.values()){
+
+        for(Basket basket : baskets){
             basket.saveItems(coupons, userID);
         }
+
         Log.log.info("Items of cart " + userID + " are saved");
 
         //TODO: should change in future versions
@@ -141,11 +185,14 @@ public class Cart {
 
 
         if( purchaseTransId == -1 || supplyTransId == -1 ){
-            for(Basket basket : baskets.values()){
+
+            for(Basket basket : baskets){
                 basket.releaseItems();
             }
+
             supply.cancelSupply(supplyTransId);
             purchase.cancelPay(purchaseTransId);
+
             throw new Exception("Problem with Supply or Purchase");
         }
         else{
@@ -154,7 +201,7 @@ public class Cart {
         }
 
 
-        for(Basket basket : baskets.values()){
+        for(Basket basket : baskets){
             receiptData.putIfAbsent(basket.getStore().getStoreID(), basket.buyBasket(userID));
         }
 
@@ -170,14 +217,31 @@ public class Cart {
      * empties the cart
      */
     public void empty(){
-        baskets.clear();
-        coupons.clear();
+        try{
+            DBConnector<Basket> basketConnector =
+                    new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
+
+            for(Basket basket : baskets){
+                basketConnector.delete(basket.getId());
+            }
+
+            baskets.clear();
+            coupons.clear();
+
+            DBConnector<Cart> cartConnector =
+                    new DBConnector<>(Cart.class, Market.getInstance().getConfigurations());
+
+            cartConnector.saveState(this);
+        }
+        catch(Exception e){
+            System.out.println("Cart::empty: " + e.getMessage());
+        }
     }
 
     public double calculateTotalPrice(){
         double price = 0;
 
-        for(Basket basket : baskets.values()){
+        for(Basket basket : baskets){
             price += basket.calculateTotalPrice();
         }
 
@@ -185,11 +249,17 @@ public class Cart {
     }
 
     public boolean isItemInCart(int itemID, int storeID){
-        return baskets.get(storeID).isItemInBasket(itemID);
+        return baskets_getBasketByStoreId(storeID).isItemInBasket(itemID);
     }
 
-    public ConcurrentHashMap<Integer, Basket> getBaskets() {
-        return baskets;
+    public ConcurrentHashMap<Integer, Basket> getBasketsAsHashMap() {
+        ConcurrentHashMap<Integer, Basket> basketMap = new ConcurrentHashMap<>();
+
+        for(Basket basket : baskets){
+            basketMap.put(basket.getStore().getStoreID(), basket);
+        }
+
+        return basketMap;
     }
 
     public void addCoupon(String coupon) throws Exception {
@@ -198,6 +268,11 @@ public class Cart {
         }
 
         coupons.add(coupon);
+
+        DBConnector<Cart> cartConnector =
+                new DBConnector<>(Cart.class, Market.getInstance().getConfigurations());
+
+        cartConnector.saveState(this);
 
         updateBasketsWithCoupons();
     }
@@ -213,14 +288,51 @@ public class Cart {
 
         coupons.remove(coupon);
 
+        DBConnector<Cart> cartConnector =
+                new DBConnector<>(Cart.class, Market.getInstance().getConfigurations());
+
+        cartConnector.saveState(this);
+
         updateBasketsWithCoupons();
     }
 
     private void updateBasketsWithCoupons() throws Exception {
-        for(Basket basket : baskets.values()){
+        for(Basket basket : baskets){
             basket.updateBasketWithCoupons(coupons);
         }
     }
 
+    public int getUserID() {
+        return userID;
+    }
 
+    public void setUserID(int userID) {
+        this.userID = userID;
+    }
+
+    public List<String> getCoupons() {
+        return coupons;
+    }
+
+    public void setCoupons(List<String> coupons) {
+        this.coupons = coupons;
+    }
+
+    public Basket baskets_getBasketByStoreId(int storeId){
+        for(Basket b : baskets){
+            if(b.getStore().getStoreID() == storeId){
+                return b;
+            }
+        }
+
+        return null;
+    }
+
+    public List<Basket> getBaskets() {
+        return baskets;
+    }
+
+    public void setBaskets(List<Basket> baskets) {
+        this.baskets = baskets;
+    }
 }
