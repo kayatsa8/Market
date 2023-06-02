@@ -33,6 +33,7 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.IntegerField;
@@ -382,11 +383,7 @@ public class StoreManagementView extends VerticalLayout {
         Editor<UserInfoService> editor = userGrid.getEditor();
         userGrid.setItems(users.values());
         userGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
-
-        //userGrid.addColumn(UserInfoService::getId).setHeader("ID").setSortable(true);
         userGrid.addColumn(UserInfoService::getUsername).setHeader("Name").setSortable(true);
-//        userGrid.addColumn(UserInfoService::getStoreIManageString).setHeader("Manager of Stores");
-//        userGrid.addColumn(UserInfoService::getStoreIOwnString).setHeader("Owner of Stores");
         Binder<UserInfoService> binder = new Binder<>(UserInfoService.class);
         editor.setBinder(binder);
         editor.setBuffered(true);
@@ -459,23 +456,22 @@ public class StoreManagementView extends VerticalLayout {
     }
 
     private HorizontalLayout addButtons() {
+        Select<String> select = new Select<>();
+        select.setLabel("Store");
+        select.setItems();
+        select.setValue("Most recent first");
+
+        add(select);
         storeIdField = new IntegerField("StoreId");
         storeIdField.setMin(0);
         storeIdField.setErrorMessage("Enter a valid StoreId!");
         storeIdField.setHelperText("Select a User you want to add and write the Store ID to associate with him");
 
-
         Button addOwnerButton = new Button("Add Owner");
         addOwnerButton.addClickListener(e -> addOwnerAction());
 
-//        Button removeOwnerbutton = new Button("Remove Owner");
-//        removeOwnerbutton.addClickListener(e-> removeOwnerAction());
-
         Button addManagerButton = new Button("Add Manager");
         addManagerButton.addClickListener(e -> addManagerAction());
-
-//        Button removeManagerButton = new Button("Remove Manager");
-//        removeManagerButton.addClickListener(e -> removeManagerAction());
 
         setPadding(false);
         setAlignItems(Alignment.AUTO);
