@@ -3,7 +3,9 @@ package BusinessLayer.Stores;
 import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.ExternalSystems.ESPurchaseManager;
+import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.Supply.SupplyClient;
 import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.Log;
 import BusinessLayer.Market;
@@ -1370,7 +1372,7 @@ public class Store {
             throw new IllegalStateException(msg);
         }
 
-        ESPurchaseManager purchaseManager = new ESPurchaseManager(purchaseInfo, supplyInfo);
+        ESPurchaseManager purchaseManager = new ESPurchaseManager(new PurchaseClient(), new SupplyClient(), purchaseInfo, supplyInfo);
         if(!purchaseManager.handShake()){
             throw new Exception("Problem with connection to external System");
         }

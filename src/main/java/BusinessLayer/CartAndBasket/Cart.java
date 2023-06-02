@@ -117,9 +117,9 @@ public class Cart {
      * @return a HashMap to give the ReceiptHandler in order to make a receipt
      * @throws Exception if the store throw exception for some reason
      */
-    public Map<Integer, Map<CatalogItem, CartItemInfo>> buyCart(PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) throws Exception {
+    public Map<Integer, Map<CatalogItem, CartItemInfo>> buyCart(PurchaseClient pc, SupplyClient sc, PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) throws Exception {
         HashMap<Integer, Map<CatalogItem, CartItemInfo>> receiptData = new HashMap<>();
-        ESPurchaseManager purchaseManager = new ESPurchaseManager(purchaseInfo, supplyInfo);
+        ESPurchaseManager purchaseManager = new ESPurchaseManager(pc, sc, purchaseInfo, supplyInfo);
         if(!purchaseManager.handShake()){
             throw new Exception("Problem with connection to external System");
         }

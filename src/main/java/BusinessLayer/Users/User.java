@@ -82,7 +82,7 @@ public abstract class User {
     }
 
     public Cart buyCart(PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) throws Exception {
-        receiptHandler.addReceipt(id,cart.buyCart(purchaseInfo, supplyInfo));
+        receiptHandler.addReceipt(id,cart.buyCart(new PurchaseClient(), new SupplyClient(), purchaseInfo, supplyInfo));
         return cart;
     }
 

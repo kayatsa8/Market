@@ -9,9 +9,9 @@ public class ESPurchaseManager {
     private SupplyClient supplyClient;
     private PurchaseInfo purchaseInfo;
     private SupplyInfo supplyInfo;
-    public ESPurchaseManager(PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) {
-        purchaseClient = new PurchaseClient();
-        supplyClient = new SupplyClient();
+    public ESPurchaseManager(PurchaseClient pc, SupplyClient sc,PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) {
+        purchaseClient = pc;
+        supplyClient = sc;
         this.purchaseInfo = purchaseInfo;
         this.supplyInfo = supplyInfo;
     }
