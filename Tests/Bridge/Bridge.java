@@ -463,4 +463,16 @@ public interface Bridge {
     RuleService addPurchasePolicyMustDatesRule(int storeID, List<Calendar> mustDates);
 
     RuleService wrapPurchasePolicies(int storeID, List<Integer> purchasePoliciesIDsToWrap, LogicalComposites logicalCompositeEnum);
+
+    boolean addBid(int storeID, int itemID, int userID, double offeredPrice);
+
+    List<BidService> getUserBids(int userID);
+
+    boolean approve(int storeID, int bidID, int replierUserID);
+
+    boolean replyToCounterOffer(int storeID, int bidID, boolean accepted);
+
+    boolean reject(int storeID, int bidID, int replierUserID);
+
+    boolean counterOffer(int storeID, int bidID, int replierUserID, double counterOffer);
 }
