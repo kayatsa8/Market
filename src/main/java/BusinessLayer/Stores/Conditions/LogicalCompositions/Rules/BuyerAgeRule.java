@@ -16,10 +16,10 @@ public class BuyerAgeRule extends Rule { //you must be at the minimum age or old
     }
 
     @Override
-    public boolean checkConditions(List<CartItemInfo> basketItems) { //need to add user's age
-        return false;
-        //return minimumAge <= buyerAge;
+    public boolean checkConditions(List<CartItemInfo> basketItems, int age) {
+        return minimumAge <= age;
     }
+
 
     @Override
     public String toString()

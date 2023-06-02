@@ -1,5 +1,7 @@
 package BusinessLayer.CartAndBasket;
 
+import BusinessLayer.CartAndBasket.Repositories.Carts.BasketsRepository;
+import BusinessLayer.ExternalSystems.ESPurchaseManager;
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.ExternalSystems.PurchaseInfo;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
@@ -160,12 +162,13 @@ public class Cart {
     public Map<Integer, Map<CatalogItem, CartItemInfo>> buyCart(PurchaseClient purchase, SupplyClient supply, PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) throws Exception {
         HashMap<Integer, Map<CatalogItem, CartItemInfo>> receiptData = new HashMap<>();
 
-        if(!purchase.handShake()){
+        ESPurchaseManager purchaseManager = new ESPurchaseManager(pc, sc, purchaseInfo, supplyInfo);
+        if(!purchaseManager.handShake()){
             throw new Exception("Problem with connection to external System");
         }
 
         for(Basket basket : baskets){
-            basket.saveItems(coupons, userID);
+            basket.saveItems(coupons, userID, purchaseInfo.getAge());
         }
 
         Log.log.info("Items of cart " + userID + " are saved");
@@ -173,16 +176,10 @@ public class Cart {
         //TODO: should change in future versions
         double finalPrice = calculateTotalPrice();
 
+        int purchaseTransId = purchaseManager.pay();
 
-
-
-        int purchaseTransId = purchase.pay(purchaseInfo.getCardNumber(), purchaseInfo.getMonth(), purchaseInfo.getYear(),
-                purchaseInfo.getHolderName(), purchaseInfo.getCcv(), purchaseInfo.getBuyerId());
-
-        //TODO: should change in future versions
-        supply.chooseService();
-        int supplyTransId = supply.supply(supplyInfo.getName(), supplyInfo.getAddress(), supplyInfo.getCity(), supplyInfo.getCountry(), supplyInfo.getZip());
-
+        purchaseManager.chooseSupplyService();
+        int supplyTransId = purchaseManager.supply();
 
         if( purchaseTransId == -1 || supplyTransId == -1 ){
 
@@ -190,16 +187,14 @@ public class Cart {
                 basket.releaseItems();
             }
 
-            supply.cancelSupply(supplyTransId);
-            purchase.cancelPay(purchaseTransId);
-
+            purchaseManager.cancelSupply(supplyTransId);
+            purchaseManager.cancelPay(purchaseTransId);
             throw new Exception("Problem with Supply or Purchase");
         }
         else{
             Log.log.info("Cart " + userID + " payment completed");
             Log.log.info("Cart " + userID + " delivery is scheduled");
         }
-
 
         for(Basket basket : baskets){
             receiptData.putIfAbsent(basket.getStore().getStoreID(), basket.buyBasket(userID));
@@ -268,11 +263,6 @@ public class Cart {
         }
 
         coupons.add(coupon);
-
-        DBConnector<Cart> cartConnector =
-                new DBConnector<>(Cart.class, Market.getInstance().getConfigurations());
-
-        cartConnector.saveState(this);
 
         updateBasketsWithCoupons();
     }

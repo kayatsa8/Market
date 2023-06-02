@@ -1,5 +1,6 @@
 package PresentationLayer.views.clients;
 
+import BusinessLayer.Users.Guest;
 import PresentationLayer.views.MainLayout;
 import ServiceLayer.Objects.CartService;
 import ServiceLayer.Objects.CatalogItemService;
@@ -9,9 +10,10 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.HeaderRow;
+import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Label;
@@ -23,10 +25,10 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
@@ -36,7 +38,6 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 @PageTitle("Market")
 @Route(value = "client", layout = MainLayout.class)
@@ -45,21 +46,19 @@ public class ClientView extends VerticalLayout {
 
     ShoppingService shoppingService;
     MainLayout mainLayout = MainLayout.getMainLayout();
+    GridContextMenu<CatalogItemService> menu;
 
     public ClientView() {
-//        mainLayout
         try {
             shoppingService = new ShoppingService();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             add("Problem initiating Shefa Isaschar :(");
         }
         setSpacing(false);
         Result<List<CatalogItemService>> catalogRes = shoppingService.getCatalog();
         if (catalogRes.isError()) {
             add("Problem getting catalog :(");
-        }
-        else {
+        } else {
             Grid<CatalogItemService> grid = createGrid(catalogRes.getValue());
             add(grid);
         }
@@ -67,138 +66,6 @@ public class ClientView extends VerticalLayout {
         setJustifyContentMode(JustifyContentMode.CENTER);
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
         getStyle().set("text-align", "center");
-    }
-
-    //Filtering
-    private Grid<CatalogItemService> createGrid(List<CatalogItemService> catalogRes) {
-        Grid<CatalogItemService> grid = new Grid<>();
-        Editor<CatalogItemService> editor = grid.getEditor();
-
-        grid.setItems(catalogRes);
-//        grid.setSelectionMode(Grid.SelectionMode.MULTI);
-
-        Grid.Column<CatalogItemService> amountColumn = grid.addColumn(CatalogItemService::getAmount).setHeader("Amount").setSortable(true).setFlexGrow(2);
-        Grid.Column<CatalogItemService> addToCartColumn = grid.addComponentColumn(item -> {
-            Button cartButton = new Button("Add to Cart");
-            cartButton.addClickListener(e -> {
-                if (editor.isOpen()) {
-                    editor.cancel();
-                }
-                grid.getEditor().editItem(item);
-                amountColumn.setVisible(true);
-            });
-            return cartButton;
-        }).setFlexGrow(1).setFrozenToEnd(true);
-        grid.addColumn(CatalogItemService::getItemName).setSortable(true).setKey("Name").setFlexGrow(1);
-        grid.addColumn(CatalogItemService::getCategory).setSortable(true).setKey("Category").setFlexGrow(1);
-        grid.addColumn(CatalogItemService::getStoreName).setSortable(true).setKey("Store").setFlexGrow(1);
-        grid.addColumn(CatalogItemService::getPrice).setHeader("Price").setSortable(true).setFlexGrow(0);
-        grid.addColumn(CatalogItemService::getWeight).setHeader("Weight").setSortable(true).setFlexGrow(0);
-        grid.addColumn(e->shoppingService.getStoreInfo(e.getStoreID()).getValue().getStoreStatus()).setHeader("Store Status").setSortable(true).setFlexGrow(1);
-        grid.addComponentColumn(e->getDiscountIcon(shoppingService.getStoreDiscounts(e.getStoreID()).getValue().isEmpty()))
-                .setHeader("Discounts").setSortable(true).setWidth("150px").setFlexGrow(0);
-//        grid.setItemDetailsRenderer(createPersonDetailsRenderer());
-        amountColumn.setVisible(false);
-        Binder<CatalogItemService> binder = new Binder<>(CatalogItemService.class);
-        editor.setBinder(binder);
-        editor.setBuffered(true);
-        IntegerField integerField = new IntegerField();
-        integerField.setStepButtonsVisible(true);
-        integerField.setMin(0);
-        integerField.setMaxWidth("150px");
-        ValidationMessage firstNameValidationMessage = new ValidationMessage();
-        binder.forField(integerField)
-                .asRequired("Amount cant be negative")
-                .withValidator(new IntegerRangeValidator("Amount cant be negative", 0, 99999))
-                .withStatusLabel(firstNameValidationMessage)
-                .bind(o->0, this::setAmount);
-        amountColumn.setEditorComponent(integerField);
-        Button saveButton = new Button("Add", e -> {
-            editor.save();
-            amountColumn.setVisible(false);
-        });
-        Button cancelButton = new Button(VaadinIcon.CLOSE.create(),
-                e -> {
-                    editor.cancel();
-                    amountColumn.setVisible(false);
-                });
-        cancelButton.addThemeVariants(ButtonVariant.LUMO_ICON,
-                ButtonVariant.LUMO_ERROR);
-        HorizontalLayout actions = new HorizontalLayout(saveButton,
-                cancelButton);
-        actions.setPadding(false);
-        addToCartColumn.setEditorComponent(actions);
-        setFilters(grid);
-        return grid;
-    }
-
-
-    private static ComponentRenderer<PersonDetailsFormLayout, CatalogItemService> createPersonDetailsRenderer() {
-        return new ComponentRenderer<>(PersonDetailsFormLayout::new,
-                PersonDetailsFormLayout::setPerson);
-    }
-
-    private static class PersonDetailsFormLayout extends FormLayout {
-        private final TextField emailField = new TextField("Email address");
-        private final TextField phoneField = new TextField("Phone number");
-        private final TextField streetField = new TextField("Street address");
-        private final TextField zipField = new TextField("ZIP code");
-        private final TextField cityField = new TextField("City");
-        private final TextField stateField = new TextField("State");
-
-        public PersonDetailsFormLayout() {
-            Stream.of(emailField, phoneField, streetField, zipField, cityField,
-                    stateField).forEach(field -> {
-                field.setReadOnly(true);
-                add(field);
-            });
-
-            setResponsiveSteps(new ResponsiveStep("0", 3));
-            setColspan(emailField, 3);
-            setColspan(phoneField, 3);
-            setColspan(streetField, 3);
-        }
-
-        public void setPerson(CatalogItemService person) {
-//            emailField.setValue(person.getEmail());
-//            phoneField.setValue(person.getAddress().getPhone());
-//            streetField.setValue(person.getAddress().getStreet());
-//            zipField.setValue(person.getAddress().getZip());
-//            cityField.setValue(person.getAddress().getCity());
-//            stateField.setValue(person.getAddress().getState());
-        }
-    }
-
-
-    private Component getDiscountIcon(boolean isDiscount) {
-        return isDiscount ? LineAwesomeIcon.DOLLAR_SIGN_SOLID.create() : LineAwesomeIcon.FROWN_SOLID.create();
-    }
-
-
-    private void setAmount(CatalogItemService catalogItemService, Integer amount) {
-
-        Result<CartService> result = shoppingService.addItemToCart(mainLayout.getCurrUserID(),catalogItemService.getStoreID(), catalogItemService.getItemID(), amount);
-        if (!result.isError()){
-            printSuccess("Successfully added to " + mainLayout.getCurrUserID()+"'s cart\n");
-        }
-        else {
-            printError(mainLayout.getCurrUserID() + result.getMessage());
-        }
-    }
-
-    private void setFilters(Grid<CatalogItemService> grid){
-        ItemFilter itemFilter = new ItemFilter(grid.getListDataView());
-
-//        grid.getHeaderRows().clear();
-        HeaderRow headerRow = grid.getHeaderRows().get(0);
-        headerRow.getCell(grid.getColumnByKey("Name")).setComponent(
-                createFilterHeader("Name", itemFilter::setName));
-        headerRow.getCell(grid.getColumnByKey("Category")).setComponent(
-                createFilterHeader("Category", itemFilter::setCategory));
-        headerRow.getCell(grid.getColumnByKey("Store")).setComponent(
-                createFilterHeader("Store", itemFilter::setStoreName));
-//        headerRow.getCell(grid.getColumnByKey("Price")).setComponent(
-//                createFilterHeader("Profession", itemFilter::setPrice));
     }
 
     private static Component createFilterHeader(String labelText,
@@ -220,12 +87,163 @@ public class ClientView extends VerticalLayout {
 
         return layout;
     }
+
+    private Grid<CatalogItemService> createGrid(List<CatalogItemService> catalogRes) {
+        Grid<CatalogItemService> grid = new Grid<>();
+        Editor<CatalogItemService> editor = grid.getEditor();
+
+        grid.setItems(catalogRes);
+
+        Grid.Column<CatalogItemService> amountColumn = grid.addColumn(CatalogItemService::getAmount).setHeader("Amount")
+                .setSortable(true).setFlexGrow(2);
+        Grid.Column<CatalogItemService> addToCartColumn = grid.addComponentColumn(item -> {
+            Button cartButton = new Button("Add to Cart");
+            cartButton.addClickListener(e -> {
+                if (editor.isOpen()) {
+                    editor.cancel();
+                }
+                grid.getEditor().editItem(item);
+                amountColumn.setVisible(true);
+                menu.setOpenOnClick(false);
+                menu.close();
+            });
+            return cartButton;
+        }).setFlexGrow(1).setFrozenToEnd(true);
+        grid.addColumn(CatalogItemService::getItemName).setSortable(true).setKey("Name").setFlexGrow(1);
+        grid.addColumn(CatalogItemService::getCategory).setSortable(true).setKey("Category").setFlexGrow(1);
+        grid.addColumn(CatalogItemService::getStoreName).setSortable(true).setKey("Store").setFlexGrow(1);
+        grid.addColumn(CatalogItemService::getPrice).setHeader("Price").setSortable(true).setFlexGrow(0);
+        grid.addColumn(CatalogItemService::getWeight).setHeader("Weight").setSortable(true).setFlexGrow(0);
+        grid.addColumn(e -> shoppingService.getStoreInfo(e.getStoreID()).getValue().getStoreStatus()).setHeader("Store Status")
+                .setSortable(true).setFlexGrow(1);
+        grid.addComponentColumn(e -> getDiscountIcon(shoppingService.getStoreDiscounts(e.getStoreID()).getValue().isEmpty()))
+                .setHeader("Discounts").setSortable(true).setWidth("150px").setFlexGrow(0);
+
+        amountColumn.setVisible(false);
+        Binder<CatalogItemService> binder = new Binder<>(CatalogItemService.class);
+        editor.setBinder(binder);
+        editor.setBuffered(true);
+        IntegerField integerField = new IntegerField();
+        integerField.setStepButtonsVisible(true);
+        integerField.setMin(0);
+        integerField.setMaxWidth("150px");
+        ValidationMessage firstNameValidationMessage = new ValidationMessage();
+        binder.forField(integerField)
+                .asRequired("Amount cant be negative")
+                .withValidator(new IntegerRangeValidator("Amount cant be negative", 0, 99999))
+                .withStatusLabel(firstNameValidationMessage)
+                .bind(o -> 0, this::setAmount);
+        amountColumn.setEditorComponent(integerField);
+        Button saveButton = new Button("Add", e -> {
+            editor.save();
+            amountColumn.setVisible(false);
+            menu.setOpenOnClick(true);
+        });
+        Button cancelButton = new Button(VaadinIcon.CLOSE.create(),
+                e -> {
+                    editor.cancel();
+                    amountColumn.setVisible(false);
+                    menu.setOpenOnClick(true);
+                });
+        cancelButton.addThemeVariants(ButtonVariant.LUMO_ICON,
+                ButtonVariant.LUMO_ERROR);
+        HorizontalLayout actions = new HorizontalLayout(saveButton,
+                cancelButton);
+        actions.setPadding(false);
+        addToCartColumn.setEditorComponent(actions);
+        setFilters(grid);
+        if (MainLayout.getMainLayout().getCurrUserID() > Guest.MAX_GUEST_USER_ID)
+            addMenuItems(grid);
+        return grid;
+    }
+
+    private void addMenuItems(Grid<CatalogItemService> grid) {
+        menu = grid.addContextMenu();
+        grid.addSelectionListener(e ->
+        {
+            if (e.getAllSelectedItems().size() == 0) {
+                menu.close();
+            }
+        });
+        menu.setOpenOnClick(true);
+        menu.addItem("Add Bid", event -> addBid(grid));
+    }
+
+    private void addBid(Grid<CatalogItemService> grid) {
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Create Bid");
+        dialog.setWidth("1000px");
+        CatalogItemService item = grid.getSelectedItems().stream().toList().get(0);
+        NumberField numberField = new NumberField();
+        numberField.setStepButtonsVisible(true);
+        numberField.setMin(0);
+        numberField.setMax(item.getPrice());
+        numberField.setValue(Math.max(0, item.getPrice()-1));
+        Button saveButton = new Button("Create Bid", e -> {
+            shoppingService.addBid(item.getStoreID(), item.getItemID(), MainLayout.getMainLayout().getCurrUserID(), numberField.getValue());
+            printSuccess("Bid Sent");
+            dialog.close();
+        });
+        Button cancelButton = new Button(VaadinIcon.CLOSE.create(),
+                e -> {
+                    printError("Cancelled Bid");
+                    dialog.close();
+                });
+        cancelButton.addThemeVariants(ButtonVariant.LUMO_ICON,
+                ButtonVariant.LUMO_ERROR);
+        HorizontalLayout actions = new HorizontalLayout(numberField, saveButton,
+                cancelButton);
+        actions.setPadding(false);
+        dialog.add(actions);
+        dialog.open();
+    }
+
+    private Component getDiscountIcon(boolean isDiscount) {
+        return isDiscount ? LineAwesomeIcon.FROWN_SOLID.create() : LineAwesomeIcon.DOLLAR_SIGN_SOLID.create();
+    }
+
+    private void setAmount(CatalogItemService catalogItemService, Integer amount) {
+
+        Result<CartService> result = shoppingService.addItemToCart(mainLayout.getCurrUserID(), catalogItemService.getStoreID(), catalogItemService.getItemID(), amount);
+        if (!result.isError()) {
+            printSuccess("Successfully added to " + mainLayout.getCurrUserID() + "'s cart\n");
+        } else {
+            printError(mainLayout.getCurrUserID() + result.getMessage());
+        }
+    }
+
+    private void setFilters(Grid<CatalogItemService> grid) {
+        ItemFilter itemFilter = new ItemFilter(grid.getListDataView());
+
+//        grid.getHeaderRows().clear();
+        HeaderRow headerRow = grid.getHeaderRows().get(0);
+        headerRow.getCell(grid.getColumnByKey("Name")).setComponent(
+                createFilterHeader("Name", itemFilter::setName));
+        headerRow.getCell(grid.getColumnByKey("Category")).setComponent(
+                createFilterHeader("Category", itemFilter::setCategory));
+        headerRow.getCell(grid.getColumnByKey("Store")).setComponent(
+                createFilterHeader("Store", itemFilter::setStoreName));
+//        headerRow.getCell(grid.getColumnByKey("Price")).setComponent(
+//                createFilterHeader("Profession", itemFilter::setPrice));
+    }
 //
 //
 //}
 //
 //
 
+    private void printSuccess(String msg) {
+        Notification notification = Notification.show(msg, 2000, Notification.Position.BOTTOM_CENTER);
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+
+    }
+
+    private void printError(String errorMsg) {
+        Notification notification = Notification.show(errorMsg, 2000, Notification.Position.BOTTOM_CENTER);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+    }
 
     private class ItemFilter {
         private final GridListDataView<CatalogItemService> dataView;
@@ -276,17 +294,6 @@ public class ClientView extends VerticalLayout {
         private boolean matchesPrice(String Comparison, double price, double priceSearch) {
             return true;
         }
-    }
-
-    private void printSuccess(String msg) {
-        Notification notification = Notification.show(msg, 2000, Notification.Position.BOTTOM_CENTER);
-        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-
-    }
-
-    private void printError(String errorMsg) {
-        Notification notification = Notification.show(errorMsg, 2000, Notification.Position.BOTTOM_CENTER);
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
 
 }

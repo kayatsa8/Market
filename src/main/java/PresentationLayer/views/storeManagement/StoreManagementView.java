@@ -33,6 +33,7 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.IntegerField;
@@ -50,6 +51,7 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 import java.time.ZoneId;
 import java.util.*;
 import java.time.LocalDate;
+import java.util.stream.Collectors;
 
 
 @PageTitle("About")
@@ -63,13 +65,16 @@ public class StoreManagementView extends VerticalLayout {
     private Map<Integer, UserInfoService> users;
     private Map<Integer, StoreService> storesIOwn;
     private Map<Integer, StoreService> storesIManage;
-    IntegerField storeIdField;
+    Select<String>  storeSelectorAdd;
+    Select<String>  storeSelectorRemoveManager;
+    Select<String>  storeSelectorRemoveOwner;
     Grid<UserInfoService> userGrid;
     Grid<UserInfoService> ownersIDefinedGrid;
     Grid<UserInfoService> managersIDefinedGrid;
 
     Grid<StoreService> storesIOwnGrid;
     Grid<StoreService> storesManagedGrid;
+    Grid<BidService> bidsGrid;
 
     //uncomment
     boolean isStoreOwner;
@@ -113,7 +118,7 @@ public class StoreManagementView extends VerticalLayout {
             users = usersRes.getValue();
             storesIOwn = storesIOwnRes.getValue();
             storesIManage = storesIManageRes.getValue();
-
+            refreshStoreList();
             updateStoresGrid();
 
             Div storesDiv = new Div();
@@ -276,7 +281,10 @@ public class StoreManagementView extends VerticalLayout {
 
         Button createStore = new Button("Create Store", e-> createStoreDialog());
         owning.addContent(createStore);
-        storesDiv.add(accordion);
+
+        Button getBids = new Button("Get Bids Waiting", e-> createBidDialog());
+
+        storesDiv.add(getBids, accordion);
     }
 
     private void addMenuItems(Grid<StoreService> storesGrid, boolean managerMode) {
@@ -378,11 +386,7 @@ public class StoreManagementView extends VerticalLayout {
         Editor<UserInfoService> editor = userGrid.getEditor();
         userGrid.setItems(users.values());
         userGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
-
-        //userGrid.addColumn(UserInfoService::getId).setHeader("ID").setSortable(true);
         userGrid.addColumn(UserInfoService::getUsername).setHeader("Name").setSortable(true);
-//        userGrid.addColumn(UserInfoService::getStoreIManageString).setHeader("Manager of Stores");
-//        userGrid.addColumn(UserInfoService::getStoreIOwnString).setHeader("Owner of Stores");
         Binder<UserInfoService> binder = new Binder<>(UserInfoService.class);
         editor.setBinder(binder);
         editor.setBuffered(true);
@@ -413,12 +417,8 @@ public class StoreManagementView extends VerticalLayout {
             managersIDefinedGrid.addColumn(UserInfoService::getStoreIManageString).setHeader("Manager appointed by me to Stores");
 
             Button removeManagerbutton = new Button("Remove Manager");
-            IntegerField removeManagerStoreField = new IntegerField("StoreId");
-            removeManagerStoreField.setMin(0);
-            removeManagerStoreField.setHelperText("Select a Manager you want to remove and write his Store ID");
-            removeManagerStoreField.setErrorMessage("Enter a valid StoreId!");
-            removeManagerbutton.addClickListener(e -> removeManagerAction(removeManagerStoreField));
-            removeManager.addContent(managersIDefinedGrid, removeManagerStoreField, removeManagerbutton);
+            removeManagerbutton.addClickListener(e -> removeManagerAction(Integer.parseInt(storeSelectorRemoveManager.getValue().split(":")[0])));
+            removeManager.addContent(managersIDefinedGrid, storeSelectorRemoveManager, removeManagerbutton);
         }
         usersDiv.add(removeManager);
     }
@@ -443,40 +443,51 @@ public class StoreManagementView extends VerticalLayout {
             ownersIDefinedGrid.addColumn(UserInfoService::getStoreIOwnString).setHeader("Owner appointed by me to Stores");
 
             Button removeOwnerbutton = new Button("Remove Owner");
-            IntegerField removeOwnerStoreField = new IntegerField("StoreId");
-            removeOwnerStoreField.setMin(0);
-            removeOwnerStoreField.setHelperText("Select an Owner you want to remove and write his Store ID");
-            removeOwnerStoreField.setErrorMessage("Enter a valid StoreId!");
-            removeOwnerbutton.addClickListener(e-> removeOwnerAction(removeOwnerStoreField));
-            removeOwner.addContent(ownersIDefinedGrid, removeOwnerStoreField, removeOwnerbutton);
+            removeOwnerbutton.addClickListener(e-> removeOwnerAction(Integer.parseInt(storeSelectorRemoveOwner.getValue().split(":")[0])));
+            removeOwner.addContent(ownersIDefinedGrid, storeSelectorRemoveOwner, removeOwnerbutton);
         }
         usersDiv.add(removeOwner);
 
     }
 
+    private void refreshStoreList() {
+        List<String> stores = storesIOwn.entrySet().stream().map(e->e.getKey()+": "+e.getValue().getStoreName()).collect(Collectors.toList());
+        if (storeSelectorAdd == null) {
+            storeSelectorAdd = new Select<>();
+            storeSelectorRemoveManager = new Select<>();
+            storeSelectorRemoveOwner = new Select<>();
+
+            storeSelectorAdd.setLabel("Store");
+            storeSelectorAdd.setHelperText("Select a User  from grid and select the Store from dropdown");
+
+            storeSelectorRemoveManager.setLabel("Store");
+            storeSelectorRemoveManager.setHelperText("Select a User  from grid and select the Store from dropdown");
+
+            storeSelectorRemoveOwner.setLabel("Store");
+            storeSelectorRemoveOwner.setHelperText("Select a User  from grid and select the Store from dropdown");
+        }
+
+        storeSelectorAdd.setItems(stores);
+        storeSelectorAdd.setValue(stores.get(0));
+
+        storeSelectorRemoveManager.setItems(stores);
+        storeSelectorRemoveManager.setValue(stores.get(0));
+
+        storeSelectorRemoveOwner.setItems(stores);
+        storeSelectorRemoveOwner.setValue(stores.get(0));
+
+    }
     private HorizontalLayout addButtons() {
-        storeIdField = new IntegerField("StoreId");
-        storeIdField.setMin(0);
-        storeIdField.setErrorMessage("Enter a valid StoreId!");
-        storeIdField.setHelperText("Select a User you want to add and write the Store ID to associate with him");
-
-
         Button addOwnerButton = new Button("Add Owner");
         addOwnerButton.addClickListener(e -> addOwnerAction());
-
-//        Button removeOwnerbutton = new Button("Remove Owner");
-//        removeOwnerbutton.addClickListener(e-> removeOwnerAction());
 
         Button addManagerButton = new Button("Add Manager");
         addManagerButton.addClickListener(e -> addManagerAction());
 
-//        Button removeManagerButton = new Button("Remove Manager");
-//        removeManagerButton.addClickListener(e -> removeManagerAction());
-
         setPadding(false);
         setAlignItems(Alignment.AUTO);
 
-        HorizontalLayout horizontalLayout1 = new HorizontalLayout(storeIdField, addOwnerButton, addManagerButton);
+        HorizontalLayout horizontalLayout1 = new HorizontalLayout(storeSelectorAdd, addOwnerButton, addManagerButton);
 
         horizontalLayout1.setAlignItems(FlexComponent.Alignment.BASELINE);
         return horizontalLayout1;
@@ -485,7 +496,7 @@ public class StoreManagementView extends VerticalLayout {
 
     private void addOwnerAction() {
         int chosenUserId = getIdOfSelectedRow(userGrid);
-        int storeId = storeIdField.getValue();
+        int storeId = Integer.parseInt(storeSelectorAdd.getValue().split(":")[0]);
 
         if(chosenUserId != -1){
             Result<Boolean> result = userService.addOwner(mainLayout.getCurrUserID(), chosenUserId, storeId);
@@ -505,9 +516,8 @@ public class StoreManagementView extends VerticalLayout {
         }
     }
 
-    private void removeOwnerAction(IntegerField removeOwnerStoreField) {
+    private void removeOwnerAction(int storeId) {
         int chosenUserId = getIdOfSelectedRow(ownersIDefinedGrid);
-        int storeId = removeOwnerStoreField.getValue();
 
         if(chosenUserId != -1){
             Result<Boolean> result = userService.removeOwner(mainLayout.getCurrUserID(), chosenUserId, storeId);
@@ -530,7 +540,7 @@ public class StoreManagementView extends VerticalLayout {
 
     private void addManagerAction() {
         int chosenUserId = getIdOfSelectedRow(userGrid);
-        int storeId = storeIdField.getValue();
+        int storeId = Integer.parseInt(storeSelectorAdd.getValue().split(":")[0]);
 
         if(chosenUserId != -1){
             Result<Boolean> result = userService.addManager(mainLayout.getCurrUserID(), chosenUserId, storeId);
@@ -553,11 +563,10 @@ public class StoreManagementView extends VerticalLayout {
         }
     }
 
-    private void removeManagerAction(IntegerField removeManagerStoreField) {
+    private void removeManagerAction(int storeId) {
         int chosenUserId = getIdOfSelectedRow(managersIDefinedGrid);
 
-        if(chosenUserId != -1 && removeManagerStoreField != null){
-            int storeId = removeManagerStoreField.getValue();
+        if(chosenUserId != -1){
             Result<Boolean> result = userService.removeManager(mainLayout.getCurrUserID(), chosenUserId, storeId);
 
             if(result.isError()){
@@ -647,6 +656,21 @@ public class StoreManagementView extends VerticalLayout {
         }
         else{
             return items.get(0).getItemID();
+        }
+    }
+
+    private BidService getSelectedBidFromGrid(Grid<BidService> grid) {
+        List<BidService> bids = grid.getSelectedItems().stream().toList();
+        if(bids.size() > 1){
+            printError("Chosen More than one!");
+            return null;
+        }
+        else if(bids.size() == 0){
+            printError("You need to choose a Bid!");
+            return null;
+        }
+        else{
+            return bids.get(0);
         }
     }
 
@@ -1115,7 +1139,8 @@ public class StoreManagementView extends VerticalLayout {
         menuBar.addItem("Conditional", e-> conditioningDialog(rulesGrid, storeId, LogicalComposites.CONDITIONING, policyMode));
 
         newRuleSubMenu.addItem("Basket Weight Limit", e-> ruleBasketWeightOrPriceLimitDialog(rulesGrid, storeId, "Weight", true, policyMode));
-        newRuleSubMenu.addItem("Age Limit", e-> ruleAgeDialog(rulesGrid, storeId, policyMode));
+        if(policyMode == PURCHASE_POLICY)
+            newRuleSubMenu.addItem("Age Limit", e-> ruleAgeDialog(rulesGrid, storeId, policyMode));
         newRuleSubMenu.addItem("Forbidden Category", e-> ruleForbiddenCategoryDialog(rulesGrid, storeId, policyMode));
         newRuleSubMenu.addItem("Forbidden Dates", e-> ruleForbiddenAndOrDatesDialog(rulesGrid, storeId, "Forbidden Dates", true, policyMode));
         newRuleSubMenu.addItem("Forbidden Hours", e-> rulesForbiddenHoursDialog(rulesGrid, storeId, policyMode));
@@ -2246,6 +2271,7 @@ public class StoreManagementView extends VerticalLayout {
     }
 
     private void refreshUserGrids() {
+        refreshStoreList();
         Result<List<UserInfoService>> result1 = userService.getAllOwnersIDefined(mainLayout.getCurrUserID());
         Result<Map<Integer, UserInfoService>> result2 = userService.getAllRegisteredUsers();
         Result<List<UserInfoService>> result3 = userService.getAllManagersIDefined(mainLayout.getCurrUserID());
@@ -2345,5 +2371,156 @@ public class StoreManagementView extends VerticalLayout {
 
         add(dialog);
         dialog.open();
+    }
+
+    private void refreshBidsGrid() {
+        Result<List<BidService>> result = shoppingService.getUserBidsToReply(mainLayout.getCurrUserID());
+        if(!result.isError()) {
+            List<BidService> bids;
+            if (result.getValue() == null) {
+                bids = new ArrayList<>();
+            } else
+                bids = result.getValue();
+            bidsGrid.setItems(bids);
+        }
+    }
+
+    private void createBidDialog() {
+
+        bidsGrid = new Grid<>();
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Open Bids");
+        Div div = new Div();
+        div.add(bidsGrid);
+        dialog.add(div);
+        dialog.setWidth("1000px");
+
+        Result<List<BidService>> result = shoppingService.getUserBidsToReply(mainLayout.getCurrUserID());
+        if(!result.isError()) {
+            List<BidService> bids;
+            if(result.getValue() == null){
+                bids = new ArrayList<>();
+            }
+            else
+                bids = result.getValue();
+            bidsGrid.setItems(bids);
+            bidsGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+
+            bidsGrid.addColumn(e -> shoppingService.getStoreName(e.getStoreId())).setHeader("Store").setSortable(true);
+            bidsGrid.addColumn(e -> userService.getUsername(e.getUserId())).setHeader("User").setSortable(true);
+            bidsGrid.addColumn(BidService::getItemName).setHeader("Item").setSortable(true);
+            bidsGrid.addColumn(BidService::getOriginalPrice).setHeader("Original Price").setSortable(true);
+            bidsGrid.addColumn(BidService::getNewPrice).setHeader("Offered Price").setSortable(true);
+            bidsGrid.addColumn(e -> {double max = e.getCounterOffer(); return max==-1 ? "No Counters Yet" : max;})
+                    .setHeader("Max Counter Offer").setSortable(true);
+
+            GridContextMenu<BidService> menu = bidsGrid.addContextMenu();
+            menu.setOpenOnClick(true);
+
+            menu.addItem("Accept", event -> acceptBid(bidsGrid));
+            menu.addItem("Reject", event -> rejectBid(bidsGrid));
+            menu.addItem("Counter Offer", event -> counterOfferBid(bidsGrid));
+
+
+            Button cancelButton = new Button("Exit", e -> dialog.close());
+            dialog.getFooter().add(cancelButton);
+
+            add(dialog);
+            dialog.open();
+            dialog.add(menu);
+        }
+    }
+
+    private void counterOfferBid(Grid<BidService> bidsGrid) {
+        BidService bidService = getSelectedBidFromGrid(bidsGrid);
+        if (bidService == null)
+            printError("You didn't choose a Bid");
+        else {
+            Dialog dialog = new Dialog();
+            dialog.setDraggable(true);
+            dialog.setResizable(true);
+            dialog.setHeaderTitle("Create Counter Offer");
+            dialog.setWidth("1000px");
+            NumberField numberField = new NumberField();
+            numberField.setStepButtonsVisible(true);
+            numberField.setMin(Math.max(bidService.getNewPrice(), bidService.getCounterOffer()));
+            numberField.setValue(bidService.getNewPrice()+1);
+            numberField.setMax(bidService.getOriginalPrice()-1);
+            Button saveButton = new Button("Counter Offer", e -> {
+                Result<Boolean> result = shoppingService.counterOffer(bidService.getStoreId(), bidService.getId(), MainLayout.getMainLayout().getCurrUserID(), numberField.getValue());
+                handleCounterRes(result);
+                dialog.close();
+                refreshBidsGrid();
+            });
+            Button cancelButton = new Button(VaadinIcon.CLOSE.create(),
+                    e -> {
+                        printError("Cancelled");
+                        dialog.close();
+                    });
+            cancelButton.addThemeVariants(ButtonVariant.LUMO_ICON,
+                    ButtonVariant.LUMO_ERROR);
+            HorizontalLayout actions = new HorizontalLayout(numberField, saveButton,
+                    cancelButton);
+            actions.setPadding(false);
+            dialog.add(actions);
+            dialog.open();
+        }
+    }
+    private void handleCounterRes(Result<Boolean> result) {
+        if(result.isError()){
+            printError(result.getMessage());
+        }
+        else{
+            if(result.getValue()){
+                printSuccess("All Managers answered, Counter Offer had been sent to Buyer");
+            }
+            else{
+                printSuccess("Counter offer received, Waiting for other managers to respond");
+            }
+        }
+    }
+
+    private void rejectBid(Grid<BidService> bidsGrid) {
+        BidService bidService = getSelectedBidFromGrid(bidsGrid);
+        if(bidService == null)
+            printError("You didn't choose a Bid");
+        else{
+            Result<Boolean> result = shoppingService.reject(bidService.getStoreId(), bidService.getId(), mainLayout.getCurrUserID());
+            if(result.isError()){
+                printError(result.getMessage());
+            }
+            else{
+                if(result.getValue()){
+                    printSuccess("Rejected Bid");
+                }
+                else{
+                    printError("Something went wrong");
+                }
+            }
+        }
+        refreshBidsGrid();
+    }
+
+    private void acceptBid(Grid<BidService> bidsGrid) {
+        BidService bidService = getSelectedBidFromGrid(bidsGrid);
+        if(bidService == null)
+            printError("You didn't choose a Bid");
+        else{
+            Result<Boolean> result = shoppingService.approve(bidService.getStoreId(), bidService.getId(), mainLayout.getCurrUserID());
+            if(result.isError()){
+                printError(result.getMessage());
+            }
+            else{
+                if(result.getValue()){
+                    printSuccess("All managers accepted the Bid");
+                }
+                else{
+                    printSuccess("Accepted, waiting for other managers to respond");
+                }
+            }
+        }
+        refreshBidsGrid();
     }
 }

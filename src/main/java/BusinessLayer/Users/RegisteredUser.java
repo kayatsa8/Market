@@ -32,8 +32,8 @@ public class RegisteredUser extends User {
         this.username = username;
         this.password = Password.hashPassword(pass);
         this.id = id;
+        this.bDay = bDay;
         this.address=address;
-        this.bDay=bDay;
         this.storesIOwn = new HashMap<>();
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();

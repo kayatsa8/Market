@@ -20,7 +20,7 @@ public class BasketTotalPriceRule extends Rule
     }
 
     @Override
-    public boolean checkConditions(List<CartItemInfo> basketItems)
+    public boolean checkConditions(List<CartItemInfo> basketItems, int age)
     {
         return (minimumPrice <= getBasketPrice(basketItems));
     }

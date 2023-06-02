@@ -151,7 +151,7 @@ public class Mailbox extends VerticalLayout implements NotificationObserver {
 
         VerticalLayout chatLayout = new VerticalLayout(list, input);
         chatLayout.setHeight("500px");
-        chatLayout.setWidth("400px");
+//        chatLayout.setWidth("400px");
         chatLayout.expand(list);
         chatLayout.expand(input);
         add(chatLayout);

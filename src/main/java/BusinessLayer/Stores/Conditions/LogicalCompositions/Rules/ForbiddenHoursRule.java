@@ -16,7 +16,7 @@ public class ForbiddenHoursRule extends Rule {
     }
 
     @Override
-    public boolean checkConditions(List<CartItemInfo> basketItems) {
+    public boolean checkConditions(List<CartItemInfo> basketItems, int age) {
         Calendar now = Calendar.getInstance();
         boolean isForbidden = true;
         if (endHour<startHour)

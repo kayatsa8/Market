@@ -1,6 +1,12 @@
 package BusinessLayer.Stores;
 
+import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.ExternalSystems.ESPurchaseManager;
+import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
+import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.Supply.SupplyClient;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.Log;
 import BusinessLayer.Market;
 import BusinessLayer.MarketMock;
@@ -645,7 +651,7 @@ public class Store {
         mailbox.sendMessageToList(sendToList, "User " + userID + " made a purchase in store " + storeName + " where you are one of the owners");
         log.info("A basket was bought at store " + storeID);
     }
-    public synchronized void saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems, List<String> coupons, int userID) throws Exception
+    public synchronized void saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems, List<String> coupons, int userID, int age) throws Exception
     {
         if (storeStatus == OPEN) {
             if (checkIfItemsInStock(basketItems)) {
@@ -655,7 +661,7 @@ public class Store {
                     throw new Exception("One or more of the items or discounts or discounts policies in store : " + storeName + " that affect the basket have been changed");
                 }
                 try {
-                    checkIfPurchaseIsValid(basketItems);
+                    checkIfPurchaseIsValid(basketItems, age);
                 }
                 catch (IllegalStateException msg) {
                     mailbox.sendMessage(userID, msg.getMessage());
@@ -681,11 +687,11 @@ public class Store {
         }
     }
 
-    public boolean checkIfPurchaseIsValid(List<CartItemInfo> basketItems) throws Exception
+    public boolean checkIfPurchaseIsValid(List<CartItemInfo> basketItems, int age) throws Exception
     {
         for (Map.Entry<Integer, PurchasePolicy> purchasePolicy : purchasePolicies.entrySet())
         {
-            if (!purchasePolicy.getValue().isValidForPurchase(basketItems))
+            if (!purchasePolicy.getValue().isValidForPurchase(basketItems, age))
             {
                 throw new IllegalStateException("You don't comply with the following purchase policy:\n" + purchasePolicy);
             }
@@ -696,7 +702,7 @@ public class Store {
     {
         for (Map.Entry<Integer, DiscountPolicy> discountPolicy : discountPolicies.entrySet())
         {
-            if (!discountPolicy.getValue().isValidForDiscount(basketItems))
+            if (!discountPolicy.getValue().isValidForDiscount(basketItems, -1))
             {
                 return false;
             }
@@ -822,9 +828,28 @@ public class Store {
         return true;
     }
 
-    public void addBid(int itemID, int userID, double offeredPrice) {
+    public List<Bid> getUserBidsToReply(int userID)
+    {
+        List<Bid> bidsToReply = new ArrayList<>();
+        for (Bid bid : bids.values())
+        {
+            if (bid.isUserNeedToReply(userID))
+            {
+                bidsToReply.add(bid);
+            }
+        }
+        return bidsToReply;
+    }
+
+    public void addBid(int itemID, int userID, double offeredPrice) throws Exception
+    {
+        if (!items.containsKey(itemID))
+        {
+            throw new Exception("Item ID: " + itemID + " does not exist");
+        }
         saveItemAmount(itemID, 1);
-        Bid newBid = new Bid(itemID, userID, offeredPrice);
+        double originalPrice = getItem(itemID).getPrice();
+        Bid newBid = new Bid(bidsIDs, itemID, items.get(itemID).getItemName(), userID, offeredPrice, originalPrice, getStoreID());
         List<StoreEmployees> storeOwnersAndManagers = new ArrayList<>();
         storeOwnersAndManagers.addAll(storeOwners);
         storeOwnersAndManagers.addAll(storeManagers.stream().filter(manager -> manager.hasPermission(BID_MANAGEMENT)).toList());
@@ -833,6 +858,10 @@ public class Store {
         bids.put(bidsIDs++, newBid);
         mailbox.sendMessageToList(sendToList, "User " + userID + " offered new bid for item " + items.get(itemID).getItemName() + " at store " + storeName + " with price of " + offeredPrice + " while the original price is " + items.get(itemID).getPrice());
         log.info("Added new bid for item " + itemID + " at store " + storeID);
+    }
+
+    public List<Bid> getUserBids(int userID) {
+        return bids.values().stream().filter(bid->bid.getUserID()==userID).toList();
     }
 
     public void addLottery(int itemID, double price, int lotteryPeriodInDays) {
@@ -880,18 +909,19 @@ public class Store {
         lotteries.remove(lotteryID);
     }
 
-    public void finishBidSuccessfully(int bidID) {
+    public BidReplies finishBidSuccessfully(int bidID) {
         Bid bid = bids.get(bidID);
         int itemID = bid.getItemID();
         int userID = bid.getUserID();
         addSavedItemAmount(itemID, -1);
-        removeBid(bidID);
         if (bid.getHighestCounterOffer() == -1) {
             mailbox.sendMessage(userID, "Hi, your bid for the item: " + items.get(itemID).getItemName() + ", was approved by the store, and the item will be sent to you soon");
             log.info("Bid " + bidID + " was fully approved");
+            return BidReplies.APPROVED;
         } else {
             mailbox.sendMessage(userID, "Hi, your bid for the item: " + items.get(itemID).getItemName() + ", was countered by the store with counter-offer of: " + bid.getHighestCounterOffer() + " while the original price is: " + items.get(itemID).getPrice());
             log.info("Bid " + bidID + " was counter-offered with price of " + bid.getHighestCounterOffer());
+            return BidReplies.COUNTERED;
         }
     }
 
@@ -990,9 +1020,27 @@ public class Store {
         return result;
     }
 
-    public boolean approve(int bidID, int replierUserID) throws Exception {
+    public BidReplies approve(int bidID, int replierUserID) throws Exception {
+        if (!bids.containsKey(bidID))
+        {
+            throw new Exception("Bid ID: " + bidID + " does not exist");
+        }
         boolean finishedBid = bids.get(bidID).approve(replierUserID);
         log.info("User " + replierUserID + " approved bid " + bidID);
+        if (finishedBid) {
+            if (finishBidSuccessfully(bidID)==BidReplies.APPROVED)
+                return BidReplies.APPROVED;
+            return BidReplies.COUNTERED;
+        }
+        return BidReplies.REJECTED; //simulates not done
+    }
+
+    public boolean replyToCounterOffer(int bidID, boolean accepted) throws Exception {
+        if (!bids.containsKey(bidID))
+        {
+            throw new Exception("Bid ID: " + bidID + " does not exist");
+        }
+        boolean finishedBid = bids.get(bidID).replyToCounterOffer(accepted);
         if (finishedBid) {
             finishBidSuccessfully(bidID);
             return true;
@@ -1308,4 +1356,52 @@ public class Store {
         return new HashMap<>(itemsAmounts);
     }
 
+    public boolean payForBid(int bidID, PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) throws Exception {
+        Bid bid = bids.get(bidID);
+        HashMap<Integer, Map<CatalogItem, CartItemInfo>> receiptData = new HashMap<>(); //TODO
+
+        CatalogItem item = getItem(bid.getItemID());
+        List<CartItemInfo> items = new ArrayList<>();
+        items.add(new CartItemInfo(item.getItemID(), 1, bid.getOfferedPrice(), item.getCategory(), item.getItemName(), item.getWeight()));
+
+        //check bid validity
+        try {
+            checkIfPurchaseIsValid(items, purchaseInfo.getAge());
+        }
+        catch (IllegalStateException msg) {
+            mailbox.sendMessage(bid.getUserID(), msg.getMessage());
+            log.warning("Trying to buy a Item from Bid with store: " + storeName + ", but you don't comply with the purchase policies");
+            throw new IllegalStateException(msg);
+        }
+
+        ESPurchaseManager purchaseManager = new ESPurchaseManager(new PurchaseClient(), new SupplyClient(), purchaseInfo, supplyInfo);
+        if(!purchaseManager.handShake()){
+            throw new Exception("Problem with connection to external System");
+        }
+
+        saveItemAmount(item.getItemID(), 1);
+
+        int purchaseTransId = purchaseManager.pay();
+
+        purchaseManager.chooseSupplyService();
+        int supplyTransId = purchaseManager.supply();
+
+        if( purchaseTransId == -1 || supplyTransId == -1 ){
+            reverseSavedItems(items);
+            purchaseManager.cancelSupply(supplyTransId);
+            purchaseManager.cancelPay(purchaseTransId);
+            throw new Exception("Problem with Supply or Purchase");
+        }
+        else{
+            Log.log.info("Bid  payment completed");
+            Log.log.info("Bid delivery is scheduled");
+        }
+//        receiptData.putIfAbsent(basket.getStore().getStoreID(), basket.buyBasket(userID));
+        removeBid(bidID);
+        return true;
+    }
+
+    public void cancelBid(int id) {
+        removeBid(id);
+    }
 }
