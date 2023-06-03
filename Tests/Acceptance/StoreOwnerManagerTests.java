@@ -359,7 +359,6 @@ public class StoreOwnerManagerTests extends ProjectTest{
     }
 
 
-
     @Test
     public void getSellingHistory_UserNotManagerOrOwner(){
         List<ReceiptService> history = this.getSellingHistoryOfStore(store2Id, user1GuestId);
