@@ -2,14 +2,14 @@ package PresentationLayer.views;
 
 import BusinessLayer.ExternalSystems.PurchaseInfo;
 import BusinessLayer.ExternalSystems.SupplyInfo;
-import ServiceLayer.Result;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -18,7 +18,6 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 
-import java.lang.reflect.Array;
 import java.time.LocalDate;
 
 public class PurchaseViewManager {
@@ -42,26 +41,30 @@ public class PurchaseViewManager {
     }
 
     public void checkOutEvent(double price, PurchaseSuccess succeed_to_buy) {
-        ConfirmDialog dialog = new ConfirmDialog();
-        dialog.setCloseOnEsc(false);
-        Button cancel =new Button("Cancel");
-        cancel.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        dialog.setCancelable(true);
+        Dialog dialog = new Dialog();
         dialog.setWidth("500px");
 
-        dialog.setConfirmText("Buy");
-        dialog.setConfirmButtonTheme("success primary");
-        dialog.addConfirmListener(event -> buyEvent(succeed_to_buy));
+        Button cancel = new Button("Cancel", event -> dialog.close());
+        cancel.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        cancel.getStyle().set("margin-right", "auto");
+
+        Button buy = new Button("Buy", event -> {
+            if (buyEvent(succeed_to_buy))
+                dialog.close();
+        });
+        buy.setThemeName("success primary");
+
         FormLayout formLayout = new FormLayout();
         formLayout.add(createTitle());
         formLayout.add(createFormLayout());
         formLayout.add(createSupplyFormLayout());
         formLayout.add(new H3("Final Price: " + price));
         dialog.add(formLayout);
+        dialog.getFooter().add(cancel, buy);
         dialog.open();
     }
 
-    private void buyEvent(PurchaseSuccess purchaseSuccess) {
+    private boolean buyEvent(PurchaseSuccess purchaseSuccess) {
         boolean isValid= isAllFieldsValid();
         if (isValid){
             PurchaseInfo purchaseInfo = new PurchaseInfo(
@@ -70,9 +73,11 @@ public class PurchaseViewManager {
             SupplyInfo supplyInfo = new SupplyInfo(
                     name.getValue(), address.getValue(), city.getValue(), state.getValue(), zip.getValue());
             purchaseSuccess.purchase(purchaseInfo, supplyInfo);
+            return true;
         }
         else
             printError("not all filed ok");
+        return false;
     }
     private boolean isAllFieldsValid() {
 
