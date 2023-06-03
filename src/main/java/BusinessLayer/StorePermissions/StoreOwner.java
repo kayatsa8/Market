@@ -2,14 +2,24 @@ package BusinessLayer.StorePermissions;
 
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Users.RegisteredUser;
+import DataAccessLayer.StoreEmployeesDAO;
 
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.HashSet;
 import java.util.Set;
 
+@Entity
+@Table(name = "storeOwners")
 public class StoreOwner extends StoreEmployees {
+    @Transient
     private Set<RegisteredUser> ownersIDefined;
+    @Transient
     private Set<RegisteredUser> managersIDefined;
-
+    @Transient
+    private StoreEmployeesDAO employeesDAO;
     /*
     founder calls this constructor
      */
@@ -18,20 +28,34 @@ public class StoreOwner extends StoreEmployees {
         store.addOwner(this);
         this.ownersIDefined = new HashSet<>();
         this.managersIDefined = new HashSet<>();
+        this.employeesDAO = new StoreEmployeesDAO();
     }
 
     public StoreOwner(int userID, StoreOwner parentStoreOwnership) {
         super(userID, parentStoreOwnership.getUserID(), parentStoreOwnership.getStore());
         this.ownersIDefined = new HashSet<>();
         this.managersIDefined = new HashSet<>();
+        this.employeesDAO = new StoreEmployeesDAO();
+    }
+
+    public StoreOwner() {
+        super();
     }
 
     public Set<RegisteredUser> getOwnersIDefined() {
         return ownersIDefined;
     }
 
+    public void setOwnersIDefined(Set<RegisteredUser> ownersIDefined) {
+        this.ownersIDefined = ownersIDefined;
+    }
+
     public Set<RegisteredUser> getManagersIDefined() {
         return managersIDefined;
+    }
+
+    public void setManagersIDefined(Set<RegisteredUser> managersIDefined) {
+        this.managersIDefined = managersIDefined;
     }
 
     public boolean isFounder() {
@@ -48,6 +72,7 @@ public class StoreOwner extends StoreEmployees {
         managersIDefined.add(newManager);
         newManager.addStoreManagership(this);
         this.getStore().addManager(newManager.getStoreIManage(getStoreID()));
+//        employeesDAO.addManager(newManager);
     }
 
     public void removeOwner(RegisteredUser ownerToRemove) {

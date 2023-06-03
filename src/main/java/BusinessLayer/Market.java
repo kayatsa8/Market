@@ -37,7 +37,7 @@ public class Market {
     private NotificationHub notificationHub;
     private static final Object instanceLock = new Object();
 
-    private ConnectorConfigurations configurations;
+    private static ConnectorConfigurations configurations;
 
     private Market() throws Exception {
         systemManagerMap = new HashMap<>();
@@ -57,11 +57,16 @@ public class Market {
         }
     }
 
-    public void setConfigurations(String unitName, String url, String username, String password, String driver){
+    public static void setConfigurations(String unitName, String url, String username, String password, String driver){
         configurations = new ConnectorConfigurations(unitName, url, username, password, driver);
     }
 
-    public ConnectorConfigurations getConfigurations(){
+    public static ConnectorConfigurations getConfigurations(){
+        if (configurations == null) {
+            String url = "jdbc:mysql://localhost:3306/shefaissashar";
+            String driver = "com.mysql.cj.jdbc.Driver";
+            setConfigurations("Name", url, System.getenv("username"), System.getenv("pass"), driver);
+        }
         return configurations;
     }
 

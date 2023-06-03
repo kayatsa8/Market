@@ -11,6 +11,7 @@ import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
+import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
@@ -351,7 +352,7 @@ public class UserFacade {
 
 
     public ArrayList<Integer> getStoresIdsIOwn(int ownerId) throws Exception {
-        return new ArrayList<>(getRegisteredUser(ownerId).getStoresIOwn().keySet());
+        return new ArrayList<>(getRegisteredUser(ownerId).getStoresIOwn().stream().map(StoreOwner::getStoreID).collect(Collectors.toList()));
     }
 
     public ArrayList<Integer> getStoresIdsIManage(int ownerId) throws Exception {

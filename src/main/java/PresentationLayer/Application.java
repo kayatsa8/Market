@@ -14,6 +14,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.time.LocalDate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The entry point of the Spring Boot application.
@@ -70,7 +72,7 @@ public class Application implements AppShellConfigurator {
             System.out.println("Problem initiating Market");
             return;
         }*/
-        SpringApplication.run(Application.class, args);
+//        SpringApplication.run(Application.class, args);
     }
 
 

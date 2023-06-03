@@ -62,7 +62,7 @@ public class Cart {
             baskets.add(b);
 
             DBConnector<Basket> basketConnector =
-                    new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
+                    new DBConnector<>(Basket.class, Market.getConfigurations());
 
             basketConnector.insert(b);
         }
@@ -96,7 +96,7 @@ public class Cart {
             baskets.remove(basket);
 
             DBConnector<Basket> basketConnector =
-                    new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
+                    new DBConnector<>(Basket.class, Market.getConfigurations());
 
             basketConnector.delete(basket.getId());
 
@@ -214,7 +214,7 @@ public class Cart {
     public void empty(){
         try{
             DBConnector<Basket> basketConnector =
-                    new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
+                    new DBConnector<>(Basket.class, Market.getConfigurations());
 
             for(Basket basket : baskets){
                 basketConnector.delete(basket.getId());
@@ -224,7 +224,7 @@ public class Cart {
             coupons.clear();
 
             DBConnector<Cart> cartConnector =
-                    new DBConnector<>(Cart.class, Market.getInstance().getConfigurations());
+                    new DBConnector<>(Cart.class, Market.getConfigurations());
 
             cartConnector.saveState(this);
         }
@@ -279,7 +279,7 @@ public class Cart {
         coupons.remove(coupon);
 
         DBConnector<Cart> cartConnector =
-                new DBConnector<>(Cart.class, Market.getInstance().getConfigurations());
+                new DBConnector<>(Cart.class, Market.getConfigurations());
 
         cartConnector.saveState(this);
 

@@ -57,10 +57,10 @@ public class UserService {
     public Result<Integer> register(String userName, String pass, String address, LocalDate bDay) {
         try {
             int id=market.register(userName, pass, address, bDay);
-            log.info("logIn succeeded");
+            log.info("register succeeded");
             return new Result<>(false, id);//login == true,isErr==false
         } catch (Exception e) {
-            log.info("logIn failed");
+            log.info("register failed");
             return new Result<>(true, e.getMessage());//login==false
         }
     }

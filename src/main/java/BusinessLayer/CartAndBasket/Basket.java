@@ -17,6 +17,7 @@ import java.util.List;
  * DBConnector must have a separate query, and NOT use getById
  */
 @Entity
+@Table(name = "basket")
 public class Basket {
     //fields
 //    @ManyToOne
@@ -65,10 +66,10 @@ public class Basket {
         ItemWrapper wrapper = searchInItemsById(item.getItemID());
 
         DBConnector<CartItemInfo> infoConnector =
-                new DBConnector<>(CartItemInfo.class, Market.getInstance().getConfigurations());
+                new DBConnector<>(CartItemInfo.class, Market.getConfigurations());
 
         DBConnector<ItemWrapper> wrapperConnector =
-                new DBConnector<>(ItemWrapper.class, Market.getInstance().getConfigurations());
+                new DBConnector<>(ItemWrapper.class, Market.getConfigurations());
 
 
         if (wrapper != null){
@@ -102,7 +103,7 @@ public class Basket {
         wrapper.info.setAmount(quantity);
 
         DBConnector<CartItemInfo> connector =
-                new DBConnector<>(CartItemInfo.class, Market.getInstance().getConfigurations());
+                new DBConnector<>(CartItemInfo.class, Market.getConfigurations());
 
         connector.saveState(wrapper.info);
 
@@ -127,10 +128,10 @@ public class Basket {
         items.remove(wrapper);
 
         DBConnector<CartItemInfo> infoConnector =
-                new DBConnector<>(CartItemInfo.class, Market.getInstance().getConfigurations());
+                new DBConnector<>(CartItemInfo.class, Market.getConfigurations());
 
         DBConnector<ItemWrapper> wrapperConnector =
-                new DBConnector<>(ItemWrapper.class, Market.getInstance().getConfigurations());
+                new DBConnector<>(ItemWrapper.class, Market.getConfigurations());
 
         infoConnector.delete(wrapper.info.getId());
         wrapperConnector.delete(wrapper.id);
@@ -205,7 +206,7 @@ public class Basket {
             itemsSaved = true;
 
             DBConnector<Basket> basketConnector =
-                    new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
+                    new DBConnector<>(Basket.class, Market.getConfigurations());
 
             basketConnector.saveState(this);
         }
@@ -218,7 +219,7 @@ public class Basket {
             */
 
             DBConnector<Basket> basketConnector =
-                    new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
+                    new DBConnector<>(Basket.class, Market.getConfigurations());
 
 //            savedItems = null;
             itemsSaved = false;
@@ -279,9 +280,9 @@ public class Basket {
      */
     public void releaseItems() throws Exception {
         DBConnector<Basket> basketConnector =
-                new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
+                new DBConnector<>(Basket.class, Market.getConfigurations());
         DBConnector<CartItemInfo> infoConnector =
-                new DBConnector<>(CartItemInfo.class, Market.getInstance().getConfigurations());
+                new DBConnector<>(CartItemInfo.class, Market.getConfigurations());
 
 
         if(itemsSaved){
@@ -325,9 +326,9 @@ public class Basket {
 
     private void updateBasketByCartItemInfoList(List<CartItemInfo> updatedBasketItems) throws Exception {
         DBConnector<CartItemInfo> infoConnector =
-                new DBConnector<>(CartItemInfo.class, Market.getInstance().getConfigurations());
+                new DBConnector<>(CartItemInfo.class, Market.getConfigurations());
         DBConnector<ItemWrapper> wrapperConnector =
-                new DBConnector<>(ItemWrapper.class, Market.getInstance().getConfigurations());
+                new DBConnector<>(ItemWrapper.class, Market.getConfigurations());
 
         for(CartItemInfo info : updatedBasketItems){
             infoConnector.delete(searchInItemsById(info.getItemID()).info.getId());

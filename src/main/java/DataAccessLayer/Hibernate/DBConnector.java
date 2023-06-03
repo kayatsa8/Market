@@ -43,7 +43,7 @@ public class DBConnector<T>{
 
         manager.getTransaction().begin();
 
-        manager.persist(object);
+        manager.merge(object);
 
         manager.getTransaction().commit();
 
@@ -166,10 +166,6 @@ public class DBConnector<T>{
         }
     }
 
-
-
-
-
     // General Queries
     /**
      * @param query a query for a single value
@@ -235,4 +231,15 @@ public class DBConnector<T>{
     }
 
 
+    public int getMaxId() {
+        start();
+
+        String stringQuery = "SELECT max(id) " +
+                "FROM " + clazz.getName();
+
+        TypedQuery<T> query = manager.createQuery(stringQuery, clazz);
+        Integer object = (Integer) singleValueQuery(query);
+
+        return object;
+    }
 }

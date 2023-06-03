@@ -53,7 +53,7 @@ public class SystemManager {
         RegisteredUser parentUser;
         List<Integer> storesIDs = new ArrayList<>(); //Amir
         List<RegisteredUser> parents = new ArrayList<>(); // Amir
-        for (StoreOwner ownership : userToRemove.getStoresIOwn().values()) {
+        for (StoreOwner ownership : userToRemove.getStoresIOwn()) {
             //use store to find founder
             storeId = ownership.getStoreID();
             store = storeFacade.getStore(storeId);

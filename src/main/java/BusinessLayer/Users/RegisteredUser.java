@@ -3,51 +3,60 @@ package BusinessLayer.Users;
 import BusinessLayer.Market;
 import BusinessLayer.MarketMock;
 import BusinessLayer.NotificationSystem.Chat;
-import BusinessLayer.NotificationSystem.NotificationHub;
-import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
-import BusinessLayer.NotificationSystem.UserMailbox;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
+import BusinessLayer.StorePermissions.StoreEmployees;
 import BusinessLayer.StorePermissions.StoreManager;
 import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Store;
+import DataAccessLayer.StoreEmployeesDAO;
 import DataAccessLayer.UserDAO;
 
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.*;
 
+@Entity
+@Table(name = "users")
 public class RegisteredUser extends User {
     private String username;
     private String password;
-    private UserDAO userDAO;
-    private Map<Integer, StoreOwner> storesIOwn;
+    @Transient
+    private List<StoreOwner> storesIOwn;
+    @Transient
     private Map<Integer, StoreManager> storesIManage;
+    @Transient
     private SystemManager systemManager;
     private boolean isLoggedIn;
+    @Transient
+    private UserDAO userDAO;
+    @Transient
+    private StoreEmployeesDAO employeesDAO;
+
     public RegisteredUser(String username, String pass, int id, String address, LocalDate bDay) throws Exception {
         super(id);
 
         this.username = username;
         this.password = Password.hashPassword(pass);
-        this.id = id;
         this.bDay = bDay;
-        this.address=address;
-        this.storesIOwn = new HashMap<>();
+        this.address = address;
+        this.storesIOwn = new ArrayList<>();
         this.storesIManage = new HashMap<>();
-        this.userDAO = new UserDAO();
         this.isLoggedIn = false;
         this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(id, this);
+        this.userDAO = new UserDAO();
+        this.employeesDAO = new StoreEmployeesDAO();
     }
-
     public RegisteredUser(String username, String pass, int id, boolean isAdmin) throws Exception {
         super(id);
         this.username = username;
         this.password = Password.hashPassword(pass);
-        this.storesIOwn = new HashMap<>();
+        this.storesIOwn = new ArrayList<>();
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();
+        this.employeesDAO = new StoreEmployeesDAO();
         this.isLoggedIn = false;
         if (isAdmin) {
             systemManager = new SystemManager(this);
@@ -58,27 +67,34 @@ public class RegisteredUser extends User {
         super(id);
         this.username = username;
         this.password = Password.hashPassword(pass);
-        this.storesIOwn = new HashMap<>();
+        this.storesIOwn = new ArrayList<>();
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();
+        this.employeesDAO = new StoreEmployeesDAO();
         this.isLoggedIn = false;
         if (isAdmin) {
             systemManager = new SystemManager(this);
         }
-        this.mailbox = marketMock.getNotificationHub().registerToMailService(id,this);
+        this.mailbox = marketMock.getNotificationHub().registerToMailService(id, this);
     }
+
     public RegisteredUser(String username, String pass, int id, MarketMock marketMock) throws Exception {
         super(id);
         this.username = username;
         this.password = Password.hashPassword(pass);
-        this.storesIOwn = new HashMap<>();
+        this.storesIOwn = new ArrayList<>();
         this.storesIManage = new HashMap<>();
         this.userDAO = new UserDAO();
+        this.employeesDAO = new StoreEmployeesDAO();
         this.isLoggedIn = false;
-        this.mailbox = marketMock.getNotificationHub().registerToMailService(id,this);
+        this.mailbox = marketMock.getNotificationHub().registerToMailService(id, this);
     }
 
-    public Map<Integer, StoreOwner> getStoresIOwn() {
+    public RegisteredUser() {
+        super();
+    }
+
+    public List<StoreOwner> getStoresIOwn() {
         return storesIOwn;
     }
 
@@ -90,20 +106,32 @@ public class RegisteredUser extends User {
         return isLoggedIn;
     }
 
-    public int getId() {
-        return id;
+    public void setLoggedIn(boolean loggedIn) {
+        isLoggedIn = loggedIn;
     }
 
     public String getUsername() {
         return username;
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public String getPassword() {
         return password;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public StoreOwner getStoreIOwn(int storeID) {
-        return ownsStore(storeID) ? storesIOwn.get(storeID) : null;
+        for (StoreOwner storeOwner :  storesIOwn) {
+            if (storeOwner.getStoreID()==storeID)
+                return storeOwner;
+        }
+        return null;
     }
 
     private boolean isAdmin() {
@@ -111,7 +139,11 @@ public class RegisteredUser extends User {
     }
 
     private boolean ownsStore(int storeID) {
-        return (storesIOwn.get(storeID) != null);
+        for (StoreOwner storeOwner :  storesIOwn) {
+            if (storeOwner.getStoreID()==storeID)
+                return true;
+        }
+        return false;
     }
 
     public StoreManager getStoreIManage(int storeID) {
@@ -123,7 +155,7 @@ public class RegisteredUser extends User {
     }
 
     public void addStore(Store store) {
-        storesIOwn.put(store.getStoreID(), new StoreOwner(this.getId(), store));
+        storesIOwn.add(new StoreOwner(this.getId(), store));
     }
 
     public void addOwner(RegisteredUser newOwner, int storeID) throws RuntimeException {
@@ -146,7 +178,8 @@ public class RegisteredUser extends User {
     public StoreOwner addStoreOwnership(StoreOwner storeOwnership) {
         int storeID = storeOwnership.getStoreID();
         StoreOwner ownership = new StoreOwner(this.getId(), storeOwnership);
-        storesIOwn.put(storeID, ownership);
+        storesIOwn.add(storeID, ownership);
+        employeesDAO.addOwner(ownership);
         mailbox.getChats().putIfAbsent(storeID, new Chat(id, storeID));
         return ownership;
     }
@@ -202,12 +235,12 @@ public class RegisteredUser extends User {
 
     public void removeManagership(int storeID) {
         storesIManage.remove(storeID);
-        userDAO.removeManagership(this.getId(), storeID);
+        userDAO.removeManagership(this);
     }
 
     public void removeOwnership(int storeID) {
         storesIOwn.remove(storeID);
-        userDAO.removeOwnership(this.getId(), storeID);
+        userDAO.removeOwnership(this);
     }
 
     public void addManagerPermission(int storeID, RegisteredUser manager, StoreActionPermissions permission) {
@@ -240,22 +273,21 @@ public class RegisteredUser extends User {
         this.isLoggedIn = false;
     }
 
-
+    @Transient
     public Map<RegisteredUser, Set<Integer>> getAllOwnersIDefined() {
-        Map<Integer, StoreOwner> storeOwnership = getStoresIOwn();
+        List<StoreOwner> storeOwnership = getStoresIOwn();
         if (storeOwnership == null) {
             throw new RuntimeException("User is not a store owner");
         }
         Map<RegisteredUser, Set<Integer>> owners = new HashMap<>();
-        for(StoreOwner storeOwner: storeOwnership.values()){
+        for (StoreOwner storeOwner : storeOwnership) {
             Set<RegisteredUser> currUsers = storeOwner.getOwnersIDefined();
-            for (RegisteredUser user: currUsers){
-                if(!owners.containsKey(user)){
+            for (RegisteredUser user : currUsers) {
+                if (!owners.containsKey(user)) {
                     Set<Integer> set = new HashSet<>();
                     set.add(storeOwner.getStoreID());
                     owners.put(user, set);
-                }
-                else{
+                } else {
                     owners.get(user).add(storeOwner.getStoreID());
                 }
             }
@@ -263,42 +295,26 @@ public class RegisteredUser extends User {
         return owners;
     }
 
+    @Transient
     public Map<RegisteredUser, Set<Integer>> getAllManagersIDefined() {
-        Map<Integer, StoreOwner> storeOwnership = getStoresIOwn();
+        List<StoreOwner> storeOwnership = getStoresIOwn();
         if (storeOwnership == null) {
             throw new RuntimeException("User is not a store owner");
         }
         Map<RegisteredUser, Set<Integer>> managers = new HashMap<>();
-        for(StoreOwner owner: storeOwnership.values()){
+        for (StoreOwner owner : storeOwnership) {
             Set<RegisteredUser> currUsers = owner.getManagersIDefined();
-            for (RegisteredUser user: currUsers){
-                if(!managers.containsKey(user)){
+            for (RegisteredUser user : currUsers) {
+                if (!managers.containsKey(user)) {
                     Set<Integer> set = new HashSet<>();
                     set.add(owner.getStoreID());
                     managers.put(user, set);
-                }
-                else{
+                } else {
                     managers.get(user).add(owner.getStoreID());
                 }
             }
         }
 
         return managers;
-    }
-
-    public LocalDate getbDay() {
-        return bDay;
-    }
-
-    public void setbDay(LocalDate bDay) {
-        this.bDay = bDay;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
     }
 }

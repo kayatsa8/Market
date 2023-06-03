@@ -1,10 +1,12 @@
 package ServiceLayer.Objects;
 
+import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Users.RegisteredUser;
 import ServiceLayer.ShoppingService;
 
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class UserInfoService {
 
@@ -18,7 +20,7 @@ public class UserInfoService {
         shoppingService = new ShoppingService();
         this.username = user.getUsername();
         this.id = user.getId();
-        this.storesIOwn = new ArrayList<>(user.getStoresIOwn().keySet());
+        this.storesIOwn = new ArrayList<>(user.getStoresIOwn().stream().map(StoreOwner::getStoreID).collect(Collectors.toList()));
         this.storesIManage = new ArrayList<>(user.getStoresIManage().keySet());
     }
 
