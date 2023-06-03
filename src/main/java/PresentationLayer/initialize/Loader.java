@@ -12,15 +12,20 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 public class Loader {
-    private List<RegisteredUser>  userList;
+    private MyData myData;
     private ShoppingService shoppingService;
     private UserService userService;
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final static String ADMIN_NAME = "admin";
+    private final static String ADMIN_PASS = "adminpass";
+    private List<String> registeredNames;
+    private List<Store> createdStore;
 
 
     public Loader() {
@@ -30,6 +35,8 @@ public class Loader {
         }catch (Exception e) {
             System.out.println("Problem initiating Market"+e.getMessage());
         }
+        registeredNames=new ArrayList<>();
+        createdStore=new ArrayList<>();
     }
     public void load(String path) {
         try {
@@ -38,12 +45,14 @@ public class Loader {
 
             // Create a Gson object
             Gson gson = new Gson();
-            TypeToken<List<RegisteredUser>> myDataTypeToken = new TypeToken<List<RegisteredUser>> () {};
+            TypeToken<MyData> myDataTypeToken = new TypeToken<MyData> () {};
 
             // Parse the JSON string to MyData object
-            userList = gson.fromJson(jsonString, myDataTypeToken.getType());
+            myData = gson.fromJson(jsonString, myDataTypeToken.getType());
             //TODO build APP using API
-            build(userList);
+            loadUsers(myData.getRegisteredUserList());
+            loadAdmins(myData.adminsList);
+            
 
 
         } catch (IOException e) {
@@ -51,26 +60,86 @@ public class Loader {
         }
     }
 
-    public void build(List<RegisteredUser> userList){
+    public void loadUsers(List<RegisteredUser> userList){
         //users
         for (RegisteredUser user: userList) {
-            Result<Integer> registerResult= userService.register(user.username,user.password, user.getAddress(),LocalDate.parse(user.getbDay(), formatter) );
-            Result<Integer> loginResult= userService.login(user.username,user.password);
-            if (!registerResult.isError()&!loginResult.isError()){
-                int founderId=registerResult.getValue();
-                setAdmin(founderId);
-                buildStores(user.getStores(),founderId);
+            if (!registeredNames.contains(user.getUsername())){
+                Result<Integer> registerResult= userService.register(user.username,user.password, user.getAddress(),LocalDate.parse(user.getbDay(), formatter) );
+                if (!registerResult.isError()){
+                    registeredNames.add(user.getUsername());
+                    Result<Integer> loginResult= userService.login(user.username,user.password);
+                    if (!loginResult.isError()){
+                        int founderId=registerResult.getValue();
+                        buildStores(user.getStores(),founderId);
 
-                //logout
-                Result<Boolean> logoutResult= userService.logout(loginResult.getValue());
-                if (logoutResult.isError()) System.out.println("Problem logout"+logoutResult.getMessage());
+                        //logout
+                        Result<Boolean> logoutResult= userService.logout(loginResult.getValue());
+                        if (logoutResult.isError())
+                            System.out.println("Fail to logout"+logoutResult.getMessage());
+                    }
+                    else {
+                        System.out.println("Fail to login"+loginResult.getMessage());
+                    }
+                }
+                else System.out.println("Fail to register"+registerResult.getMessage());
             }
-            else System.out.println("Problem register or login"+registerResult.getMessage()+"\n"+loginResult.getMessage());
+            else {
+                Result<Integer> loginResult= userService.login(user.username,user.password);
+                if (!loginResult.isError()){
+                    addOwners(user.getStores(),userService.getUserIdByName(user.getUsername()).getValue());//TODO dont assume
+                    //logout
+                    Result<Boolean> logoutResult= userService.logout(loginResult.getValue());
+                    if (logoutResult.isError())
+                        System.out.println("Fail to logout"+logoutResult.getMessage());
+                }
+                else {
+                    System.out.println("Fail to login"+loginResult.getMessage());
+                }
+
+            }
         }
     }
 
-    private void setAdmin(int userId) {
-        //TODO add admin in Load
+    /**
+     * assume all the store all ready created and now just add extra owners by owners that are not the founder
+     * @param stores
+     * @param value
+     */
+    private void addOwners(List<Store> stores, int founderId) {
+        for (Store store:stores) {
+            for (String ownerName:store.ownersList) {
+                Result<Integer> newOwnerIdResult=userService.getUserIdByName(ownerName);
+                if (!newOwnerIdResult.isError()) {
+                    int newOwnerId=newOwnerIdResult.getValue();
+                    Result<Boolean> addOwnerResult = userService.addOwner(
+                            founderId,newOwnerId,
+                            shoppingService.getStoreIdByName(store.getStoreName()).getValue());//TODO not assume all ok
+                    if (addOwnerResult.isError()) System.out.println("Fail to addOwner"+addOwnerResult.getMessage());
+                }else System.out.println("Fail to getUserIdByName"+newOwnerIdResult.getMessage());
+            }
+        }
+    }
+
+    private void loadAdmins(List<String> userNames) {
+        Result<Integer> adminLoginResult=userService.login(ADMIN_NAME,ADMIN_PASS);
+        if (!adminLoginResult.isError()) {
+            int adminId=adminLoginResult.getValue();
+            for (String userName:userNames) {
+                Result<Integer> newAdminIdResult=userService.getUserIdByName(userName);
+                if (!newAdminIdResult.isError()) {
+                    int newAdminId=newAdminIdResult.getValue();
+                    Result<Boolean> addAdminResult = userService.addAdmin(adminId,newAdminId);
+                    if (addAdminResult.isError()) System.out.println("Fail to addAdminResult"+addAdminResult.getMessage());
+                }else System.out.println("Fail to getUserIdByName"+newAdminIdResult.getMessage());
+            }
+
+            //logout from main Admin
+            userService.logout(adminId);
+
+        }else System.out.println("Fail to login to main admin"+adminLoginResult.getMessage());
+
+
+
     }
 
     private void buildStores(List<Store> stores, int founderId) {
@@ -101,7 +170,7 @@ public class Loader {
             if (!newManagerIdResult.isError()) {
                 int newManagerId=newManagerIdResult.getValue();
                 Result<Boolean> addManagerResult = userService.addManager(founderId,newManagerId,storeId);
-                if (!addManagerResult.isError()) System.out.println("Fail to addOwner"+addManagerResult.getMessage());
+                if (addManagerResult.isError()) System.out.println("Fail to addOwner"+addManagerResult.getMessage());
             }else System.out.println("Fail to getUserIdByName"+newManagerIdResult.getMessage());
         }
     }
@@ -112,7 +181,7 @@ public class Loader {
             if (!newOwnerIdResult.isError()) {
                 int newOwnerId=newOwnerIdResult.getValue();
                 Result<Boolean> addOwnerResult = userService.addOwner(founderId,newOwnerId,storeID);
-                if (!addOwnerResult.isError()) System.out.println("Fail to addOwner"+addOwnerResult.getMessage());
+                if (addOwnerResult.isError()) System.out.println("Fail to addOwner"+addOwnerResult.getMessage());
             }else System.out.println("Fail to getUserIdByName"+newOwnerIdResult.getMessage());
         }
     }
@@ -148,15 +217,14 @@ public class Loader {
     }
 
     private class MyData{
-        private List<Store> storeList;
+        private List<String> adminsList;
         private List<RegisteredUser> registeredUserList;
-
-        public List<Store> getStoreList() {
-            return storeList;
+        public List<String> getAdminsList() {
+            return adminsList;
         }
 
-        public void setStoreList(List<Store> storeList) {
-            this.storeList = storeList;
+        public void setAdminsList(List<String> adminsList) {
+            this.adminsList = adminsList;
         }
 
         public List<RegisteredUser> getRegisteredUserList() {
@@ -172,17 +240,8 @@ public class Loader {
         private String password;
         private String address;
         private String bDay;
-        private boolean isAdmin;
         private List<Store> stores;
         // Getter and setter methods
-        public boolean isAdmin() {
-            return isAdmin;
-        }
-
-        public void setAdmin(boolean admin) {
-            isAdmin = admin;
-        }
-
         public List<Store> getStores() {
             return stores;
         }

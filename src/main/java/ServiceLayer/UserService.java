@@ -296,13 +296,13 @@ public class UserService {
         return market.isAdmin(currUserID);
     }
 
-    public Result addAdmin(int currUserID, int newUserID) {
+    public Result<Boolean> addAdmin(int currUserID, int newUserID) {
         try {
             market.addAdmin(currUserID, newUserID);
-            return new Result(false, "User was given admin permissions");
+            return new Result<Boolean>(false, "User was given admin permissions");
         }
         catch (Exception e) {
-            return new Result(true, e.getMessage());
+            return new Result<Boolean>(true, e.getMessage());
         }
     }
     public boolean isOwnerOrManager(int currUserID) {
