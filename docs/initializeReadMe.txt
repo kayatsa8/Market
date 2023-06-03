@@ -1,3 +1,11 @@
+This is the format.
+Its List<RegisterUser>
+Each user has List<Store>
+Each store has List<Item> ,List<String newOwnersToAdd> ,List<String newManagersToAdd>.
+This is not a database its initialize.
+Admin and guess are builtin in the system.
+Path is on Application, change it to change the path.
+
 {
     "username": "Amir1",
     "password": "amirsPass",
@@ -14,20 +22,6 @@
             "itemCategory": "Wheat",
             "weight": 1.0,
             "amount": 50
-          },
-          {
-            "itemName": "Milk",
-            "itemPrice": 6.0,
-            "itemCategory": "Dairy",
-            "weight": 2.0,
-            "amount": 10
-          },
-          {
-            "itemName": "Butter",
-            "itemPrice": 7.0,
-            "itemCategory": "Dairy",
-            "weight": 3.0,
-            "amount": 30
           }
         ]
       }
@@ -36,4 +30,3 @@
 ,{},{}
 }
 
-This is the format.

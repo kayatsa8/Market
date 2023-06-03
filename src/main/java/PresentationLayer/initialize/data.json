@@ -4,10 +4,13 @@
     "password": "amirsPass",
     "address": "addressOk",
     "bDay": "1999-07-11",
+    "isAdmin": true,
     "stores": [
       {
         "founderName": "Amir",
         "storeName": "amir1s Store",
+        "ownersList": [],
+        "managersList": [],
         "itemList": [
           {
             "itemName": "Bread",
@@ -39,6 +42,7 @@
     "password": "tomersPass",
     "address": "addressOk",
     "bDay": "1999-07-11",
+    "isAdmin": false,
     "stores": []
   },
   {
@@ -46,6 +50,7 @@
     "password": "yonantansPass",
     "address": "addressOk",
     "bDay": "1999-07-11",
+    "isAdmin": true,
     "stores": []
   },
   {
@@ -53,10 +58,13 @@
     "password": "sagisPass",
     "address": "addressOk",
     "bDay": "1999-07-11",
+    "isAdmin": true,
     "stores": [
       {
         "founderName": "Sagi",
         "storeName": "Sagi1 Store",
+        "ownersList": ["Tomer","Amir"],
+        "managersList": ["Yonatan"],
         "itemList": [
           {
             "itemName": "Eggs",
@@ -102,6 +110,7 @@
     "password": "meitarsPass",
     "address": "addressOk",
     "bDay": "1999-07-11",
+    "isAdmin": false,
     "stores": []
   },
   {
@@ -109,6 +118,7 @@
     "password": "maorsPass",
     "address": "addressOk",
     "bDay": "1999-07-11",
+    "isAdmin": true,
     "stores": []
   }
 ]

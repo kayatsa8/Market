@@ -151,6 +151,18 @@ public class Market {
         else
             throw new RuntimeException("Only System admin can remove a user");
     }
+    public void addAdmin(int userID) throws Exception {//TODO
+        if (isAdmin(getUserIdByName("admin"))) {
+            SystemManager systemManager = systemManagerMap.get(userID);
+            if (systemManager==null)
+                throw new Exception("systemManager is Null");
+            if (userFacade.getRegisteredUser(userID)==null)
+                throw new Exception("user not exist is null!");
+    }
+        else
+                throw new RuntimeException("Only System admin can remove a user");
+
+    }
 
     public int addStore(int founderID, String name) throws Exception {
         //bc of two-way dependency: store is created with only founder ID then when founder receives store pointer he adds himself to owner list

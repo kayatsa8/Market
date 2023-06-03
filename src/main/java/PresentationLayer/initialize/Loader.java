@@ -17,41 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Loader {
-    /*
-
-    i choose Gson.
-    i have class RegisteredUser :`
-    public class RegisteredUser extends User {
-        private String username;
-        private String password;}`
-    Store:'public class Store {
-    private final String founderName;
-    private String storeName;
-    private List<Item>}'
-    Item:'public class Item{
-    String itemName;
-    double itemPrice;
-    String itemCategory;
-    double weight;
-    int amount;
-    }'
-    and overall i need from the json list<Store> and List<RegisterUser>
-
-addItemToStore(int storeID, String itemName, double itemPrice, String itemCategory, double weight)
-addStore(int founderID, String name)
-addItemAmount(int storeId, int itemId, int amount)
-=>
-
-
-
-
-
-
-
-
-
-
-*/
     private List<RegisteredUser>  userList;
     private ShoppingService shoppingService;
     private UserService userService;
@@ -92,7 +57,10 @@ addItemAmount(int storeId, int itemId, int amount)
             Result<Integer> registerResult= userService.register(user.username,user.password, user.getAddress(),LocalDate.parse(user.getbDay(), formatter) );
             Result<Integer> loginResult= userService.login(user.username,user.password);
             if (!registerResult.isError()&!loginResult.isError()){
-                buildStores(user.getStores());
+                int founderId=registerResult.getValue();
+                setAdmin(founderId);
+                buildStores(user.getStores(),founderId);
+
                 //logout
                 Result<Boolean> logoutResult= userService.logout(loginResult.getValue());
                 if (logoutResult.isError()) System.out.println("Problem logout"+logoutResult.getMessage());
@@ -101,30 +69,64 @@ addItemAmount(int storeId, int itemId, int amount)
         }
     }
 
-    private void buildStores(List<Store> stores) {
+    private void setAdmin(int userId) {
+        //TODO add admin in Load
+    }
+
+    private void buildStores(List<Store> stores, int founderId) {
         //stores
         for (Store store: stores) {
             Result<Integer> idResult =userService.getUserIdByName(store.founderName);
             if (!idResult.isError()){
                 int id= idResult.getValue();
-                //storeID
-                Result<Integer> storeID = shoppingService.createStore(id,store.getStoreName());
-                if (!storeID.isError()){
-                    //items & amount
-                    for (Item item:store.getItemList()) {
-                        Result<CatalogItemService> itemId = shoppingService.addItemToStore(storeID.getValue(),item.getItemName(),
-                                item.getItemPrice(), item.getItemCategory(), item.getWeight());
-                        if(!itemId.isError()) {
-                            Result<Boolean> addItemAmountResult=shoppingService.addItemAmount(storeID.getValue(), itemId.getValue().getItemID(), item.getAmount());
-                            if (addItemAmountResult.isError()) System.out.println("Fail to addItemAmountResult"+addItemAmountResult.getMessage());
-                        }
-                        else System.out.println("Fail to addItemToStore"+itemId.getMessage());
-                    }
-                }else System.out.println("Fail to create store"+storeID.getMessage());
+                //crate store
+                Result<Integer> storeIdResult = shoppingService.createStore(id,store.getStoreName());//storeID
+                if (!storeIdResult.isError()){
+                    int storeId=storeIdResult.getValue();
+                    //Load items & amount
+                    loadItems(store, storeId);
+                    loadOwners(founderId,store.ownersList,storeId);
+                    loadManagers(founderId,store.managersList,storeId);
+
+                }else System.out.println("Fail to create store"+storeIdResult.getMessage());
             }else System.out.println("Fail to getUserIdByName"+idResult.getMessage());
 
         }
 
+    }
+
+    private void loadManagers(int founderId, List<String> managersList, int storeId) {
+        for (String managerName:managersList) {
+            Result<Integer> newManagerIdResult=userService.getUserIdByName(managerName);
+            if (!newManagerIdResult.isError()) {
+                int newManagerId=newManagerIdResult.getValue();
+                Result<Boolean> addManagerResult = userService.addManager(founderId,newManagerId,storeId);
+                if (!addManagerResult.isError()) System.out.println("Fail to addOwner"+addManagerResult.getMessage());
+            }else System.out.println("Fail to getUserIdByName"+newManagerIdResult.getMessage());
+        }
+    }
+
+    private void loadOwners(int founderId, List<String> ownersList, int storeID) {
+        for (String ownerName:ownersList) {
+            Result<Integer> newOwnerIdResult=userService.getUserIdByName(ownerName);
+            if (!newOwnerIdResult.isError()) {
+                int newOwnerId=newOwnerIdResult.getValue();
+                Result<Boolean> addOwnerResult = userService.addOwner(founderId,newOwnerId,storeID);
+                if (!addOwnerResult.isError()) System.out.println("Fail to addOwner"+addOwnerResult.getMessage());
+            }else System.out.println("Fail to getUserIdByName"+newOwnerIdResult.getMessage());
+        }
+    }
+
+    private void loadItems(Store store, int storeID) {
+        for (Item item: store.getItemList()) {
+            Result<CatalogItemService> itemId = shoppingService.addItemToStore(storeID,item.getItemName(),
+                    item.getItemPrice(), item.getItemCategory(), item.getWeight());
+            if(!itemId.isError()) {
+                Result<Boolean> addItemAmountResult=shoppingService.addItemAmount(storeID, itemId.getValue().getItemID(), item.getAmount());
+                if (addItemAmountResult.isError()) System.out.println("Fail to addItemAmountResult"+addItemAmountResult.getMessage());
+            }
+            else System.out.println("Fail to addItemToStore"+itemId.getMessage());
+        }
     }
 
     public void crateJson(){
@@ -170,8 +172,16 @@ addItemAmount(int storeId, int itemId, int amount)
         private String password;
         private String address;
         private String bDay;
+        private boolean isAdmin;
         private List<Store> stores;
         // Getter and setter methods
+        public boolean isAdmin() {
+            return isAdmin;
+        }
+
+        public void setAdmin(boolean admin) {
+            isAdmin = admin;
+        }
 
         public List<Store> getStores() {
             return stores;
@@ -216,8 +226,25 @@ addItemAmount(int storeId, int itemId, int amount)
     private class Store {
         private String founderName;
         private String storeName;
+        private List<String> ownersList;//names of users
+        private List<String> managersList;//names of users
         private List<Item> itemList;
         // Getter and setter methods
+        public List<String> getOwnersList() {
+            return ownersList;
+        }
+
+        public void setOwnersList(List<String> ownersList) {
+            this.ownersList = ownersList;
+        }
+
+        public List<String> getManagersList() {
+            return managersList;
+        }
+
+        public void setManagersList(List<String> managersList) {
+            this.managersList = managersList;
+        }
 
         public List<Item> getItemList() {
             return itemList;
