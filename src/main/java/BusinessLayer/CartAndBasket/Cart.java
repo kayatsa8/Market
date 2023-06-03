@@ -219,4 +219,7 @@ public class Cart {
     }
 
 
+    public List<String> getCoupons() {
+        return coupons;
+    }
 }

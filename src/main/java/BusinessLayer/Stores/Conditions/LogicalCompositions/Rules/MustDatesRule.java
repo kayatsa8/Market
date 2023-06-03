@@ -24,7 +24,7 @@ public class MustDatesRule extends Rule {
 
     private String getMustDateString(Calendar mustDate)
     {
-        return  mustDate.get(5) + "." + mustDate.get(2) + "." + mustDate.get(1);
+        return  mustDate.get(5) + "." + (mustDate.get(2) + 1) + "." + mustDate.get(1);
     }
 
     @Override

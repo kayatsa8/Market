@@ -1375,7 +1375,7 @@ public class StoreManagementView extends VerticalLayout {
     }
 
     private String getDateString(Calendar date) {
-        return  date.get(Calendar.DATE) + "." + date.get(Calendar.MONTH) + "." + date.get(Calendar.YEAR);
+        return  date.get(Calendar.DATE) + "." + (date.get(Calendar.MONTH) + 1) + "." + date.get(Calendar.YEAR);
     }
 
     private void ruleForbiddenCategoryDialog(Grid<RuleService> rulesGrid, int storeId, int policyMode) {
@@ -1633,9 +1633,9 @@ public class StoreManagementView extends VerticalLayout {
 
     private Calendar convertToCalender(LocalDate localDate) {
         try{
-            Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
             Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
+            calendar.clear();
+            calendar.set(localDate.getYear(), localDate.getMonthValue() - 1, localDate.getDayOfMonth(), 0, 0, 0);
             return calendar;
         }
         catch (Exception e){
