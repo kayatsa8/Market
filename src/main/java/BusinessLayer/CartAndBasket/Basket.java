@@ -28,21 +28,17 @@ public class Basket {
 
     @OneToMany()
     @LazyCollection(LazyCollectionOption.FALSE)
-    @CollectionTable(name = "ItemWrapper",
-                    joinColumns = {
-                        @JoinColumn(name = "userId", referencedColumnName = "userId"),
-                        @JoinColumn(name = "storeId", referencedColumnName = "storeId")
-                    }) //BUG POTENTIAL: CollectionTable may cause problems
+    @JoinTable(name = "ItemWrapper",
+                joinColumns = {
+                    @JoinColumn(name = "basketId")
+                })
     private List<Basket.ItemWrapper> items;
 
     private boolean itemsSaved; // true if the store saves the items inside the basket for the user
     @OneToMany()
     @LazyCollection(LazyCollectionOption.FALSE)
-    @CollectionTable(name = "savedItems",
-            joinColumns = {
-            @JoinColumn(name = "userId", referencedColumnName = "userId"),
-            @JoinColumn(name = "storeId", referencedColumnName = "storeId")
-    })
+    @JoinTable(name = "savedItems",
+            joinColumns = @JoinColumn(name = "basketId"))
     private List<CartItemInfo> savedItems;
 
     private int userId;

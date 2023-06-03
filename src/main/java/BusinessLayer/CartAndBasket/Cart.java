@@ -162,7 +162,7 @@ public class Cart {
     public Map<Integer, Map<CatalogItem, CartItemInfo>> buyCart(PurchaseClient purchase, SupplyClient supply, PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) throws Exception {
         HashMap<Integer, Map<CatalogItem, CartItemInfo>> receiptData = new HashMap<>();
 
-        ESPurchaseManager purchaseManager = new ESPurchaseManager(pc, sc, purchaseInfo, supplyInfo);
+        ESPurchaseManager purchaseManager = new ESPurchaseManager(purchase, supply, purchaseInfo, supplyInfo);
         if(!purchaseManager.handShake()){
             throw new Exception("Problem with connection to external System");
         }

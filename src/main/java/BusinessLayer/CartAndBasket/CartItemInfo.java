@@ -1,14 +1,14 @@
 package BusinessLayer.CartAndBasket;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
+@Table(name = "cartItemInfo")
+@SecondaryTable(name = "savedItems")
 public class CartItemInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(table = "cartItemInfo", name = "id")
     private int id;
     private int itemID;
     private int amount;
