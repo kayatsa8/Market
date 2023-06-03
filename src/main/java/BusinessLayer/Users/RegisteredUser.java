@@ -77,7 +77,10 @@ public class RegisteredUser extends User {
         this.isLoggedIn = false;
         this.mailbox = marketMock.getNotificationHub().registerToMailService(id,this);
     }
-
+    public SystemManager makeAdmin() throws Exception {
+        systemManager = new SystemManager(this);
+        return systemManager;
+    }
     public Map<Integer, StoreOwner> getStoresIOwn() {
         return storesIOwn;
     }

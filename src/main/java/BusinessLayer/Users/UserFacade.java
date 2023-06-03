@@ -60,6 +60,11 @@ public class UserFacade {
 //        userDAO.addUser(admin);
         users.put(admin.getId(), admin);
     }
+
+    public SystemManager makeAdmin(int id) throws Exception {
+        return getRegisteredUser(id).makeAdmin();
+    }
+
     public void createAdmin(MarketMock marketMock) throws Exception {
         RegisteredUser admin = new RegisteredUser(adminName, adminPass, getNewId(), true, marketMock);
 //        userDAO.addUser(admin);

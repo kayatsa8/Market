@@ -38,8 +38,6 @@ import java.util.stream.Collectors;
 @Route(value = "admin", layout = MainLayout.class)
 @PreserveOnRefresh
 public class SystemManagementView extends VerticalLayout {
-
-
     ShoppingService shoppingService;
     UserService userService;
     private Map<Integer, StoreService> stores;

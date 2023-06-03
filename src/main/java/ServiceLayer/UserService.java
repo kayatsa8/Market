@@ -296,6 +296,15 @@ public class UserService {
         return market.isAdmin(currUserID);
     }
 
+    public Result addAdmin(int currUserID, int newUserID) {
+        try {
+            market.addAdmin(currUserID, newUserID);
+            return new Result(false, "User was given admin permissions");
+        }
+        catch (Exception e) {
+            return new Result(true, e.getMessage());
+        }
+    }
     public boolean isOwnerOrManager(int currUserID) {
         return market.getUserFacade().isOwnerOrManager(currUserID);
     }

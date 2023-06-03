@@ -77,6 +77,16 @@ public class Market {
         systemManagerMap.put(newAdmin, systemManager);
     }
 
+    public void addAdmin(Integer curr, int newAdmin) throws Exception {
+        if (!systemManagerMap.containsKey(curr)) {
+            throw new RuntimeException("Only admin can add another admin");
+        }
+        if (getUserFacade().userExists(newAdmin)) {
+            SystemManager systemManager = userFacade.makeAdmin(newAdmin);
+            systemManagerMap.put(newAdmin, systemManager);
+        }
+    }
+
     public int register(String username, String pass, String address, LocalDate bDay) throws Exception {
         return userFacade.registerUser(username, pass, address, bDay);
     }
