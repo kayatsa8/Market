@@ -28,18 +28,15 @@ public class Basket {
 
     @OneToMany()
     @LazyCollection(LazyCollectionOption.FALSE)
-    @JoinTable(name = "ItemWrapper",
-                joinColumns = {
-                    @JoinColumn(name = "basketId")
-                })
+    @JoinColumn(name = "basketId")
     private List<Basket.ItemWrapper> items;
 
     private boolean itemsSaved; // true if the store saves the items inside the basket for the user
-    @OneToMany()
-    @LazyCollection(LazyCollectionOption.FALSE)
-    @JoinTable(name = "savedItems",
-            joinColumns = @JoinColumn(name = "basketId"))
-    private List<CartItemInfo> savedItems;
+//    @OneToMany()
+//    @LazyCollection(LazyCollectionOption.FALSE)
+//    @JoinTable(name = "savedItems",
+//            joinColumns = @JoinColumn(name = "basketId"))
+//    private List<CartItemInfo> savedItems;
 
     private int userId;
 
@@ -52,7 +49,7 @@ public class Basket {
         store = _store;
         items = new ArrayList<>();
         itemsSaved = false;
-        savedItems = new ArrayList<>();
+//        savedItems = new ArrayList<>();
         userId = _userId;
 
         //jess
@@ -201,7 +198,7 @@ public class Basket {
     }
 
     public void saveItems(List<String> coupons, int userID, int age) throws Exception{
-        savedItems = getItemsInfo();
+//        savedItems = getItemsInfo();
 
         try{
             store.saveItemsForUpcomingPurchase(getItemsInfo(), coupons, userID, age);
@@ -223,7 +220,7 @@ public class Basket {
             DBConnector<Basket> basketConnector =
                     new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
 
-            savedItems = null;
+//            savedItems = null;
             itemsSaved = false;
 
             //NOTE: maybe need to delete every CartItemInfo in savedItems -> possible solution: empty savedItems, save, make null, save
@@ -256,7 +253,7 @@ public class Basket {
         }
 
         try{
-            store.buyBasket(savedItems, userID);
+            store.buyBasket(getItemsInfo(), userID);
         }
         catch(Exception e){
             //LOG
@@ -289,17 +286,17 @@ public class Basket {
 
         if(itemsSaved){
             itemsSaved = false;
-            store.reverseSavedItems(savedItems);
+            store.reverseSavedItems(getItemsInfo());
 
 //            for(CartItemInfo info : savedItems){
 //                infoConnector.delete(info.getId());
 //            }
 
-            savedItems.clear();
+//            savedItems.clear();
 
-            basketConnector.saveState(this);
+//            basketConnector.saveState(this);
 
-            savedItems = null;
+//            savedItems = null;
 
             basketConnector.saveState(this);
         }
@@ -365,13 +362,13 @@ public class Basket {
         this.itemsSaved = itemsSaved;
     }
 
-    public List<CartItemInfo> getSavedItems() {
-        return savedItems;
-    }
+//    public List<CartItemInfo> getSavedItems() {
+//        return savedItems;
+//    }
 
-    public void setSavedItems(List<CartItemInfo> savedItems) {
-        this.savedItems = savedItems;
-    }
+//    public void setSavedItems(List<CartItemInfo> savedItems) {
+//        this.savedItems = savedItems;
+//    }
 
     public int getUserId() {
         return userId;
@@ -415,7 +412,7 @@ public class Basket {
                 ", storeId=" + storeId +
                 ", items=" + items +
                 ", itemsSaved=" + itemsSaved +
-                ", savedItems=" + savedItems +
+//                ", savedItems=" + savedItems +
                 ", userId=" + userId +
                 ", id=" + id +
                 '}';
