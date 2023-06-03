@@ -5,16 +5,21 @@ import BusinessLayer.ExternalSystems.SupplyInfo;
 import ServiceLayer.Objects.*;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
+import ServiceLayer.UserService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
@@ -45,12 +50,14 @@ public class Cart extends Div {
     private static final float FOOTER_HEIGHT= 0;
     private PurchaseViewManager purchaseViewManager;
     ShoppingService shoppingService;
+    UserService userService;
     /**TreeGrid*/
     private List<BasketService> baskets;
     public Cart() {
         currUser =MainLayout.getMainLayout().getCurrUserID();
         try {
             shoppingService = new ShoppingService();
+            userService = new UserService();
             baskets = shoppingService.getCart(currUser).getValue().getAllBaskets();
         } catch (Exception e) {
             printError("Problem initiating Shefa Isaschar :(");
@@ -365,11 +372,86 @@ public class Cart extends Div {
         Div subSection = new Div();
         subSection.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
 
-        subSection.add(pay);
+        Button addCoupon = new Button("Add Coupon", e-> addCouponDialog());
+
+        subSection.add(pay, addCoupon);
         item.add(subSection);
         aside.add(item);
         updateAside(baskets);
         return aside;
+    }
+
+    private void addCouponDialog() {
+        Dialog dialog = new Dialog();
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setHeaderTitle("Coupons");
+        Paragraph paragraph = new Paragraph("Coupons I Have: ");
+        paragraph.add(getCouponsAsString());
+        TextField couponField = new TextField("New Coupon");
+
+        VerticalLayout dialogLayout = new VerticalLayout(couponField);
+        dialogLayout.setPadding(false);
+        dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+        dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
+
+        dialog.add(dialogLayout, paragraph);
+
+        Button saveButton = new Button("Add", e -> {
+            String coupon = couponField.getValue();
+            Result<Boolean> result = userService.addCouponToCart(currUser, coupon);
+            if(result.isError()){
+                printError(result.getMessage());
+            }
+            else{
+                if(result.getValue()){
+                    printSuccess("Coupon added");
+                    paragraph.add(coupon + "  ");
+                }
+                else{
+                    printError("Something went wrong");
+                }
+            }
+        });
+        Button removeButton = new Button("Remove", e -> {
+            String coupon = couponField.getValue();
+            Result<Boolean> result = userService.removeCouponFromCart(currUser, coupon);
+            if(result.isError()){
+                printError(result.getMessage());
+            }
+            else{
+                if(result.getValue()){
+                    printSuccess("Coupon Removed");
+                    dialog.close();
+                }
+                else{
+                    printError("Something went wrong");
+                }
+            }
+        });
+        saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+        Button cancelButton = new Button("Finish", e -> dialog.close());
+        dialog.getFooter().add(saveButton, removeButton, cancelButton);
+
+        add(dialog);
+        dialog.open();
+    }
+
+    private String getCouponsAsString() {
+        StringBuilder res = new StringBuilder();
+        Result<List<String>> result = userService.getCoupons(currUser);
+        if(result.isError()){
+            printError(result.getMessage());
+        }
+        else{
+            if(result.getValue().size() > 0){
+                for(String coupon : result.getValue()){
+                    res.append(coupon).append("  ");
+                }
+            }
+        }
+        return res.toString();
     }
 
     private void checkOutEvent() {
