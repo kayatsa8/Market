@@ -533,7 +533,56 @@ public class ProxyBridge implements Bridge {
         return null;
     }
 
+    @Override
+    public boolean addBid(int storeID, int itemID, int userID, double offeredPrice) {
+        if(real != null)
+            return real.addBid(storeID, itemID, userID, offeredPrice);
+        return false;
+    }
 
+    @Override
+    public List<BidService> getUserBids(int userID) {
+        if(real != null)
+            return real.getUserBids(userID);
+        return null;
+    }
+
+    @Override
+    public boolean approve(int storeID, int bidID, int replierUserID) {
+        if(real != null)
+            return real.approve(storeID, bidID, replierUserID);
+        return false;
+    }
+
+    @Override
+    public boolean replyToCounterOffer(int storeID, int bidID, boolean accepted) {
+        if(real != null)
+            return real.replyToCounterOffer(storeID, bidID, accepted);
+        return false;
+    }
+
+    @Override
+    public boolean reject(int storeID, int bidID, int replierUserID) {
+        if(real != null)
+            return real.reject(storeID, bidID, replierUserID);
+        return false;
+    }
+
+    @Override
+    public boolean counterOffer(int storeID, int bidID, int replierUserID, double counterOffer) {
+        if(real != null)
+            return real.counterOffer(storeID, bidID, replierUserID, counterOffer);
+        return false;
+    }
+
+    @Override
+    public List<BidService> getUserBidsToReply(int userID) {
+        if(real != null)
+            return real.getUserBidsToReply(userID);
+        return null;
+    }
+
+    @Override
     public HashMap<Integer, ChatService> getChats(int id){
         if(real != null){
             return real.getChats(id);

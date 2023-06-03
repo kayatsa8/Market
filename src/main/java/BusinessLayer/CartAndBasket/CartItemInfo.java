@@ -83,7 +83,7 @@ public class CartItemInfo {
                 && itemName.equals(item.itemName);
     }
 
-    public double getFinalPrice() { return originalPrice*amount*(1-percent); }
+    public double getFinalPrice() { return originalPrice*amount*(100-percent)/100; }
 
     public void setItemID(int itemID) {
         this.itemID = itemID;

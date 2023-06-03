@@ -451,7 +451,6 @@ public class StoreManagementView extends VerticalLayout {
     }
 
     private void refreshStoreList() {
-        List<String> stores = storesIOwn.entrySet().stream().map(e->e.getKey()+": "+e.getValue().getStoreName()).collect(Collectors.toList());
         if (storeSelectorAdd == null) {
             storeSelectorAdd = new Select<>();
             storeSelectorRemoveManager = new Select<>();
@@ -466,7 +465,9 @@ public class StoreManagementView extends VerticalLayout {
             storeSelectorRemoveOwner.setLabel("Store");
             storeSelectorRemoveOwner.setHelperText("Select a User  from grid and select the Store from dropdown");
         }
-
+        if (storesIOwn.isEmpty())
+            return;
+        List<String> stores = storesIOwn.entrySet().stream().map(e->e.getKey()+": "+e.getValue().getStoreName()).collect(Collectors.toList());
         storeSelectorAdd.setItems(stores);
         storeSelectorAdd.setValue(stores.get(0));
 

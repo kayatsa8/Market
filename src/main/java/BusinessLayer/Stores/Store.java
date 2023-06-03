@@ -7,6 +7,9 @@ import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.ExternalSystems.PurchaseInfo;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
 import BusinessLayer.ExternalSystems.SupplyInfo;
+import BusinessLayer.ExternalSystems.ESPurchaseManager;
+import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.Log;
 import BusinessLayer.Market;
 import BusinessLayer.MarketMock;
@@ -773,9 +776,8 @@ public class Store {
                 for (int j = 0; j < basketItems.size(); j++) {
                     double originalItemPercent = basketItems.get(j).getPercent();
                     double tempItemPercent = tempBasket.get(j).getPercent();
-                    basketItems.get(j).setPercent(tempItemPercent * (1 - originalItemPercent) + originalItemPercent);
+                    basketItems.get(j).setPercent(tempItemPercent * (100 - originalItemPercent) + originalItemPercent);
                     /// 40% discount + 30% discount = 58% discount (30% from (100-40=60) is 18, plus 40% = 58%)
-                    ///(because 0.3*(1-0.4)+0.4 = 0.58 => 58%)
                 }
             }
         }
@@ -841,7 +843,12 @@ public class Store {
         return bidsToReply;
     }
 
-    public void addBid(int itemID, int userID, double offeredPrice) throws Exception
+    public Map<Integer, Bid> getBids()
+    {
+        return bids;
+    }
+
+    public Bid addBid(int itemID, int userID, double offeredPrice) throws Exception
     {
         if (!items.containsKey(itemID))
         {
@@ -858,6 +865,7 @@ public class Store {
         bids.put(bidsIDs++, newBid);
         mailbox.sendMessageToList(sendToList, "User " + userID + " offered new bid for item " + items.get(itemID).getItemName() + " at store " + storeName + " with price of " + offeredPrice + " while the original price is " + items.get(itemID).getPrice());
         log.info("Added new bid for item " + itemID + " at store " + storeID);
+        return newBid;
     }
 
     public List<Bid> getUserBids(int userID) {
@@ -1049,6 +1057,10 @@ public class Store {
     }
 
     public boolean reject(int bidID, int replierUserID) throws Exception {
+        if (!bids.containsKey(bidID))
+        {
+            throw new Exception("Bid ID: " + bidID + " does not exist");
+        }
         boolean finishedBid = bids.get(bidID).reject(replierUserID);
         log.info("User " + replierUserID + " rejected bid " + bidID);
         if (finishedBid) {
@@ -1059,6 +1071,10 @@ public class Store {
     }
 
     public boolean counterOffer(int bidID, int replierUserID, double counterOffer) throws Exception {
+        if (!bids.containsKey(bidID))
+        {
+            throw new Exception("Bid ID: " + bidID + " does not exist");
+        }
         boolean finishedBid = bids.get(bidID).counterOffer(replierUserID, counterOffer);
         log.info("User " + replierUserID + " counter-offered bid " + bidID);
         if (finishedBid) {

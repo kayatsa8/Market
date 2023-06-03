@@ -107,10 +107,10 @@ public class StoreFacade {
         return result;
     }
 
-    public void addBid(int storeID, int itemID, int userID, double offeredPrice) throws Exception
+    public Bid addBid(int storeID, int itemID, int userID, double offeredPrice) throws Exception
     {
         Store store = getStore(storeID);
-        store.addBid(itemID, userID, offeredPrice);
+        return store.addBid(itemID, userID, offeredPrice);
     }
 
     public List<Bid> getUserBids(int userID)
@@ -183,6 +183,10 @@ public class StoreFacade {
         {
             throw new Exception("Error: Percent " + percent + " is negative");
         }
+        if (percent >100)
+        {
+            throw new Exception("Error: Percent " + percent + " is over 100");
+        }
         if (!endOfSale.after(Calendar.getInstance()))
         {
             throw new Exception("Error: End of sale date " + getDateString(endOfSale) + " has already passed");
@@ -200,6 +204,10 @@ public class StoreFacade {
         {
             throw new Exception("Error: Percent " + percent + " is negative");
         }
+        if (percent >100)
+        {
+            throw new Exception("Error: Percent " + percent + " is over 100");
+        }
         if (!endOfSale.after(Calendar.getInstance()))
         {
             throw new Exception("Error: End of sale date " + getDateString(endOfSale) + " has already passed");
@@ -213,6 +221,10 @@ public class StoreFacade {
         {
             throw new Exception("Error: Percent " + percent + " is negative");
         }
+        if (percent >100)
+        {
+            throw new Exception("Error: Percent " + percent + " is over 100");
+        }
         if (!endOfSale.after(Calendar.getInstance()))
         {
             throw new Exception("Error: End of sale date " + getDateString(endOfSale) + " has already passed");
@@ -225,6 +237,10 @@ public class StoreFacade {
         if (percent < 0)
         {
             throw new Exception("Error: Percent " + percent + " is negative");
+        }
+        if (percent >100)
+        {
+            throw new Exception("Error: Percent " + percent + " is over 100");
         }
         if (!endOfSale.after(Calendar.getInstance()))
         {
@@ -243,6 +259,10 @@ public class StoreFacade {
         {
             throw new Exception("Error: Percent " + percent + " is negative");
         }
+        if (percent >100)
+        {
+            throw new Exception("Error: Percent " + percent + " is over 100");
+        }
         if (!endOfSale.after(Calendar.getInstance()))
         {
             throw new Exception("Error: End of sale date " + getDateString(endOfSale) + " has already passed");
@@ -256,6 +276,10 @@ public class StoreFacade {
         {
             throw new Exception("Error: Percent " + percent + " is negative");
         }
+        if (percent >100)
+        {
+            throw new Exception("Error: Percent " + percent + " is over 100");
+        }
         if (!endOfSale.after(Calendar.getInstance()))
         {
             throw new Exception("Error: End of sale date " + getDateString(endOfSale) + " has already passed");
@@ -268,6 +292,10 @@ public class StoreFacade {
         if (percent < 0)
         {
             throw new Exception("Error: Percent " + percent + " is negative");
+        }
+        if (percent >100)
+        {
+            throw new Exception("Error: Percent " + percent + " is over 100");
         }
         if (!endOfSale.after(Calendar.getInstance()))
         {
@@ -286,6 +314,10 @@ public class StoreFacade {
         {
             throw new Exception("Error: Percent " + percent + " is negative");
         }
+        if (percent >100)
+        {
+            throw new Exception("Error: Percent " + percent + " is over 100");
+        }
         if (!endOfSale.after(Calendar.getInstance()))
         {
             throw new Exception("Error: End of sale date " + getDateString(endOfSale) + " has already passed");
@@ -298,6 +330,10 @@ public class StoreFacade {
         if (percent < 0)
         {
             throw new Exception("Error: Percent " + percent + " is negative");
+        }
+        if (percent >100)
+        {
+            throw new Exception("Error: Percent " + percent + " is over 100");
         }
         if (!endOfSale.after(Calendar.getInstance()))
         {

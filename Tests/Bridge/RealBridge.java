@@ -409,6 +409,52 @@ public class RealBridge implements Bridge{
         return result.getValue();
     }
 
+    @Override
+    public boolean addBid(int storeID, int itemID, int userID, double offeredPrice) {
+        Result<Boolean> result = shoppingService.addBid(storeID, itemID, userID, offeredPrice);
+        return handleBoolResult(result);
+    }
+
+    @Override
+    public List<BidService> getUserBids(int userID) {
+        Result<List<BidService>> result = shoppingService.getUserBids(userID);
+        if(result == null)
+            return null;
+        return result.getValue();
+    }
+
+    @Override
+    public boolean approve(int storeID, int bidID, int replierUserID) {
+        Result<Boolean> result = shoppingService.approve(storeID, bidID, replierUserID);
+        return handleBoolResult(result);
+    }
+
+    @Override
+    public boolean replyToCounterOffer(int storeID, int bidID, boolean accepted) {
+        Result<Boolean> result = shoppingService.replyToCounterOffer(storeID, bidID, accepted);
+        return handleBoolResult(result);
+    }
+
+    @Override
+    public boolean reject(int storeID, int bidID, int replierUserID) {
+        Result<Boolean> result = shoppingService.reject(storeID, bidID, replierUserID);
+        return handleBoolResult(result);
+    }
+
+    @Override
+    public boolean counterOffer(int storeID, int bidID, int replierUserID, double counterOffer) {
+        Result<Boolean> result = shoppingService.counterOffer(storeID, bidID, replierUserID, counterOffer);
+        return handleBoolResult(result);
+    }
+
+    @Override
+    public List<BidService> getUserBidsToReply(int userID) {
+        Result<List<BidService>> result = shoppingService.getUserBidsToReply(userID);
+        if(result == null)
+            return null;
+        return result.getValue();
+    }
+
 
     @Override
     public HashMap<Integer, ChatService> getChats(int id){
