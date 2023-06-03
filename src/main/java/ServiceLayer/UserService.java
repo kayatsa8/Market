@@ -411,4 +411,14 @@ public class UserService {
         }
 
     }
+
+    public Result<UserInfoService> getUser(int id) {
+        try {
+            RegisteredUser user = market.getUserFacade().getRegisteredUser(id);
+            return new Result<>(false, new UserInfoService(user));
+        }
+        catch (Exception e) {
+            return new Result<>(true, e.getMessage());
+        }
+    }
 }

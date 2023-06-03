@@ -3,11 +3,14 @@ package ServiceLayer.Objects;
 import BusinessLayer.Users.RegisteredUser;
 import ServiceLayer.ShoppingService;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Set;
 
 public class UserInfoService {
 
+    private final LocalDate birthday;
+    private final String address;
     private String username;
     private int id;
     private ArrayList<Integer> storesIOwn;
@@ -18,6 +21,8 @@ public class UserInfoService {
         shoppingService = new ShoppingService();
         this.username = user.getUsername();
         this.id = user.getId();
+        this.birthday = user.getbDay();
+        this.address = user.getAddress();
         this.storesIOwn = new ArrayList<>(user.getStoresIOwn().keySet());
         this.storesIManage = new ArrayList<>(user.getStoresIManage().keySet());
     }
@@ -29,6 +34,8 @@ public class UserInfoService {
         this.shoppingService = new ShoppingService();
         this.username = user.getUsername();
         this.id = user.getId();
+        this.birthday = user.getbDay();
+        this.address = user.getAddress();
         if(action.equals("owner")){
             this.storesIOwn = new ArrayList<>(value);
             this.storesIManage = new ArrayList<>();
@@ -61,6 +68,13 @@ public class UserInfoService {
         return storesIManage;
     }
 
+    public LocalDate getBirthday() {
+        return birthday;
+    }
+
+    public String getAddress() {
+        return address;
+    }
     public void addStoresIOwn(int storeId) {
         this.storesIOwn.add(storeId);
     }
