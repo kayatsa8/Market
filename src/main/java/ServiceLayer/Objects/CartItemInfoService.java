@@ -14,7 +14,7 @@ public class CartItemInfoService {
         itemID = info.getItemID();
         amount = info.getAmount();
         percent = info.getPercent();
-        originalPrice = info.getFinalPrice();
+        originalPrice = info.getOriginalPrice() * amount;
         finalPrice = info.getFinalPrice();
         itemName=info.getItemName();
     }
