@@ -2,6 +2,10 @@ package PresentationLayer.views;
 
 import BusinessLayer.ExternalSystems.PurchaseInfo;
 import BusinessLayer.ExternalSystems.SupplyInfo;
+import BusinessLayer.Users.Guest;
+import ServiceLayer.Objects.UserInfoService;
+import ServiceLayer.Result;
+import ServiceLayer.UserService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -19,6 +23,7 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 public class PurchaseViewManager {
     private TextField cardNumber;
@@ -35,9 +40,21 @@ public class PurchaseViewManager {
     private TextField state;
     private DatePicker dateOfBirth;
     private String CARD_REGEX="[0-9]{8,19}";
-
+    private UserService us;
+    private UserInfoService user;
     public PurchaseViewManager() {
-
+        try {
+            us = new UserService();
+            int id = MainLayout.getMainLayout().getCurrUserID();
+            if (id > Guest.MAX_GUEST_USER_ID) {
+                Result<UserInfoService> res =  us.getUser(id);
+                if (!res.isError())
+                    user = res.getValue();
+            }
+        }
+        catch (Exception e) {
+            printError("Cannot Purchase Right Now");
+        }
     }
 
     public void checkOutEvent(double price, PurchaseSuccess succeed_to_buy) {
@@ -69,7 +86,7 @@ public class PurchaseViewManager {
         if (isValid){
             PurchaseInfo purchaseInfo = new PurchaseInfo(
                     cardNumber.getValue(), month.getValue(), year.getValue(),
-                    name.getValue(),  Integer.parseInt(cvv.getValue()), Integer.parseInt(cardholderId.getValue()),dateOfBirth.getValue());
+                    name.getValue(),  Integer.parseInt(cvv.getValue()), Integer.parseInt(cardholderId.getValue()), dateOfBirth.getValue());
             SupplyInfo supplyInfo = new SupplyInfo(
                     name.getValue(), address.getValue(), city.getValue(), state.getValue(), zip.getValue());
             purchaseSuccess.purchase(purchaseInfo, supplyInfo);
@@ -80,17 +97,25 @@ public class PurchaseViewManager {
         return false;
     }
     private boolean isAllFieldsValid() {
-
-        return !expiration.isInvalid() & year.getValue() != null & month.getValue() != null
-                & !name.isInvalid() & name != null
-                & !cardholderId.isInvalid() & cardholderId.getValue() != null
-                & !cardNumber.isInvalid() & cardNumber.getValue() != null
-                & !cvv.isInvalid() & cvv.getValue() != null
-                & !address.isInvalid() & address.getValue() != null
-                & !zip.isInvalid() & zip.getValue() != null
-                & !city.isInvalid() & city.getValue() != null
-                & !state.isInvalid() & state.getValue() != null
-                & !dateOfBirth.isInvalid() & dateOfBirth.getValue() != null;
+        if (user != null) {
+            return !expiration.isInvalid() & year.getValue() != null & month.getValue() != null
+                    & !name.isInvalid() & name != null
+                    & !cardholderId.isInvalid() & cardholderId.getValue() != null
+                    & !cardNumber.isInvalid() & cardNumber.getValue() != null
+                    & !cvv.isInvalid() & cvv.getValue() != null;
+        }
+        else {
+            return !expiration.isInvalid() & year.getValue() != null & month.getValue() != null
+                    & !name.isInvalid() & name != null
+                    & !cardholderId.isInvalid() & cardholderId.getValue() != null
+                    & !cardNumber.isInvalid() & cardNumber.getValue() != null
+                    & !cvv.isInvalid() & cvv.getValue() != null
+                    & !address.isInvalid() & address.getValue() != null
+                    & !zip.isInvalid() & zip.getValue() != null
+                    & !city.isInvalid() & city.getValue() != null
+                    & !state.isInvalid() & state.getValue() != null
+                    & !dateOfBirth.isInvalid() & dateOfBirth.getValue() != null;
+        }
     }
 
     private Component createSupplyFormLayout() {
@@ -120,6 +145,9 @@ public class PurchaseViewManager {
         HorizontalLayout addressZip =new HorizontalLayout(address,zip);
         HorizontalLayout cityState =new HorizontalLayout(city,state);
         formLayout.add(addressZip, cityState);
+        if (user != null) {
+            formLayout.add(addressZip, cityState);
+        }
         return formLayout;
     }
     private boolean validateId(String id) {
@@ -205,13 +233,25 @@ public class PurchaseViewManager {
         });
         dateOfBirth.setRequired(true);
         dateOfBirth.setErrorMessage("This field is required");
+        LocalDate now = LocalDate.now(ZoneId.systemDefault());
+        dateOfBirth.setMax(now);
+        LocalDate start_date = LocalDate.of(2000, 1, 1);
+        dateOfBirth.setInitialPosition(start_date);
 
 
         HorizontalLayout nameIdLayout=new HorizontalLayout(name,cardholderId);
         HorizontalLayout expDateCvv=new HorizontalLayout(expiration,cvv);
-        HorizontalLayout bDayCardNum=new HorizontalLayout(cardNumber,dateOfBirth);
+        HorizontalLayout cardNum=new HorizontalLayout(cardNumber);
+        HorizontalLayout bday=new HorizontalLayout(dateOfBirth);
         FormLayout formLayout = new FormLayout();
-        formLayout.add(nameIdLayout,bDayCardNum,expDateCvv);
+
+        if (user != null) {
+            formLayout.add(nameIdLayout, cardNum, expDateCvv);
+            dateOfBirth.setValue(user.getBirthday());
+        }
+        else {
+            formLayout.add(nameIdLayout, cardNum, expDateCvv, bday);
+        }
         return formLayout;
     }
 
