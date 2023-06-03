@@ -355,7 +355,7 @@ public class UserService {
     public Result<Boolean> addCouponToCart(int userId, String coupon){
         try{
             market.addCouponToCart(userId, coupon);
-            return new Result<>(false, false);
+            return new Result<>(false, true);
         }
         catch(Exception e){
             return new Result<>(true, e.getMessage());
@@ -365,7 +365,17 @@ public class UserService {
     public Result<Boolean> removeCouponFromCart(int userId, String coupon){
         try{
             market.removeCouponFromCart(userId, coupon);
-            return new Result<>(false, false);
+            return new Result<>(false, true);
+        }
+        catch(Exception e){
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result<List<String>> getCoupons(int userId){
+        try{
+            List<String> res = market.getCoupons(userId);
+            return new Result<>(false, res);
         }
         catch(Exception e){
             return new Result<>(true, e.getMessage());
@@ -419,5 +429,15 @@ public class UserService {
             return new Result<>(true, e.getMessage());
         }
 
+    }
+
+    public Result<UserInfoService> getUser(int id) {
+        try {
+            RegisteredUser user = market.getUserFacade().getRegisteredUser(id);
+            return new Result<>(false, new UserInfoService(user));
+        }
+        catch (Exception e) {
+            return new Result<>(true, e.getMessage());
+        }
     }
 }

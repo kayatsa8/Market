@@ -592,6 +592,10 @@ public class Market {
         userFacade.addCouponToCart(userId, coupon);
     }
 
+    public List<String> getCoupons(int userId) throws Exception {
+        return userFacade.getCoupons(userId);
+    }
+
     public void removeCouponFromCart(int userId, String coupon) throws Exception {
         userFacade.removeCouponFromCart(userId, coupon);
     }
@@ -632,4 +636,6 @@ public class Market {
     public void cancelBid(int storeId, int id) throws Exception {
         storeFacade.cancelBid(storeId, id);
     }
+
+
 }

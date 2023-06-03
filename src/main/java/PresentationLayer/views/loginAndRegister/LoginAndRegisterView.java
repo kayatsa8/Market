@@ -24,6 +24,7 @@ import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.function.BiFunction;
 
 @PageTitle("LogIn/Registration")
@@ -147,6 +148,10 @@ public class LoginAndRegisterView extends HorizontalLayout {
             dateOfBirth.addValueChangeListener(event -> {
                 dateOfBirth.setPlaceholder(event.getValue().toString());
             });
+            LocalDate now = LocalDate.now(ZoneId.systemDefault());
+            dateOfBirth.setMax(now);
+            LocalDate start_date = LocalDate.of(2000, 1, 1);
+            dateOfBirth.setInitialPosition(start_date);
 
             formLayout.add(addressField,dateOfBirth);
             dialog.addCancelListener( x -> dialog.close());

@@ -411,6 +411,13 @@ public class UserFacade {
         getUser(userId).removeCouponFromCart(coupon);
     }
 
+    public List<String> getCoupons(int userId) throws Exception {
+        if(!users.containsKey(userId)){
+            throw new Exception("no such user!");
+        }
+        return getUser(userId).getCart().getCoupons();
+    }
+
     public void listenToNotifications(int userId, NotificationObserver listener) throws Exception {
         if(!userExists(userId)){
             throw new Exception("No such user!");
@@ -442,4 +449,6 @@ public class UserFacade {
 
         return null;
     }
+
+
 }

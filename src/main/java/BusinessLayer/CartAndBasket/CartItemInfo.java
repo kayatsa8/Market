@@ -59,5 +59,5 @@ public class CartItemInfo {
                 && itemName.equals(item.itemName);
     }
 
-    public double getFinalPrice() { return originalPrice*amount*(100-percent); }
+    public double getFinalPrice() { return originalPrice*amount*(100-percent)/100; }
 }

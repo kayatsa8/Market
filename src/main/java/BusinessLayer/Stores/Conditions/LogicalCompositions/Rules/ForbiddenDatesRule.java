@@ -25,7 +25,7 @@ public class ForbiddenDatesRule extends Rule {
 
     private String getForbiddenDateString(Calendar forbiddenDate)
     {
-        return  forbiddenDate.get(5) + "." + forbiddenDate.get(2) + "." + forbiddenDate.get(1);
+        return  forbiddenDate.get(5) + "." + (forbiddenDate.get(2) + 1) + "." + forbiddenDate.get(1);
     }
 
     @Override
