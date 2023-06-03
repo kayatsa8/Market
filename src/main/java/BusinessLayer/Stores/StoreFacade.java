@@ -12,6 +12,7 @@ import BusinessLayer.Stores.Policies.DiscountPolicy;
 import BusinessLayer.Stores.Discounts.Discount;
 import BusinessLayer.Stores.Discounts.DiscountsTypes.Visible;
 import BusinessLayer.Stores.Policies.PurchasePolicy;
+import DataAccessLayer.StoreDAO;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -26,18 +27,21 @@ public class StoreFacade {
     private final Set<String> categoryPool;
     private int storesIDs;
     private int itemsIDs;
+    StoreDAO storeDAO = new StoreDAO();
 
     public StoreFacade() {
         this.stores = new HashMap<>();
         this.categoryPool = new HashSet<>();
         this.storesIDs = 0;
         this.itemsIDs = 0;
+        this.storeDAO = new StoreDAO();
     }
 
     public Store addStore(int founderID, String name) throws Exception
     {
         Store newStore = new Store(storesIDs, founderID, name);
         stores.put(storesIDs++, newStore);
+        storeDAO.addStore(newStore);
         return newStore;
     }
     public Store addStore(int founderID, String name, MarketMock marketMock) throws Exception

@@ -28,6 +28,7 @@ import BusinessLayer.Stores.Discounts.DiscountsTypes.Hidden;
 import BusinessLayer.Stores.Discounts.DiscountsTypes.Visible;
 import BusinessLayer.Stores.Policies.DiscountPolicy;
 import BusinessLayer.Stores.Policies.PurchasePolicy;
+import DataAccessLayer.StoreDAO;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -82,6 +83,8 @@ public class Store {
     private List<StoreOwner> storeOwners;
     @Transient
     private List<StoreManager> storeManagers;
+    @Transient
+    private StoreDAO storeDAO;
     public Store(int storeID, int founderID, String name) {
         this.storeID = storeID;
         this.storeName = name;
@@ -104,6 +107,7 @@ public class Store {
         this.storeManagers = new ArrayList<>();
         this.founderID = founderID;
         this.storeOwners = new ArrayList<>();
+        this.storeDAO = new StoreDAO();
         try {
             this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(this);
         } catch (Exception ignored) {
@@ -133,6 +137,7 @@ public class Store {
         this.founderID = founderID;
         this.storeOwners = new ArrayList<>();
         this.mailbox = marketMock.getNotificationHub().registerToMailService(this);
+        this.storeDAO = new StoreDAO();
         log.info("Store " + storeID + " created with name: " + storeName);
     }
     public Store() {
@@ -154,6 +159,7 @@ public class Store {
         this.storeStatus = OPEN;
         this.storeManagers = new ArrayList<>();
         this.storeOwners = new ArrayList<>();
+        this.storeDAO = new StoreDAO();
         try {
             this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(this);
         } catch (Exception ignored) {
