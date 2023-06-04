@@ -4,10 +4,7 @@ import BusinessLayer.Stores.Store;
 import BusinessLayer.Users.RegisteredUser;
 import DataAccessLayer.StoreEmployeesDAO;
 
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,6 +13,7 @@ import java.util.Set;
 public class StoreOwner extends StoreEmployees {
     @Transient
     private Set<RegisteredUser> ownersIDefined;
+//    @OneToMany(mappedBy = "managersDefined")
     @Transient
     private Set<RegisteredUser> managersIDefined;
     @Transient
@@ -72,7 +70,6 @@ public class StoreOwner extends StoreEmployees {
         managersIDefined.add(newManager);
         newManager.addStoreManagership(this);
         this.getStore().addManager(newManager.getStoreIManage(getStoreID()));
-//        employeesDAO.addManager(newManager);
     }
 
     public void removeOwner(RegisteredUser ownerToRemove) {

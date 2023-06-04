@@ -11,10 +11,7 @@ import BusinessLayer.Stores.Store;
 import DataAccessLayer.StoreEmployeesDAO;
 import DataAccessLayer.UserDAO;
 
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -23,6 +20,7 @@ import java.util.*;
 public class RegisteredUser extends User {
     private String username;
     private String password;
+//    @OneToMany(mappedBy = "registeredUser")
     @Transient
     private List<StoreOwner> storesIOwn;
     @Transient
@@ -155,7 +153,9 @@ public class RegisteredUser extends User {
     }
 
     public void addStore(Store store) {
-        storesIOwn.add(new StoreOwner(this.getId(), store));
+        StoreOwner ownership = new StoreOwner(this.getId(), store);
+        storesIOwn.add(ownership);
+        employeesDAO.addOwner(ownership);
     }
 
     public void addOwner(RegisteredUser newOwner, int storeID) throws RuntimeException {
@@ -202,7 +202,9 @@ public class RegisteredUser extends User {
 
     public void addStoreManagership(StoreOwner storeOwnerShip) {
         int storeID = storeOwnerShip.getStoreID();
-        storesIManage.put(storeID, new StoreManager(this.getId(), storeOwnerShip));
+        StoreManager managership = new StoreManager(this.getId(), storeOwnerShip);
+        storesIManage.put(storeID, managership);
+        employeesDAO.addManager(managership);
     }
 
     public void removeOwner(RegisteredUser ownerToRemove, int storeID) {
@@ -234,11 +236,15 @@ public class RegisteredUser extends User {
     }
 
     public void removeManagership(int storeID) {
+        StoreManager manager = storesIManage.get(storeID);
+        employeesDAO.removeManagership(manager);
         storesIManage.remove(storeID);
         userDAO.removeManagership(this);
     }
 
     public void removeOwnership(int storeID) {
+        StoreOwner owner = storesIOwn.get(storeID);
+        employeesDAO.removeOwnership(owner);
         storesIOwn.remove(storeID);
         userDAO.removeOwnership(this);
     }

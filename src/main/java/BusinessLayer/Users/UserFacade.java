@@ -39,9 +39,9 @@ public class UserFacade {
 
     public UserFacade() throws Exception {
 //        users = new HashMap<>();
-        users = new HashMap<>();
         userDAO = new UserDAO();
         guests = new HashMap<>();
+        users = userDAO.getUsers();
         userID = userDAO.getMaxID() + 1;
 //        setGuest();
     }

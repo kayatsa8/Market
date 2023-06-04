@@ -7,6 +7,8 @@ import BusinessLayer.Users.UserFacade;
 import DataAccessLayer.Hibernate.DBConnector;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 //DB mock
 public class UserDAO {
@@ -44,5 +46,14 @@ public class UserDAO {
 
     public void removeOwnership(RegisteredUser user) {
         connector.saveState(user);
+    }
+
+    public Map<Integer, RegisteredUser> getUsers() {
+        List<RegisteredUser> users = connector.getAll();
+        Map<Integer, RegisteredUser> res = new HashMap<>();
+        for (RegisteredUser user : users) {
+            res.put(user.getId(), user);
+        }
+        return res;
     }
 }

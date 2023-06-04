@@ -11,15 +11,13 @@ import java.util.ArrayList;
 public class DBTester {
 
     public static void main(String[] args){
-        String url = "jdbc:mysql://localhost/ShefaIssashar";
+        String url = "jdbc:mysql://localhost:3306/shefaissashar";
         String driver = "com.mysql.cj.jdbc.Driver";
-        String username = "root";
-        String password = "S41r@kT1e";
-        ConnectorConfigurations conf = new ConnectorConfigurations("Name", url, username, password, driver);
+        ConnectorConfigurations conf = new ConnectorConfigurations("Name", url, System.getenv("username"), System.getenv("pass"), driver);
 
-        //infoTest(conf);
+        infoTest(conf);
 
-        //wrapperTest(conf);
+        wrapperTest(conf);
 
         basketTest(conf);
     }

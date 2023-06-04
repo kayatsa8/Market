@@ -7,6 +7,8 @@ import BusinessLayer.Users.UserFacade;
 import DataAccessLayer.Hibernate.DBConnector;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 //DB mock
 public class StoreDAO {
@@ -22,4 +24,13 @@ public class StoreDAO {
         connector.delete(store.getStoreID());
     }
 
+    public Map<Integer, Store> getStores() {
+        return new HashMap<>();
+//        List<Store> stores = connector.getAll();
+//        Map<Integer, Store> res = new HashMap<>();
+//        for (Store store : stores) {
+//            res.put(store.getStoreID(), store);
+//        }
+//        return res;
+    }
 }
