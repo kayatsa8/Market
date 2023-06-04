@@ -1,39 +1,40 @@
-{
-    "username": "Amir1",
-    "password": "amirsPass",
-    "address": "addressOk",
-    "bDay": "1999-07-11",
-    "stores": [
-      {
-        "founderName": "Amir1",
-        "storeName": "amir1s Store",
-        "itemList": [
-          {
-            "itemName": "Bread",
-            "itemPrice": 5.0,
-            "itemCategory": "Wheat",
-            "weight": 1.0,
-            "amount": 50
-          },
-          {
-            "itemName": "Milk",
-            "itemPrice": 6.0,
-            "itemCategory": "Dairy",
-            "weight": 2.0,
-            "amount": 10
-          },
-          {
-            "itemName": "Butter",
-            "itemPrice": 7.0,
-            "itemCategory": "Dairy",
-            "weight": 3.0,
-            "amount": 30
-          }
-        ]
-      }
-    ]
-  }
-,{},{}
-}
-
 This is the format.
+Its Data with 2 fields:
+1.List<string> -> list of admins to add
+2.List<RegisterUser>
+Each user has List<Store>
+Each store has List<Item> ,List<String newOwnersToAdd> ,List<String newManagersToAdd>.
+This is not a database its initialize.
+Admin and guess are builtin in the system.
+Path is on Application, change it to change the path.
+
+Example:
+{
+  "adminsList": ["Amir","Tomer"],
+  "registeredUserList":
+  [
+    {
+      "username": "Sagi",
+      "password": "sagisPass",
+      "address": "addressOk",
+      "bDay": "1999-07-11",
+      "stores": [
+        {
+          "founderName": "Sagi",
+          "storeName": "Sagi1 Store",
+          "ownersList": ["Tomer","Amir"],
+          "managersList": ["Yonatan"],
+          "itemList": [
+            {
+              "itemName": "Eggs",
+              "itemPrice": 4.5,
+              "itemCategory": "Dairy",
+              "weight": 5.0,
+              "amount": 20
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -26,7 +26,7 @@ import java.time.LocalDate;
 @Theme(value = "Market")
 @Push
 public class Application implements AppShellConfigurator {
-    private static final String relativePath = "src/main/java/PresentationLayer/initialize/data.json";
+    private static final String relativePath = "src/main/java/PresentationLayer/initialize/file_b.json";
 
     public static void main(String[] args) {
         String addressOk="addressOk";

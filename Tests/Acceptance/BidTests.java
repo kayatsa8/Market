@@ -82,7 +82,9 @@ public class BidTests extends ProjectTest{
     }
 
 
-
+    /**
+     * Add Bid #48
+     */
     @Test
     public void addBid_Valid(){
         int newItemId = addItemToStoreForTests(store2Id, "addBid_Valid", 10, "Cat", 10);
@@ -116,6 +118,9 @@ public class BidTests extends ProjectTest{
         assertFalse(added);
     }
 
+    /**
+     * Approve Bid, Reject Bid, Counteroffer Bid One Owner #49
+     */
     @Test
     public void approveBidOneOwner_Valid(){
         int newPrice = 1;
@@ -171,7 +176,9 @@ public class BidTests extends ProjectTest{
 
     }
 
-
+    /**
+     * Approve Bid, Reject Bid, Counteroffer Bid Multiple Owners #50
+     */
     @Test
     public void approveBidMultipleOwners_Valid(){
         int newPrice = 4;
@@ -195,6 +202,9 @@ public class BidTests extends ProjectTest{
     }
 
 
+    /**
+     * , Reject Bid Multiple Owners #51
+     */
     @Test
     public void rejectBidMultipleOwner_Valid(){
         int newPrice = 2;
@@ -211,6 +221,9 @@ public class BidTests extends ProjectTest{
     }
 
 
+    /**
+     * Counteroffer Bid Multiple Owners #52
+     */
     @Test
     public void counterOfferThanAcceptMultipleUsers_Valid(){
         int newPrice = 3;
