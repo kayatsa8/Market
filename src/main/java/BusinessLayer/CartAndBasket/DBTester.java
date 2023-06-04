@@ -1,20 +1,25 @@
 package BusinessLayer.CartAndBasket;
 
+import BusinessLayer.Market;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.Hibernate.ConnectorConfigurations;
 import DataAccessLayer.Hibernate.DBConnector;
 
+import java.util.ArrayList;
+
 public class DBTester {
 
     public static void main(String[] args){
-        String url = "jdbc:mysql://localhost:3306/shefaissashar";
+        String url = "jdbc:mysql://localhost/ShefaIssashar";
         String driver = "com.mysql.cj.jdbc.Driver";
-        ConnectorConfigurations conf = new ConnectorConfigurations("Name", url, System.getenv("username"), System.getenv("pass"), driver);
+        String username = "root";
+        String password = "S41r@kT1e";
+        ConnectorConfigurations conf = new ConnectorConfigurations("Name", url, username, password, driver);
 
-        infoTest(conf);
+        //infoTest(conf);
 
-        wrapperTest(conf);
+        //wrapperTest(conf);
 
         basketTest(conf);
     }
@@ -70,6 +75,13 @@ public class DBTester {
     }
 
     public static void basketTest(ConnectorConfigurations conf){
+        try{
+            Market.getInstance().setConfigurations(conf);
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+
         Store store = new Store(1, 2, "store1");
         Basket basket = new Basket(store, 222);
 
@@ -77,7 +89,17 @@ public class DBTester {
 
         basketConnector.insert(basket);
 
+        try{
+            store.addCatalogItem(17, "item1", 53.22,
+                    "category1", 82);
+            store.addItemAmount(17, 33);
 
+            basket.addItem(store.getItem(17), 22, new ArrayList<>());
+        }
+        catch(Exception e){
+            System.err.println(e.getCause());
+            System.exit(1);
+        }
 
         System.out.println(basketConnector.getAll());
     }

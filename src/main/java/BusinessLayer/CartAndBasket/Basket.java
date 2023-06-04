@@ -27,7 +27,7 @@ public class Basket {
     //jess
     private int storeId;
 
-    @OneToMany()
+    @OneToMany
     @LazyCollection(LazyCollectionOption.FALSE)
     @JoinColumn(name = "basketId")
     private List<Basket.ItemWrapper> items;
@@ -71,6 +71,9 @@ public class Basket {
         DBConnector<ItemWrapper> wrapperConnector =
                 new DBConnector<>(ItemWrapper.class, Market.getConfigurations());
 
+        DBConnector<Basket> basketConnector =
+                new DBConnector<>(Basket.class, Market.getConfigurations());
+
 
         if (wrapper != null){
             int prevAmount= wrapper.info.getAmount();
@@ -84,6 +87,7 @@ public class Basket {
 
             infoConnector.insert(wrapper.info);
             wrapperConnector.insert(wrapper);
+            basketConnector.saveState(this);
         }
 
         releaseItems();
@@ -281,8 +285,6 @@ public class Basket {
     public void releaseItems() throws Exception {
         DBConnector<Basket> basketConnector =
                 new DBConnector<>(Basket.class, Market.getConfigurations());
-        DBConnector<CartItemInfo> infoConnector =
-                new DBConnector<>(CartItemInfo.class, Market.getConfigurations());
 
 
         if(itemsSaved){

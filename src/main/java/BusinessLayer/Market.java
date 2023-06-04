@@ -61,6 +61,10 @@ public class Market {
         configurations = new ConnectorConfigurations(unitName, url, username, password, driver);
     }
 
+    public void setConfigurations(ConnectorConfigurations conf){
+        configurations = conf;
+    }
+
     public static ConnectorConfigurations getConfigurations(){
         if (configurations == null) {
             String url = "jdbc:mysql://localhost:3306/shefaissashar";
