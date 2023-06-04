@@ -41,7 +41,7 @@ public class BidService {
             return APPROVED_STRING;
         }
         if (numRejected==0 && numCountered==0 && numApproved>0) {
-            return numApproved/size*100 + "% Approved";
+            return numApproved + "/" + (int) size + " Approved";
         }
         if (numRejected>0) {
             return REJECTED_STRING;
