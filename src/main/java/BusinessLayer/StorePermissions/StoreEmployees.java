@@ -2,23 +2,22 @@ package BusinessLayer.StorePermissions;
 
 import BusinessLayer.Stores.Store;
 
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
+import javax.persistence.*;
 
 @MappedSuperclass
 public abstract class StoreEmployees {
-    @Id
+    @EmbeddedId
+    private StoreEmployeeId id;
     private int userID;
     private int parentID;
-    @Transient
+    @ManyToOne
+    @JoinColumn(name = "storeId")
     private Store store;
-
     public StoreEmployees(int userID, int parentID, Store store) {
         this.userID = userID;
         this.parentID = parentID;
         this.store = store;
+        this.id = new StoreEmployeeId(userID, store.getStoreID());
     }
 
     public StoreEmployees() {
@@ -52,6 +51,7 @@ public abstract class StoreEmployees {
     public int getStoreID() {
         return store.getStoreID();
     }
+
 
     public abstract boolean hasPermission(StoreActionPermissions permission);
 

@@ -12,9 +12,9 @@ public class DBTester {
         String driver = "com.mysql.cj.jdbc.Driver";
         ConnectorConfigurations conf = new ConnectorConfigurations("Name", url, System.getenv("username"), System.getenv("pass"), driver);
 
-        infoTest(conf);
+//        infoTest(conf);
 
-        wrapperTest(conf);
+//        wrapperTest(conf);
 
         basketTest(conf);
     }

@@ -63,7 +63,7 @@ addItemAmount(int storeId, int itemId, int amount)
             shoppingService = new ShoppingService();
             userService = new UserService();
         }catch (Exception e) {
-            System.out.println("Problem initiating Market"+e.getMessage());
+            System.out.println("Problem initiating Market\n"+e.getMessage());
         }
     }
     public void load(String path) {
@@ -97,7 +97,7 @@ addItemAmount(int storeId, int itemId, int amount)
                 Result<Boolean> logoutResult= userService.logout(loginResult.getValue());
                 if (logoutResult.isError()) System.out.println("Problem logout"+logoutResult.getMessage());
             }
-            else System.out.println("Problem register or login"+registerResult.getMessage()+"\n"+loginResult.getMessage());
+            else System.out.println("Problem register or login\n"+registerResult.getMessage()+"\n"+loginResult.getMessage());
         }
     }
 

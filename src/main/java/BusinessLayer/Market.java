@@ -46,15 +46,14 @@ public class Market {
         notificationHub = new NotificationHub();
     }
 
-    public static Market getInstance() throws Exception {
-        synchronized (instanceLock) {
-            if (instance == null) {
-                instance = new Market();
-                instance.createFirstAdmin();
-                instance.userFacade.setGuest();
-            }
-            return instance;
+    public synchronized static Market getInstance() throws Exception {
+        if (instance == null) {
+            instance = new Market();
+            instance.createFirstAdmin();
+            instance.userFacade.setGuest();
         }
+        return instance;
+
     }
 
     public static void setConfigurations(String unitName, String url, String username, String password, String driver){

@@ -30,11 +30,11 @@ public class StoreFacade {
     StoreDAO storeDAO = new StoreDAO();
 
     public StoreFacade() {
-        this.stores = new HashMap<>();
         this.categoryPool = new HashSet<>();
         this.storesIDs = 0;
         this.itemsIDs = 0;
         this.storeDAO = new StoreDAO();
+        this.stores =storeDAO.getStores();
     }
 
     public Store addStore(int founderID, String name) throws Exception

@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected int id;
 //    @OneToOne
     @Transient

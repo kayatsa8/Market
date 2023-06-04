@@ -60,11 +60,11 @@ public class StoreEmployeesTest {
         int store1ID = market.addStore(user1.getId(), "store1");
         store1 = market.getStoreInfo(store1ID);
         StoreOwner storeOwner1 = new StoreOwner(user1.getId(), store1); //Why new and not addOwner method???
-        user1.getStoresIOwn().put(store1.getStoreID(), storeOwner1);
+        user1.getStoresIOwn().add(storeOwner1);
         int store2ID = market.addStore(user4.getId(), "store2");
         store2 = market.getStoreInfo(store2ID);
         StoreOwner storeOwner2 = new StoreOwner(user4.getId(), store2); //Why new and not addOwner method???
-        user4.getStoresIOwn().put(store2.getStoreID(), storeOwner2);
+        user4.getStoresIOwn().add(storeOwner2);
     }
 
     private void ensureOwnershipWithParent(RegisteredUser child, RegisteredUser parent, Store store) {
