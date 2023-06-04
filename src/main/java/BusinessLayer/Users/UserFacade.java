@@ -177,15 +177,24 @@ public class UserFacade {
 
     public int logIn(String username, String password) throws Exception {
         //List<RegisteredUser> list = new ArrayList<RegisteredUser>(userIDs.values()).stream().filter((user)->user.getUsername().equals(username)).toList();
-        if (username == null || password == null)
+        String errormsg = "Login invalid: Check Username and Password";
+        if (username == null || password == null) {
+            log.info("username or password is Null");
             throw new Exception("username or password is Null");
+        }
         RegisteredUser user = getUserByName(username);
-        if (user == null)
-            throw new Exception("incorrect user name");
-        if (!Password.verifyPassword(password,user.getPassword()))
-            throw new Exception("incorrect password");
-        if (user.isLoggedIn())
-            throw new Exception("User is already logged in");
+        if (user == null) {
+            log.info("incorrect user name");
+            throw new Exception(errormsg);
+        }
+        if (!Password.verifyPassword(password,user.getPassword())) {
+            log.info("incorrect password");
+            throw new Exception(errormsg);
+        }
+        if (user.isLoggedIn()) {
+            log.info("User is already logged in");
+            throw new Exception(errormsg);
+        }
         user.logIn();
         return user.getId();
     }
