@@ -8,7 +8,7 @@ This is not a database its initialize.
 Admin and guess are builtin in the system.
 Path is on Application, change it to change the path.
 
-Example:
+Example(json code):
 {
   "adminsList": ["Amir","Tomer"],
   "registeredUserList":
