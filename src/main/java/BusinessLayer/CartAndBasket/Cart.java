@@ -1,6 +1,5 @@
 package BusinessLayer.CartAndBasket;
 
-import BusinessLayer.CartAndBasket.Repositories.Carts.BasketsRepository;
 import BusinessLayer.ExternalSystems.ESPurchaseManager;
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
@@ -62,7 +61,7 @@ public class Cart {
             baskets.add(b);
 
             DBConnector<Basket> basketConnector =
-                    new DBConnector<>(Basket.class, Market.getConfigurations());
+                    new DBConnector<>(Basket.class, Market.getConfigurations_static());
 
             basketConnector.insert(b);
         }
@@ -96,7 +95,7 @@ public class Cart {
             baskets.remove(basket);
 
             DBConnector<Basket> basketConnector =
-                    new DBConnector<>(Basket.class, Market.getConfigurations());
+                    new DBConnector<>(Basket.class, Market.getConfigurations_static());
 
             basketConnector.delete(basket.getId());
 
@@ -214,7 +213,7 @@ public class Cart {
     public void empty(){
         try{
             DBConnector<Basket> basketConnector =
-                    new DBConnector<>(Basket.class, Market.getConfigurations());
+                    new DBConnector<>(Basket.class, Market.getConfigurations_static());
 
             for(Basket basket : baskets){
                 basketConnector.delete(basket.getId());
@@ -224,7 +223,7 @@ public class Cart {
             coupons.clear();
 
             DBConnector<Cart> cartConnector =
-                    new DBConnector<>(Cart.class, Market.getConfigurations());
+                    new DBConnector<>(Cart.class, Market.getConfigurations_static());
 
             cartConnector.saveState(this);
         }
@@ -279,7 +278,7 @@ public class Cart {
         coupons.remove(coupon);
 
         DBConnector<Cart> cartConnector =
-                new DBConnector<>(Cart.class, Market.getConfigurations());
+                new DBConnector<>(Cart.class, Market.getConfigurations_static());
 
         cartConnector.saveState(this);
 

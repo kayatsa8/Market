@@ -2,19 +2,16 @@ package DataAccessLayer;
 
 import BusinessLayer.Market;
 import BusinessLayer.Stores.Store;
-import BusinessLayer.Users.RegisteredUser;
-import BusinessLayer.Users.UserFacade;
 import DataAccessLayer.Hibernate.DBConnector;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 //DB mock
 public class StoreDAO {
     DBConnector<Store> connector;
     public StoreDAO() {
-        connector = new DBConnector<>(Store.class, Market.getConfigurations());
+        connector = new DBConnector<>(Store.class, Market.getConfigurations_static());
     }
     public void addStore(Store store) {
         connector.insert(store);

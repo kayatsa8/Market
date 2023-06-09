@@ -4,7 +4,6 @@ import BusinessLayer.Market;
 import BusinessLayer.StorePermissions.StoreManager;
 import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Users.RegisteredUser;
-import BusinessLayer.Users.UserFacade;
 import DataAccessLayer.Hibernate.DBConnector;
 
 import java.util.HashMap;
@@ -15,8 +14,8 @@ public class StoreEmployeesDAO {
     DBConnector<StoreOwner> soConnector;
     DBConnector<StoreManager> smConnector;
     public StoreEmployeesDAO() {
-        soConnector = new DBConnector<>(StoreOwner.class, Market.getConfigurations());
-        smConnector = new DBConnector<>(StoreManager.class, Market.getConfigurations());
+        soConnector = new DBConnector<>(StoreOwner.class, Market.getConfigurations_static());
+        smConnector = new DBConnector<>(StoreManager.class, Market.getConfigurations_static());
     }
 
 

@@ -64,7 +64,11 @@ public class Market {
         configurations = conf;
     }
 
-    public static ConnectorConfigurations getConfigurations(){
+    public ConnectorConfigurations getConfigurations(){
+        return configurations;
+    }
+
+    public static ConnectorConfigurations getConfigurations_static(){
         if (configurations == null) {
             String url = "jdbc:mysql://localhost:3306/shefaissashar";
             String driver = "com.mysql.cj.jdbc.Driver";

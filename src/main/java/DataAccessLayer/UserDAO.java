@@ -1,6 +1,5 @@
 package DataAccessLayer;
 
-import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Market;
 import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.UserFacade;
@@ -15,7 +14,7 @@ public class UserDAO {
     private static HashMap<Integer, RegisteredUser> userMap = new HashMap<>();
     DBConnector<RegisteredUser> connector;
     public UserDAO() throws Exception {
-        connector = new DBConnector<>(RegisteredUser.class, Market.getConfigurations());
+        connector = new DBConnector<>(RegisteredUser.class, Market.getConfigurations_static());
     }
 
     public static HashMap<Integer, RegisteredUser> getAllUsers() {
