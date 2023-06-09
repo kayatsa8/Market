@@ -24,41 +24,45 @@ public abstract class URLRequest {
     }
 
     public String getUrlResponse(StringBuilder query) throws IOException {
-        String urlString = "https://php-server-try.000webhostapp.com/";
+        try {
+            String urlString = "https://php-server-try.000webhostapp.com/";
 
-        URL url = new URL(urlString);
+            URL url = new URL(urlString);
 
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("POST");
-        connection.setDoOutput(true);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
 
-        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        connection.setRequestProperty("Content-Length", String.valueOf(query.length()));
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            connection.setRequestProperty("Content-Length", String.valueOf(query.length()));
+            connection.setConnectTimeout(10000);
+            DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
+            outputStream.writeBytes(query.toString());
+            outputStream.flush();
+            outputStream.close();
 
-        DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-        outputStream.writeBytes(query.toString());
-        outputStream.flush();
-        outputStream.close();
+            int responseCode = connection.getResponseCode();
+            if (responseCode != 200)
+                return "-1";
 
-        int responseCode = connection.getResponseCode();
-        if(responseCode != 200)
+            // Read the response
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String line;
+            StringBuilder response = new StringBuilder();
+
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+            reader.close();
+
+            String responseMessage = response.toString();
+
+            connection.disconnect();
+
+            return responseMessage;
+        } catch (IOException e1) {
             return "-1";
-
-        // Read the response
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String line;
-        StringBuilder response = new StringBuilder();
-
-        while ((line = reader.readLine()) != null) {
-            response.append(line);
         }
-        reader.close();
-
-        String responseMessage = response.toString();
-
-        connection.disconnect();
-
-        return responseMessage;
     }
 
 

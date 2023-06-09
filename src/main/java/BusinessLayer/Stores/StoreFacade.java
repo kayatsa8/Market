@@ -669,9 +669,11 @@ public class StoreFacade {
         today.set(11 ,0);
         today.set(12 ,0);
         today.set(13 ,0);
+        today.add(Calendar.DATE, -1);
         for (Calendar date : forbiddenDates)
         {
-            if (date.before(today))
+            int difference = date.compareTo(today);
+            if (difference < 0)
             {
                 return true;
             }

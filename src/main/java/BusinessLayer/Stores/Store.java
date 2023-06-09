@@ -829,7 +829,7 @@ public class Store {
                 for (int j = 0; j < basketItems.size(); j++) {
                     double originalItemPercent = basketItems.get(j).getPercent();
                     double tempItemPercent = tempBasket.get(j).getPercent();
-                    basketItems.get(j).setPercent(tempItemPercent * (100 - originalItemPercent) + originalItemPercent);
+                    basketItems.get(j).setPercent(tempItemPercent * (100 - originalItemPercent)/100 + originalItemPercent);
                     /// 40% discount + 30% discount = 58% discount (30% from (100-40=60) is 18, plus 40% = 58%)
                 }
             }

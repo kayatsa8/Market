@@ -2,6 +2,7 @@ package PresentationLayer;
 
 import BusinessLayer.ExternalSystems.PurchaseInfo;
 import BusinessLayer.ExternalSystems.SupplyInfo;
+import PresentationLayer.initialize.ConfigReader;
 import PresentationLayer.initialize.Loader;
 import ServiceLayer.Objects.CatalogItemService;
 import ServiceLayer.Result;
@@ -34,7 +35,8 @@ public class Application implements AppShellConfigurator {
         try {
             String addressOk = "addressOk";
             LocalDate bDayOk = LocalDate.of(2022, 7, 11);
-            Loader loader = new Loader();
+    ConfigReader configReader=new ConfigReader();
+        String relativePath = configReader.getInitializePath();        Loader loader = new Loader();
             loader.load(relativePath);
         }
         catch (Exception e) {

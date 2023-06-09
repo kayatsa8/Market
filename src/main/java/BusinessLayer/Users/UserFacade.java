@@ -61,6 +61,11 @@ public class UserFacade {
 //        userDAO.addUser(admin);
         users.put(admin.getId(), admin);
     }
+
+    public SystemManager makeAdmin(int id) throws Exception {
+        return getRegisteredUser(id).makeAdmin();
+    }
+
     public void createAdmin(MarketMock marketMock) throws Exception {
         RegisteredUser admin = new RegisteredUser(adminName, adminPass, getNewId(), true, marketMock);
 //        userDAO.addUser(admin);
@@ -173,15 +178,24 @@ public class UserFacade {
 
     public int logIn(String username, String password) throws Exception {
         //List<RegisteredUser> list = new ArrayList<RegisteredUser>(userIDs.values()).stream().filter((user)->user.getUsername().equals(username)).toList();
-        if (username == null || password == null)
+        String errormsg = "Login invalid: Check Username and Password";
+        if (username == null || password == null) {
+            log.info("username or password is Null");
             throw new Exception("username or password is Null");
+        }
         RegisteredUser user = getUserByName(username);
-        if (user == null)
-            throw new Exception("incorrect user name");
-        if (!Password.verifyPassword(password,user.getPassword()))
-            throw new Exception("incorrect password");
-        if (user.isLoggedIn())
-            throw new Exception("User is already logged in");
+        if (user == null) {
+            log.info("incorrect user name");
+            throw new Exception(errormsg);
+        }
+        if (!Password.verifyPassword(password,user.getPassword())) {
+            log.info("incorrect password");
+            throw new Exception(errormsg);
+        }
+        if (user.isLoggedIn()) {
+            log.info("User is already logged in");
+            throw new Exception(errormsg);
+        }
         user.logIn();
         return user.getId();
     }
@@ -407,6 +421,13 @@ public class UserFacade {
         getUser(userId).removeCouponFromCart(coupon);
     }
 
+    public List<String> getCoupons(int userId) throws Exception {
+        if(!users.containsKey(userId)){
+            throw new Exception("no such user!");
+        }
+        return getUser(userId).getCart().getCoupons();
+    }
+
     public void listenToNotifications(int userId, NotificationObserver listener) throws Exception {
         if(!userExists(userId)){
             throw new Exception("No such user!");
@@ -438,4 +459,6 @@ public class UserFacade {
 
         return null;
     }
+
+
 }
