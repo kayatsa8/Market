@@ -13,13 +13,13 @@ public class DBTester {
     public static void main(String[] args){
         String url = "jdbc:mysql://localhost:3306/shefaissashar";
         String driver = "com.mysql.cj.jdbc.Driver";
-        ConnectorConfigurations conf = new ConnectorConfigurations("Name", url, System.getenv("username"), System.getenv("pass"), driver);
+        ConnectorConfigurations conf = new ConnectorConfigurations("Name", url, "root", "S41r@kT1e", driver);
 
         infoTest(conf);
 
-        wrapperTest(conf);
+        //wrapperTest(conf);
 
-        basketTest(conf);
+        //basketTest(conf);
     }
 
 
@@ -47,26 +47,22 @@ public class DBTester {
         CatalogItem item1 = new CatalogItem(1, "item1", 1.0,
                                            "c1", "store1", 11, 1.0);
         Basket.ItemWrapper wrapper1 = new Basket.ItemWrapper(item1, 1);
-//        wrapper1.setUserId(111);
-//        wrapper1.setStoreId(11);
 
         CatalogItem item2 = new CatalogItem(2, "item2", 2.0,
                 "c2", "store2", 22, 2.0);
         Basket.ItemWrapper wrapper2 = new Basket.ItemWrapper(item2, 2);
-//        wrapper2.setUserId(222);
-//        wrapper2.setStoreId(22);
 
 
-        DBConnector<CartItemInfo> infoConnector = new DBConnector<>(CartItemInfo.class, conf);
-        infoConnector.insert(wrapper1.getInfo());
-        infoConnector.insert(wrapper2.getInfo());
+//        DBConnector<CartItemInfo> infoConnector = new DBConnector<>(CartItemInfo.class, conf);
+//        infoConnector.insert(wrapper1.getInfo());
+//        infoConnector.insert(wrapper2.getInfo());
 
         wrapperConnector.insert(wrapper1);
         wrapperConnector.insert(wrapper2);
 
 
-        Basket.ItemWrapper w1 = wrapperConnector.getById(wrapper1.id);
-        Basket.ItemWrapper w2 = wrapperConnector.getById(wrapper2.id);
+        Basket.ItemWrapper w1 = wrapperConnector.getById(wrapper1.getId());
+        Basket.ItemWrapper w2 = wrapperConnector.getById(wrapper2.getId());
         System.out.println(w1);
         System.out.println(w2);
 
@@ -96,6 +92,8 @@ public class DBTester {
         }
         catch(Exception e){
             System.err.println(e.getCause());
+            System.err.println(e.getMessage());
+            System.err.println(e.getStackTrace());
             System.exit(1);
         }
 

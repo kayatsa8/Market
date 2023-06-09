@@ -43,7 +43,7 @@ public class DBConnector<T>{
 
         manager.getTransaction().begin();
 
-        manager.merge(object);
+        manager.persist(object);
 
         manager.getTransaction().commit();
 
@@ -180,6 +180,8 @@ public class DBConnector<T>{
         catch(NoResultException e){
             System.out.println("\nERROR!");
             System.out.println(e.getMessage());
+            e.getCause();
+            e.printStackTrace();
         }
         finally{
             manager.close();
@@ -234,8 +236,8 @@ public class DBConnector<T>{
     public int getMaxId() {
         start();
 
-        String stringQuery = "SELECT max(id) " +
-                "FROM " + clazz.getName();
+        String stringQuery = "SELECT max(x.id) " +
+                "FROM " + clazz.getName() + " x";
 
         TypedQuery<T> query = manager.createQuery(stringQuery, clazz);
         Integer object = (Integer) singleValueQuery(query);

@@ -27,9 +27,10 @@ public class Basket {
     //jess
     private int storeId;
 
-    @OneToMany
-    @LazyCollection(LazyCollectionOption.FALSE)
-    @JoinColumn(name = "basketId")
+//    @OneToMany
+//    @LazyCollection(LazyCollectionOption.FALSE)
+//    @JoinColumn(name = "basketId")
+    @Transient
     private List<Basket.ItemWrapper> items;
 
     private boolean itemsSaved; // true if the store saves the items inside the basket for the user
@@ -436,8 +437,9 @@ public class Basket {
     public static class ItemWrapper{
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        int id;
-        //@Column(name = "id")
+        private int id;
+
+//        @Column(name = "id")
 //        @ManyToOne
 //        @JoinColumn(name = "itemId")
         @Transient
@@ -445,8 +447,9 @@ public class Basket {
         //jess
         private int itemId;
 
-        @OneToOne
-        @JoinColumn(name = "infoId")
+//        @OneToOne(cascade = CascadeType.ALL)
+//        @JoinColumn(name = "infoId")
+        @Transient
         public CartItemInfo info;
 
         public ItemWrapper(CatalogItem _item, int quantity){
@@ -464,8 +467,8 @@ public class Basket {
             return id;
         }
 
-        public void setId(int id) {
-            this.id = id;
+        public void setId(int _id) {
+            this.id = _id;
         }
 
         public CatalogItem getItem() {
