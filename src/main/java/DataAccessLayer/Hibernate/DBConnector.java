@@ -150,7 +150,7 @@ public class DBConnector<T>{
             et.begin();
 
             // Save the customer object
-            manager.persist(updatedObject);
+            manager.merge(updatedObject);
             et.commit();
         }
         catch (Exception ex) {

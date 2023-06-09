@@ -15,11 +15,11 @@ public class DBTester {
         String driver = "com.mysql.cj.jdbc.Driver";
         ConnectorConfigurations conf = new ConnectorConfigurations("Name", url, "root", "S41r@kT1e", driver);
 
-//        infoTest(conf);
+        infoTest(conf);
 
-        wrapperTest(conf);
+//        wrapperTest(conf);
 
-        //basketTest(conf);
+//        basketTest(conf);
     }
 
 
@@ -37,6 +37,9 @@ public class DBTester {
         infoConnector.insert(info2);
         infoConnector.insert(info3);
         infoConnector.insert(info4);
+
+        info1.setAmount(17);
+        infoConnector.saveState(info1);
 
         System.out.println(infoConnector.getAll());
     }
