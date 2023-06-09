@@ -447,9 +447,8 @@ public class Basket {
         //jess
         private int itemId;
 
-//        @OneToOne(cascade = CascadeType.ALL)
-//        @JoinColumn(name = "infoId")
-        @Transient
+        @OneToOne(cascade = CascadeType.ALL)
+        @JoinColumn(name = "infoId")
         public CartItemInfo info;
 
         public ItemWrapper(CatalogItem _item, int quantity){

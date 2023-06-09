@@ -15,9 +15,9 @@ public class DBTester {
         String driver = "com.mysql.cj.jdbc.Driver";
         ConnectorConfigurations conf = new ConnectorConfigurations("Name", url, "root", "S41r@kT1e", driver);
 
-        infoTest(conf);
+//        infoTest(conf);
 
-        //wrapperTest(conf);
+        wrapperTest(conf);
 
         //basketTest(conf);
     }
@@ -51,11 +51,6 @@ public class DBTester {
         CatalogItem item2 = new CatalogItem(2, "item2", 2.0,
                 "c2", "store2", 22, 2.0);
         Basket.ItemWrapper wrapper2 = new Basket.ItemWrapper(item2, 2);
-
-
-//        DBConnector<CartItemInfo> infoConnector = new DBConnector<>(CartItemInfo.class, conf);
-//        infoConnector.insert(wrapper1.getInfo());
-//        infoConnector.insert(wrapper2.getInfo());
 
         wrapperConnector.insert(wrapper1);
         wrapperConnector.insert(wrapper2);
