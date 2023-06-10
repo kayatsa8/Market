@@ -1,5 +1,6 @@
 package BusinessLayer.Users;
 
+import BusinessLayer.Market;
 import BusinessLayer.MarketMock;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
@@ -8,23 +9,26 @@ import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.StoreEmployeesDAO;
 import DataAccessLayer.UserDAO;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
 public class RegisteredUser extends User {
     private String username;
     private String password;
-    //    @OneToMany(mappedBy = "registeredUser")
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "user")
-    private List<StoreOwner> storesIOwn;
-    @OneToMany
+    private Set<StoreOwner> storesIOwn;
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "user")
-    private List<StoreManager> storesIManage;
+    private Set<StoreManager> storesIManage;
     @Transient
     private SystemManager systemManager;
     private boolean isSystemManager;
@@ -33,27 +37,25 @@ public class RegisteredUser extends User {
     private UserDAO userDAO;
     @Transient
     private StoreEmployeesDAO employeesDAO;
-
     public RegisteredUser(String username, String pass, int id, String address, LocalDate bDay) throws Exception {
         super(id);
         this.username = username;
         this.password = Password.hashPassword(pass);
         this.bDay = bDay;
         this.address = address;
-        this.storesIOwn = new ArrayList<>();
-        this.storesIManage = new ArrayList<>();
+        this.storesIOwn = new HashSet<>();
+        this.storesIManage = new HashSet<>();
         this.isLoggedIn = false;
         this.isSystemManager = false;
         this.userDAO = UserDAO.getUserDao();
         this.employeesDAO = new StoreEmployeesDAO();
     }
-
     public RegisteredUser(String username, String pass, int id, boolean isAdmin) throws Exception {
         super(id);
         this.username = username;
         this.password = Password.hashPassword(pass);
-        this.storesIOwn = new ArrayList<>();
-        this.storesIManage = new ArrayList<>();
+        this.storesIOwn = new HashSet<>();
+        this.storesIManage = new HashSet<>();
         this.userDAO = UserDAO.getUserDao();
         this.employeesDAO = new StoreEmployeesDAO();
         this.isLoggedIn = false;
@@ -67,8 +69,8 @@ public class RegisteredUser extends User {
         super(id);
         this.username = username;
         this.password = Password.hashPassword(pass);
-        this.storesIOwn = new ArrayList<>();
-        this.storesIManage = new ArrayList<>();
+        this.storesIOwn = new HashSet<>();
+        this.storesIManage = new HashSet<>();
         this.userDAO = UserDAO.getUserDao();
         this.employeesDAO = new StoreEmployeesDAO();
         this.isLoggedIn = false;
@@ -82,8 +84,8 @@ public class RegisteredUser extends User {
         super(id);
         this.username = username;
         this.password = Password.hashPassword(pass);
-        this.storesIOwn = new ArrayList<>();
-        this.storesIManage = new ArrayList<>();
+        this.storesIOwn = new HashSet<>();
+        this.storesIManage = new HashSet<>();
         this.userDAO = UserDAO.getUserDao();
         this.employeesDAO = new StoreEmployeesDAO();
         this.isLoggedIn = false;
@@ -94,17 +96,32 @@ public class RegisteredUser extends User {
         super();
     }
 
+    public boolean isSystemManager() {
+        return isSystemManager;
+    }
+
+    public void setSystemManager(boolean systemManager) throws Exception {
+        isSystemManager = systemManager;
+    }
+
+    @PostLoad
+    private void adminInit() throws Exception {
+        if (isSystemManager) {
+            Market.getInstance().addAdmin(id, makeAdmin());
+        }
+    }
+
     public SystemManager makeAdmin() throws Exception {
         systemManager = new SystemManager(this);
         this.isSystemManager = true;
         return systemManager;
     }
 
-    public List<StoreOwner> getStoresIOwn() {
+    public Set<StoreOwner> getStoresIOwn() {
         return storesIOwn;
     }
 
-    public List<StoreManager> getStoresIManage() {
+    public Set<StoreManager> getStoresIManage() {
         return storesIManage;
     }
 
@@ -138,10 +155,6 @@ public class RegisteredUser extends User {
                 return storeOwner;
         }
         return null;
-    }
-
-    private boolean isAdmin() {
-        return systemManager != null;
     }
 
     private boolean ownsStore(int storeID) {
@@ -310,7 +323,7 @@ public class RegisteredUser extends User {
 
     @Transient
     public Map<RegisteredUser, Set<Integer>> getAllOwnersIDefined() {
-        List<StoreOwner> storeOwnership = getStoresIOwn();
+        Set<StoreOwner> storeOwnership = getStoresIOwn();
         if (storeOwnership == null) {
             throw new RuntimeException("User is not a store owner");
         }
@@ -332,7 +345,7 @@ public class RegisteredUser extends User {
 
     @Transient
     public Map<RegisteredUser, Set<Integer>> getAllManagersIDefined() {
-        List<StoreOwner> storeOwnership = getStoresIOwn();
+        Set<StoreOwner> storeOwnership = getStoresIOwn();
         if (storeOwnership == null) {
             throw new RuntimeException("User is not a store owner");
         }

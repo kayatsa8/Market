@@ -11,10 +11,10 @@ import java.util.Set;
 @Entity
 @Table(name = "storeOwners")
 public class StoreOwner extends StoreEmployees {
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "storeowners_ownersDefined")//,
     private Set<RegisteredUser> ownersIDefined;
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "storeowners_managersDefined")
     private Set<RegisteredUser> managersIDefined;
     @Transient

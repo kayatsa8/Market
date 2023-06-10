@@ -98,6 +98,7 @@ public class Market {
         userFacade.createAdmin();
     }
 
+
     public void addAdmin(int newAdmin, SystemManager systemManager) {
         systemManagerMap.put(newAdmin, systemManager);
     }

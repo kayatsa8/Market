@@ -164,7 +164,7 @@ public class ShoppingService {
             return new Result<>(false, storeServices);
         }
         catch (Exception e){
-            log.info("Stores information not received");
+            log.info("All Stores information not received");
             return new Result<>(true, e.getMessage());
         }
 
@@ -181,7 +181,7 @@ public class ShoppingService {
             return new Result<>(false, storeServices);
         }
         catch (Exception e){
-            log.info("Stores information not received");
+            log.info("Stores I own information not received");
             return new Result<>(true, e.getMessage());
         }
     }
@@ -197,7 +197,7 @@ public class ShoppingService {
             return new Result<>(false, storeServices);
         }
         catch (Exception e){
-            log.info("Stores information not received");
+            log.info("Stores I Manage information not received");
             return new Result<>(true, e.getMessage());
         }
     }

@@ -2,6 +2,7 @@ package IntegrationTests;
 
 import BusinessLayer.Market;
 import BusinessLayer.NotificationSystem.Mailbox;
+import BusinessLayer.StorePermissions.StoreEmployees;
 import BusinessLayer.StorePermissions.StoreManager;
 import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Store;
@@ -14,6 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -68,25 +70,37 @@ public class StoreEmployeesTest {
     }
 
     private void ensureOwnershipWithParent(RegisteredUser child, RegisteredUser parent, Store store) {
-        StoreOwner ownership1 = child.getStoresIOwn().get(store.getStoreID());
+        Set<StoreOwner> ownerSet = child.getStoresIOwn();
+        StoreOwner ownership1 = (StoreOwner)getOwnership(ownerSet, store);
         assertEquals(child.getUsername() + " should have " + store.getStoreName() + "store1 as store he owns",
                 store, ownership1.getStore());
         assertEquals(child.getUsername() + " should have " + parent.getUsername() + " as parent in ownership",
                 parent.getId(), ownership1.getParentID());
-        StoreOwner ownership2 = parent.getStoresIOwn().get(store.getStoreID());
+        ownerSet = parent.getStoresIOwn();
+        StoreOwner ownership2 = (StoreOwner)getOwnership(ownerSet, store);
+
         assertTrue(parent.getUsername() + " should have " + child.getUsername() + " as ownerIDefined",
                 ownership2.getOwnersIDefined().contains(child));
         assertTrue(store.getStoreName() + " should have " + child.getUsername() + "'s id as in owners",
                 store.getStoreOwners().contains(child.getStoreIOwn(store.getStoreID())));
     }
 
+    private StoreEmployees getOwnership(Set<? extends StoreEmployees> ownerSet, Store store) {
+        for (StoreEmployees storeOwner : ownerSet) {
+            if (storeOwner.getStoreID() == store.getStoreID())
+                return storeOwner;
+        }
+        return null;
+    }
+
     private void ensureManagerWithParent(RegisteredUser child, RegisteredUser parent, Store store) {
-        StoreManager manager = child.getStoresIManage().get(store.getStoreID());
+        Set<StoreManager> managers = child.getStoresIManage();
+        StoreManager manager = (StoreManager)getOwnership(managers, store);
         assertEquals(child.getUsername() + " should have " + store.getStoreName() + " as store he manages",
                 store, manager.getStore());
         assertEquals(child.getUsername() + " should have " + parent.getUsername() + " as parent in managing",
                 parent.getId(), manager.getParentID());
-        StoreOwner ownership = parent.getStoresIOwn().get(store.getStoreID());
+        StoreOwner ownership = (StoreOwner) getOwnership(parent.getStoresIOwn(), store);
         assertTrue(parent.getUsername() + " should have " + child.getUsername() + " as managerIDefined",
                 ownership.getManagersIDefined().contains(child));
     }
