@@ -29,6 +29,7 @@ public class RegisteredUser extends User {
     private List<StoreManager> storesIManage;
     @Transient
     private SystemManager systemManager;
+    private boolean isSystemManager;
     private boolean isLoggedIn;
     @Transient
     private UserDAO userDAO;
@@ -45,6 +46,7 @@ public class RegisteredUser extends User {
         this.storesIOwn = new ArrayList<>();
         this.storesIManage = new ArrayList<>();
         this.isLoggedIn = false;
+        this.isSystemManager = false;
         this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(id, this);
         this.userDAO = new UserDAO();
         this.employeesDAO = new StoreEmployeesDAO();
@@ -58,6 +60,7 @@ public class RegisteredUser extends User {
         this.userDAO = new UserDAO();
         this.employeesDAO = new StoreEmployeesDAO();
         this.isLoggedIn = false;
+        this.isSystemManager = isAdmin;
         if (isAdmin) {
             systemManager = new SystemManager(this);
         }
@@ -72,6 +75,7 @@ public class RegisteredUser extends User {
         this.userDAO = new UserDAO();
         this.employeesDAO = new StoreEmployeesDAO();
         this.isLoggedIn = false;
+        this.isSystemManager = isAdmin;
         if (isAdmin) {
             systemManager = new SystemManager(this);
         }
@@ -87,10 +91,12 @@ public class RegisteredUser extends User {
         this.userDAO = new UserDAO();
         this.employeesDAO = new StoreEmployeesDAO();
         this.isLoggedIn = false;
+        this.isSystemManager = false;
         this.mailbox = marketMock.getNotificationHub().registerToMailService(id, this);
     }
     public SystemManager makeAdmin() throws Exception {
         systemManager = new SystemManager(this);
+        this.isSystemManager = true;
         return systemManager;
     }
     public RegisteredUser() {

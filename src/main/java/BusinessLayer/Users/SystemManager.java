@@ -6,12 +6,15 @@ import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
 
+import javax.annotation.processing.Generated;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SystemManager {
     private final UserFacade userFacade;
     private final StoreFacade storeFacade;
+    private Long id;
     private RegisteredUser myUser;
     private Market market;
 
@@ -22,6 +25,7 @@ public class SystemManager {
         this.storeFacade = market.getStoreFacade();
         this.market.addAdmin(myUser.getId(), this);
     }
+
 
     public void closeStorePermanently(Store store) throws Exception
     {

@@ -64,7 +64,10 @@ public class UserFacade {
     }
 
     public SystemManager makeAdmin(int id) throws Exception {
-        return getRegisteredUser(id).makeAdmin();
+        RegisteredUser user = getRegisteredUser(id);
+        SystemManager sm = user.makeAdmin();
+        userDAO.save(user);
+        return sm;
     }
 
     public void createAdmin(MarketMock marketMock) throws Exception {

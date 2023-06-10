@@ -55,4 +55,8 @@ public class UserDAO {
         }
         return res;
     }
+
+    public void save(RegisteredUser user) {
+        connector.saveState(user);
+    }
 }
