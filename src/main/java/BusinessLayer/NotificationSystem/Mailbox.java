@@ -3,12 +3,18 @@ package BusinessLayer.NotificationSystem;
 import BusinessLayer.Log;
 import BusinessLayer.NotificationSystem.Repositories.ChatRepository;
 
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
 import java.util.concurrent.ConcurrentHashMap;
-
+@MappedSuperclass
 public abstract class Mailbox {
+    @Id
     protected int ownerID;
     protected boolean available;
+    @Transient
     protected ChatRepository chats; // <otherSideId, Chat>
+    @Transient
     protected NotificationHub hub;
 
 

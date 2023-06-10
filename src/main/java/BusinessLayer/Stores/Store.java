@@ -32,7 +32,7 @@ import DataAccessLayer.StoreDAO;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
-import org.slf4j.event.KeyValuePair;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.util.*;
@@ -47,8 +47,6 @@ import static BusinessLayer.Stores.StoreStatus.*;
 @Table(name = "stores")
 public class Store {
     private static final Logger log = Log.log;
-    @OneToMany(mappedBy = "store")
-    private final List<CatalogItem> items;
     private int founderID;
     private String storeName;
     @Id
@@ -61,11 +59,11 @@ public class Store {
     @Enumerated(EnumType.STRING)
     private StoreStatus storeStatus;
     @OneToMany(mappedBy = "store")
-    private List<StoreOwner> storeOwners;
+    private final Set<CatalogItem> items;
     @OneToMany(mappedBy = "store")
-    private List<StoreManager> storeManagers;
-    @Transient
-    private StoreMailbox mailbox;
+    private Set<StoreOwner> storeOwners;
+    @OneToMany(mappedBy = "store")
+    private Set<StoreManager> storeManagers;
     @Transient
     private final Map<Integer, Discount> discounts;
     @Transient
@@ -83,14 +81,20 @@ public class Store {
     @Transient
     private final ReceiptHandler receiptHandler;
     @Transient
+    private StoreMailbox mailbox;
+    @Transient
     private StoreDAO storeDAO;
+
     public Store(int storeID, int founderID, String name) {
         this.storeID = storeID;
         this.storeName = name;
+//        this.storeDAO = new StoreDAO();
+        this.items = new HashSet<>();
+        this.storeStatus = OPEN;
+        this.founderID = founderID;
         this.discounts = new HashMap<>();
         this.purchasePolicies = new HashMap<>();
         this.discountPolicies = new HashMap<>();
-        this.items = new ArrayList<>();
         this.savedItemsAmounts = new HashMap<>();
         this.auctions = new HashMap<>();
         this.lotteries = new HashMap<>();
@@ -101,24 +105,22 @@ public class Store {
         this.auctionsIDs = 0;
         this.discountsIDs = 0;
         this.policiesIDs = 0;
-        this.storeStatus = OPEN;
-        this.storeManagers = new ArrayList<>();
-        this.founderID = founderID;
-        this.storeOwners = new ArrayList<>();
-        this.storeDAO = new StoreDAO();
+        this.storeManagers = new HashSet<>();
+        this.storeOwners = new HashSet<>();
         try {
             this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(this);
         } catch (Exception ignored) {
         }
         log.info("Store " + storeID + " created with name: " + storeName);
     }
+
     public Store(int storeID, int founderID, String name, MarketMock marketMock) throws Exception {
         this.storeID = storeID;
         this.storeName = name;
         this.discounts = new HashMap<>();
         this.purchasePolicies = new HashMap<>();
         this.discountPolicies = new HashMap<>();
-        this.items = new ArrayList<>();
+        this.items = new HashSet<>();
         this.savedItemsAmounts = new HashMap<>();
         this.auctions = new HashMap<>();
         this.lotteries = new HashMap<>();
@@ -130,18 +132,19 @@ public class Store {
         this.discountsIDs = 0;
         this.policiesIDs = 0;
         this.storeStatus = OPEN;
-        this.storeManagers = new ArrayList<>();
+        this.storeManagers = new HashSet<>();
         this.founderID = founderID;
-        this.storeOwners = new ArrayList<>();
+        this.storeOwners = new HashSet<>();
         this.mailbox = marketMock.getNotificationHub().registerToMailService(this);
-        this.storeDAO = new StoreDAO();
         log.info("Store " + storeID + " created with name: " + storeName);
     }
+
     public Store() {
         this.discounts = new HashMap<>();
         this.purchasePolicies = new HashMap<>();
         this.discountPolicies = new HashMap<>();
-        this.items = new ArrayList<>();
+//        this.storeDAO = new StoreDAO();
+        this.items = new HashSet<>();
         this.savedItemsAmounts = new HashMap<>();
         this.auctions = new HashMap<>();
         this.lotteries = new HashMap<>();
@@ -153,13 +156,16 @@ public class Store {
         this.discountsIDs = 0;
         this.policiesIDs = 0;
         this.storeStatus = OPEN;
-        this.storeManagers = new ArrayList<>();
-        this.storeOwners = new ArrayList<>();
-        this.storeDAO = new StoreDAO();
+        this.storeManagers = new HashSet<>();
+        this.storeOwners = new HashSet<>();
         try {
             this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(this);
         } catch (Exception ignored) {
         }
+    }
+
+    public Set<CatalogItem> getItems() {
+        return items;
     }
 
     public int getBidsIDs() {
@@ -202,24 +208,32 @@ public class Store {
         this.policiesIDs = policiesIDs;
     }
 
-    public List<StoreOwner> getStoreOwners() {
+    public Set<StoreOwner> getStoreOwners() {
         return storeOwners;
     }
 
-    public List<StoreManager> getStoreManagers() {
+    public void setStoreOwners(Set<StoreOwner> storeOwners) {
+        this.storeOwners = storeOwners;
+    }
+
+    public Set<StoreManager> getStoreManagers() {
         return storeManagers;
+    }
+
+    public void setStoreManagers(Set<StoreManager> storeManagers) {
+        this.storeManagers = storeManagers;
     }
 
     public CatalogItem getItem(int itemID) {
         for (CatalogItem item : items)
-            if (item.getItemID()==itemID)
+            if (item.getItemID() == itemID)
                 return item;
         return null;
     }
 
     public int getItemAmount(int itemID) {
         for (CatalogItem item : items) {
-            if (item.getItemID()==itemID)
+            if (item.getItemID() == itemID)
                 return item.getAmount();
         }
         return -1;
@@ -705,7 +719,7 @@ public class Store {
         CatalogItem newItem = new CatalogItem(itemID, itemName, itemPrice, itemCategory, this.storeName, this, weight);
         items.add(newItem);
         savedItemsAmounts.put(itemID, 0);
-        storeDAO.addItem(newItem);
+        StoreDAO.addItem(newItem);
         log.info("Added new item: " + itemName + ", at store " + storeID);
         return newItem;
     }
@@ -832,7 +846,7 @@ public class Store {
                 for (int j = 0; j < basketItems.size(); j++) {
                     double originalItemPercent = basketItems.get(j).getPercent();
                     double tempItemPercent = tempBasket.get(j).getPercent();
-                    basketItems.get(j).setPercent(tempItemPercent * (100 - originalItemPercent)/100 + originalItemPercent);
+                    basketItems.get(j).setPercent(tempItemPercent * (100 - originalItemPercent) / 100 + originalItemPercent);
                     /// 40% discount + 30% discount = 58% discount (30% from (100-40=60) is 18, plus 40% = 58%)
                 }
             }
@@ -897,7 +911,7 @@ public class Store {
     }
 
     public Bid addBid(int itemID, int userID, double offeredPrice) throws Exception {
-        if (getItem(itemID)==null) {
+        if (getItem(itemID) == null) {
             throw new Exception("Item ID: " + itemID + " does not exist");
         }
         saveItemAmount(itemID, 1);
@@ -1173,8 +1187,8 @@ public class Store {
             List<Integer> sendToList = storeOwnersAndManagers.stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
             mailbox.sendMessageToList(sendToList, "Store " + storeName + " has closed permanently");
             mailbox.setMailboxAsUnavailable();
-            storeOwners = new ArrayList<>();
-            storeManagers = new ArrayList<>();
+            storeOwners = new HashSet<>();
+            storeManagers = new HashSet<>();
             log.info("Store " + storeID + " is permanently closed");
             return true;
         }
@@ -1280,7 +1294,7 @@ public class Store {
     private CatalogItem removeItem(int itemID) {
         CatalogItem item = getItem(itemID);
         items.remove(item);
-        storeDAO.removeItem(item);
+        StoreDAO.removeItem(item);
         return item;
     }
 
@@ -1382,7 +1396,7 @@ public class Store {
     }
 
     public HashMap<Integer, Integer> getItemsAmount() {
-        HashMap<Integer, Integer> map= new HashMap<>();
+        HashMap<Integer, Integer> map = new HashMap<>();
         for (CatalogItem item : items) {
             map.put(item.getItemID(), item.getAmount());
         }

@@ -1,10 +1,8 @@
 package BusinessLayer.Users;
 
-import BusinessLayer.Market;
 import BusinessLayer.MarketMock;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
-import BusinessLayer.StorePermissions.StoreEmployees;
 import BusinessLayer.StorePermissions.StoreManager;
 import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Store;
@@ -20,7 +18,7 @@ import java.util.*;
 public class RegisteredUser extends User {
     private String username;
     private String password;
-//    @OneToMany(mappedBy = "registeredUser")
+    //    @OneToMany(mappedBy = "registeredUser")
     @OneToMany
     @JoinColumn(name = "user")
     private List<StoreOwner> storesIOwn;
@@ -38,7 +36,6 @@ public class RegisteredUser extends User {
 
     public RegisteredUser(String username, String pass, int id, String address, LocalDate bDay) throws Exception {
         super(id);
-
         this.username = username;
         this.password = Password.hashPassword(pass);
         this.bDay = bDay;
@@ -47,39 +44,38 @@ public class RegisteredUser extends User {
         this.storesIManage = new ArrayList<>();
         this.isLoggedIn = false;
         this.isSystemManager = false;
-        this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(id, this);
-        this.userDAO = new UserDAO();
+        this.userDAO = UserDAO.getUserDao();
         this.employeesDAO = new StoreEmployeesDAO();
     }
+
     public RegisteredUser(String username, String pass, int id, boolean isAdmin) throws Exception {
         super(id);
         this.username = username;
         this.password = Password.hashPassword(pass);
         this.storesIOwn = new ArrayList<>();
         this.storesIManage = new ArrayList<>();
-        this.userDAO = new UserDAO();
+        this.userDAO = UserDAO.getUserDao();
         this.employeesDAO = new StoreEmployeesDAO();
         this.isLoggedIn = false;
         this.isSystemManager = isAdmin;
         if (isAdmin) {
             systemManager = new SystemManager(this);
         }
-        this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(id, this);
     }
+
     public RegisteredUser(String username, String pass, int id, boolean isAdmin, MarketMock marketMock) throws Exception {
         super(id);
         this.username = username;
         this.password = Password.hashPassword(pass);
         this.storesIOwn = new ArrayList<>();
         this.storesIManage = new ArrayList<>();
-        this.userDAO = new UserDAO();
+        this.userDAO = UserDAO.getUserDao();
         this.employeesDAO = new StoreEmployeesDAO();
         this.isLoggedIn = false;
         this.isSystemManager = isAdmin;
         if (isAdmin) {
             systemManager = new SystemManager(this);
         }
-        this.mailbox = marketMock.getNotificationHub().registerToMailService(id, this);
     }
 
     public RegisteredUser(String username, String pass, int id, MarketMock marketMock) throws Exception {
@@ -88,19 +84,20 @@ public class RegisteredUser extends User {
         this.password = Password.hashPassword(pass);
         this.storesIOwn = new ArrayList<>();
         this.storesIManage = new ArrayList<>();
-        this.userDAO = new UserDAO();
+        this.userDAO = UserDAO.getUserDao();
         this.employeesDAO = new StoreEmployeesDAO();
         this.isLoggedIn = false;
         this.isSystemManager = false;
-        this.mailbox = marketMock.getNotificationHub().registerToMailService(id, this);
     }
+
+    public RegisteredUser() throws Exception {
+        super();
+    }
+
     public SystemManager makeAdmin() throws Exception {
         systemManager = new SystemManager(this);
         this.isSystemManager = true;
         return systemManager;
-    }
-    public RegisteredUser() {
-        super();
     }
 
     public List<StoreOwner> getStoresIOwn() {
@@ -136,8 +133,8 @@ public class RegisteredUser extends User {
     }
 
     public StoreOwner getStoreIOwn(int storeID) {
-        for (StoreOwner storeOwner :  storesIOwn) {
-            if (storeOwner.getStoreID()==storeID)
+        for (StoreOwner storeOwner : storesIOwn) {
+            if (storeOwner.getStoreID() == storeID)
                 return storeOwner;
         }
         return null;
@@ -148,8 +145,8 @@ public class RegisteredUser extends User {
     }
 
     private boolean ownsStore(int storeID) {
-        for (StoreOwner storeOwner :  storesIOwn) {
-            if (storeOwner.getStoreID()==storeID)
+        for (StoreOwner storeOwner : storesIOwn) {
+            if (storeOwner.getStoreID() == storeID)
                 return true;
         }
         return false;
@@ -157,7 +154,7 @@ public class RegisteredUser extends User {
 
     public StoreManager getStoreIManage(int storeID) {
         for (StoreManager storeManager : storesIManage) {
-            if (storeManager.getStoreID()==storeID)
+            if (storeManager.getStoreID() == storeID)
                 return storeManager;
         }
         return null;
@@ -258,7 +255,7 @@ public class RegisteredUser extends User {
 
     private void removeStoreIManage(int storeID) {
         for (StoreManager storeManager : storesIManage) {
-            if (storeManager.getStoreID()==storeID) {
+            if (storeManager.getStoreID() == storeID) {
                 storesIManage.remove(storeManager);
                 return;
             }
@@ -267,7 +264,7 @@ public class RegisteredUser extends User {
 
     private void removeStoreIOwn(int storeID) {
         for (StoreOwner storeOwner : storesIOwn) {
-            if (storeOwner.getStoreID()==storeID) {
+            if (storeOwner.getStoreID() == storeID) {
                 storesIOwn.remove(storeOwner);
                 return;
             }

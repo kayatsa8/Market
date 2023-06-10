@@ -7,6 +7,7 @@ import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.ExternalSystems.PurchaseInfo;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
 import BusinessLayer.ExternalSystems.SupplyInfo;
+import BusinessLayer.Market;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
 import BusinessLayer.NotificationSystem.UserMailbox;
@@ -25,22 +26,23 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class User {
 
     @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected int id;
-//    @OneToOne
     @Transient
     protected Cart cart;
     protected LocalDate bDay = null;
     protected String address = null;
     @Transient
     protected ReceiptHandler receiptHandler;
-    @Transient
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user")
     protected UserMailbox mailbox;
-    public User() {
+    public User() throws Exception {
+        this.receiptHandler = new ReceiptHandler();
     }
     public User(int id) throws Exception {
         this.id = id;
         this.cart = new Cart(id);
+        this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(id, this);
         this.receiptHandler = new ReceiptHandler();
     }
 
@@ -142,7 +144,10 @@ public abstract class User {
         return mailbox.getChats();
     }
 
-    public void listenToNotifications(NotificationObserver listener) {
+    public void listenToNotifications(NotificationObserver listener) throws Exception {
+        if (mailbox == null) {
+            this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(id, this);
+        }
         mailbox.listen(listener);
     }
 

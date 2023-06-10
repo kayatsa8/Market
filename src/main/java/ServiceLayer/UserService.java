@@ -28,11 +28,6 @@ public class UserService {
         market = Market.getInstance();
     }
 
-    public void start() {
-        log.info("Starting System");
-        market.systemStart();
-    }
-
     public Result<Integer> addGuest() {
         try {
             User newGuest = market.addGuest();

@@ -30,13 +30,12 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Market {
-    private static Market instance;
+    private static volatile Market instance;
     private UserFacade userFacade;
     private StoreFacade storeFacade;
     private Map<Integer, SystemManager> systemManagerMap;
     private NotificationHub notificationHub;
     private static final Object instanceLock = new Object();
-
     private static ConnectorConfigurations configurations;
 
     private Market() throws Exception {
@@ -46,14 +45,16 @@ public class Market {
         notificationHub = new NotificationHub();
     }
 
-    public synchronized static Market getInstance() throws Exception {
-        if (instance == null) {
-            instance = new Market();
-            instance.createFirstAdmin();
-            instance.userFacade.setGuest();
+    public static synchronized Market getInstance() throws Exception {
+        synchronized (instanceLock) {
+            if (instance == null) {
+                instance = new Market();
+                instance.createFirstAdmin();
+                instance.userFacade.loadUsers();
+                instance.userFacade.setGuest();
+            }
+            return instance;
         }
-        return instance;
-
     }
 
     public static void setConfigurations(String unitName, String url, String username, String password, String driver){
@@ -68,7 +69,7 @@ public class Market {
         return configurations;
     }
 
-    public static ConnectorConfigurations getConfigurations_static(){
+    public static ConnectorConfigurations getConfigurations_static(){//TODO SAGI WHY
         if (configurations == null) {
             String url = "jdbc:mysql://localhost:3306/shefaissashar";
             String driver = "com.mysql.cj.jdbc.Driver";
@@ -122,10 +123,6 @@ public class Market {
     public boolean logout(int userID) throws Exception {
 
         return userFacade.logout(userID);
-    }
-
-    public void systemStart() {
-        userFacade.systemStart();
     }
 
     public void addOwner(int userID, int userToAddID, int storeID) throws Exception {

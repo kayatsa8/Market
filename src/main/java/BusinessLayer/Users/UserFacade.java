@@ -39,10 +39,9 @@ public class UserFacade {
     private Map<Integer, Guest> guests;
 
     public UserFacade() throws Exception {
-//        users = new HashMap<>();
-        userDAO = new UserDAO();
+        userDAO = UserDAO.getUserDao();
         guests = new HashMap<>();
-        users = userDAO.getUsers();
+        users = new HashMap<>();
         userID = userDAO.getMaxID() + 1;
 //        setGuest();
     }
@@ -59,7 +58,6 @@ public class UserFacade {
 
     public void createAdmin() throws Exception {
         RegisteredUser admin = new RegisteredUser(adminName, adminPass, getNewId(), true);
-//        userDAO.addUser(admin);
         users.put(admin.getId(), admin);
     }
 
@@ -72,7 +70,6 @@ public class UserFacade {
 
     public void createAdmin(MarketMock marketMock) throws Exception {
         RegisteredUser admin = new RegisteredUser(adminName, adminPass, getNewId(), true, marketMock);
-//        userDAO.addUser(admin);
         users.put(admin.getId(), admin);
     }
     public RegisteredUser getUserByName(String userName) throws Exception {
@@ -214,20 +211,8 @@ public class UserFacade {
         return true;
     }
 
-    public void systemStart() {
-        loadUsers();//Registered only
-    }
-
     public void loadUsers() {
-        HashMap<Integer, RegisteredUser> dbUsersMap = UserDAO.getAllUsers();
-        for (Map.Entry<Integer, RegisteredUser> entry : dbUsersMap.entrySet()) {
-            Integer id = entry.getKey();
-            RegisteredUser user = entry.getValue();
-            //TODO load User's Cart
-            //user.setCart(cartDBO.getCart(name));
-            users.put(user.getId(), user);
-        }
-
+        users = userDAO.getUsers();
     }
 
     public void addOwner(int userID, int userToAddID, int storeID) throws Exception {

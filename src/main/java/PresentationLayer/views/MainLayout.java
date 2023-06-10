@@ -2,12 +2,12 @@ package PresentationLayer.views;
 
 
 import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
-import PresentationLayer.views.clients.ClientView;
-import PresentationLayer.views.loginAndRegister.UserPL;
-import PresentationLayer.views.storeManagement.StoreManagementView;
 import PresentationLayer.components.appnav.AppNav;
 import PresentationLayer.components.appnav.AppNavItem;
+import PresentationLayer.views.clients.ClientView;
 import PresentationLayer.views.loginAndRegister.LoginAndRegisterView;
+import PresentationLayer.views.loginAndRegister.UserPL;
+import PresentationLayer.views.storeManagement.StoreManagementView;
 import PresentationLayer.views.systemManagement.SystemManagementView;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
@@ -16,7 +16,10 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.html.Footer;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -43,12 +46,12 @@ import static org.vaadin.lineawesome.LineAwesomeIcon.*;
 @Route(value = "main")
 public class MainLayout extends AppLayout implements NotificationObserver, BeforeEnterObserver {
 
+    private static Map<String, UserPL> currUsers = new HashMap<>();
+    public UserService userService;
+    public ShoppingService shoppingService;
     UI ui;
     private H2 viewTitle;
     private H2 user;
-    public UserService userService;
-    public ShoppingService shoppingService;
-    private static Map<String, UserPL> currUsers = new HashMap<>();
     private AppNavItem loginAndRegister;
     private AppNavItem systemAdmin;
     private AppNavItem bidview;
@@ -62,18 +65,24 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
         setPrimarySection(Section.DRAWER);
         addDrawerContent();
         try {
-            userService=new UserService();
+            userService = new UserService();
         } catch (Exception e) {
-            printError("Error initialize userService:\n"+e.getMessage());
+            printError("Error initialize userService:\n" + e.getMessage());
+            throw new RuntimeException("Error initialize userService:\n" + e.getMessage());
         }
+    }
+
+    public static MainLayout getMainLayout() {
+        MainLayout mainLayout = (MainLayout) UI.getCurrent().getChildren().filter(component -> component.getClass() == MainLayout.class).findFirst().orElse(new MainLayout());
+        return mainLayout;
+
     }
 
     public void setCurrUser(Integer value) {
         currUsers.get(getSessionID()).setCurrUserID(value);
-        try{
+        try {
             listenToNotifications(currUsers.get(getSessionID()).getCurrUserID());
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             throw new RuntimeException("ERROR: MainLayout::MainLayout: " + e.getMessage() + "\n");
         }
     }
@@ -146,18 +155,17 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
         return layout;
     }
 
-    private void logoutAction(){
+    private void logoutAction() {
         /**
          1.default is guest
          2.on login change to the according RegisterUser + load his data if needed
          3.on logout change the login of the RegisterUser to false, change the User to guest again.
          */
-        Result<Boolean> result=userService.logout(getCurrUserID());
-        if (result.isError()){
-            printError("Failed to logout: "+result.getMessage());
-        }
-        else {
-            printSuccess("Succeed to logout currId="+ getCurrUserID());
+        Result<Boolean> result = userService.logout(getCurrUserID());
+        if (result.isError()) {
+            printError("Failed to logout: " + result.getMessage());
+        } else {
+            printSuccess("Succeed to logout currId=" + getCurrUserID());
             setCurrUser(getCurrUserID());
             setGuestView();
             currUsers.get(getSessionID()).setCurrIdToGuest();
@@ -200,8 +208,9 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
     public void notify(String notification) {
         ui.access(() -> {
             Notification systemNotification = Notification
-                            .show(notification);
-            systemNotification.addThemeVariants(NotificationVariant.LUMO_PRIMARY); });
+                    .show(notification);
+            systemNotification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+        });
     }
 
     @Override
@@ -211,22 +220,16 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
             printError(result.getMessage());
         }
     }
-  
+
     private void printSuccess(String msg) {
-        Notification notification = Notification.show(msg, 2000, Notification.Position.BOTTOM_CENTER);
+        Notification notification = Notification.show(msg, 5000, Notification.Position.BOTTOM_CENTER);
         notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
     }
 
     private void printError(String errorMsg) {
-        Notification notification = Notification.show(errorMsg, 2000, Notification.Position.BOTTOM_CENTER);
+        Notification notification = Notification.show(errorMsg, 5000, Notification.Position.BOTTOM_CENTER);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-    }
-
-    public static MainLayout getMainLayout() {
-        MainLayout mainLayout = (MainLayout) UI.getCurrent().getChildren().filter(component -> component.getClass() == MainLayout.class).findFirst().orElse(new MainLayout());
-        return mainLayout;
-
     }
 
     @Override
@@ -240,7 +243,8 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
                 int id = getCurrUserID();
                 userService.logout(id);
             }
-            catch (NullPointerException e) {}
+            catch (NullPointerException e) {
+            }
             userService.addGuest();
             UserPL userPL = new UserPL();
             currUsers.put(session.getId(), userPL);
