@@ -3,71 +3,112 @@ package BusinessLayer.Stores;
 import BusinessLayer.Stores.Discounts.Discount;
 import BusinessLayer.Stores.Policies.DiscountPolicy;
 import BusinessLayer.Stores.Policies.PurchasePolicy;
+import DataAccessLayer.ItemDAO;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 public class CatalogItem {
+    @Transient
+    private final ItemDAO itemDAO;
     private String itemName;
     private double price;
     @Id
     private int itemID;
     private String category;
     private String storeName;
-    private int storeID;
+    @ManyToOne
+    @JoinColumn(name = "storeID")
+    private Store store;
     private double weight;
+    private int amount;
     @Transient
     private List<Discount> discounts;
     @Transient
     private List<PurchasePolicy> purchasePolicies;
     @Transient
     private List<DiscountPolicy> discountPolicies;
-    public CatalogItem() {
 
+    public CatalogItem() {
+        this.itemDAO = new ItemDAO();
     }
-    public CatalogItem(int itemID, String itemName, double price, String category, String storeName, int storeID, double weight) {
+
+    public CatalogItem(int itemID, String itemName, double price, String category, String storeName, Store store, double weight) {
         this.itemID = itemID;
         this.itemName = itemName;
         this.category = category;
         this.price = price;
         this.storeName = storeName;
-        this.storeID = storeID;
+        this.store = store;
         this.weight = weight;
+        this.amount = 0;
         this.discounts = new ArrayList<>();
         this.purchasePolicies = new ArrayList<>();
         this.discountPolicies = new ArrayList<>();
+        this.itemDAO = new ItemDAO();
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+        itemDAO.save(this);
     }
 
     public String getStoreName() {
         return storeName;
     }
 
+    public void setStoreName(String storeName) {
+        this.storeName = storeName;
+    }
+
     public int getStoreID() {
-        return storeID;
+        return store.getStoreID();
     }
 
     public String getItemName() {
         return itemName;
     }
 
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
+    }
+
     public double getPrice() {
         return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 
     public String getCategory() {
         return category;
     }
 
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     public int getItemID() {
         return itemID;
     }
 
+    public void setItemID(int itemID) {
+        this.itemID = itemID;
+    }
+
     public double getWeight() {
         return weight;
+    }
+
+    public void setWeight(double weight) {
+        this.weight = weight;
     }
 
     public List<Discount> getDiscounts() {
@@ -111,5 +152,9 @@ public class CatalogItem {
         String oldName = itemName;
         itemName = newName;
         return oldName;
+    }
+
+    public void addAmount(int amountToAdd) {
+        setAmount(this.amount+amountToAdd);
     }
 }

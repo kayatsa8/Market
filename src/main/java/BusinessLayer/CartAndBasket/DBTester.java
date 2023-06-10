@@ -45,24 +45,24 @@ public class DBTester {
     }
 
     public static void wrapperTest(ConnectorConfigurations conf){
-        DBConnector<Basket.ItemWrapper> wrapperConnector = new DBConnector<>(Basket.ItemWrapper.class, conf);
-
-        CatalogItem item1 = new CatalogItem(1, "item1", 1.0,
-                                           "c1", "store1", 11, 1.0);
-        Basket.ItemWrapper wrapper1 = new Basket.ItemWrapper(item1, 1);
-
-        CatalogItem item2 = new CatalogItem(2, "item2", 2.0,
-                "c2", "store2", 22, 2.0);
-        Basket.ItemWrapper wrapper2 = new Basket.ItemWrapper(item2, 2);
-
-        wrapperConnector.insert(wrapper1);
-        wrapperConnector.insert(wrapper2);
-
-
-        Basket.ItemWrapper w1 = wrapperConnector.getById(wrapper1.getId());
-        Basket.ItemWrapper w2 = wrapperConnector.getById(wrapper2.getId());
-        System.out.println(w1);
-        System.out.println(w2);
+//        DBConnector<Basket.ItemWrapper> wrapperConnector = new DBConnector<>(Basket.ItemWrapper.class, conf);
+//
+//        CatalogItem item1 = new CatalogItem(1, "item1", 1.0,
+//                                           "c1", "store1", 11, 1.0);
+//        Basket.ItemWrapper wrapper1 = new Basket.ItemWrapper(item1, 1);
+//
+//        CatalogItem item2 = new CatalogItem(2, "item2", 2.0,
+//                "c2", "store2", 22, 2.0);
+//        Basket.ItemWrapper wrapper2 = new Basket.ItemWrapper(item2, 2);
+//
+//        wrapperConnector.insert(wrapper1);
+//        wrapperConnector.insert(wrapper2);
+//
+//
+//        Basket.ItemWrapper w1 = wrapperConnector.getById(wrapper1.getId());
+//        Basket.ItemWrapper w2 = wrapperConnector.getById(wrapper2.getId());
+//        System.out.println(w1);
+//        System.out.println(w2);
 
     }
 

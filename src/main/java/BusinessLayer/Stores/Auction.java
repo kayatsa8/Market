@@ -37,7 +37,11 @@ public class Auction {
             {
                 if (currentWinningUserID == -1)
                 {
-                    store.finishAuctionUnsuccessfully(auctionID);
+                    try {
+                        store.finishAuctionUnsuccessfully(auctionID);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 }
                 else
                 {

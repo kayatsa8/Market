@@ -14,7 +14,6 @@ import java.util.List;
 public class SystemManager {
     private final UserFacade userFacade;
     private final StoreFacade storeFacade;
-    private Long id;
     private RegisteredUser myUser;
     private Market market;
 

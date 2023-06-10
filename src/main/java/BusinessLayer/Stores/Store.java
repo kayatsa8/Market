@@ -32,6 +32,7 @@ import DataAccessLayer.StoreDAO;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
+import org.slf4j.event.KeyValuePair;
 
 import javax.persistence.*;
 import java.util.*;
@@ -46,16 +47,31 @@ import static BusinessLayer.Stores.StoreStatus.*;
 @Table(name = "stores")
 public class Store {
     private static final Logger log = Log.log;
+    @OneToMany(mappedBy = "store")
+    private final List<CatalogItem> items;
+    private int founderID;
+    private String storeName;
+    @Id
+    private int storeID;
+    private int bidsIDs;
+    private int lotteriesIDs;
+    private int auctionsIDs;
+    private int discountsIDs;
+    private int policiesIDs;
+    @Enumerated(EnumType.STRING)
+    private StoreStatus storeStatus;
+    @OneToMany(mappedBy = "store")
+    private List<StoreOwner> storeOwners;
+    @OneToMany(mappedBy = "store")
+    private List<StoreManager> storeManagers;
+    @Transient
+    private StoreMailbox mailbox;
     @Transient
     private final Map<Integer, Discount> discounts;
     @Transient
     private final Map<Integer, PurchasePolicy> purchasePolicies;
     @Transient
     private final Map<Integer, DiscountPolicy> discountPolicies;
-    @OneToMany
-    private final List<CatalogItem> items;
-    @Transient
-    private final Map<Integer, Integer> itemsAmounts;
     @Transient
     private final Map<Integer, Integer> savedItemsAmounts;
     @Transient
@@ -66,23 +82,6 @@ public class Store {
     private final Map<Integer, Lottery> lotteries;
     @Transient
     private final ReceiptHandler receiptHandler;
-    private int founderID;
-    private String storeName;
-    @Id
-    private int storeID;
-    private int bidsIDs;
-    private int lotteriesIDs;
-    private int auctionsIDs;
-    private int discountsIDs;
-    private int policiesIDs;
-    @Transient
-    private StoreMailbox mailbox;
-    @Enumerated(EnumType.STRING)
-    private StoreStatus storeStatus;
-    @Transient
-    private List<StoreOwner> storeOwners;
-    @Transient
-    private List<StoreManager> storeManagers;
     @Transient
     private StoreDAO storeDAO;
     public Store(int storeID, int founderID, String name) {
@@ -91,7 +90,6 @@ public class Store {
         this.discounts = new HashMap<>();
         this.purchasePolicies = new HashMap<>();
         this.discountPolicies = new HashMap<>();
-        this.itemsAmounts = new HashMap<>();
         this.items = new ArrayList<>();
         this.savedItemsAmounts = new HashMap<>();
         this.auctions = new HashMap<>();
@@ -120,7 +118,6 @@ public class Store {
         this.discounts = new HashMap<>();
         this.purchasePolicies = new HashMap<>();
         this.discountPolicies = new HashMap<>();
-        this.itemsAmounts = new HashMap<>();
         this.items = new ArrayList<>();
         this.savedItemsAmounts = new HashMap<>();
         this.auctions = new HashMap<>();
@@ -144,7 +141,6 @@ public class Store {
         this.discounts = new HashMap<>();
         this.purchasePolicies = new HashMap<>();
         this.discountPolicies = new HashMap<>();
-        this.itemsAmounts = new HashMap<>();
         this.items = new ArrayList<>();
         this.savedItemsAmounts = new HashMap<>();
         this.auctions = new HashMap<>();
@@ -222,8 +218,10 @@ public class Store {
     }
 
     public int getItemAmount(int itemID) {
-        if (itemsAmounts.containsKey(itemID))
-            return itemsAmounts.get(itemID);
+        for (CatalogItem item : items) {
+            if (item.getItemID()==itemID)
+                return item.getAmount();
+        }
         return -1;
     }
 
@@ -282,7 +280,7 @@ public class Store {
         boolean valueFromB;
         for (CatalogItem entry : items) {
             valueFromA = entry;
-            valueFromB = itemsAmounts.get(entry.getItemID()) > 0;
+            valueFromB = entry.getAmount() > 0;
 
             // Put the value from map A as the key and the value from map B as the value in map res
             res.put(valueFromA, valueFromB);
@@ -302,7 +300,7 @@ public class Store {
         boolean filterResult;
         for (CatalogItem item : items) {
             valueFromA = item;
-            valueFromB = itemsAmounts.get(item.getItemID()) > 0;
+            valueFromB = item.getAmount() > 0;
             if (belongsToSearch(valueFromA, keywords, searchBy)) {
                 filterResult = true;
                 for (FilterValue filterValue : filters.values()) {
@@ -704,8 +702,7 @@ public class Store {
         if (storeStatus != OPEN) {
             throw new Exception("Can't add catalog item when store unopened");
         }
-        CatalogItem newItem = new CatalogItem(itemID, itemName, itemPrice, itemCategory, this.storeName, this.storeID, weight);
-        itemsAmounts.put(itemID, 0);
+        CatalogItem newItem = new CatalogItem(itemID, itemName, itemPrice, itemCategory, this.storeName, this, weight);
         items.add(newItem);
         savedItemsAmounts.put(itemID, 0);
         storeDAO.addItem(newItem);
@@ -803,7 +800,7 @@ public class Store {
         for (CartItemInfo cartItemInfo : basketItems) {
             itemID = cartItemInfo.getItemID();
             itemAmountToSave = cartItemInfo.getAmount();
-            itemCurrentAmount = itemsAmounts.get(itemID);
+            itemCurrentAmount = getItemAmount(itemID);
             if (itemCurrentAmount < itemAmountToSave) {
                 return false;
             }
@@ -851,10 +848,10 @@ public class Store {
 
     //TODO: change the return type to boolean and fix all calls to here to check the return value.
     public void saveItemAmount(int itemID, int amountToSave) {
-        int itemNewAmount = itemsAmounts.get(itemID) - amountToSave;
+        int itemNewAmount = getItemAmount(itemID) - amountToSave;
         int itemNewSavedAmount = savedItemsAmounts.get(itemID) + amountToSave;
         if ((itemNewAmount >= 0) && (itemNewSavedAmount >= 0)) {
-            itemsAmounts.put(itemID, itemNewAmount);
+            getItem(itemID).setAmount(itemNewAmount);
             savedItemsAmounts.put(itemID, itemNewSavedAmount);
         }
     }
@@ -937,12 +934,7 @@ public class Store {
         if (storeStatus != OPEN) {
             throw new Exception("Can't add item amount to unopened store");
         }
-        itemsAmounts.put(itemID, getItemAmount(itemID) + amountToAdd);
-        log.info("Added amount by " + amountToAdd + " for item " + itemID + " at store " + storeID);
-    }
-
-    private void addItemAmountPrivate(int itemID, int amountToAdd) {
-        itemsAmounts.put(itemID, getItemAmount(itemID) + amountToAdd);
+        getItem(itemID).addAmount(amountToAdd);
         log.info("Added amount by " + amountToAdd + " for item " + itemID + " at store " + storeID);
     }
 
@@ -979,11 +971,11 @@ public class Store {
         }
     }
 
-    public void finishBidUnsuccessfully(int bidID) {
+    public void finishBidUnsuccessfully(int bidID) throws Exception {
         Bid bid = bids.get(bidID);
         int itemID = bid.getItemID();
         int userID = bid.getUserID();
-        addItemAmountPrivate(itemID, 1);
+        addItemAmount(itemID, 1);
         addSavedItemAmount(itemID, -1);
         removeBid(bidID);
         mailbox.sendMessage(userID, "Hi, we apologize for the inconvenience, but your bid for the item: " + getItem(itemID).getItemName() + ", was rejected by the store");
@@ -1003,10 +995,10 @@ public class Store {
         log.info("Auction " + auctionID + " finished successfully and item was sold");
     }
 
-    public void finishAuctionUnsuccessfully(int auctionID) {
+    public void finishAuctionUnsuccessfully(int auctionID) throws Exception {
         Auction myAuction = auctions.get(auctionID);
         int itemID = myAuction.getItemID();
-        addItemAmountPrivate(itemID, 1);
+        addItemAmount(itemID, 1);
         addSavedItemAmount(itemID, -1);
         myAuction.getAuctionTimer().cancel();
         myAuction.getAuctionTimer().purge();
@@ -1029,10 +1021,10 @@ public class Store {
         log.info("Lottery " + lotteryID + " finished successfully and item was sold to user " + winnerID);
     }
 
-    public void finishLotteryUnsuccessfully(int lotteryID) {
+    public void finishLotteryUnsuccessfully(int lotteryID) throws Exception {
         Lottery myLottery = lotteries.get(lotteryID);
         int itemID = myLottery.getItemID();
-        addItemAmountPrivate(itemID, 1);
+        addItemAmount(itemID, 1);
         addSavedItemAmount(itemID, -1);
         myLottery.getLotteryTimer().cancel();
         myLottery.getLotteryTimer().purge();
@@ -1286,7 +1278,6 @@ public class Store {
     }
 
     private CatalogItem removeItem(int itemID) {
-        itemsAmounts.remove(itemID);
         CatalogItem item = getItem(itemID);
         items.remove(item);
         storeDAO.removeItem(item);
@@ -1391,7 +1382,11 @@ public class Store {
     }
 
     public HashMap<Integer, Integer> getItemsAmount() {
-        return new HashMap<>(itemsAmounts);
+        HashMap<Integer, Integer> map= new HashMap<>();
+        for (CatalogItem item : items) {
+            map.put(item.getItemID(), item.getAmount());
+        }
+        return map;
     }
 
     public boolean payForBid(int bidID, PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) throws Exception {

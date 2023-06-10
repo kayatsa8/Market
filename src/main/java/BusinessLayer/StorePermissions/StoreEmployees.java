@@ -10,6 +10,7 @@ public abstract class StoreEmployees {
     private StoreEmployeeId id;
     private int parentID;
     @ManyToOne
+    @JoinColumn(name = "store_id")
     private Store store;
     public StoreEmployees(int userID, int parentID, Store store) {
         this.parentID = parentID;
