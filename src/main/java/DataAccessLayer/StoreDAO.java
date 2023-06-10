@@ -1,6 +1,7 @@
 package DataAccessLayer;
 
 import BusinessLayer.Market;
+import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.Hibernate.DBConnector;
 
@@ -10,8 +11,10 @@ import java.util.Map;
 //DB mock
 public class StoreDAO {
     DBConnector<Store> connector;
+    DBConnector<CatalogItem> itemDBConnector;
     public StoreDAO() {
         connector = new DBConnector<>(Store.class, Market.getConfigurations_static());
+        itemDBConnector = new DBConnector<>(CatalogItem.class, Market.getConfigurations_static());
     }
     public void addStore(Store store) {
         connector.insert(store);
@@ -29,5 +32,12 @@ public class StoreDAO {
 //            res.put(store.getStoreID(), store);
 //        }
 //        return res;
+    }
+
+    public void addItem(CatalogItem newItem) {
+        itemDBConnector.insert(newItem);
+    }
+    public void removeItem(CatalogItem item) {
+        itemDBConnector.delete(item.getItemID());
     }
 }

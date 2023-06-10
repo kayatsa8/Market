@@ -52,8 +52,8 @@ public class Store {
     private final Map<Integer, PurchasePolicy> purchasePolicies;
     @Transient
     private final Map<Integer, DiscountPolicy> discountPolicies;
-    @Transient
-    private final Map<Integer, CatalogItem> items;
+    @OneToMany
+    private final List<CatalogItem> items;
     @Transient
     private final Map<Integer, Integer> itemsAmounts;
     @Transient
@@ -92,7 +92,7 @@ public class Store {
         this.purchasePolicies = new HashMap<>();
         this.discountPolicies = new HashMap<>();
         this.itemsAmounts = new HashMap<>();
-        this.items = new HashMap<>();
+        this.items = new ArrayList<>();
         this.savedItemsAmounts = new HashMap<>();
         this.auctions = new HashMap<>();
         this.lotteries = new HashMap<>();
@@ -121,7 +121,7 @@ public class Store {
         this.purchasePolicies = new HashMap<>();
         this.discountPolicies = new HashMap<>();
         this.itemsAmounts = new HashMap<>();
-        this.items = new HashMap<>();
+        this.items = new ArrayList<>();
         this.savedItemsAmounts = new HashMap<>();
         this.auctions = new HashMap<>();
         this.lotteries = new HashMap<>();
@@ -145,7 +145,7 @@ public class Store {
         this.purchasePolicies = new HashMap<>();
         this.discountPolicies = new HashMap<>();
         this.itemsAmounts = new HashMap<>();
-        this.items = new HashMap<>();
+        this.items = new ArrayList<>();
         this.savedItemsAmounts = new HashMap<>();
         this.auctions = new HashMap<>();
         this.lotteries = new HashMap<>();
@@ -215,7 +215,10 @@ public class Store {
     }
 
     public CatalogItem getItem(int itemID) {
-        return items.get(itemID);
+        for (CatalogItem item : items)
+            if (item.getItemID()==itemID)
+                return item;
+        return null;
     }
 
     public int getItemAmount(int itemID) {
@@ -269,17 +272,17 @@ public class Store {
     }
 
     public Map<CatalogItem, Boolean> getCatalog() {
-        for (Map.Entry<Integer, CatalogItem> item : items.entrySet()) {
-            updateItemDiscounts(item.getKey());
-            updateItemPurchasePolicies(item.getKey());
-            updateItemDiscountPolicies(item.getKey());
+        for (CatalogItem item : items) {
+            updateItemDiscounts(item.getItemID());
+            updateItemPurchasePolicies(item.getItemID());
+            updateItemDiscountPolicies(item.getItemID());
         }
         Map<CatalogItem, Boolean> res = new HashMap<>();
         CatalogItem valueFromA;
         boolean valueFromB;
-        for (Map.Entry<Integer, CatalogItem> entry : items.entrySet()) {
-            valueFromA = entry.getValue();
-            valueFromB = itemsAmounts.get(entry.getKey()) > 0;
+        for (CatalogItem entry : items) {
+            valueFromA = entry;
+            valueFromB = itemsAmounts.get(entry.getItemID()) > 0;
 
             // Put the value from map A as the key and the value from map B as the value in map res
             res.put(valueFromA, valueFromB);
@@ -288,18 +291,18 @@ public class Store {
     }
 
     public Map<CatalogItem, Boolean> getCatalog(String keywords, SearchBy searchBy, Map<SearchFilter, FilterValue> filters) throws Exception {
-        for (Map.Entry<Integer, CatalogItem> item : items.entrySet()) {
-            updateItemDiscounts(item.getKey());
-            updateItemPurchasePolicies(item.getKey());
-            updateItemDiscountPolicies(item.getKey());
+        for (CatalogItem item : items) {
+            updateItemDiscounts(item.getItemID());
+            updateItemPurchasePolicies(item.getItemID());
+            updateItemDiscountPolicies(item.getItemID());
         }
         Map<CatalogItem, Boolean> res = new HashMap<>();
         CatalogItem valueFromA;
         boolean valueFromB;
         boolean filterResult;
-        for (Map.Entry<Integer, CatalogItem> entry : items.entrySet()) {
-            valueFromA = entry.getValue();
-            valueFromB = itemsAmounts.get(entry.getKey()) > 0;
+        for (CatalogItem item : items) {
+            valueFromA = item;
+            valueFromB = itemsAmounts.get(item.getItemID()) > 0;
             if (belongsToSearch(valueFromA, keywords, searchBy)) {
                 filterResult = true;
                 for (FilterValue filterValue : filters.values()) {
@@ -424,8 +427,10 @@ public class Store {
 
     public String addDiscountQuantityRule(int discountID, Map<Integer, Integer> itemsAmounts) throws Exception {
         Conditional discount = (Conditional) getDiscount(discountID);
-        if (!items.keySet().containsAll(itemsAmounts.keySet())) {
-            throw new Exception("Error: One or more of the items IDs you entered are not exist in store " + storeName);
+        for (Integer i : itemsAmounts.keySet()) {
+            if (getItem(i) == null) {
+                throw new Exception("Error: One or more of the items IDs you entered are not exist in store " + storeName);
+            }
         }
         return discount.addQuantityRule(itemsAmounts);
     }
@@ -524,7 +529,7 @@ public class Store {
     }
 
     public String addPurchasePolicyItemsWeightLimitRule(Map<Integer, Double> weightsLimits) throws Exception {
-        if (!items.keySet().containsAll(weightsLimits.keySet())) {
+        if (!new HashSet<>(items.stream().map(CatalogItem::getItemID).toList()).containsAll(weightsLimits.keySet())) {
             throw new Exception("Error: One or more of the items IDs you entered are not exist in store " + storeName);
         }
         ItemsWeightLimitRule itemsWeightLimitRule = new ItemsWeightLimitRule(weightsLimits, policiesIDs, this);
@@ -541,7 +546,7 @@ public class Store {
     }
 
     public String addPurchasePolicyMustItemsAmountsRule(Map<Integer, Integer> itemsAmounts) throws Exception {
-        if (!items.keySet().containsAll(itemsAmounts.keySet())) {
+        if (!new HashSet<>(items.stream().map(CatalogItem::getItemID).toList()).containsAll(itemsAmounts.keySet())) {
             throw new Exception("Error: One or more of the items IDs you entered are not exist in store " + storeName);
         }
         MustItemsAmountsRule mustItemsAmountsRule = new MustItemsAmountsRule(itemsAmounts, policiesIDs, this);
@@ -627,7 +632,7 @@ public class Store {
     }
 
     public String addDiscountPolicyItemsWeightLimitRule(Map<Integer, Double> weightsLimits) throws Exception {
-        if (!items.keySet().containsAll(weightsLimits.keySet())) {
+        if (!new HashSet<>(items.stream().map(CatalogItem::getItemID).toList()).containsAll(weightsLimits.keySet())) {
             throw new Exception("Error: One or more of the items IDs you entered are not exist in store " + storeName);
         }
         ItemsWeightLimitRule itemsWeightLimitRule = new ItemsWeightLimitRule(weightsLimits, policiesIDs, this);
@@ -644,7 +649,7 @@ public class Store {
     }
 
     public String addDiscountPolicyMustItemsAmountsRule(Map<Integer, Integer> itemsAmounts) throws Exception {
-        if (!items.keySet().containsAll(itemsAmounts.keySet())) {
+        if (!new HashSet<>(items.stream().map(CatalogItem::getItemID).toList()).containsAll(itemsAmounts.keySet())) {
             throw new Exception("Error: One or more of the items IDs you entered are not exist in the store");
         }
         MustItemsAmountsRule mustItemsAmountsRule = new MustItemsAmountsRule(itemsAmounts, policiesIDs, this);
@@ -701,8 +706,9 @@ public class Store {
         }
         CatalogItem newItem = new CatalogItem(itemID, itemName, itemPrice, itemCategory, this.storeName, this.storeID, weight);
         itemsAmounts.put(itemID, 0);
-        items.put(itemID, newItem);
+        items.add(newItem);
         savedItemsAmounts.put(itemID, 0);
+        storeDAO.addItem(newItem);
         log.info("Added new item: " + itemName + ", at store " + storeID);
         return newItem;
     }
@@ -894,19 +900,19 @@ public class Store {
     }
 
     public Bid addBid(int itemID, int userID, double offeredPrice) throws Exception {
-        if (!items.containsKey(itemID)) {
+        if (getItem(itemID)==null) {
             throw new Exception("Item ID: " + itemID + " does not exist");
         }
         saveItemAmount(itemID, 1);
         double originalPrice = getItem(itemID).getPrice();
-        Bid newBid = new Bid(bidsIDs, itemID, items.get(itemID).getItemName(), userID, offeredPrice, originalPrice, getStoreID());
+        Bid newBid = new Bid(bidsIDs, itemID, getItem(itemID).getItemName(), userID, offeredPrice, originalPrice, getStoreID());
         List<StoreEmployees> storeOwnersAndManagers = new ArrayList<>();
         storeOwnersAndManagers.addAll(storeOwners);
         storeOwnersAndManagers.addAll(storeManagers.stream().filter(manager -> manager.hasPermission(BID_MANAGEMENT)).toList());
         List<Integer> sendToList = storeOwnersAndManagers.stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
         newBid.setRepliers(sendToList);
         bids.put(bidsIDs++, newBid);
-        mailbox.sendMessageToList(sendToList, "User " + userID + " offered new bid for item " + items.get(itemID).getItemName() + " at store " + storeName + " with price of " + offeredPrice + " while the original price is " + items.get(itemID).getPrice());
+        mailbox.sendMessageToList(sendToList, "User " + userID + " offered new bid for item " + getItem(itemID).getItemName() + " at store " + storeName + " with price of " + offeredPrice + " while the original price is " + getItem(itemID).getPrice());
         log.info("Added new bid for item " + itemID + " at store " + storeID);
         return newBid;
     }
@@ -963,11 +969,11 @@ public class Store {
         int userID = bid.getUserID();
         addSavedItemAmount(itemID, -1);
         if (bid.getHighestCounterOffer() == -1) {
-            mailbox.sendMessage(userID, "Hi, your bid for the item: " + items.get(itemID).getItemName() + ", was approved by the store, and the item will be sent to you soon");
+            mailbox.sendMessage(userID, "Hi, your bid for the item: " + getItem(itemID).getItemName() + ", was approved by the store, and the item will be sent to you soon");
             log.info("Bid " + bidID + " was fully approved");
             return BidReplies.APPROVED;
         } else {
-            mailbox.sendMessage(userID, "Hi, your bid for the item: " + items.get(itemID).getItemName() + ", was countered by the store with counter-offer of: " + bid.getHighestCounterOffer() + " while the original price is: " + items.get(itemID).getPrice());
+            mailbox.sendMessage(userID, "Hi, your bid for the item: " + getItem(itemID).getItemName() + ", was countered by the store with counter-offer of: " + bid.getHighestCounterOffer() + " while the original price is: " + getItem(itemID).getPrice());
             log.info("Bid " + bidID + " was counter-offered with price of " + bid.getHighestCounterOffer());
             return BidReplies.COUNTERED;
         }
@@ -980,7 +986,7 @@ public class Store {
         addItemAmountPrivate(itemID, 1);
         addSavedItemAmount(itemID, -1);
         removeBid(bidID);
-        mailbox.sendMessage(userID, "Hi, we apologize for the inconvenience, but your bid for the item: " + items.get(itemID).getItemName() + ", was rejected by the store");
+        mailbox.sendMessage(userID, "Hi, we apologize for the inconvenience, but your bid for the item: " + getItem(itemID).getItemName() + ", was rejected by the store");
         log.info("Bid " + bidID + " was rejected");
     }
 
@@ -993,7 +999,7 @@ public class Store {
         myAuction.getAuctionTimer().cancel();
         myAuction.getAuctionTimer().purge();
         removeAuction(auctionID);
-        mailbox.sendMessage(winnerID, "Congratulations, you are the winner in our auction in store " + storeName + " of item " + items.get(itemID).getItemName() + " with an offer of " + myAuction.getCurrentPrice() + " while the original price is " + items.get(itemID).getPrice());
+        mailbox.sendMessage(winnerID, "Congratulations, you are the winner in our auction in store " + storeName + " of item " + getItem(itemID).getItemName() + " with an offer of " + myAuction.getCurrentPrice() + " while the original price is " + getItem(itemID).getPrice());
         log.info("Auction " + auctionID + " finished successfully and item was sold");
     }
 
@@ -1016,10 +1022,10 @@ public class Store {
         myLottery.getLotteryTimer().cancel();
         myLottery.getLotteryTimer().purge();
         removeLottery(lotteryID);
-        mailbox.sendMessage(winnerID, "Congratulations, you are the winner in our lottery in store " + storeName + " of item " + items.get(itemID).getItemName());
+        mailbox.sendMessage(winnerID, "Congratulations, you are the winner in our lottery in store " + storeName + " of item " + getItem(itemID).getItemName());
         List<Integer> losers = myLottery.getParticipants();
         losers.remove(winnerID);
-        mailbox.sendMessageToList(losers, "We are sorry, but you lost the lottery in store " + storeName + " of item " + items.get(itemID).getItemName());
+        mailbox.sendMessageToList(losers, "We are sorry, but you lost the lottery in store " + storeName + " of item " + getItem(itemID).getItemName());
         log.info("Lottery " + lotteryID + " finished successfully and item was sold to user " + winnerID);
     }
 
@@ -1033,7 +1039,7 @@ public class Store {
         removeLottery(lotteryID);
         List<Integer> participants = myLottery.getParticipants();
         if (participants.size() > 0)
-            mailbox.sendMessageToList(participants, "We are sorry, but the lottery in store " + storeName + " of item " + items.get(itemID).getItemName() + " has canceled due to lack of demand. Your money will be returned.");
+            mailbox.sendMessageToList(participants, "We are sorry, but the lottery in store " + storeName + " of item " + getItem(itemID).getItemName() + " has canceled due to lack of demand. Your money will be returned.");
         log.info("Lottery " + lotteryID + " finished unsuccessfully and item was not sold");
     }
 
@@ -1055,7 +1061,7 @@ public class Store {
         Auction myAuction = auctions.get(auctionID);
         double bestOfferBefore = myAuction.getCurrentPrice();
         int winnerBefore = myAuction.getCurrentWinningUserID();
-        String itemName = items.get(myAuction.getItemID()).getItemName();
+        String itemName = getItem(myAuction.getItemID()).getItemName();
         boolean result = myAuction.offerToAuction(userID, offerPrice);
         double bestOfferNow = myAuction.getCurrentPrice();
         if (result)
@@ -1281,11 +1287,14 @@ public class Store {
 
     private CatalogItem removeItem(int itemID) {
         itemsAmounts.remove(itemID);
-        return items.remove(itemID);
+        CatalogItem item = getItem(itemID);
+        items.remove(item);
+        storeDAO.removeItem(item);
+        return item;
     }
 
     public String updateItemName(int itemID, String newName) throws Exception {
-        if (items.containsKey(itemID)) {
+        if (isItemInCatalog(itemID)) {
             return getItem(itemID).setName(newName);
         }
         throw new Exception("Item with ID " + itemID + " is not exist in store " + storeName);
@@ -1378,7 +1387,7 @@ public class Store {
     }
 
     public boolean isItemInCatalog(int id) {
-        return items.containsKey(id);
+        return getItem(id) != null;
     }
 
     public HashMap<Integer, Integer> getItemsAmount() {
@@ -1390,12 +1399,12 @@ public class Store {
         HashMap<Integer, Map<CatalogItem, CartItemInfo>> receiptData = new HashMap<>(); //TODO
 
         CatalogItem item = getItem(bid.getItemID());
-        List<CartItemInfo> items = new ArrayList<>();
-        items.add(new CartItemInfo(item.getItemID(), 1, bid.getOfferedPrice(), item.getCategory(), item.getItemName(), item.getWeight()));
+        List<CartItemInfo> cartItems = new ArrayList<>();
+        cartItems.add(new CartItemInfo(item.getItemID(), 1, bid.getOfferedPrice(), item.getCategory(), item.getItemName(), item.getWeight()));
 
         //check bid validity
         try {
-            checkIfPurchaseIsValid(items, purchaseInfo.getAge());
+            checkIfPurchaseIsValid(cartItems, purchaseInfo.getAge());
         } catch (IllegalStateException msg) {
             mailbox.sendMessage(bid.getUserID(), msg.getMessage());
             log.warning("Trying to buy a Item from Bid with store: " + storeName + ", but you don't comply with the purchase policies");
@@ -1415,7 +1424,7 @@ public class Store {
         int supplyTransId = purchaseManager.supply();
 
         if (purchaseTransId == -1 || supplyTransId == -1) {
-            reverseSavedItems(items);
+            reverseSavedItems(cartItems);
             purchaseManager.cancelSupply(supplyTransId);
             purchaseManager.cancelPay(purchaseTransId);
             throw new Exception("Problem with Supply or Purchase");
