@@ -20,7 +20,7 @@
 <!--            <property name="javax.persistence.jdbc.user" value="root" />-->
             <!-- Password -->
 <!--            <property name="javax.persistence.jdbc.password" value="zqa1XWS@" />-->
-<!--            <property name="hibernate.hbm2ddl.auto" value="update"/>-->
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL57Dialect"/>
         </properties>
     </persistence-unit>

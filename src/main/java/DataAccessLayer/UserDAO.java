@@ -13,7 +13,7 @@ import java.util.Map;
 public class UserDAO {
     private static HashMap<Integer, RegisteredUser> userMap = new HashMap<>();
     DBConnector<RegisteredUser> connector;
-    public UserDAO() throws Exception {
+    public UserDAO() {
         connector = new DBConnector<>(RegisteredUser.class, Market.getConfigurations_static());
     }
 

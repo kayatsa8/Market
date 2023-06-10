@@ -11,10 +11,11 @@ import java.util.Set;
 @Entity
 @Table(name = "storeOwners")
 public class StoreOwner extends StoreEmployees {
-    @Transient
+    @ManyToMany
+    @JoinTable(name = "storeowners_ownersDefined")//,
     private Set<RegisteredUser> ownersIDefined;
-//    @OneToMany(mappedBy = "managersDefined")
-    @Transient
+    @ManyToMany
+    @JoinTable(name = "storeowners_managersDefined")
     private Set<RegisteredUser> managersIDefined;
     @Transient
     private StoreEmployeesDAO employeesDAO;
@@ -62,12 +63,14 @@ public class StoreOwner extends StoreEmployees {
 
     public void addOwner(RegisteredUser newOwner) {
         ownersIDefined.add(newOwner);
+        employeesDAO.save(this);
         StoreOwner owner = newOwner.addStoreOwnership(this);
         this.getStore().addOwner(owner);
     }
 
     public void addManager(RegisteredUser newManager) {
         managersIDefined.add(newManager);
+        employeesDAO.save(this);
         newManager.addStoreManagership(this);
         this.getStore().addManager(newManager.getStoreIManage(getStoreID()));
     }
@@ -84,6 +87,7 @@ public class StoreOwner extends StoreEmployees {
         this.ownersIDefined.remove(ownerToRemove);
         this.getStore().removeOwner(ownership);
         ownerToRemove.removeOwnership(this.getStoreID());
+        employeesDAO.save(this);
     }
 
     private void destruct() {
@@ -108,6 +112,7 @@ public class StoreOwner extends StoreEmployees {
         this.getStore().removeManager(managerToRemove.getStoreIManage(getStoreID()));
         managerToRemove.removeManagership(this.getStoreID());
         managersIDefined.remove(managerToRemove);
+        employeesDAO.save(this);
     }
 
     public void closeStore() {

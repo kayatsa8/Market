@@ -21,10 +21,12 @@ public class RegisteredUser extends User {
     private String username;
     private String password;
 //    @OneToMany(mappedBy = "registeredUser")
-    @Transient
+    @OneToMany
+    @JoinColumn(name = "user")
     private List<StoreOwner> storesIOwn;
-    @Transient
-    private Map<Integer, StoreManager> storesIManage;
+    @OneToMany
+    @JoinColumn(name = "user")
+    private List<StoreManager> storesIManage;
     @Transient
     private SystemManager systemManager;
     private boolean isLoggedIn;
@@ -41,7 +43,7 @@ public class RegisteredUser extends User {
         this.bDay = bDay;
         this.address = address;
         this.storesIOwn = new ArrayList<>();
-        this.storesIManage = new HashMap<>();
+        this.storesIManage = new ArrayList<>();
         this.isLoggedIn = false;
         this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(id, this);
         this.userDAO = new UserDAO();
@@ -52,7 +54,7 @@ public class RegisteredUser extends User {
         this.username = username;
         this.password = Password.hashPassword(pass);
         this.storesIOwn = new ArrayList<>();
-        this.storesIManage = new HashMap<>();
+        this.storesIManage = new ArrayList<>();
         this.userDAO = new UserDAO();
         this.employeesDAO = new StoreEmployeesDAO();
         this.isLoggedIn = false;
@@ -66,7 +68,7 @@ public class RegisteredUser extends User {
         this.username = username;
         this.password = Password.hashPassword(pass);
         this.storesIOwn = new ArrayList<>();
-        this.storesIManage = new HashMap<>();
+        this.storesIManage = new ArrayList<>();
         this.userDAO = new UserDAO();
         this.employeesDAO = new StoreEmployeesDAO();
         this.isLoggedIn = false;
@@ -81,7 +83,7 @@ public class RegisteredUser extends User {
         this.username = username;
         this.password = Password.hashPassword(pass);
         this.storesIOwn = new ArrayList<>();
-        this.storesIManage = new HashMap<>();
+        this.storesIManage = new ArrayList<>();
         this.userDAO = new UserDAO();
         this.employeesDAO = new StoreEmployeesDAO();
         this.isLoggedIn = false;
@@ -99,7 +101,7 @@ public class RegisteredUser extends User {
         return storesIOwn;
     }
 
-    public Map<Integer, StoreManager> getStoresIManage() {
+    public List<StoreManager> getStoresIManage() {
         return storesIManage;
     }
 
@@ -148,11 +150,15 @@ public class RegisteredUser extends User {
     }
 
     public StoreManager getStoreIManage(int storeID) {
-        return managesStore(storeID) ? storesIManage.get(storeID) : null;
+        for (StoreManager storeManager : storesIManage) {
+            if (storeManager.getStoreID()==storeID)
+                return storeManager;
+        }
+        return null;
     }
 
     private boolean managesStore(int storeID) {
-        return (storesIManage.get(storeID) != null);
+        return (getStoreIManage(storeID) != null);
     }
 
     public void addStore(Store store) {
@@ -181,7 +187,7 @@ public class RegisteredUser extends User {
     public StoreOwner addStoreOwnership(StoreOwner storeOwnership) {
         int storeID = storeOwnership.getStoreID();
         StoreOwner ownership = new StoreOwner(this.getId(), storeOwnership);
-        storesIOwn.add(storeID, ownership);
+        storesIOwn.add(ownership);
         employeesDAO.addOwner(ownership);
         mailbox.getChats().putIfAbsent(storeID, new Chat(id, storeID));
         return ownership;
@@ -204,9 +210,8 @@ public class RegisteredUser extends User {
     }
 
     public void addStoreManagership(StoreOwner storeOwnerShip) {
-        int storeID = storeOwnerShip.getStoreID();
         StoreManager managership = new StoreManager(this.getId(), storeOwnerShip);
-        storesIManage.put(storeID, managership);
+        storesIManage.add(managership);
         employeesDAO.addManager(managership);
     }
 
@@ -239,16 +244,34 @@ public class RegisteredUser extends User {
     }
 
     public void removeManagership(int storeID) {
-        StoreManager manager = storesIManage.get(storeID);
+        StoreManager manager = getStoreIManage(storeID);
         employeesDAO.removeManagership(manager);
-        storesIManage.remove(storeID);
+        removeStoreIManage(storeID);
         userDAO.removeManagership(this);
     }
 
+    private void removeStoreIManage(int storeID) {
+        for (StoreManager storeManager : storesIManage) {
+            if (storeManager.getStoreID()==storeID) {
+                storesIManage.remove(storeManager);
+                return;
+            }
+        }
+    }
+
+    private void removeStoreIOwn(int storeID) {
+        for (StoreOwner storeOwner : storesIOwn) {
+            if (storeOwner.getStoreID()==storeID) {
+                storesIOwn.remove(storeOwner);
+                return;
+            }
+        }
+    }
+
     public void removeOwnership(int storeID) {
-        StoreOwner owner = storesIOwn.get(storeID);
+        StoreOwner owner = getStoreIOwn(storeID);
         employeesDAO.removeOwnership(owner);
-        storesIOwn.remove(storeID);
+        removeStoreIOwn(storeID);
         userDAO.removeOwnership(this);
     }
 

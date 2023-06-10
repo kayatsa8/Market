@@ -362,7 +362,7 @@ public class Market {
     }
 
     public Map<Integer, Store> getStoresIManage(int managerID) throws Exception {
-        ArrayList<Integer> storesIds = userFacade.getStoresIdsIManage(managerID);
+        List<Integer> storesIds = userFacade.getStoresIdsIManage(managerID);
         Map<Integer, Store> result = new HashMap<>();
         for(Integer storeId: storesIds){
             result.put(storeId, storeFacade.getStore(storeId));

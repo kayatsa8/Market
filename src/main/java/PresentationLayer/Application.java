@@ -35,8 +35,8 @@ public class Application implements AppShellConfigurator {
         try {
             String addressOk = "addressOk";
             LocalDate bDayOk = LocalDate.of(2022, 7, 11);
-    ConfigReader configReader=new ConfigReader();
-        String relativePath = configReader.getInitializePath();        Loader loader = new Loader();
+            ConfigReader configReader=new ConfigReader();
+            String relativePath = configReader.getInitializePath();        Loader loader = new Loader();
             loader.load(relativePath);
         }
         catch (Exception e) {
@@ -79,7 +79,7 @@ public class Application implements AppShellConfigurator {
             System.out.println("Problem initiating Market");
             return;
         }*/
-        SpringApplication.run(Application.class, args);
+//        SpringApplication.run(Application.class, args);
     }
 
 

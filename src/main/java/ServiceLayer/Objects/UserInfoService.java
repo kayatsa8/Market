@@ -1,5 +1,6 @@
 package ServiceLayer.Objects;
 
+import BusinessLayer.StorePermissions.StoreManager;
 import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Users.RegisteredUser;
 import ServiceLayer.ShoppingService;
@@ -25,8 +26,8 @@ public class UserInfoService {
         this.id = user.getId();
         this.birthday = user.getbDay();
         this.address = user.getAddress();
-        this.storesIOwn = new ArrayList<>(user.getStoresIOwn().stream().map(StoreOwner::getStoreID).collect(Collectors.toList()));
-        this.storesIManage = new ArrayList<>(user.getStoresIManage().keySet());
+        this.storesIOwn = new ArrayList<>(user.getStoresIOwn().stream().map(StoreOwner::getStoreID).toList());
+        this.storesIManage = new ArrayList<>(user.getStoresIManage().stream().map(StoreManager::getStoreID).toList());
     }
 
 
