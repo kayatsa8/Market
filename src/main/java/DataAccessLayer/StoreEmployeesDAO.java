@@ -42,4 +42,8 @@ public class StoreEmployeesDAO {
     public void removeManagership(StoreManager manager) {
         smConnector.saveState(manager);
     }
+
+    public void save(StoreOwner storeOwner) {
+        soConnector.saveState(storeOwner);
+    }
 }

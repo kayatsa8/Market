@@ -7,6 +7,5 @@ public class Guest extends User{
     public static int GUEST_USER_ID = 999999;
     public Guest () throws Exception {
         super(GUEST_USER_ID);
-        this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(id, this);
     }
 }

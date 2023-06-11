@@ -27,21 +27,21 @@ public class StoreFacade {
     private final Set<String> categoryPool;
     private int storesIDs;
     private int itemsIDs;
-    StoreDAO storeDAO = new StoreDAO();
+    StoreDAO storeDAO;
 
     public StoreFacade() {
         this.categoryPool = new HashSet<>();
         this.storesIDs = 0;
         this.itemsIDs = 0;
-        this.storeDAO = new StoreDAO();
-        this.stores =storeDAO.getStores();
+//        this.storeDAO = new StoreDAO();
+        this.stores =StoreDAO.getStores();
     }
 
     public Store addStore(int founderID, String name) throws Exception
     {
         Store newStore = new Store(storesIDs, founderID, name);
         stores.put(storesIDs++, newStore);
-        storeDAO.addStore(newStore);
+        StoreDAO.addStore(newStore);
         return newStore;
     }
     public Store addStore(int founderID, String name, MarketMock marketMock) throws Exception
@@ -685,7 +685,7 @@ public class StoreFacade {
     }
     private StoreManager getStoreManager(int userID, int storeId) throws Exception {
         Store store = getStore(storeId);
-        List<StoreManager> permissions = store.getStoreManagers();
+        Set<StoreManager> permissions = store.getStoreManagers();
         for (StoreManager manager : permissions) {
             if (manager.getUserID() == userID) {
                 return manager;

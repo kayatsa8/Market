@@ -5,12 +5,14 @@ import BusinessLayer.NotificationSystem.Repositories.ChatRepository;
 import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.User;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-
+@Entity
 public class UserMailbox extends Mailbox {
-
-    private final User owner;
+    @Transient
+    private User owner;
+    @Transient
     private List<NotificationObserver> listeners;
 
 
@@ -25,6 +27,10 @@ public class UserMailbox extends Mailbox {
 //        notReadMessages = new NotReadMessagesRepository();
 //        readMessages = new ReadMessagesRepository();
 //        sentMessages = new SentMessagesRepository();
+    }
+
+    public UserMailbox() {
+
     }
 
     public void listen(NotificationObserver _listener){

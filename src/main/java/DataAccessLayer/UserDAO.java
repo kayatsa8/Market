@@ -13,8 +13,16 @@ import java.util.Map;
 public class UserDAO {
     private static HashMap<Integer, RegisteredUser> userMap = new HashMap<>();
     DBConnector<RegisteredUser> connector;
-    public UserDAO() throws Exception {
+    private static UserDAO instance;
+    private UserDAO() {
         connector = new DBConnector<>(RegisteredUser.class, Market.getConfigurations_static());
+    }
+
+    public static synchronized UserDAO getUserDao() {
+        if (instance==null) {
+            instance = new UserDAO();
+        }
+        return instance;
     }
 
     public static HashMap<Integer, RegisteredUser> getAllUsers() {
@@ -54,5 +62,9 @@ public class UserDAO {
             res.put(user.getId(), user);
         }
         return res;
+    }
+
+    public void save(RegisteredUser user) {
+        connector.saveState(user);
     }
 }

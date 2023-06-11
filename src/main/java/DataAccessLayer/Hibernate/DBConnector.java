@@ -12,7 +12,7 @@ public class DBConnector<T>{
     private ConnectorConfigurations configurations;
     private Map<String, String> persistenceMap = new HashMap<String, String>();
 
-
+    private EntityManagerFactory factory;
     public DBConnector(Class<T> c, ConnectorConfigurations conf){
         clazz = c;
         manager = null;
@@ -22,13 +22,15 @@ public class DBConnector<T>{
         persistenceMap.put("javax.persistence.jdbc.user", configurations.getUsername());
         persistenceMap.put("javax.persistence.jdbc.password", configurations.getPassword());
         persistenceMap.put("javax.persistence.jdbc.driver", configurations.getDriver());
+
+        factory = Persistence.createEntityManagerFactory(configurations.getUnitName(), persistenceMap);
+
     }
 
     /**
      * start should be called before each non-basic query.
      */
     public void start(){
-        EntityManagerFactory factory = Persistence.createEntityManagerFactory(configurations.getUnitName(), persistenceMap);
         manager = factory.createEntityManager();
     }
 

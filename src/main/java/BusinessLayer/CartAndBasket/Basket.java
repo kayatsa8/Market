@@ -197,8 +197,8 @@ public class Basket {
         return items;
     }
 
-    private CatalogItem makeCopyOfCatalogItem(CatalogItem item){
-        return new CatalogItem(item.getItemID(), item.getItemName(), item.getPrice(), item.getCategory(), item.getStoreName(), item.getItemID(), item.getWeight());
+    private CatalogItem makeCopyOfCatalogItem(CatalogItem item){ //@TODO TOMER
+        return new CatalogItem(item.getItemID(), item.getItemName(), item.getPrice(), item.getCategory(), item.getStoreName(), getStore(), item.getWeight());
     }
 
     public void saveItems(List<String> coupons, int userID, int age) throws Exception{

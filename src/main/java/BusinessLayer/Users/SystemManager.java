@@ -1,10 +1,13 @@
 package BusinessLayer.Users;
 
 import BusinessLayer.Market;
+import BusinessLayer.StorePermissions.StoreEmployees;
 import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
 
+import javax.annotation.processing.Generated;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +24,7 @@ public class SystemManager {
         this.storeFacade = market.getStoreFacade();
         this.market.addAdmin(myUser.getId(), this);
     }
+
 
     public void closeStorePermanently(Store store) throws Exception
     {
@@ -77,7 +81,7 @@ public class SystemManager {
             parents.get(i).removeOwner(userToRemove, storesIDs.get(i)); //Amir
         } //Amir
 
-        for (Integer storeID : userToRemove.getStoresIManage().keySet()) {
+        for (Integer storeID : userToRemove.getStoresIManage().stream().map(StoreEmployees::getStoreID).toList()) {
             myUser.removeManager(userToRemove, storeID);
         }
         //TODO also remove from notification system

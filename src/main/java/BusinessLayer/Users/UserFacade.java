@@ -11,6 +11,7 @@ import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
+import BusinessLayer.StorePermissions.StoreManager;
 import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
@@ -38,10 +39,9 @@ public class UserFacade {
     private Map<Integer, Guest> guests;
 
     public UserFacade() throws Exception {
-//        users = new HashMap<>();
-        userDAO = new UserDAO();
+        userDAO = UserDAO.getUserDao();
         guests = new HashMap<>();
-//        users = userDAO.getUsers();
+//        users = new HashMap<>();
 //        userID = userDAO.getMaxID() + 1;
 //        setGuest();
     }
@@ -58,17 +58,18 @@ public class UserFacade {
 
     public void createAdmin() throws Exception {
         RegisteredUser admin = new RegisteredUser(adminName, adminPass, getNewId(), true);
-//        userDAO.addUser(admin);
         users.put(admin.getId(), admin);
     }
 
     public SystemManager makeAdmin(int id) throws Exception {
-        return getRegisteredUser(id).makeAdmin();
+        RegisteredUser user = getRegisteredUser(id);
+        SystemManager sm = user.makeAdmin();
+        userDAO.save(user);
+        return sm;
     }
 
     public void createAdmin(MarketMock marketMock) throws Exception {
         RegisteredUser admin = new RegisteredUser(adminName, adminPass, getNewId(), true, marketMock);
-//        userDAO.addUser(admin);
         users.put(admin.getId(), admin);
     }
     public RegisteredUser getUserByName(String userName) throws Exception {
@@ -210,20 +211,8 @@ public class UserFacade {
         return true;
     }
 
-    public void systemStart() {
-        loadUsers();//Registered only
-    }
-
     public void loadUsers() {
-        HashMap<Integer, RegisteredUser> dbUsersMap = UserDAO.getAllUsers();
-        for (Map.Entry<Integer, RegisteredUser> entry : dbUsersMap.entrySet()) {
-            Integer id = entry.getKey();
-            RegisteredUser user = entry.getValue();
-            //TODO load User's Cart
-            //user.setCart(cartDBO.getCart(name));
-            users.put(user.getId(), user);
-        }
-
+        users = userDAO.getUsers();
     }
 
     public void addOwner(int userID, int userToAddID, int storeID) throws Exception {
@@ -369,8 +358,8 @@ public class UserFacade {
         return new ArrayList<>(getRegisteredUser(ownerId).getStoresIOwn().stream().map(StoreOwner::getStoreID).collect(Collectors.toList()));
     }
 
-    public ArrayList<Integer> getStoresIdsIManage(int ownerId) throws Exception {
-        return new ArrayList<>(getRegisteredUser(ownerId).getStoresIManage().keySet());
+    public List<Integer> getStoresIdsIManage(int ownerId) throws Exception {
+        return new ArrayList<>(getRegisteredUser(ownerId).getStoresIManage().stream().map(StoreManager::getStoreID).toList());
     }
 
     public boolean isOwnerOrManager(int currUserID) {

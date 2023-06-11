@@ -8,13 +8,11 @@ import javax.persistence.*;
 public abstract class StoreEmployees {
     @EmbeddedId
     private StoreEmployeeId id;
-    private int userID;
     private int parentID;
     @ManyToOne
-    @JoinColumn(name = "storeId")
+    @JoinColumn(name = "store_id")
     private Store store;
     public StoreEmployees(int userID, int parentID, Store store) {
-        this.userID = userID;
         this.parentID = parentID;
         this.store = store;
         this.id = new StoreEmployeeId(userID, store.getStoreID());
@@ -25,11 +23,11 @@ public abstract class StoreEmployees {
     }
 
     public int getUserID() {
-        return userID;
+        return id.getUser();
     }
 
     public void setUserID(int userID) {
-        this.userID = userID;
+        id.setUser(userID);
     }
 
     public int getParentID() {

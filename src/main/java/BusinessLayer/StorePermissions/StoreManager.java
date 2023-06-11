@@ -1,17 +1,26 @@
 package BusinessLayer.StorePermissions;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Entity
+@Table(name = "storeManagers")
 public class StoreManager extends StoreEmployees {
-
+    @Transient
     private ConcurrentHashMap<StoreActionPermissions, Integer> map;
+
+    public StoreManager() {
+
+    }
+    @Transient
+    private Set<StoreActionPermissions> storeActionPermissions;
 
     public Set<StoreActionPermissions> getStoreActionPermissions() {
         return storeActionPermissions;
     }
-
-    private Set<StoreActionPermissions> storeActionPermissions;
 
     public StoreManager(int id, StoreOwner storeOwnerShip) {
         super(id, storeOwnerShip.getUserID(),storeOwnerShip.getStore());
