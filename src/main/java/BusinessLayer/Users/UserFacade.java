@@ -39,9 +39,9 @@ public class UserFacade {
     private Map<Integer, Guest> guests;
 
     public UserFacade() throws Exception {
-        userDAO = UserDAO.getUserDao();
+//        userDAO = UserDAO.getUserDao();
         guests = new HashMap<>();
-//        users = new HashMap<>();
+        users = new HashMap<>();
 //        userID = userDAO.getMaxID() + 1;
 //        setGuest();
     }
@@ -64,7 +64,7 @@ public class UserFacade {
     public SystemManager makeAdmin(int id) throws Exception {
         RegisteredUser user = getRegisteredUser(id);
         SystemManager sm = user.makeAdmin();
-        userDAO.save(user);
+//        userDAO.save(user);
         return sm;
     }
 
@@ -120,7 +120,7 @@ public class UserFacade {
             int id = getNewId();
             RegisteredUser tempUser = new RegisteredUser(username, password, id, address, bDay);
             // add to DB
-            userDAO.addUser(tempUser);
+//            userDAO.addUser(tempUser);
             //add to cash
             users.put(id, tempUser);
             return id;
@@ -135,7 +135,7 @@ public class UserFacade {
         if (checkUserName(username) && checkPassword(password)) {
             RegisteredUser tempUser = new RegisteredUser(username, password, getNewId(), marketMock);
             // add to DB
-            userDAO.addUser(tempUser);
+//            userDAO.addUser(tempUser);
             //add to cash
             users.put(tempUser.getId(), tempUser);
             return tempUser.getId();
@@ -212,7 +212,7 @@ public class UserFacade {
     }
 
     public void loadUsers() {
-        users = userDAO.getUsers();
+//        users = userDAO.getUsers();
     }
 
     public void addOwner(int userID, int userToAddID, int storeID) throws Exception {
@@ -259,7 +259,7 @@ public class UserFacade {
     //only called from system manager after other user associations removed
     public void removeUser(RegisteredUser userToRemove) throws Exception {
         users.remove(userToRemove.getId());
-        userDAO.removeUser(userToRemove);
+//        userDAO.removeUser(userToRemove);
     }
 
     public Cart getCart(int userID) {

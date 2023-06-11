@@ -64,30 +64,17 @@ public class Basket {
         validateAddItem(item, quantity);
         ItemWrapper wrapper = searchInItemsById(item.getItemID());
 
-        DBConnector<CartItemInfo> infoConnector =
-                new DBConnector<>(CartItemInfo.class, Market.getInstance().getConfigurations());
-
-        DBConnector<ItemWrapper> wrapperConnector =
-                new DBConnector<>(ItemWrapper.class, Market.getInstance().getConfigurations());
-
-        DBConnector<Basket> basketConnector =
-                new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
-
-
         if (wrapper != null){
             int prevAmount= wrapper.info.getAmount();
             wrapper.info.setAmount(quantity + prevAmount);
-
-            infoConnector.saveState(wrapper.info);
         }
         else{
             wrapper = new ItemWrapper(item, quantity);
             items.add(wrapper);
-
-            infoConnector.insert(wrapper.info);
-            wrapperConnector.insert(wrapper);
-            basketConnector.saveState(this);
         }
+
+        DBConnector<Basket> basketConnector = new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
+        basketConnector.saveState(this);
 
         releaseItems();
 
@@ -104,11 +91,6 @@ public class Basket {
 
         ItemWrapper wrapper = searchInItemsById(itemID);
         wrapper.info.setAmount(quantity);
-
-        DBConnector<CartItemInfo> connector =
-                new DBConnector<>(CartItemInfo.class, Market.getConfigurations_static());
-
-        connector.saveState(wrapper.info);
 
         releaseItems();
 
@@ -129,15 +111,6 @@ public class Basket {
         }
 
         items.remove(wrapper);
-
-        DBConnector<CartItemInfo> infoConnector =
-                new DBConnector<>(CartItemInfo.class, Market.getConfigurations_static());
-
-        DBConnector<ItemWrapper> wrapperConnector =
-                new DBConnector<>(ItemWrapper.class, Market.getConfigurations_static());
-
-        infoConnector.delete(wrapper.info.getId());
-        wrapperConnector.delete(wrapper.id);
 
         releaseItems();
 
@@ -207,11 +180,6 @@ public class Basket {
         try{
             store.saveItemsForUpcomingPurchase(getItemsInfo(), coupons, userID, age);
             itemsSaved = true;
-
-            DBConnector<Basket> basketConnector =
-                    new DBConnector<>(Basket.class, Market.getConfigurations_static());
-
-            basketConnector.saveState(this);
         }
         catch(Exception e){
             //LOG
@@ -221,15 +189,10 @@ public class Basket {
                 item more than Store can provide.
             */
 
-            DBConnector<Basket> basketConnector =
-                    new DBConnector<>(Basket.class, Market.getConfigurations_static());
-
 //            savedItems = null;
             itemsSaved = false;
 
             //NOTE: maybe need to delete every CartItemInfo in savedItems -> possible solution: empty savedItems, save, make null, save
-
-            basketConnector.saveState(this);
             throw e;
         }
 
@@ -282,25 +245,13 @@ public class Basket {
      * asks the store to release the saved items
      */
     public void releaseItems() throws Exception {
-        DBConnector<Basket> basketConnector =
-                new DBConnector<>(Basket.class, Market.getConfigurations_static());
-
-
         if(itemsSaved){
             itemsSaved = false;
             store.reverseSavedItems(getItemsInfo());
 
-//            for(CartItemInfo info : savedItems){
-//                infoConnector.delete(info.getId());
-//            }
-
 //            savedItems.clear();
 
-//            basketConnector.saveState(this);
-
 //            savedItems = null;
-
-            basketConnector.saveState(this);
         }
     }
 
@@ -326,18 +277,9 @@ public class Basket {
     }
 
     private void updateBasketByCartItemInfoList(List<CartItemInfo> updatedBasketItems) throws Exception {
-        DBConnector<CartItemInfo> infoConnector =
-                new DBConnector<>(CartItemInfo.class, Market.getConfigurations_static());
-        DBConnector<ItemWrapper> wrapperConnector =
-                new DBConnector<>(ItemWrapper.class, Market.getConfigurations_static());
 
         for(CartItemInfo info : updatedBasketItems){
-            infoConnector.delete(searchInItemsById(info.getItemID()).info.getId());
-            infoConnector.insert(info);
-
             searchInItemsById(info.getItemID()).info = info;
-
-            wrapperConnector.saveState(searchInItemsById(info.getItemID()));
         }
 
     }

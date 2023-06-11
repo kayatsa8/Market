@@ -87,6 +87,7 @@ public class DBTester {
             store.addItemAmount(17, 33);
 
             basket.addItem(store.getItem(17), 22, new ArrayList<>());
+//            basketConnector.saveState(basket);
         }
         catch(Exception e){
             System.err.println(e.getCause());

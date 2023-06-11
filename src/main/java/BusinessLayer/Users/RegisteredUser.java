@@ -56,8 +56,8 @@ public class RegisteredUser extends User {
         this.password = Password.hashPassword(pass);
         this.storesIOwn = new HashSet<>();
         this.storesIManage = new HashSet<>();
-        this.userDAO = UserDAO.getUserDao();
-        this.employeesDAO = new StoreEmployeesDAO();
+//        this.userDAO = UserDAO.getUserDao();
+//        this.employeesDAO = new StoreEmployeesDAO();
         this.isLoggedIn = false;
         this.isSystemManager = isAdmin;
         if (isAdmin) {

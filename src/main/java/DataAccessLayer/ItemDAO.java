@@ -17,7 +17,7 @@ public class ItemDAO {
 
 
     public void addItem(CatalogItem newItem) {
-        itemDBConnector.insert(newItem);
+//        itemDBConnector.insert(newItem);
     }
     public void removeItem(CatalogItem item) {
         itemDBConnector.delete(item.getItemID());

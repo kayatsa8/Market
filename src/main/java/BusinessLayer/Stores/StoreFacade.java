@@ -34,14 +34,15 @@ public class StoreFacade {
         this.storesIDs = 0;
         this.itemsIDs = 0;
 //        this.storeDAO = new StoreDAO();
-        this.stores =StoreDAO.getStores();
+//        this.stores =StoreDAO.getStores();
+        stores = new HashMap<>();
     }
 
     public Store addStore(int founderID, String name) throws Exception
     {
         Store newStore = new Store(storesIDs, founderID, name);
         stores.put(storesIDs++, newStore);
-        StoreDAO.addStore(newStore);
+//        StoreDAO.addStore(newStore);
         return newStore;
     }
     public Store addStore(int founderID, String name, MarketMock marketMock) throws Exception

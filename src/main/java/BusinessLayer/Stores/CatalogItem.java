@@ -12,7 +12,7 @@ import java.util.List;
 @Entity
 public class CatalogItem {
     @Transient
-    private final ItemDAO itemDAO;
+    private ItemDAO itemDAO;
     private String itemName;
     private double price;
     @Id
@@ -32,7 +32,7 @@ public class CatalogItem {
     private List<DiscountPolicy> discountPolicies;
 
     public CatalogItem() {
-        this.itemDAO = new ItemDAO();
+//        this.itemDAO = new ItemDAO();
     }
 
     public CatalogItem(int itemID, String itemName, double price, String category, String storeName, Store store, double weight) {
@@ -47,7 +47,7 @@ public class CatalogItem {
         this.discounts = new ArrayList<>();
         this.purchasePolicies = new ArrayList<>();
         this.discountPolicies = new ArrayList<>();
-        this.itemDAO = new ItemDAO();
+//        this.itemDAO = new ItemDAO();
     }
 
     public int getAmount() {
@@ -56,7 +56,7 @@ public class CatalogItem {
 
     public void setAmount(int amount) {
         this.amount = amount;
-        itemDAO.save(this);
+//        itemDAO.save(this);
     }
 
     public String getStoreName() {

@@ -719,7 +719,7 @@ public class Store {
         CatalogItem newItem = new CatalogItem(itemID, itemName, itemPrice, itemCategory, this.storeName, this, weight);
         items.add(newItem);
         savedItemsAmounts.put(itemID, 0);
-        StoreDAO.addItem(newItem);
+//        StoreDAO.addItem(newItem);
         log.info("Added new item: " + itemName + ", at store " + storeID);
         return newItem;
     }
@@ -1294,7 +1294,7 @@ public class Store {
     private CatalogItem removeItem(int itemID) {
         CatalogItem item = getItem(itemID);
         items.remove(item);
-        StoreDAO.removeItem(item);
+//        StoreDAO.removeItem(item);
         return item;
     }
 

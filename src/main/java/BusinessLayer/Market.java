@@ -36,7 +36,8 @@ public class Market {
     private Map<Integer, SystemManager> systemManagerMap;
     private NotificationHub notificationHub;
     private static final Object instanceLock = new Object();
-    private static ConnectorConfigurations configurations;
+    private ConnectorConfigurations configurations;
+    private static ConnectorConfigurations configurations_static;
 
     private Market() throws Exception {
         systemManagerMap = new HashMap<>();
@@ -58,7 +59,7 @@ public class Market {
     }
 
     public static void setConfigurations(String unitName, String url, String username, String password, String driver){
-        configurations = new ConnectorConfigurations(unitName, url, username, password, driver);
+        configurations_static = new ConnectorConfigurations(unitName, url, username, password, driver);
     }
 
     public void setConfigurations(ConnectorConfigurations conf){
@@ -70,12 +71,12 @@ public class Market {
     }
 
     public static ConnectorConfigurations getConfigurations_static(){//TODO SAGI WHY
-        if (configurations == null) {
+        if (configurations_static == null) {
             String url = "jdbc:mysql://localhost:3306/shefaissashar";
             String driver = "com.mysql.cj.jdbc.Driver";
             setConfigurations("Name", url, System.getenv("username"), System.getenv("pass"), driver);
         }
-        return configurations;
+        return configurations_static;
     }
 
     public User addGuest() throws Exception {
