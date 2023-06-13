@@ -45,24 +45,26 @@ public class DBTester {
     }
 
     public static void wrapperTest(ConnectorConfigurations conf){
-//        DBConnector<Basket.ItemWrapper> wrapperConnector = new DBConnector<>(Basket.ItemWrapper.class, conf);
-//
-//        CatalogItem item1 = new CatalogItem(1, "item1", 1.0,
-//                                           "c1", "store1", 11, 1.0);
-//        Basket.ItemWrapper wrapper1 = new Basket.ItemWrapper(item1, 1);
-//
-//        CatalogItem item2 = new CatalogItem(2, "item2", 2.0,
-//                "c2", "store2", 22, 2.0);
-//        Basket.ItemWrapper wrapper2 = new Basket.ItemWrapper(item2, 2);
-//
-//        wrapperConnector.insert(wrapper1);
-//        wrapperConnector.insert(wrapper2);
-//
-//
-//        Basket.ItemWrapper w1 = wrapperConnector.getById(wrapper1.getId());
-//        Basket.ItemWrapper w2 = wrapperConnector.getById(wrapper2.getId());
-//        System.out.println(w1);
-//        System.out.println(w2);
+        DBConnector<Basket.ItemWrapper> wrapperConnector = new DBConnector<>(Basket.ItemWrapper.class, conf);
+        Store store1 = new Store(11, 75, "store1");
+        Store store2 = new Store(22, 89, "store2");
+
+        CatalogItem item1 = new CatalogItem(1, "item1", 1.0,
+                                           "c1", "store1", store1, 1.0);
+        Basket.ItemWrapper wrapper1 = new Basket.ItemWrapper(item1, 1);
+
+        CatalogItem item2 = new CatalogItem(2, "item2", 2.0,
+                "c2", "store2", store2, 2.0);
+        Basket.ItemWrapper wrapper2 = new Basket.ItemWrapper(item2, 2);
+
+        wrapperConnector.insert(wrapper1);
+        wrapperConnector.insert(wrapper2);
+
+
+        Basket.ItemWrapper w1 = wrapperConnector.getById(wrapper1.getId());
+        Basket.ItemWrapper w2 = wrapperConnector.getById(wrapper2.getId());
+        System.out.println(w1);
+        System.out.println(w2);
 
     }
 
@@ -85,9 +87,14 @@ public class DBTester {
             store.addCatalogItem(17, "item1", 53.22,
                     "category1", 82);
             store.addItemAmount(17, 33);
+            store.addCatalogItem(18, "item2", 42.12,
+                    "category2", 44);
+            store.addItemAmount(18, 86);
 
             basket.addItem(store.getItem(17), 22, new ArrayList<>());
-//            basketConnector.saveState(basket);
+            basket.addItem(store.getItem(17), 3, new ArrayList<>());
+            basket.addItem(store.getItem(18), 3, new ArrayList<>());
+//            basket.changeItemQuantity(17, 44, new ArrayList<>());
         }
         catch(Exception e){
             System.err.println(e.getCause());

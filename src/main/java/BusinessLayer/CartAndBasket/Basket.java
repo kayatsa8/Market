@@ -67,10 +67,18 @@ public class Basket {
         if (wrapper != null){
             int prevAmount= wrapper.info.getAmount();
             wrapper.info.setAmount(quantity + prevAmount);
+
+            DBConnector<CartItemInfo> infoConnector =
+                    new DBConnector<>(CartItemInfo.class, Market.getInstance().getConfigurations());
+            infoConnector.saveState(wrapper.info);
         }
         else{
             wrapper = new ItemWrapper(item, quantity);
             items.add(wrapper);
+
+            DBConnector<ItemWrapper> wrapperConnector =
+                    new DBConnector<>(ItemWrapper.class, Market.getInstance().getConfigurations());
+            wrapperConnector.insert(wrapper);
         }
 
         DBConnector<Basket> basketConnector = new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
@@ -91,6 +99,9 @@ public class Basket {
 
         ItemWrapper wrapper = searchInItemsById(itemID);
         wrapper.info.setAmount(quantity);
+
+        DBConnector<CartItemInfo> infoConnector = new DBConnector<>(CartItemInfo.class, Market.getInstance().getConfigurations());
+        infoConnector.saveState(wrapper.info);
 
         releaseItems();
 
@@ -379,7 +390,6 @@ public class Basket {
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private int id;
 
-//        @Column(name = "id")
 //        @ManyToOne
 //        @JoinColumn(name = "itemId")
         @Transient
