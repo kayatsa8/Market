@@ -32,7 +32,6 @@ import DataAccessLayer.StoreDAO;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
-import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.util.*;
@@ -1322,7 +1321,7 @@ public class Store {
     }
 
     public ConcurrentHashMap<Integer, Chat> getChats() {
-        return mailbox.getChats();
+        return mailbox.getChatsAsMap();
     }
 
     public void setMailboxAsUnavailable() {

@@ -4,6 +4,7 @@ import BusinessLayer.NotificationSystem.Repositories.ChatRepository;
 import BusinessLayer.StorePermissions.StoreEmployees;
 import BusinessLayer.Stores.Store;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,7 +16,7 @@ public class StoreMailbox extends Mailbox{
         owner = _owner;
         available = true;
         ownerID = owner.getStoreID();
-        chats = new ChatRepository();
+        chats = new ArrayList<>();
         hub = _hub;
 
 //        notReadMessages = new NotReadMessagesRepository();
@@ -28,11 +29,19 @@ public class StoreMailbox extends Mailbox{
         List<Integer> IDs = owner.getStoreOwners().stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
         IDs.addAll(owner.getStoreManagers().stream().map(StoreEmployees::getUserID).toList());
         Message notificationMessage;
+        Chat chat;
 
         for(Integer id : IDs){
             notificationMessage = makeNotificationMessage(id);
-            chats.putIfAbsent(id, new Chat(ownerID, id));
-            chats.get(id).addMessage(notificationMessage);
+
+            chat = chats_searchChat(id);
+
+            if(chat == null){
+                chat = new Chat(ownerID, id);
+                chats.add(chat);
+            }
+
+            chat.addMessage(notificationMessage);
             hub.passMessage(notificationMessage);
             //sentMessages.add(notificationMessage);
         }

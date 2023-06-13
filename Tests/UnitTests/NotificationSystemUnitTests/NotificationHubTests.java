@@ -104,8 +104,8 @@ public class NotificationHubTests {
 
         // Good case
         assertTrue("The message was not sent properly! mailbox1 does not contain: " + message1,
-                mailbox1.getChats().get(user4.getId()).contains(message1));
-        assertTrue("The message was not sent properly!", mailbox2.getChats().get(user3.getId()).contains(message1));
+                mailbox1.getChatsAsMap().get(user4.getId()).contains(message1));
+        assertTrue("The message was not sent properly!", mailbox2.getChatsAsMap().get(user3.getId()).contains(message1));
         // Bad case
         //assertFalse("The message was sent to different mailbox!", mailbox3.watchNotReadMessages().contains(message1));
 

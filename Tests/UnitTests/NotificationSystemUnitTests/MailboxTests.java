@@ -65,9 +65,9 @@ public class MailboxTests {
         Message message1 = new Message(user1.getId(), user2.getId(), "message1");
         mailbox1.sendMessage(message1.getReceiverID(), message1.getContent());
         assertTrue("The message was not added the sent list!",
-                mailbox1.getChats().get(user2.getId()).contains(message1));
+                mailbox1.getChatsAsMap().get(user2.getId()).contains(message1));
         assertTrue("The message was not added the not-read list!",
-                mailbox2.getChats().get(user1.getId()).contains(message1));
+                mailbox2.getChatsAsMap().get(user1.getId()).contains(message1));
         hub.removeFromService(user1.getId());
         hub.removeFromService(user2.getId());
         hub.removeFromService(user3.getId());

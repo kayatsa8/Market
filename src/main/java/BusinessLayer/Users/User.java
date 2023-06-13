@@ -141,7 +141,7 @@ public abstract class User {
     }
 
     public ConcurrentHashMap<Integer, Chat> getChats() {
-        return mailbox.getChats();
+        return mailbox.getChatsAsMap();
     }
 
     public void listenToNotifications(NotificationObserver listener) throws Exception {

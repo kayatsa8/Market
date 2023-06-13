@@ -1,11 +1,11 @@
 package BusinessLayer.NotificationSystem;
 
 import BusinessLayer.Log;
-import BusinessLayer.NotificationSystem.Repositories.ChatRepository;
 
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 @MappedSuperclass
 public abstract class Mailbox {
@@ -13,7 +13,8 @@ public abstract class Mailbox {
     protected int ownerID;
     protected boolean available;
     @Transient
-    protected ChatRepository chats; // <otherSideId, Chat>
+    protected List<Chat> chats; // <otherSideId, Chat>
+
     @Transient
     protected NotificationHub hub;
 
@@ -26,8 +27,14 @@ public abstract class Mailbox {
         Message message = new Message(ownerID, receiverID, content);
 
         try{
-            chats.putIfAbsent(receiverID, new Chat(ownerID, receiverID));
-            chats.get(receiverID).addMessage(message);
+            Chat chat = chats_searchChat(receiverID);
+
+            if(chat == null){
+                chat = new Chat(ownerID, receiverID);
+                chats.add(chat);
+            }
+
+            chat.addMessage(message);
 
             hub.passMessage(message);
         }
@@ -56,8 +63,14 @@ public abstract class Mailbox {
                     "was sent to " + ownerID);
         }
 
-        chats.putIfAbsent(message.getSenderID(), new Chat(ownerID, message.getSenderID()));
-        chats.get(message.getSenderID()).addMessage(message);
+        Chat chat = chats_searchChat(message.getSenderID());
+
+        if(chat == null){
+            chat = new Chat(ownerID, message.getSenderID());
+            chats.add(chat);
+        }
+
+        chat.addMessage(message);
         //notReadMessages.add(message);
         notifyOwner();
     }
@@ -104,8 +117,13 @@ public abstract class Mailbox {
 //        return new ArrayList<>(sentMessages.getMessages());
 //    }
 
-    public ConcurrentHashMap<Integer, Chat> getChats(){
-        return chats.getChats();
+    public ConcurrentHashMap<Integer, Chat> getChatsAsMap(){
+        ConcurrentHashMap<Integer, Chat> _chats = new ConcurrentHashMap<>();
+        for(Chat chat : chats){
+            _chats.putIfAbsent(chat.getOtherSideId(), chat);
+        }
+
+        return _chats;
     }
 
     public void setMailboxAsUnavailable(){
@@ -120,6 +138,16 @@ public abstract class Mailbox {
 
     public boolean isAvailable(){
         return available;
+    }
+
+    protected Chat chats_searchChat(int receiverId){
+        for(Chat chat : chats){
+            if(chat.getOtherSideId() == receiverId){
+                return chat;
+            }
+        }
+
+        return null;
     }
 
 }

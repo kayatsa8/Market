@@ -19,7 +19,7 @@ public class UserMailbox extends Mailbox {
     public UserMailbox(User _owner, NotificationHub _hub){
         owner = _owner;
         ownerID = owner.getId();
-        chats = new ChatRepository();
+        chats = new ArrayList<>();
         hub = _hub;
         listeners = new ArrayList<>();
 

@@ -9,7 +9,6 @@ import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.StoreEmployeesDAO;
 import DataAccessLayer.UserDAO;
-import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -205,7 +204,7 @@ public class RegisteredUser extends User {
         StoreOwner ownership = new StoreOwner(this.getId(), storeOwnership);
         storesIOwn.add(ownership);
         employeesDAO.addOwner(ownership);
-        mailbox.getChats().putIfAbsent(storeID, new Chat(id, storeID));
+        mailbox.getChatsAsMap().putIfAbsent(storeID, new Chat(id, storeID));
         return ownership;
     }
 
