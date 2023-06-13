@@ -96,10 +96,7 @@ public class Cart {
         else {
             baskets.remove(basket);
 
-            DBConnector<Basket> basketConnector =
-                    new DBConnector<>(Basket.class, Market.getConfigurations_static());
-
-            basketConnector.delete(basket.getId());
+            dao.removeBasket(basket);
 
             Log.log.info("The Basket from user"+userID+" of store " + storeID + " was removed from the cart");
         }

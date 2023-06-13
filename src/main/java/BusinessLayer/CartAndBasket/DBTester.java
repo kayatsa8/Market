@@ -140,6 +140,7 @@ public class DBTester {
 
             cart.addItem(store1, store1.getItem(17), 1);
             cart.addItem(store2, store2.getItem(25), 17);
+            cart.removeBasket(store1.getStoreID());
 
             System.out.println(cart);
         }
