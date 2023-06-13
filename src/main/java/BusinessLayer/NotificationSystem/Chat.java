@@ -1,6 +1,7 @@
 package BusinessLayer.NotificationSystem;
 
 import BusinessLayer.NotificationSystem.Repositories.MessageRepository;
+import DataAccessLayer.ChatDAO;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -9,15 +10,31 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
+@Entity
 public class Chat {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
     private int mySideId;
     private int otherSideId;
-    private ConcurrentLinkedDeque<Message> messages;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @JoinColumn(name = "chatId")
+    private List<Message> messages;
+
+    @Transient
+    private ChatDAO dao;
 
     public Chat(int _mySideId, int _otherSideId){
         mySideId = _mySideId;
         otherSideId = _otherSideId;
-        messages = new ConcurrentLinkedDeque<>();
+        messages = new ArrayList<>();
+        dao = new ChatDAO();
+    }
+
+    public Chat(){
+        dao = new ChatDAO();
     }
 
     public int getMySideId(){
@@ -32,11 +49,30 @@ public class Chat {
         return new ArrayList<>(messages);
     }
 
-    public void addMessage(Message message){
+    public void addMessage(Message message) throws Exception {
         messages.add(message);
+        dao.addMessage(this, message);
     }
 
     public boolean contains(Message message){
-        return messages.contains(message);
+        for(Message ms : messages){
+            if(ms.equals(message)){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void setMySideId(int mySideId) {
+        this.mySideId = mySideId;
+    }
+
+    public void setOtherSideId(int otherSideId) {
+        this.otherSideId = otherSideId;
+    }
+
+    public void setMessages(List<Message> messages) {
+        this.messages = messages;
     }
 }
