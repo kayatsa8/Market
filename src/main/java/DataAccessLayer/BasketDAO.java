@@ -43,4 +43,10 @@ public class BasketDAO {
         wrapperConnector.delete(wrapper.getId());
     }
 
+    public void saveItems(Basket basket) throws Exception {
+        DBConnector<Basket> basketConnector =
+                new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
+        basketConnector.saveState(basket);
+    }
+
 }

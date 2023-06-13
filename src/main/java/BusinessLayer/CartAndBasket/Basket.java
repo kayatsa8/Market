@@ -69,6 +69,7 @@ public class Basket {
         validateAddItem(item, quantity);
         ItemWrapper wrapper = searchInItemsById(item.getItemID());
         boolean wrapperPersisted = false;
+        List<CartItemInfo> savedItemsInfos = getItemsInfo();
 
         if (wrapper != null){
             int prevAmount= wrapper.info.getAmount();
@@ -82,7 +83,7 @@ public class Basket {
 
         dao.addItem(this, wrapper, wrapperPersisted);
 
-        releaseItems();
+        releaseItems(savedItemsInfos);
 
         try{
             updateBasketWithCoupons(coupons);
@@ -94,13 +95,14 @@ public class Basket {
 
     public void changeItemQuantity(int itemID, int quantity, List<String> coupons) throws Exception {
         validateChangeItemQuantity(itemID, quantity);
+        List<CartItemInfo> savedItemsInfos = getItemsInfo();
 
         ItemWrapper wrapper = searchInItemsById(itemID);
         wrapper.info.setAmount(quantity);
 
         dao.changeItemQuantity(wrapper.info);
 
-        releaseItems();
+        releaseItems(savedItemsInfos);
 
         try{
             updateBasketWithCoupons(coupons);
@@ -112,6 +114,7 @@ public class Basket {
 
     public void removeItem(int itemID, List<String> coupons) throws Exception {
         ItemWrapper wrapper = searchInItemsById(itemID);
+        List<CartItemInfo> savedItemsInfos = getItemsInfo();
 
         if(wrapper == null){
             //LOG
@@ -122,7 +125,7 @@ public class Basket {
 
         dao.removeItem(wrapper);
 
-        releaseItems();
+        releaseItems(savedItemsInfos);
 
         try{
             updateBasketWithCoupons(coupons);
@@ -190,6 +193,7 @@ public class Basket {
         try{
             store.saveItemsForUpcomingPurchase(getItemsInfo(), coupons, userID, age);
             itemsSaved = true;
+            dao.saveItems(this);
         }
         catch(Exception e){
             //LOG
@@ -201,6 +205,7 @@ public class Basket {
 
 //            savedItems = null;
             itemsSaved = false;
+            dao.saveItems(this);
 
             //NOTE: maybe need to delete every CartItemInfo in savedItems -> possible solution: empty savedItems, save, make null, save
             throw e;
@@ -210,7 +215,7 @@ public class Basket {
 
     }
 
-    private List<CartItemInfo> getItemsInfo(){
+    public List<CartItemInfo> getItemsInfo(){
         List<CartItemInfo> infos = new ArrayList<>();
 
         for(ItemWrapper wrapper : items){
@@ -254,10 +259,10 @@ public class Basket {
      * if the basket contents had changed for some reason, the basket
      * asks the store to release the saved items
      */
-    public void releaseItems() throws Exception {
+    public void releaseItems(List<CartItemInfo> savedItemsInfos) throws Exception {
         if(itemsSaved){
             itemsSaved = false;
-            store.reverseSavedItems(getItemsInfo());
+            store.reverseSavedItems(savedItemsInfos);
 
 //            savedItems.clear();
 

@@ -183,7 +183,7 @@ public class Cart {
         if( purchaseTransId == -1 || supplyTransId == -1 ){
 
             for(Basket basket : baskets){
-                basket.releaseItems();
+                basket.releaseItems(basket.getItemsInfo());
             }
 
             purchaseManager.cancelSupply(supplyTransId);
