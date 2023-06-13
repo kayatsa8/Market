@@ -211,20 +211,9 @@ public class Cart {
      */
     public void empty(){
         try{
-            DBConnector<Basket> basketConnector =
-                    new DBConnector<>(Basket.class, Market.getConfigurations_static());
-
-            for(Basket basket : baskets){
-                basketConnector.delete(basket.getId());
-            }
-
             baskets.clear();
             coupons.clear();
-
-            DBConnector<Cart> cartConnector =
-                    new DBConnector<>(Cart.class, Market.getConfigurations_static());
-
-            cartConnector.saveState(this);
+            dao.empty(baskets);
         }
         catch(Exception e){
             System.out.println("Cart::empty: " + e.getMessage());

@@ -6,6 +6,7 @@ import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Market;
 import DataAccessLayer.Hibernate.DBConnector;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -47,6 +48,12 @@ public class CartDAO {
         basketConnector.delete(basket.getId());
     }
 
+    public void empty(List<Basket> baskets) throws Exception {
+        for(Basket basket : baskets){
+            removeBasket(basket);
+        }
 
+        //TODO: after add coupon is persisted, delete coupons
+    }
 
 }
