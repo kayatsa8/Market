@@ -414,7 +414,7 @@ public class UserFacade {
         if(!users.containsKey(userId)){
             throw new Exception("no such user!");
         }
-        return getUser(userId).getCart().getCoupons();
+        return getUser(userId).getCart().getCouponStrings();
     }
 
     public void listenToNotifications(int userId, NotificationObserver listener) throws Exception {

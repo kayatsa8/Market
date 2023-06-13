@@ -66,6 +66,8 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
         addDrawerContent();
         try {
             userService = new UserService();
+            //TODO: remove!!!!!!!!!!!!!!!!!!!!!!!!!!
+            userService.setMarketConfigurations();
         } catch (Exception e) {
             printError("Error initialize userService:\n" + e.getMessage());
             throw new RuntimeException("Error initialize userService:\n" + e.getMessage());

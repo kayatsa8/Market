@@ -33,10 +33,10 @@ public class Cart {
     @JoinColumn(name = "userId")
     private List<Basket> baskets;
 
-    @ElementCollection
-    @CollectionTable(name = "cart_coupons", joinColumns = @JoinColumn(name="userId"))
-    @Column(name="coupon")
-    private List<String> coupons;
+    @OneToMany()
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @JoinColumn(name = "userId")
+    private List<Coupon> coupons;
 
     @Transient
     private CartDAO dao;
@@ -68,7 +68,7 @@ public class Cart {
             dao.addItem(this, b);
         }
 
-        b.addItem(item, quantity, coupons);
+        b.addItem(item, quantity, getCouponStrings());
 
         Log.log.info("The item " + item.getItemID() + " of store " +
                 store.getStoreID() + " was added (" + quantity + " units)");
@@ -82,7 +82,7 @@ public class Cart {
             throw new Exception("Cart::removeItemFromCart: the store " + storeID + " was not found!");
         }
 
-        basket.removeItem(itemID, coupons);
+        basket.removeItem(itemID, getCouponStrings());
         Log.log.info("The item " + itemID + " of store " + storeID + " was removed from the cart");
     }
 
@@ -112,7 +112,7 @@ public class Cart {
             throw new Exception("Cart::changeItemQuantityInCart: the store " + storeID + " was not found!");
         }
 
-        basket.changeItemQuantity(itemID, quantity, coupons);
+        basket.changeItemQuantity(itemID, quantity, getCouponStrings());
         Log.log.info("The quantity of item " + itemID + "was changed");
     }
 
@@ -166,7 +166,7 @@ public class Cart {
         }
 
         for(Basket basket : baskets){
-            basket.saveItems(coupons, userID, purchaseInfo.getAge());
+            basket.saveItems(getCouponStrings(), userID, purchaseInfo.getAge());
         }
 
         Log.log.info("Items of cart " + userID + " are saved");
@@ -213,7 +213,7 @@ public class Cart {
         try{
             baskets.clear();
             coupons.clear();
-            dao.empty(baskets);
+            dao.empty(baskets, coupons);
         }
         catch(Exception e){
             System.out.println("Cart::empty: " + e.getMessage());
@@ -249,33 +249,34 @@ public class Cart {
             throw new Exception("Cart::addCoupon: given coupon is invalid!");
         }
 
-        coupons.add(coupon);
+        Coupon _coupon = new Coupon(coupon);
+        coupons.add(_coupon);
+        dao.addCoupon(this, _coupon);
 
         updateBasketsWithCoupons();
     }
 
-    public void removeCoupon(String coupon) throws Exception {
-        if(coupon.isBlank()){
+    public void removeCoupon(String _coupon) throws Exception {
+        if(_coupon.isBlank()){
             throw new Exception("Cart::removeCoupon: given coupon is invalid!");
         }
 
-        if(!coupons.contains(coupon)){
+        Coupon coupon = getCouponWithString(_coupon);
+
+        if(coupon == null){
             throw new Exception("Cart::removeCoupon: given coupon is not in cart!");
         }
 
         coupons.remove(coupon);
 
-        DBConnector<Cart> cartConnector =
-                new DBConnector<>(Cart.class, Market.getConfigurations_static());
-
-        cartConnector.saveState(this);
+        dao.removeCoupon(coupon);
 
         updateBasketsWithCoupons();
     }
 
     private void updateBasketsWithCoupons() throws Exception {
         for(Basket basket : baskets){
-            basket.updateBasketWithCoupons(coupons);
+            basket.updateBasketWithCoupons(getCouponStrings());
         }
     }
 
@@ -285,14 +286,6 @@ public class Cart {
 
     public void setUserID(int userID) {
         this.userID = userID;
-    }
-
-    public List<String> getCoupons() {
-        return coupons;
-    }
-
-    public void setCoupons(List<String> coupons) {
-        this.coupons = coupons;
     }
 
     public Basket baskets_getBasketByStoreId(int storeId){
@@ -313,12 +306,37 @@ public class Cart {
         this.baskets = baskets;
     }
 
+    public void setCoupons(List<Coupon> coupons) {
+        this.coupons = coupons;
+    }
+
+    public List<String> getCouponStrings(){
+        List<String> list = new ArrayList<>();
+
+        for(Coupon coupon : coupons){
+            list.add(coupon.getCouponString());
+        }
+
+        return list;
+    }
+
+    private Coupon getCouponWithString(String _coupon){
+        for(Coupon coupon : coupons){
+            if(coupon.getCouponString().equals(_coupon)){
+                return coupon;
+            }
+        }
+
+        return null;
+    }
+
     @Override
     public String toString() {
         return "Cart{" +
                 "userID=" + userID +
                 ", baskets=" + baskets +
                 ", coupons=" + coupons +
+                ", dao=" + dao +
                 '}';
     }
 }

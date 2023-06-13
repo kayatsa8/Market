@@ -3,6 +3,7 @@ package DataAccessLayer;
 import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.CartAndBasket.Coupon;
 import BusinessLayer.Market;
 import DataAccessLayer.Hibernate.DBConnector;
 
@@ -48,12 +49,34 @@ public class CartDAO {
         basketConnector.delete(basket.getId());
     }
 
-    public void empty(List<Basket> baskets) throws Exception {
+    public void empty(List<Basket> baskets, List<Coupon> coupons) throws Exception {
         for(Basket basket : baskets){
             removeBasket(basket);
         }
 
-        //TODO: after add coupon is persisted, delete coupons
+
+        DBConnector<Coupon> couponConnector =
+                new DBConnector<>(Coupon.class, Market.getInstance().getConfigurations());
+
+        for(Coupon coupon : coupons){
+            couponConnector.delete(coupon.getId());
+        }
+    }
+
+    public void addCoupon(Cart cart, Coupon coupon) throws Exception {
+        DBConnector<Coupon> couponConnector =
+                new DBConnector<>(Coupon.class, Market.getInstance().getConfigurations());
+        couponConnector.insert(coupon);
+
+        DBConnector<Cart> cartConnector =
+                new DBConnector<>(Cart.class, Market.getInstance().getConfigurations());
+        cartConnector.saveState(cart);
+    }
+
+    public void removeCoupon(Coupon coupon) throws Exception {
+        DBConnector<Coupon> couponConnector =
+                new DBConnector<>(Coupon.class, Market.getInstance().getConfigurations());
+        couponConnector.delete(coupon.getId());
     }
 
 }

@@ -22,12 +22,11 @@ public class DBTester {
 
 //        basketTest(conf);
 
-        cartTest(conf);
+//        cartTest(conf);
 
 
 
-
-//        emptyTables(conf);
+        emptyTables(conf);
     }
 
 
@@ -134,15 +133,20 @@ public class DBTester {
             store2.addItemAmount(25, 100);
 
 
-
+            DBConnector<Cart> cartConnector = new DBConnector<>(Cart.class, conf);
 
             Cart cart = new Cart(36);
+            cartConnector.insert(cart);
 
             cart.addItem(store1, store1.getItem(17), 1);
             cart.addItem(store2, store2.getItem(25), 17);
             cart.removeBasket(store1.getStoreID());
+            cart.addCoupon("coupon1");
+            cart.addCoupon("coupon2");
+            cart.removeCoupon("coupon1");
 
-            System.out.println(cart);
+
+            System.out.println(cartConnector.getById(cart.getUserID()));
         }
         catch(Exception e){
             System.out.println(e.getMessage());
@@ -157,6 +161,7 @@ public class DBTester {
         connectors.add(new DBConnector<>(Basket.ItemWrapper.class, conf));
         connectors.add(new DBConnector<>(Basket.class, conf));
         connectors.add(new DBConnector<>(Cart.class, conf));
+        connectors.add(new DBConnector<>(Coupon.class, conf));
 
         for(DBConnector<?> connector : connectors){
             connector.emptyTable();
