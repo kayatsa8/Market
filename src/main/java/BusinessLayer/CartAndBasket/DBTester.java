@@ -95,6 +95,7 @@ public class DBTester {
             basket.addItem(store.getItem(17), 3, new ArrayList<>());
             basket.addItem(store.getItem(18), 3, new ArrayList<>());
             basket.changeItemQuantity(17, 44, new ArrayList<>());
+            basket.removeItem(17, new ArrayList<>());
         }
         catch(Exception e){
             System.err.println(e.getCause());

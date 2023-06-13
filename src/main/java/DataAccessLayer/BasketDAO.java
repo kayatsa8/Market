@@ -34,5 +34,13 @@ public class BasketDAO {
         infoConnector.saveState(info);
     }
 
+    public void removeItem(Basket.ItemWrapper wrapper) throws Exception {
+        DBConnector<CartItemInfo> infoConnector =
+                new DBConnector<>(CartItemInfo.class, Market.getInstance().getConfigurations());
+        infoConnector.delete(wrapper.getInfo().getId());
+        DBConnector<Basket.ItemWrapper> wrapperConnector =
+                new DBConnector<>(Basket.ItemWrapper.class, Market.getInstance().getConfigurations());
+        wrapperConnector.delete(wrapper.getId());
+    }
 
 }

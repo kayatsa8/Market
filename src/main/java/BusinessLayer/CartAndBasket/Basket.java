@@ -45,6 +45,9 @@ public class Basket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Transient
+    private BasketDAO dao;
+
     //methods
     public Basket(Store _store, int _userId){
         store = _store;
@@ -52,13 +55,14 @@ public class Basket {
         itemsSaved = false;
 //        savedItems = new ArrayList<>();
         userId = _userId;
+        dao = new BasketDAO();
 
         //jess
         storeId = store.getStoreID();
     }
 
     public Basket(){
-
+        dao = new BasketDAO();
     }
 
     public void addItem(CatalogItem item, int quantity, List<String> coupons) throws Exception {
@@ -76,7 +80,6 @@ public class Basket {
             items.add(wrapper);
         }
 
-        BasketDAO dao = new BasketDAO();
         dao.addItem(this, wrapper, wrapperPersisted);
 
         releaseItems();
@@ -95,7 +98,6 @@ public class Basket {
         ItemWrapper wrapper = searchInItemsById(itemID);
         wrapper.info.setAmount(quantity);
 
-        BasketDAO dao = new BasketDAO();
         dao.changeItemQuantity(wrapper.info);
 
         releaseItems();
@@ -117,6 +119,8 @@ public class Basket {
         }
 
         items.remove(wrapper);
+
+        dao.removeItem(wrapper);
 
         releaseItems();
 
