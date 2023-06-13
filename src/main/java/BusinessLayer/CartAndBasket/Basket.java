@@ -3,6 +3,7 @@ package BusinessLayer.CartAndBasket;
 import BusinessLayer.Market;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
+import DataAccessLayer.BasketDAO;
 import DataAccessLayer.Hibernate.DBConnector;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -63,26 +64,20 @@ public class Basket {
     public void addItem(CatalogItem item, int quantity, List<String> coupons) throws Exception {
         validateAddItem(item, quantity);
         ItemWrapper wrapper = searchInItemsById(item.getItemID());
+        boolean wrapperPersisted = false;
 
         if (wrapper != null){
             int prevAmount= wrapper.info.getAmount();
             wrapper.info.setAmount(quantity + prevAmount);
-
-            DBConnector<CartItemInfo> infoConnector =
-                    new DBConnector<>(CartItemInfo.class, Market.getInstance().getConfigurations());
-            infoConnector.saveState(wrapper.info);
+            wrapperPersisted = true;
         }
         else{
             wrapper = new ItemWrapper(item, quantity);
             items.add(wrapper);
-
-            DBConnector<ItemWrapper> wrapperConnector =
-                    new DBConnector<>(ItemWrapper.class, Market.getInstance().getConfigurations());
-            wrapperConnector.insert(wrapper);
         }
 
-        DBConnector<Basket> basketConnector = new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
-        basketConnector.saveState(this);
+        BasketDAO dao = new BasketDAO();
+        dao.addItem(this, wrapper, wrapperPersisted);
 
         releaseItems();
 
@@ -100,8 +95,8 @@ public class Basket {
         ItemWrapper wrapper = searchInItemsById(itemID);
         wrapper.info.setAmount(quantity);
 
-        DBConnector<CartItemInfo> infoConnector = new DBConnector<>(CartItemInfo.class, Market.getInstance().getConfigurations());
-        infoConnector.saveState(wrapper.info);
+        BasketDAO dao = new BasketDAO();
+        dao.changeItemQuantity(wrapper.info);
 
         releaseItems();
 
