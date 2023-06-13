@@ -49,4 +49,16 @@ public class BasketDAO {
         basketConnector.saveState(basket);
     }
 
+    public void releaseItems(Basket basket) throws Exception {
+        DBConnector<Basket> basketConnector =
+                new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
+        basketConnector.saveState(basket);
+    }
+
+    public void updateBasketByCartItemInfoList(CartItemInfo info) throws Exception {
+        DBConnector<CartItemInfo> infoConnector =
+                new DBConnector<>(CartItemInfo.class, Market.getInstance().getConfigurations());
+        infoConnector.saveState(info);
+    }
+
 }

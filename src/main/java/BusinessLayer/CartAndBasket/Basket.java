@@ -264,6 +264,7 @@ public class Basket {
             itemsSaved = false;
             store.reverseSavedItems(savedItemsInfos);
 
+            dao.releaseItems(this);
 //            savedItems.clear();
 
 //            savedItems = null;
@@ -294,7 +295,8 @@ public class Basket {
     private void updateBasketByCartItemInfoList(List<CartItemInfo> updatedBasketItems) throws Exception {
 
         for(CartItemInfo info : updatedBasketItems){
-            searchInItemsById(info.getItemID()).info = info;
+            searchInItemsById(info.getItemID()).info.steal(info);
+            dao.updateBasketByCartItemInfoList(searchInItemsById(info.getItemID()).info);
         }
 
     }

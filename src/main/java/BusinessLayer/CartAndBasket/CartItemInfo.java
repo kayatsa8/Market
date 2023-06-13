@@ -97,6 +97,16 @@ public class CartItemInfo {
         this.id = id;
     }
 
+    public void steal(CartItemInfo other){
+        itemID = other.itemID;
+        amount = other.amount;
+        percent = other.percent;
+        originalPrice = other.originalPrice;
+        category = other.category;
+        itemName = other.itemName;
+        weight = other.weight;
+    }
+
     @Override
     public String toString() {
         return "CartItemInfo{" +
