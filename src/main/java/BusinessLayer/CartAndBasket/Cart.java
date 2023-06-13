@@ -8,6 +8,7 @@ import BusinessLayer.Log;
 import BusinessLayer.Market;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
+import DataAccessLayer.CartDAO;
 import DataAccessLayer.Hibernate.DBConnector;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -37,6 +38,9 @@ public class Cart {
     @Column(name="coupon")
     private List<String> coupons;
 
+    @Transient
+    private CartDAO dao;
+
 
     //methods
     /**
@@ -47,11 +51,12 @@ public class Cart {
         userID = _userID;
         baskets = new ArrayList<>();
         coupons = new ArrayList<>();
+        dao = new CartDAO();
         Log.log.info("A new cart was created for user " + userID);
     }
 
     public Cart(){
-
+        dao = new CartDAO();
     }
 
     public void addItem(Store store, CatalogItem item, int quantity) throws Exception {
@@ -60,10 +65,7 @@ public class Cart {
             b = new Basket(store, userID);
             baskets.add(b);
 
-            DBConnector<Basket> basketConnector =
-                    new DBConnector<>(Basket.class, Market.getConfigurations_static());
-
-            basketConnector.insert(b);
+            dao.addItem(this, b);
         }
 
         b.addItem(item, quantity, coupons);
@@ -323,5 +325,14 @@ public class Cart {
 
     public void setBaskets(List<Basket> baskets) {
         this.baskets = baskets;
+    }
+
+    @Override
+    public String toString() {
+        return "Cart{" +
+                "userID=" + userID +
+                ", baskets=" + baskets +
+                ", coupons=" + coupons +
+                '}';
     }
 }

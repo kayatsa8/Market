@@ -7,6 +7,7 @@ import DataAccessLayer.Hibernate.ConnectorConfigurations;
 import DataAccessLayer.Hibernate.DBConnector;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class DBTester {
 
@@ -19,7 +20,14 @@ public class DBTester {
 
 //        wrapperTest(conf);
 
-        basketTest(conf);
+//        basketTest(conf);
+
+        cartTest(conf);
+
+
+
+
+//        emptyTables(conf);
     }
 
 
@@ -108,6 +116,50 @@ public class DBTester {
         }
 
         System.out.println(basketConnector.getAll());
+    }
+
+    public static void cartTest(ConnectorConfigurations conf){
+        try{
+            Market.getInstance().setConfigurations(conf);
+
+            Store store1 = new Store(1, 11, "store1");
+            Store store2 = new Store(2, 22, "store2");
+
+            store1.addCatalogItem(17, "item1", 53.22,
+                    "category1", 82);
+            store1.addItemAmount(17, 33);
+
+            store2.addCatalogItem(25, "item2", 43.69,
+                    "category2", 23);
+            store2.addItemAmount(25, 100);
+
+
+
+
+            Cart cart = new Cart(36);
+
+            cart.addItem(store1, store1.getItem(17), 1);
+            cart.addItem(store2, store2.getItem(25), 17);
+
+            System.out.println(cart);
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    public static void emptyTables(ConnectorConfigurations conf){
+        List<DBConnector<?>> connectors = new ArrayList<>();
+
+        connectors.add(new DBConnector<>(CartItemInfo.class, conf));
+        connectors.add(new DBConnector<>(Basket.ItemWrapper.class, conf));
+        connectors.add(new DBConnector<>(Basket.class, conf));
+        connectors.add(new DBConnector<>(Cart.class, conf));
+
+        for(DBConnector<?> connector : connectors){
+            connector.emptyTable();
+        }
     }
 
 }

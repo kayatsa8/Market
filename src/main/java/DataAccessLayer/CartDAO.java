@@ -2,6 +2,8 @@ package DataAccessLayer;
 
 import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.Cart;
+import BusinessLayer.Market;
+import DataAccessLayer.Hibernate.DBConnector;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -9,43 +11,19 @@ import java.util.concurrent.ConcurrentHashMap;
  * the class will be changed in next versions
  */
 public class CartDAO {
-    private static ConcurrentHashMap<Integer, Cart> cartMap; //<userID, Cart>
 
     public CartDAO(){
-        cartMap = new ConcurrentHashMap<>();
-    }
-
-    public ConcurrentHashMap<Integer, Cart> getAllCarts(){
-        return cartMap;
-    }
-
-    public void addCart(int userID, Cart cart){
-        cartMap.putIfAbsent(userID, cart);
-    }
-
-    public void removeCart(int userID){
-        cartMap.remove(userID);
-    }
-
-    public void addBasketToCart(int storeID){
-        /*
-            The method assumes the cart in user is the same cart in here,
-            and therefore a Basket shouldn't be added to the cart (since it already happened
-            in BasketsRepository.
-            Instead, the DAO will search for the Basket inside the cart and put it to the DB
-         */
-    }
-
-    public void addItemToCart(int storeID, Basket.ItemWrapper item){
 
     }
 
-    public void removeItemFromCart(int storeID, int itemID){
+    public void addItem(Cart cart, Basket basket) throws Exception {
+        DBConnector<Basket> basketConnector =
+                new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
+        basketConnector.insert(basket);
 
-    }
-
-    public void changeItemQuantity(int storeID, int itemID, int quantity){
-
+        DBConnector<Cart> cartConnector =
+                new DBConnector<>(Cart.class, Market.getInstance().getConfigurations());
+        cartConnector.saveState(cart);
     }
 
 
