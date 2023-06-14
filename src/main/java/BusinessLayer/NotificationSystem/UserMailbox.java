@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 @Entity
 public class UserMailbox extends Mailbox {
-    @Transient
+    @OneToOne
+    @JoinColumn(name = "userId")
     private User owner;
     @Transient
     private List<NotificationObserver> listeners;

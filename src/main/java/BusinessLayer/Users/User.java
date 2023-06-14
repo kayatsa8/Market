@@ -22,7 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-@MappedSuperclass
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+@Table(name = "users")
 public abstract class User {
 
     @Id
@@ -34,7 +36,7 @@ public abstract class User {
     @Transient
     protected ReceiptHandler receiptHandler;
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user")
+    @JoinColumn(name = "mailboxId")
     protected UserMailbox mailbox;
     public User() throws Exception {
         this.receiptHandler = new ReceiptHandler();
