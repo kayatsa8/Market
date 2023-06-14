@@ -1174,7 +1174,6 @@ public class Store {
     }
 
     public void sendMsgToListAndUnavailable(List<Integer> sendToList, String s) {
-        System.out.println("GG");
         mailbox.sendMessageToList(sendToList, s);
         mailbox.setMailboxAsUnavailable();
     }
