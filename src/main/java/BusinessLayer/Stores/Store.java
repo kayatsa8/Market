@@ -745,7 +745,7 @@ public class Store {
                 throw new Exception("ERROR: The item " + itemID + " was not found!");
             }
 
-            savedItemsAmounts.add(new SavedItemAmount(itemID, itemAmountPair.getValue() - cartItemInfo.getAmount()));
+            itemAmountPair.setValue(itemAmountPair.getValue() - cartItemInfo.getAmount());
         }
         Map<Integer, Map<CatalogItem, CartItemInfo>> receiptInfo = new HashMap<>();
         receiptInfo.put(userID, receiptItems);
@@ -882,7 +882,7 @@ public class Store {
         int itemNewSavedAmount = Pair.searchPair(savedItemsAmounts, itemID).getKey() + amountToSave;
         if ((itemNewAmount >= 0) && (itemNewSavedAmount >= 0)) {
             getItem(itemID).setAmount(itemNewAmount);
-            savedItemsAmounts.add(new SavedItemAmount(itemID, itemNewSavedAmount));
+            Pair.searchPair(savedItemsAmounts, itemID).setValue(itemNewSavedAmount);
         }
     }
 
@@ -969,8 +969,8 @@ public class Store {
     }
 
     public void addSavedItemAmount(int itemID, int amountToRemove) {
-        int currentAmountSaved = Pair.searchPair(savedItemsAmounts, itemID).getKey();
-        savedItemsAmounts.add(new SavedItemAmount(itemID, currentAmountSaved + amountToRemove));
+        int currentAmountSaved = Pair.searchPair(savedItemsAmounts, itemID).getValue();
+        Pair.searchPair(savedItemsAmounts, itemID).setValue(currentAmountSaved + amountToRemove);
     }
 
     private void removeBid(int bidID) {
