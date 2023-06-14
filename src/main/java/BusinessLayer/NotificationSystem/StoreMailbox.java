@@ -1,16 +1,22 @@
 package BusinessLayer.NotificationSystem;
 
+import BusinessLayer.Market;
 import BusinessLayer.NotificationSystem.Repositories.ChatRepository;
 import BusinessLayer.StorePermissions.StoreEmployees;
 import BusinessLayer.Stores.Store;
+import DataAccessLayer.NotificationsSystemDAOs.MailboxDAO;
 
+import javax.persistence.Entity;
+import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Entity
 public class StoreMailbox extends Mailbox{
 
-    private final Store owner;
+    @Transient
+    private Store owner;
 
     public StoreMailbox(Store _owner, NotificationHub _hub){
         owner = _owner;
@@ -19,9 +25,23 @@ public class StoreMailbox extends Mailbox{
         chats = new ArrayList<>();
         hub = _hub;
 
+        mailboxDAO = new MailboxDAO();
+
 //        notReadMessages = new NotReadMessagesRepository();
 //        readMessages = new ReadMessagesRepository();
 //        sentMessages = new SentMessagesRepository();
+    }
+
+    public StoreMailbox(){
+        mailboxDAO = new MailboxDAO();
+
+        try{
+            hub = Market.getInstance().getNotificationHub();
+        }
+        catch(Exception e){
+            System.err.println("Error in StoreMailbox empty constructor");
+            System.err.println(e.getMessage());
+        }
     }
 
     @Override
@@ -72,5 +92,13 @@ public class StoreMailbox extends Mailbox{
         for(Integer id : staffIDs){
             sendMessage(id, content);
         }
+    }
+
+    public Store getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Store owner) {
+        this.owner = owner;
     }
 }
