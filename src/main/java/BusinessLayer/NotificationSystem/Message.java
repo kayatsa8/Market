@@ -38,6 +38,13 @@ public class Message {
 
     }
 
+    public Message(Message other){
+        senderID = other.senderID;
+        receiverID = other.receiverID;
+        content = other.content;
+        sendingTime = other.sendingTime;
+    }
+
     public int getSenderID(){
         return senderID;
     }

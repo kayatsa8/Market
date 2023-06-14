@@ -1324,11 +1324,11 @@ public class Store {
         return mailbox.getChatsAsMap();
     }
 
-    public void setMailboxAsUnavailable() {
+    public void setMailboxAsUnavailable() throws Exception {
         mailbox.setMailboxAsUnavailable();
     }
 
-    public void setMailboxAsAvailable() {
+    public void setMailboxAsAvailable() throws Exception {
         mailbox.setMailboxAsAvailable();
     }
 

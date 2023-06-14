@@ -1,10 +1,8 @@
 package BusinessLayer.CartAndBasket;
 
-import BusinessLayer.Market;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
-import DataAccessLayer.BasketDAO;
-import DataAccessLayer.Hibernate.DBConnector;
+import DataAccessLayer.CartAndBasketDAOs.BasketDAO;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 

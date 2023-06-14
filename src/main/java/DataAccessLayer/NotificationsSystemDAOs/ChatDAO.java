@@ -1,4 +1,4 @@
-package DataAccessLayer;
+package DataAccessLayer.NotificationsSystemDAOs;
 
 import BusinessLayer.Market;
 import BusinessLayer.NotificationSystem.Chat;

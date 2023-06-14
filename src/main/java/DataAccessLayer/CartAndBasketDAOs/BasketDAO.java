@@ -1,4 +1,4 @@
-package DataAccessLayer;
+package DataAccessLayer.CartAndBasketDAOs;
 
 import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.CartItemInfo;

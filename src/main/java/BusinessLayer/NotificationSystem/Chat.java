@@ -1,14 +1,12 @@
 package BusinessLayer.NotificationSystem;
 
-import BusinessLayer.NotificationSystem.Repositories.MessageRepository;
-import DataAccessLayer.ChatDAO;
+import DataAccessLayer.NotificationsSystemDAOs.ChatDAO;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedDeque;
 
 @Entity
 public class Chat {
