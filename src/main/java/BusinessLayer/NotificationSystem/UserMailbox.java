@@ -1,9 +1,9 @@
 package BusinessLayer.NotificationSystem;
 
+import BusinessLayer.Market;
 import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
-import BusinessLayer.NotificationSystem.Repositories.ChatRepository;
-import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.User;
+import DataAccessLayer.NotificationsSystemDAOs.MailboxDAO;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -23,6 +23,8 @@ public class UserMailbox extends Mailbox {
         hub = _hub;
         listeners = new ArrayList<>();
 
+        mailboxDAO = new MailboxDAO();
+
 
 //        notReadMessages = new NotReadMessagesRepository();
 //        readMessages = new ReadMessagesRepository();
@@ -30,7 +32,15 @@ public class UserMailbox extends Mailbox {
     }
 
     public UserMailbox() {
+        mailboxDAO = new MailboxDAO();
 
+        try{
+            hub = Market.getInstance().getNotificationHub();
+        }
+        catch(Exception e){
+            System.err.println("Error in UserMailbox empty constructor");
+            System.err.println(e.getMessage());
+        }
     }
 
     public void listen(NotificationObserver _listener){
@@ -44,4 +54,11 @@ public class UserMailbox extends Mailbox {
         }
     }
 
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
 }
