@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.SocketException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Map;
@@ -35,7 +36,10 @@ public abstract class URLRequest {
 
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             connection.setRequestProperty("Content-Length", String.valueOf(query.length()));
-            connection.setConnectTimeout(10000);
+
+            connection.setConnectTimeout(7000);
+            connection.setReadTimeout(7000);
+
             DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
             outputStream.writeBytes(query.toString());
             outputStream.flush();
@@ -60,7 +64,10 @@ public abstract class URLRequest {
             connection.disconnect();
 
             return responseMessage;
-        } catch (IOException e1) {
+        } catch (java.net.SocketTimeoutException e) {
+            throw new SocketException("External System is not responding");
+        }
+        catch (Exception e1) {
             return "-1";
         }
     }
