@@ -26,12 +26,15 @@ import BusinessLayer.Stores.Discounts.DiscountScopes.StoreDiscount;
 import BusinessLayer.Stores.Discounts.DiscountsTypes.Conditional;
 import BusinessLayer.Stores.Discounts.DiscountsTypes.Hidden;
 import BusinessLayer.Stores.Discounts.DiscountsTypes.Visible;
+import BusinessLayer.Stores.Pairs.SavedItemAmount;
 import BusinessLayer.Stores.Policies.DiscountPolicy;
 import BusinessLayer.Stores.Policies.PurchasePolicy;
 import DataAccessLayer.StoreDAO;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.util.*;
@@ -58,27 +61,31 @@ public class Store {
     @Enumerated(EnumType.STRING)
     private StoreStatus storeStatus;
     @OneToMany(mappedBy = "store")
-    private final Set<CatalogItem> items;
+    private Set<CatalogItem> items;
     @OneToMany(mappedBy = "store")
     private Set<StoreOwner> storeOwners;
     @OneToMany(mappedBy = "store")
     private Set<StoreManager> storeManagers;
     @Transient
-    private final Map<Integer, Discount> discounts;
+    private Map<Integer, Discount> discounts;
     @Transient
-    private final Map<Integer, PurchasePolicy> purchasePolicies;
+    private Map<Integer, PurchasePolicy> purchasePolicies;
     @Transient
-    private final Map<Integer, DiscountPolicy> discountPolicies;
+    private Map<Integer, DiscountPolicy> discountPolicies;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @JoinColumn(name = "storeId")
+    private List<SavedItemAmount> savedItemsAmounts;
+
     @Transient
-    private final Map<Integer, Integer> savedItemsAmounts;
+    private Map<Integer, Bid> bids;
     @Transient
-    private final Map<Integer, Bid> bids;
+    private Map<Integer, Auction> auctions;
     @Transient
-    private final Map<Integer, Auction> auctions;
+    private Map<Integer, Lottery> lotteries;
     @Transient
-    private final Map<Integer, Lottery> lotteries;
-    @Transient
-    private final ReceiptHandler receiptHandler;
+    private ReceiptHandler receiptHandler;
     @Transient
     private StoreMailbox mailbox;
     @Transient
