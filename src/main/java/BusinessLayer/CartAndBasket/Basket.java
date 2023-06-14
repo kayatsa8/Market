@@ -17,13 +17,10 @@ import java.util.List;
 @Entity
 @Table(name = "basket")
 public class Basket {
-    //fields
-//    @ManyToOne
-//    @JoinColumn(name = "storeId")
-    @Transient
+//    fields
+    @ManyToOne
+    @JoinColumn(name = "storeId")
     private Store store;
-    //jess
-    private int storeId;
 
     @OneToMany(cascade = CascadeType.ALL)
     @LazyCollection(LazyCollectionOption.FALSE)
@@ -54,9 +51,6 @@ public class Basket {
 //        savedItems = new ArrayList<>();
         userId = _userId;
         dao = new BasketDAO();
-
-        //jess
-        storeId = store.getStoreID();
     }
 
     public Basket(){
@@ -355,20 +349,10 @@ public class Basket {
         this.id = id;
     }
 
-    //jess
-    public int getStoreId() {
-        return storeId;
-    }
-    //jess
-    public void setStoreId(int storeId) {
-        this.storeId = storeId;
-    }
-
     @Override
     public String toString() {
         return "Basket{" +
                 "store=" + store +
-                ", storeId=" + storeId +
                 ", items=" + items +
                 ", itemsSaved=" + itemsSaved +
 //                ", savedItems=" + savedItems +
@@ -396,10 +380,9 @@ public class Basket {
 
 //        @ManyToOne
 //        @JoinColumn(name = "itemId")
-        @Transient
+        @ManyToOne
+        @JoinColumn(name = "itemId")
         public CatalogItem item;
-        //jess
-        private int itemId;
 
         @OneToOne(cascade = CascadeType.ALL)
         @JoinColumn(name = "infoId")
@@ -408,9 +391,6 @@ public class Basket {
         public ItemWrapper(CatalogItem _item, int quantity){
             item = _item;
             info = new CartItemInfo(item.getItemID(), quantity, item.getPrice(), _item.getCategory(), _item.getItemName(), _item.getWeight());
-
-            //jess
-            itemId = item.getItemID();
         }
 
         public ItemWrapper() {
@@ -440,21 +420,11 @@ public class Basket {
             this.info = info;
         }
 
-        //jess
-        public int getItemId() {
-            return itemId;
-        }
-        //jess
-        public void setItemId(int itemId) {
-            this.itemId = itemId;
-        }
-
         @Override
         public String toString() {
             return "ItemWrapper{" +
                     "id=" + id +
                     ", item=" + item +
-                    ", itemId=" + itemId +
                     ", info=" + info +
                     '}';
         }
