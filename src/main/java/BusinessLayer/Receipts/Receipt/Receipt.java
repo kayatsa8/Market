@@ -7,13 +7,15 @@ import java.util.*;
 
 public class Receipt {
 
-    private ReceiptItemCollection collection;
+    //each receipt composed of Id of user/store to the items bought.
+    //for example: For user receipt the key is all the storeIds he bought from and the value are the items
+    private HashMap<Integer,ArrayList<ReceiptItem>> items;
     private int receiptId;
     private int ownerId;
     private Date date;
 
     public Receipt(int id, int ownerId, Calendar instance){
-        collection = new ReceiptItemCollection();
+        items = new HashMap<>();
         this.receiptId = id;
         this.ownerId = ownerId;
         this.date = instance.getTime();
@@ -23,30 +25,54 @@ public class Receipt {
         return receiptId;
     }
 
-    public void addItems(int id, List<ReceiptItem> items){
-        for(ReceiptItem item: items){
-            collection.add(id, item);
+    public void addItems(int id, List<ReceiptItem> _items){
+        for(ReceiptItem item: _items){
+            items.putIfAbsent(id, new ArrayList<>());
+            items.get(id).add(item);
         }
     }
 
     public boolean itemExists(int userStoreId, int id){
-        return collection.exists(userStoreId, id);
+        for( ReceiptItem receiptItem : items.get(userStoreId)){
+            if(receiptItem.getId() == id){
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean deleteItem(int userStoreId, int id){
-        return collection.delete(userStoreId, id);
+        for( ReceiptItem receiptItem : items.get(userStoreId)){
+            if(receiptItem.getId() == id){
+                items.get(userStoreId).remove(receiptItem);
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean update(int userStoreId, int id, ReceiptItem item) {
-        return collection.update(userStoreId, id, item);
+        for( ReceiptItem receiptItem : items.get(userStoreId)){
+            if(receiptItem.getId() == id){
+                items.get(userStoreId).remove(receiptItem);
+                items.get(userStoreId).add(item);
+                return true;
+            }
+        }
+        return false;
     }
 
     public ReceiptItem getItem(int userStoreId, int id){
-        return collection.get(userStoreId, id);
+        for( ReceiptItem receiptItem : items.get(userStoreId)){
+            if(receiptItem.getId() == id){
+                return receiptItem;
+            }
+        }
+        return null;
     }
 
     public boolean hasKeyId(int ownerId) {
-        return collection.hasKeyId(ownerId);
+        return items.containsKey(ownerId);
     }
 
     public Date getDate() {
@@ -58,6 +84,6 @@ public class Receipt {
     }
 
     public Map<Integer, ArrayList<ReceiptItem>> getAllItems(){
-        return collection.getAllItems();
+        return items;
     }
 }
