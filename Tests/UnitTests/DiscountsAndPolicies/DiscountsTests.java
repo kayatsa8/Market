@@ -67,7 +67,8 @@ public class DiscountsTests {
         try {
             Calendar date = Calendar.getInstance();
             date.add(5, 1);
-            int vcdID = market.addVisibleCategoryDiscount(store1.getStoreID(), "Books", 0.2, date);
+            int vcdID = store1.addVisibleCategoryDiscount( "Books", 0.2, date);
+            //int vcdID = market.addVisibleCategoryDiscount(store1.getStoreID(), "Books", 0.2, date);
             assertTrue(vcdID == 0);
             assertTrue(store1.getStoreVisibleDiscounts().get(vcdID).isDiscountApplyForItem(item1.getItemID(), item1.getCategory()));
             assertFalse(store1.getStoreDiscounts().get(vcdID).isDiscountApplyForItem(item2.getItemID(), item2.getCategory()));
@@ -76,6 +77,7 @@ public class DiscountsTests {
         }
     }
 
+    //integration test
     @Test
     public void addPurchasePolicy(){
         try {
@@ -96,6 +98,7 @@ public class DiscountsTests {
             fail(e.getMessage());
         }
     }
+
 
     public PurchaseInfo getPurchaseInfo(){
         return new PurchaseInfo("123", 1, 2222, "asd", 1222, 1, LocalDate.of(2000, 1, 1));
