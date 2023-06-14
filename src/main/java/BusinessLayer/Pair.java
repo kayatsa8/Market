@@ -1,5 +1,7 @@
 package BusinessLayer;
 
+import java.util.List;
+
 /**
  * this interface is supposed to replace the use of Map,
  * providing the same key-value services yet meant to be
@@ -8,12 +10,25 @@ package BusinessLayer;
  */
 public interface Pair<Key, Value> {
 
-    Key getItemId();
+    Key getKey();
 
-    Value getAmount();
+    Value getValue();
 
-    void setItemId(Key k);
+    void setKey(Key k);
 
-    void setAmount(Value v);
+    void setValue(Value v);
+
+    static <Key, Value> Pair<Key, Value> searchPair(List<? extends Pair<Key, Value>> list, Key toSearch){
+        for(Pair<Key, Value> pair : list){
+            if(pair.getKey() == toSearch){
+                return pair;
+            }
+            if(pair.getKey().equals(toSearch)){
+                return pair;
+            }
+        }
+
+        return null;
+    }
 
 }

@@ -7,6 +7,8 @@ import BusinessLayer.Stores.Store;
 import DataAccessLayer.NotificationsSystemDAOs.MailboxDAO;
 
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +17,8 @@ import java.util.stream.Collectors;
 @Entity
 public class StoreMailbox extends Mailbox{
 
-    @Transient
+    @OneToOne
+    @JoinColumn(name = "storeId")
     private Store owner;
 
     public StoreMailbox(Store _owner, NotificationHub _hub){

@@ -26,22 +26,22 @@ public class SavedItemAmount implements Pair<Integer, Integer> {
     }
 
     @Override
-    public Integer getItemId(){
+    public Integer getKey(){
         return itemId;
     }
 
     @Override
-    public Integer getAmount(){
+    public Integer getValue(){
         return amount;
     }
 
     @Override
-    public void setItemId(Integer k) {
+    public void setKey(Integer k) {
         itemId = k;
     }
 
     @Override
-    public void setAmount(Integer v) {
+    public void setValue(Integer v) {
         amount = v;
     }
 
@@ -53,5 +53,19 @@ public class SavedItemAmount implements Pair<Integer, Integer> {
         id = _id;
     }
 
+    public int getItemId() {
+        return itemId;
+    }
 
+    public void setItemId(int itemId) {
+        this.itemId = itemId;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
 }
