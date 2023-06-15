@@ -1,5 +1,6 @@
 package BusinessLayer.Receipts.Receipt;
 
+import BusinessLayer.Pair;
 import BusinessLayer.Receipts.Pairs.ItemsPair;
 import BusinessLayer.Receipts.ReceiptItem.ReceiptItem;
 import BusinessLayer.Receipts.ReceiptItem.ReceiptItemCollection;
@@ -12,7 +13,6 @@ public class Receipt {
     //for example: For user receipt the key is all the storeIds he bought from and the value are the items
 
     private List<ItemsPair> items;
-    private HashMap<Integer,ArrayList<ReceiptItem>> items;
     private int receiptId;
     private int ownerId;
     private Date date;
@@ -30,13 +30,25 @@ public class Receipt {
 
     public void addItems(int id, List<ReceiptItem> _items){
         for(ReceiptItem item: _items){
-            items.putIfAbsent(id, new ArrayList<>());
-            items.get(id).add(item);
+            ItemsPair pair = (ItemsPair) Pair.searchPair(items, id);
+
+            if(pair == null){
+                pair = new ItemsPair(id, new ArrayList<>());
+                items.add(pair);
+            }
+
+            pair.getReceiptItems().add(item);
         }
     }
 
     public boolean itemExists(int userStoreId, int id){
-        for( ReceiptItem receiptItem : items.get(userStoreId)){
+        ItemsPair pair = (ItemsPair) Pair.searchPair(items, userStoreId);
+
+        if(pair == null){
+            return false;
+        }
+
+        for( ReceiptItem receiptItem : pair.getValue()){
             if(receiptItem.getId() == id){
                 return true;
             }
@@ -45,9 +57,15 @@ public class Receipt {
     }
 
     public boolean deleteItem(int userStoreId, int id){
-        for( ReceiptItem receiptItem : items.get(userStoreId)){
+        ItemsPair pair = (ItemsPair) Pair.searchPair(items, userStoreId);
+
+        if(pair == null){
+            return false;
+        }
+
+        for( ReceiptItem receiptItem : pair.getValue()){
             if(receiptItem.getId() == id){
-                items.get(userStoreId).remove(receiptItem);
+                items.remove(pair);
                 return true;
             }
         }
@@ -55,10 +73,16 @@ public class Receipt {
     }
 
     public boolean update(int userStoreId, int id, ReceiptItem item) {
-        for( ReceiptItem receiptItem : items.get(userStoreId)){
+        ItemsPair pair = (ItemsPair) Pair.searchPair(items, userStoreId);
+
+        if(pair == null){
+            return false;
+        }
+
+        for( ReceiptItem receiptItem : pair.getValue()){
             if(receiptItem.getId() == id){
-                items.get(userStoreId).remove(receiptItem);
-                items.get(userStoreId).add(item);
+                pair.getValue().remove(receiptItem);
+                pair.getValue().add(item);
                 return true;
             }
         }
@@ -66,7 +90,13 @@ public class Receipt {
     }
 
     public ReceiptItem getItem(int userStoreId, int id){
-        for( ReceiptItem receiptItem : items.get(userStoreId)){
+        ItemsPair pair = (ItemsPair) Pair.searchPair(items, userStoreId);
+
+        if(pair == null){
+            return null;
+        }
+
+        for( ReceiptItem receiptItem : pair.getValue()){
             if(receiptItem.getId() == id){
                 return receiptItem;
             }
@@ -75,7 +105,7 @@ public class Receipt {
     }
 
     public boolean hasKeyId(int ownerId) {
-        return items.containsKey(ownerId);
+        return Pair.searchPair(items, ownerId) != null;
     }
 
     public Date getDate() {
@@ -87,6 +117,12 @@ public class Receipt {
     }
 
     public Map<Integer, ArrayList<ReceiptItem>> getAllItems(){
-        return items;
+        Map<Integer, ArrayList<ReceiptItem>> map = new HashMap<>();
+
+        for(ItemsPair pair : items){
+            map.put(pair.getKey(), new ArrayList<>(pair.getValue()));
+        }
+
+        return map;
     }
 }
