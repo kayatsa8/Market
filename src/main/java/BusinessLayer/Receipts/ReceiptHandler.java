@@ -7,6 +7,7 @@ import BusinessLayer.Receipts.Receipt.ReceiptCollection;
 import BusinessLayer.Receipts.ReceiptItem.ReceiptItem;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
+import DataAccessLayer.ReceiptsDAOs.ReceiptHandlerDAO;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -27,9 +28,13 @@ public class ReceiptHandler {
     @JoinColumn(name = "ReceiptHandlerId")
     private List<Receipt> receipts;
 
+    @Transient
+    private ReceiptHandlerDAO dao;
+
 
     public ReceiptHandler(){
         receipts = new ArrayList<>();
+        dao = new ReceiptHandlerDAO();
     }
 
     /**
@@ -48,13 +53,14 @@ public class ReceiptHandler {
      */
     public int addReceipt(int ownerId, Map<Integer,Map<CatalogItem, CartItemInfo>> storeOrUserIdToItems) throws Exception {
         Receipt newReceipt = new Receipt(ownerId, Calendar.getInstance());
+        receipts.add(newReceipt);
+        dao.addReceipt(this, newReceipt);
 
         for (Map.Entry<Integer,Map<CatalogItem, CartItemInfo>> set : storeOrUserIdToItems.entrySet()) {
             ArrayList<ReceiptItem> items = convertToReceiptItems(set.getValue());
             newReceipt.addItems(set.getKey(), items);
         }
         log.info("Created receipt successfully.");
-        receipts.add(ownerId, newReceipt);
         log.info("Added receipt successfully.");
         return newReceipt.getId();
     }
@@ -85,7 +91,12 @@ public class ReceiptHandler {
     }
 
     public Receipt getReceipt(int receiptId){
-        return receipts.get(receiptId);
+        for(Receipt receipt: receipts){
+            if(receipt.getId() == receiptId){
+                return receipt;
+            }
+        }
+        return null;
     }
 
     private ArrayList<Receipt> getByOwnerId(int ownerId) {
