@@ -16,6 +16,7 @@ public class Receipt {
     //each receipt composed of Id of user/store to the items bought.
     //for example: For user receipt the key is all the storeIds he bought from and the value are the items
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int receiptId;
     @OneToMany(cascade = CascadeType.ALL)
     @LazyCollection(LazyCollectionOption.FALSE)
@@ -24,9 +25,8 @@ public class Receipt {
     private int ownerId;
     private Date date;
 
-    public Receipt(int id, int ownerId, Calendar instance){
+    public Receipt(int ownerId, Calendar instance){
         items = new ArrayList<>();
-        this.receiptId = id;
         this.ownerId = ownerId;
         this.date = instance.getTime();
     }

@@ -7,14 +7,24 @@ import BusinessLayer.Receipts.Receipt.ReceiptCollection;
 import BusinessLayer.Receipts.ReceiptItem.ReceiptItem;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
+import javax.persistence.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
+@Entity
 public class ReceiptHandler {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
     private static final Logger log = Log.log;
-    private static AtomicInteger counterIds = new AtomicInteger(1);
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @JoinColumn(name = "ReceiptHandlerId")
     private List<Receipt> receipts;
 
 
@@ -37,7 +47,7 @@ public class ReceiptHandler {
      *
      */
     public int addReceipt(int ownerId, Map<Integer,Map<CatalogItem, CartItemInfo>> storeOrUserIdToItems){
-        Receipt newReceipt = new Receipt(counterIds.getAndIncrement(), ownerId, Calendar.getInstance());
+        Receipt newReceipt = new Receipt(ownerId, Calendar.getInstance());
 
         for (Map.Entry<Integer,Map<CatalogItem, CartItemInfo>> set : storeOrUserIdToItems.entrySet()) {
             ArrayList<ReceiptItem> items = convertToReceiptItems(set.getValue());
@@ -87,6 +97,20 @@ public class ReceiptHandler {
         return result;
     }
 
+    public int getId() {
+        return id;
+    }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public List<Receipt> getReceipts() {
+        return receipts;
+    }
+
+    public void setReceipts(List<Receipt> receipts) {
+        this.receipts = receipts;
+    }
 }
 
