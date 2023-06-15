@@ -15,11 +15,12 @@ import java.util.logging.Logger;
 public class ReceiptHandler {
     private static final Logger log = Log.log;
     private static AtomicInteger counterIds = new AtomicInteger(1);
-    private ReceiptCollection receipts;
-    public ReceiptHandler(){
-        receipts = new ReceiptCollection();
-    }
+    private List<Receipt> receipts;
 
+
+    public ReceiptHandler(){
+        receipts = new ArrayList<>();
+    }
 
     /**
      * add receipts to the owner of this class
@@ -62,19 +63,28 @@ public class ReceiptHandler {
     }
 
     public ArrayList<Receipt> getStoreReceiptsFromUser(int storeId){
-        return receipts.getByOwnerId(storeId);
+        return getByOwnerId(storeId);
     }
 
     public ArrayList<Receipt> getUserReceiptsFromStore(int userId){
-        return receipts.getByOwnerId(userId);
+        return getByOwnerId(userId);
     }
 
     public ArrayList<Receipt> getAllReceipts(){
-        return receipts.getAll();
+        return new ArrayList<>(receipts);
     }
 
     public Receipt getReceipt(int receiptId){
         return receipts.get(receiptId);
+    }
+
+    private ArrayList<Receipt> getByOwnerId(int ownerId) {
+        ArrayList<Receipt> result = new ArrayList<>();
+        for(Receipt receipt : receipts){
+            if(receipt.hasKeyId(ownerId))
+                result.add(receipt);
+        }
+        return result;
     }
 
 
