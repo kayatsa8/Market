@@ -4,16 +4,23 @@ import BusinessLayer.Pair;
 import BusinessLayer.Receipts.Pairs.ItemsPair;
 import BusinessLayer.Receipts.ReceiptItem.ReceiptItem;
 import BusinessLayer.Receipts.ReceiptItem.ReceiptItemCollection;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
+import javax.persistence.*;
 import java.util.*;
 
+@Entity
 public class Receipt {
 
     //each receipt composed of Id of user/store to the items bought.
     //for example: For user receipt the key is all the storeIds he bought from and the value are the items
-
-    private List<ItemsPair> items;
+    @Id
     private int receiptId;
+    @OneToMany(cascade = CascadeType.ALL)
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @JoinColumn(name = "receiptId")
+    private List<ItemsPair> items;
     private int ownerId;
     private Date date;
 
@@ -22,6 +29,10 @@ public class Receipt {
         this.receiptId = id;
         this.ownerId = ownerId;
         this.date = instance.getTime();
+    }
+
+    public Receipt(){
+
     }
 
     public int getId() {
@@ -124,5 +135,29 @@ public class Receipt {
         }
 
         return map;
+    }
+
+    public int getReceiptId() {
+        return receiptId;
+    }
+
+    public void setReceiptId(int receiptId) {
+        this.receiptId = receiptId;
+    }
+
+    public List<ItemsPair> getItems() {
+        return items;
+    }
+
+    public void setItems(List<ItemsPair> items) {
+        this.items = items;
+    }
+
+    public void setOwnerId(int ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 }
