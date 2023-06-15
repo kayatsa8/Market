@@ -56,7 +56,7 @@ public class ReceiptHandlerTest {
 
 // public void addReceipt(int ownerId, HashMap<Integer,HashMap<CatalogItem, Integer>> storeOrUserIdToItems){
     @Test
-    public void addReceipt() {
+    public void addReceipt() throws Exception {
         receipt1Id = handler.addReceipt(userId, items);
 
         Receipt receipt1 = handler.getReceipt(receipt1Id);
@@ -68,7 +68,7 @@ public class ReceiptHandlerTest {
     }
 
     @Test
-    public void getStoreReceiptsFromUser() {
+    public void getStoreReceiptsFromUser() throws Exception {
         receipt1Id = handler.addReceipt(userId, items);
         ArrayList<Receipt> receipts = handler.getStoreReceiptsFromUser(store1ID);
         assertEquals(receipts.get(0).getId(), receipt1Id);
@@ -76,7 +76,7 @@ public class ReceiptHandlerTest {
 
 
     @Test
-    public void getAllReceipts() {
+    public void getAllReceipts() throws Exception {
         receipt1Id = handler.addReceipt(userId, items);
         ArrayList<Receipt> receipts = handler.getAllReceipts();
         assertEquals(1, receipts.size());

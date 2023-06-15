@@ -4,6 +4,7 @@ import BusinessLayer.Pair;
 import BusinessLayer.Receipts.Pairs.ItemsPair;
 import BusinessLayer.Receipts.ReceiptItem.ReceiptItem;
 import BusinessLayer.Receipts.ReceiptItem.ReceiptItemCollection;
+import DataAccessLayer.ReceiptsDAOs.ReceiptDAO;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -25,30 +26,41 @@ public class Receipt {
     private int ownerId;
     private Date date;
 
+    @Transient
+    private ReceiptDAO dao;
+
     public Receipt(int ownerId, Calendar instance){
         items = new ArrayList<>();
         this.ownerId = ownerId;
         this.date = instance.getTime();
+
+        dao = new ReceiptDAO();
     }
 
     public Receipt(){
-
+        dao = new ReceiptDAO();
     }
 
     public int getId() {
         return receiptId;
     }
 
-    public void addItems(int id, List<ReceiptItem> _items){
+    public void addItems(int id, List<ReceiptItem> _items) throws Exception {
+        boolean newPair;
+
         for(ReceiptItem item: _items){
             ItemsPair pair = (ItemsPair) Pair.searchPair(items, id);
+            newPair = false;
 
             if(pair == null){
                 pair = new ItemsPair(id, new ArrayList<>());
                 items.add(pair);
+                newPair = true;
             }
 
             pair.getReceiptItems().add(item);
+
+            dao.addItems(this, pair, item, newPair);
         }
     }
 
@@ -67,7 +79,7 @@ public class Receipt {
         return false;
     }
 
-    public boolean deleteItem(int userStoreId, int id){
+    public boolean deleteItem(int userStoreId, int id) throws Exception {
         ItemsPair pair = (ItemsPair) Pair.searchPair(items, userStoreId);
 
         if(pair == null){
@@ -76,14 +88,16 @@ public class Receipt {
 
         for( ReceiptItem receiptItem : pair.getValue()){
             if(receiptItem.getId() == id){
-                items.remove(pair);
+                pair.getValue().remove(receiptItem);
+
+                dao.deleteItem(receiptItem);
                 return true;
             }
         }
         return false;
     }
 
-    public boolean update(int userStoreId, int id, ReceiptItem item) {
+    public boolean update(int userStoreId, int id, ReceiptItem item) throws Exception {
         ItemsPair pair = (ItemsPair) Pair.searchPair(items, userStoreId);
 
         if(pair == null){
@@ -94,6 +108,8 @@ public class Receipt {
             if(receiptItem.getId() == id){
                 pair.getValue().remove(receiptItem);
                 pair.getValue().add(item);
+
+                dao.update(this, pair, receiptItem, item);
                 return true;
             }
         }

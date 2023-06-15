@@ -46,7 +46,7 @@ public class ReceiptHandler {
      *        for user: keys = storesId (you have multiple keys if he bought from several store)
      *
      */
-    public int addReceipt(int ownerId, Map<Integer,Map<CatalogItem, CartItemInfo>> storeOrUserIdToItems){
+    public int addReceipt(int ownerId, Map<Integer,Map<CatalogItem, CartItemInfo>> storeOrUserIdToItems) throws Exception {
         Receipt newReceipt = new Receipt(ownerId, Calendar.getInstance());
 
         for (Map.Entry<Integer,Map<CatalogItem, CartItemInfo>> set : storeOrUserIdToItems.entrySet()) {
