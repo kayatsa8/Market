@@ -49,7 +49,7 @@ public class Chat {
 
     public void addMessage(Message message) throws Exception {
         messages.add(message);
-        dao.addMessage(this, message);
+//        dao.addMessage(this, message);
     }
 
     public boolean contains(Message message){
