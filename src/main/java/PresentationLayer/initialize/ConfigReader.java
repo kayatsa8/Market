@@ -11,18 +11,19 @@ public class ConfigReader {
     }
     private static class ConfigProperties{
         public static final String INITIALIZE_PATH="InitializePath";
-        public static final String DB_FIELD1="DB_FIELD1";
-        public static final String DB_FIELD2="DB_FIELD2";
-        public static final String DB_FIELD3="DB_FIELD3";
-        public static final String DB_FIELD4="DB_FIELD4";
+        public static final String DB_name="DB_name";
+        public static final String DB_url="DB_url";
+        public static final String DB_username="DB_username";
+        public static final String DB_password = "DB_password";
+        public static final String DB_driver="DB_driver";
 
     }
 
     public String getInitializePath() {
         return getConfigDetail(ConfigProperties.INITIALIZE_PATH);
     }
-    public String getDB1() {
-        return getConfigDetail(ConfigProperties.DB_FIELD1);
+    public String getDBName() {
+        return getConfigDetail(ConfigProperties.DB_name);
     }
     private String getConfigDetail(String configProperty){
         String property="";
@@ -37,5 +38,21 @@ public class ConfigReader {
             e.printStackTrace();
         }
         return property;
+    }
+
+    public String getDBUrl(){
+        return getConfigDetail(ConfigProperties.DB_url);
+    }
+
+    public String getDBUsername(){
+        return getConfigDetail(ConfigProperties.DB_username);
+    }
+
+    public String getDBPassword(){
+        return getConfigDetail(ConfigProperties.DB_password);
+    }
+
+    public String getDBDriver(){
+        return getConfigDetail(ConfigProperties.DB_driver);
     }
 }

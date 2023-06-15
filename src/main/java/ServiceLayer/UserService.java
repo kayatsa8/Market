@@ -436,13 +436,4 @@ public class UserService {
             return new Result<>(true, e.getMessage());
         }
     }
-
-    //TODO: remove!!!!!!!!!!!!!!!!!!!!!!!!!!
-    public void setMarketConfigurations() throws Exception {
-        String url = "jdbc:mysql://localhost:3306/shefaissashar";
-        String driver = "com.mysql.cj.jdbc.Driver";
-        ConnectorConfigurations conf = new ConnectorConfigurations("Name", url, "root", "S41r@kT1e", driver);
-
-        Market.getInstance().setConfigurations(conf);
-    }
 }
