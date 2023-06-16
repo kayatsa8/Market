@@ -2,12 +2,32 @@ package BusinessLayer.Stores.Discounts.DiscountScopes;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
 
+import javax.persistence.*;
 import java.util.List;
 
+@Entity
 public class CategoryDiscount implements DiscountScope {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
+
     private String category;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public CategoryDiscount(String category) {
         this.category = category;
+    }
+
+    public CategoryDiscount() {
+
     }
 
     public void setItemsPercents(List<CartItemInfo> copyBasket, double percent) //ByCategory
@@ -37,5 +57,13 @@ public class CategoryDiscount implements DiscountScope {
 
     @Override
     public void removeItem(int itemID) {
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 }

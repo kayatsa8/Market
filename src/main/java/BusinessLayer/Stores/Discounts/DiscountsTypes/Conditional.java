@@ -8,19 +8,25 @@ import BusinessLayer.Stores.Conditions.LogicalCompositions.Rules.MustItemsAmount
 import BusinessLayer.Stores.Discounts.DiscountScopes.DiscountScope;
 import BusinessLayer.Stores.Store;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
 
-
+@Entity
 public class Conditional extends DiscountType {
+    @Transient
     private LogicalComponent root;
     private boolean finished;
+    @Transient
     private List<LogicalComponent> inProgressList;
     private int logicalComponentsIDsCounter;
+    @ManyToOne
+    @JoinColumn(name = "storeId")
     private Store store;
+
     public Conditional(int discountID, double percent, Calendar endOfSale, DiscountScope discountScope, Store store)
     {
         super(discountID, percent, endOfSale, discountScope);
@@ -29,6 +35,10 @@ public class Conditional extends DiscountType {
         inProgressList = new ArrayList<>();
         logicalComponentsIDsCounter = 1;
         this.store = store;
+    }
+
+    public Conditional() {
+        super();
     }
 
     protected boolean checkConditions(List<CartItemInfo> basketItems, List<String> coupons)
@@ -131,5 +141,47 @@ public class Conditional extends DiscountType {
     {
         super.removeItem(itemID);
         root.removeItem(itemID);
+    }
+
+    public LogicalComponent getRoot() {
+        return root;
+    }
+
+    public void setRoot(LogicalComponent root) {
+        this.root = root;
+    }
+
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public void setFinished(boolean finished) {
+        this.finished = finished;
+    }
+
+    public List<LogicalComponent> getInProgressList() {
+        return inProgressList;
+    }
+
+    public void setInProgressList(List<LogicalComponent> inProgressList) {
+        this.inProgressList = inProgressList;
+    }
+
+    public int getLogicalComponentsIDsCounter() {
+        return logicalComponentsIDsCounter;
+    }
+
+    public void setLogicalComponentsIDsCounter(int logicalComponentsIDsCounter) {
+        this.logicalComponentsIDsCounter = logicalComponentsIDsCounter;
+    }
+
+    @Override
+    public Store getStore() {
+        return store;
+    }
+
+    @Override
+    public void setStore(Store store) {
+        this.store = store;
     }
 }

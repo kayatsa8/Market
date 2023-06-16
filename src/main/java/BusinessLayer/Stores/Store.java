@@ -27,6 +27,7 @@ import BusinessLayer.Stores.Discounts.DiscountScopes.StoreDiscount;
 import BusinessLayer.Stores.Discounts.DiscountsTypes.Conditional;
 import BusinessLayer.Stores.Discounts.DiscountsTypes.Hidden;
 import BusinessLayer.Stores.Discounts.DiscountsTypes.Visible;
+import BusinessLayer.Stores.Pairs.DiscountPair;
 import BusinessLayer.Stores.Pairs.SavedItemAmount;
 import BusinessLayer.Stores.Policies.DiscountPolicy;
 import BusinessLayer.Stores.Policies.PurchasePolicy;
@@ -68,7 +69,7 @@ public class Store {
     @OneToMany(mappedBy = "store")
     private Set<StoreManager> storeManagers;
     @Transient
-    private Map<Integer, Discount> discounts;
+    private List<DiscountPair> discounts;
     @Transient
     private Map<Integer, PurchasePolicy> purchasePolicies;
     @Transient
@@ -102,7 +103,7 @@ public class Store {
         this.items = new HashSet<>();
         this.storeStatus = OPEN;
         this.founderID = founderID;
-        this.discounts = new HashMap<>();
+        this.discounts = new ArrayList<>();
         this.purchasePolicies = new HashMap<>();
         this.discountPolicies = new HashMap<>();
         this.savedItemsAmounts = new ArrayList<>();
@@ -127,7 +128,7 @@ public class Store {
     public Store(int storeID, int founderID, String name, MarketMock marketMock) throws Exception {
         this.storeID = storeID;
         this.storeName = name;
-        this.discounts = new HashMap<>();
+        this.discounts = new ArrayList<>();
         this.purchasePolicies = new HashMap<>();
         this.discountPolicies = new HashMap<>();
         this.items = new HashSet<>();
@@ -150,7 +151,7 @@ public class Store {
     }
 
     public Store() {
-        this.discounts = new HashMap<>();
+        this.discounts = new ArrayList<>();
         this.purchasePolicies = new HashMap<>();
         this.discountPolicies = new HashMap<>();
 //        this.storeDAO = new StoreDAO();
@@ -266,11 +267,12 @@ public class Store {
     }
 
     public Discount getDiscount(int discountID) throws Exception {
-        Discount discount = discounts.get(discountID);
-        if (discount == null) {
+        DiscountPair pair = (DiscountPair) Pair.searchPair(discounts, discountID);
+        if(pair == null){
             throw new Exception("Error: discount ID " + discountID + " does not exist in store " + storeName);
         }
-        return discount;
+
+        return pair.getValue();
     }
 
     public PurchasePolicy getPurchasePolicy(int purchasePolicyID) {
@@ -373,7 +375,7 @@ public class Store {
     public int addVisibleItemsDiscount(List<Integer> itemsIDs, double percent, Calendar endOfSale) {
         DiscountScope discountScope = new ItemsDiscount(itemsIDs);
         Discount discount = new Visible(discountsIDs, percent, endOfSale, discountScope);
-        discounts.put(discountsIDs, discount);
+        discounts.add(new DiscountPair(discountsIDs, discount));
         log.info("Added new visible discount at store " + storeID);
         return discountsIDs++;
     }
@@ -381,7 +383,7 @@ public class Store {
     public int addVisibleCategoryDiscount(String category, double percent, Calendar endOfSale) {
         DiscountScope discountScope = new CategoryDiscount(category);
         Discount discount = new Visible(discountsIDs, percent, endOfSale, discountScope);
-        discounts.put(discountsIDs, discount);
+        discounts.add(new DiscountPair(discountsIDs, discount));
         log.info("Added new visible discount at store " + storeID);
         return discountsIDs++;
     }
@@ -389,7 +391,7 @@ public class Store {
     public int addVisibleStoreDiscount(double percent, Calendar endOfSale) {
         DiscountScope discountScope = new StoreDiscount();
         Discount discount = new Visible(discountsIDs, percent, endOfSale, discountScope);
-        discounts.put(discountsIDs, discount);
+        discounts.add(new DiscountPair(discountsIDs, discount));
         log.info("Added new visible discount at store " + storeID);
         return discountsIDs++;
     }
@@ -397,7 +399,7 @@ public class Store {
     public int addConditionalItemsDiscount(double percent, Calendar endOfSale, List<Integer> itemsIDs) {
         DiscountScope discountScope = new ItemsDiscount(itemsIDs);
         Discount discount = new Conditional(discountsIDs, percent, endOfSale, discountScope, this);
-        discounts.put(discountsIDs, discount);
+        discounts.add(new DiscountPair(discountsIDs, discount));
         log.info("Added new conditional discount at store " + storeID);
         return discountsIDs++;
     }
@@ -405,7 +407,7 @@ public class Store {
     public int addConditionalCategoryDiscount(double percent, Calendar endOfSale, String category) {
         DiscountScope discountScope = new CategoryDiscount(category);
         Discount discount = new Conditional(discountsIDs, percent, endOfSale, discountScope, this);
-        discounts.put(discountsIDs, discount);
+        discounts.add(new DiscountPair(discountsIDs, discount));
         log.info("Added new conditional discount at store " + storeID);
         return discountsIDs++;
     }
@@ -413,7 +415,7 @@ public class Store {
     public int addConditionalStoreDiscount(double percent, Calendar endOfSale) {
         DiscountScope discountScope = new StoreDiscount();
         Discount discount = new Conditional(discountsIDs, percent, endOfSale, discountScope, this);
-        discounts.put(discountsIDs, discount);
+        discounts.add(new DiscountPair(discountsIDs, discount));
         log.info("Added new conditional discount at store " + storeID);
         return discountsIDs++;
     }
@@ -421,7 +423,7 @@ public class Store {
     public int addHiddenItemsDiscount(List<Integer> itemsIDs, double percent, String coupon, Calendar endOfSale) {
         DiscountScope discountScope = new ItemsDiscount(itemsIDs);
         Discount discount = new Hidden(discountsIDs, percent, endOfSale, coupon, discountScope);
-        discounts.put(discountsIDs, discount);
+        discounts.add(new DiscountPair(discountsIDs, discount));
         log.info("Added new hidden discount at store " + storeID);
         return discountsIDs++;
     }
@@ -429,7 +431,7 @@ public class Store {
     public int addHiddenCategoryDiscount(String category, double percent, String coupon, Calendar endOfSale) {
         DiscountScope discountScope = new CategoryDiscount(category);
         Discount discount = new Hidden(discountsIDs, percent, endOfSale, coupon, discountScope);
-        discounts.put(discountsIDs, discount);
+        discounts.add(new DiscountPair(discountsIDs, discount));
         log.info("Added new hidden discount at store " + storeID);
         return discountsIDs++;
     }
@@ -437,7 +439,7 @@ public class Store {
     public int addHiddenStoreDiscount(double percent, String coupon, Calendar endOfSale) {
         DiscountScope discountScope = new StoreDiscount();
         Discount discount = new Hidden(discountsIDs, percent, endOfSale, coupon, discountScope);
-        discounts.put(discountsIDs, discount);
+        discounts.add(new DiscountPair(discountsIDs, discount));
         log.info("Added new hidden discount at store " + storeID);
         return discountsIDs++;
     }
@@ -489,15 +491,21 @@ public class Store {
         }
         if (myNumericComposite == null)
             throw new Exception("The numeric composite is unrecognized");
+
+        DiscountPair pair;
+
         for (Integer discountID : discountsIDsToWrap) {
-            discounts.remove(discountID);
+            pair = (DiscountPair) Pair.searchPair(discounts, discountID);
+            discounts.remove(pair);
         }
-        discounts.put(discountsIDs, myNumericComposite);
+        discounts.add(new DiscountPair(discountsIDs, myNumericComposite));
         return discountsIDs++;
     }
 
     public int removeDiscount(Integer discountID) {
-        return discounts.remove(discountID).getDiscountID();
+        DiscountPair pair = (DiscountPair) Pair.searchPair(discounts, discountID);
+        discounts.remove(pair);
+        return pair.getValue().getDiscountID();
     }
 
     public int removePolicy(Integer policyID) {
@@ -847,10 +855,13 @@ public class Store {
             return;
         }
         List<List<CartItemInfo>> tempBaskets = new ArrayList<>();
-        for (Discount discount : discounts.values()) //get separate basket for each discount
-        {
+
+        Discount discount;
+        for(DiscountPair pair : discounts){
+            discount = pair.getValue();
             tempBaskets.add(discount.updateBasket(basketItems, coupons));
         }
+
         for (int i = 0; i < basketItems.size(); i++) //set the original basket to the first temp basket
         {
             basketItems.get(i).setPercent(tempBaskets.get(0).get(i).getPercent());
@@ -1250,7 +1261,9 @@ public class Store {
     }
 
     private void removeItemFromDiscountsAndPolicies(int itemID) {
-        for (Discount discount : discounts.values()) {
+        Discount discount;
+        for (DiscountPair pair : discounts) {
+            discount = pair.getValue();
             discount.removeItem(itemID);
         }
         for (PurchasePolicy purchasePolicy : purchasePolicies.values()) {
@@ -1350,16 +1363,24 @@ public class Store {
     }
 
     public Map<Integer, Discount> getStoreDiscounts() {
-        return discounts;
+        Map<Integer, Discount> discountsMap = new HashMap<>();
+
+        for(DiscountPair pair : discounts){
+            discountsMap.put(pair.getKey(), pair.getValue());
+        }
+
+        return discountsMap;
     }
 
     public Map<Integer, Visible> getStoreVisibleDiscounts() {
         Map<Integer, Visible> visibleDiscounts = new HashMap<>();
-        for (Map.Entry<Integer, Discount> discount : discounts.entrySet()) {
-            if (discount.getValue() instanceof Visible) {
-                visibleDiscounts.put(discount.getKey(), (Visible) discount.getValue());
+
+        for(DiscountPair pair : discounts){
+            if(pair.getValue() instanceof Visible){
+                visibleDiscounts.put(pair.getKey(), (Visible) pair.getValue());
             }
         }
+
         return visibleDiscounts;
     }
 
@@ -1375,11 +1396,15 @@ public class Store {
         CatalogItem item = getItem(itemID);
         String category = item.getCategory();
         List<Discount> result = new ArrayList<>();
-        for (Discount discount : discounts.values()) {
+
+        Discount discount;
+        for (DiscountPair pair : discounts) {
+            discount = pair.getValue();
             if (discount.isDiscountApplyForItem(itemID, category)) {
                 result.add(discount);
             }
         }
+
         item.setDiscounts(result);
     }
 

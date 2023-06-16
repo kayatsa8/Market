@@ -5,15 +5,27 @@ import BusinessLayer.Stores.Discounts.Discount;
 import BusinessLayer.Stores.Discounts.DiscountScopes.DiscountScope;
 import BusinessLayer.Stores.Store;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class DiscountType extends Discount {
     protected double percent;
+    @Column(name = "endOfSale")
     protected Calendar endOfSale;
+    @Transient
     private DiscountScope discountScope;
+    @ManyToOne
+    @JoinColumn(name = "storeId")
     protected Store store;
+
+    public DiscountType() {
+
+    }
+
     @Override
     public String toString() {
         return  "Percent is: " + percent + ", " +
@@ -57,5 +69,37 @@ public abstract class DiscountType extends Discount {
     public boolean isDiscountApplyForItem(int itemID, String category)
     {
         return discountScope.isDiscountApplyForItem(itemID, category);
+    }
+
+    public double getPercent() {
+        return percent;
+    }
+
+    public void setPercent(double percent) {
+        this.percent = percent;
+    }
+
+    public Calendar getEndOfSale() {
+        return endOfSale;
+    }
+
+    public void setEndOfSale(Calendar endOfSale) {
+        this.endOfSale = endOfSale;
+    }
+
+    public DiscountScope getDiscountScope() {
+        return discountScope;
+    }
+
+    public void setDiscountScope(DiscountScope discountScope) {
+        this.discountScope = discountScope;
+    }
+
+    public Store getStore() {
+        return store;
+    }
+
+    public void setStore(Store store) {
+        this.store = store;
     }
 }
