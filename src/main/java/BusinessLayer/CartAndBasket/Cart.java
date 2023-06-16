@@ -36,6 +36,13 @@ public class Cart {
         Log.log.info("A new cart was created for user " + userID);
     }
 
+    //for tests with Mocks
+    public Cart(){
+        userID = 1;
+        baskets = new BasketsRepository();
+        coupons = new ArrayList<>();
+    }
+
     public void addItem(Store store, CatalogItem item, int quantity) throws Exception {
         baskets.putIfAbsent(store.getStoreID(), new Basket(store));
         baskets.get(store.getStoreID()).addItem(item, quantity, coupons);
@@ -123,11 +130,7 @@ public class Cart {
         if(!purchaseManager.handShake()){
             throw new Exception("Problem with connection to external System");
         }
-        for(Basket basket : baskets.values()){
-
-            basket.saveItems(coupons, userID, purchaseInfo.getAge());
-        }
-        Log.log.info("Items of cart " + userID + " are saved");
+        saveItemsInBaskets(purchaseInfo);
 
         //TODO: should change in future versions
         double finalPrice = calculateTotalPrice();
@@ -138,9 +141,7 @@ public class Cart {
         int supplyTransId = purchaseManager.supply();
 
         if( purchaseTransId == -1 || supplyTransId == -1 ){
-            for(Basket basket : baskets.values()){
-                basket.releaseItems();
-            }
+            releaseItemFromBaskets();
             purchaseManager.cancelSupply(supplyTransId);
             purchaseManager.cancelPay(purchaseTransId);
             throw new Exception("Problem with Supply or Purchase");
@@ -150,16 +151,37 @@ public class Cart {
             Log.log.info("Cart " + userID + " delivery is scheduled");
         }
 
+        createReceipt(receiptData);
+
+        emptyCart();
+
+        return receiptData;
+    }
+
+    public void emptyCart() {
+        empty();
+        Log.log.info("Cart " + userID + " is empty");
+    }
+
+    public void createReceipt(HashMap<Integer, Map<CatalogItem, CartItemInfo>> receiptData) throws Exception {
         for(Basket basket : baskets.values()){
             receiptData.putIfAbsent(basket.getStore().getStoreID(), basket.buyBasket(userID));
         }
-
         Log.log.info("All items of " + userID + "are bought");
+    }
 
-        empty();
-        Log.log.info("Cart " + userID + " is empty");
+    public void releaseItemFromBaskets() throws Exception {
+        for(Basket basket : baskets.values()){
+            basket.releaseItems();
+        }
+    }
 
-        return receiptData;
+    public void saveItemsInBaskets(PurchaseInfo purchaseInfo) throws Exception {
+        for(Basket basket : baskets.values()){
+
+            basket.saveItems(coupons, userID, purchaseInfo.getAge());
+        }
+        Log.log.info("Items of cart " + userID + " are saved");
     }
 
     /**
