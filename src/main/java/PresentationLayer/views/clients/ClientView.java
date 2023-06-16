@@ -241,7 +241,7 @@ public class ClientView extends VerticalLayout {
     }
 
     private void printError(String errorMsg) {
-        Notification notification = Notification.show(errorMsg, 2000, Notification.Position.BOTTOM_CENTER);
+        Notification notification = Notification.show(errorMsg, 5000, Notification.Position.BOTTOM_CENTER);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
 

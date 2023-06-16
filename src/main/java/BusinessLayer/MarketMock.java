@@ -79,10 +79,6 @@ public class MarketMock {
         return userFacade.logout(userID);
     }
 
-    public void systemStart() {
-        userFacade.systemStart();
-    }
-
     public void addOwner(int userID, int userToAddID, int storeID) throws Exception {
         userFacade.addOwner(userID, userToAddID, storeID);
     }
@@ -368,7 +364,7 @@ public class MarketMock {
     }
 
     public Map<Integer, Store> getStoresIManage(int managerID) throws Exception {
-        ArrayList<Integer> storesIds = userFacade.getStoresIdsIManage(managerID);
+        List<Integer> storesIds = userFacade.getStoresIdsIManage(managerID);
         Map<Integer, Store> result = new HashMap<>();
         for(Integer storeId: storesIds){
             result.put(storeId, storeFacade.getStore(storeId));

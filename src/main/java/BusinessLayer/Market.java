@@ -20,22 +20,28 @@ import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.SystemManager;
 import BusinessLayer.Users.User;
 import BusinessLayer.Users.UserFacade;
+import DataAccessLayer.Hibernate.ConnectorConfigurations;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
+import PresentationLayer.initialize.ConfigReader;
 
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Market {
-    private static Market instance;
+    private static volatile Market instance;
     private UserFacade userFacade;
     private StoreFacade storeFacade;
     private Map<Integer, SystemManager> systemManagerMap;
     private NotificationHub notificationHub;
     private static final Object instanceLock = new Object();
+    private ConnectorConfigurations configurations;
+    private static ConnectorConfigurations configurations_static;
+
     private Market() throws Exception {
+        readDBConfigurations();
         systemManagerMap = new HashMap<>();
         userFacade = new UserFacade();
         storeFacade = new StoreFacade();
@@ -46,11 +52,31 @@ public class Market {
         synchronized (instanceLock) {
             if (instance == null) {
                 instance = new Market();
+                instance.notificationHub.loadHub();
                 instance.createFirstAdmin();
+                instance.userFacade.loadUsers();
                 instance.userFacade.setGuest();
             }
             return instance;
         }
+    }
+
+    public void readDBConfigurations() {
+        ConfigReader configReader=new ConfigReader();
+        String name = configReader.getDBName();
+        String url = configReader.getDBUrl();
+        String username = configReader.getDBUsername();
+        String password = configReader.getDBPassword();
+        String driver = configReader.getDBDriver();
+        configurations = new ConnectorConfigurations(name, url, username, password, driver);
+    }
+
+    public void setConfigurations(ConnectorConfigurations conf){
+        configurations = conf;
+    }
+
+    public ConnectorConfigurations getConfigurations(){
+        return configurations;
     }
 
     public User addGuest() throws Exception {
@@ -72,6 +98,7 @@ public class Market {
     private void createFirstAdmin() throws Exception {
         userFacade.createAdmin();
     }
+
 
     public void addAdmin(int newAdmin, SystemManager systemManager) {
         systemManagerMap.put(newAdmin, systemManager);
@@ -98,10 +125,6 @@ public class Market {
     public boolean logout(int userID) throws Exception {
 
         return userFacade.logout(userID);
-    }
-
-    public void systemStart() {
-        userFacade.systemStart();
     }
 
     public void addOwner(int userID, int userToAddID, int storeID) throws Exception {
@@ -338,7 +361,7 @@ public class Market {
     }
 
     public Map<Integer, Store> getStoresIManage(int managerID) throws Exception {
-        ArrayList<Integer> storesIds = userFacade.getStoresIdsIManage(managerID);
+        List<Integer> storesIds = userFacade.getStoresIdsIManage(managerID);
         Map<Integer, Store> result = new HashMap<>();
         for(Integer storeId: storesIds){
             result.put(storeId, storeFacade.getStore(storeId));

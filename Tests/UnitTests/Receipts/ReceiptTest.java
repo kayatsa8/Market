@@ -22,8 +22,8 @@ public class ReceiptTest {
     int store1Id = 1;
     int store2Id = 2;
     @Before
-    public void setUp(){
-        receipt = new Receipt(1, 1000, Calendar.getInstance());
+    public void setUp() throws Exception {
+        receipt = new Receipt(1000, Calendar.getInstance());
         receiptId = receipt.getId();
         item1FromStore1 = new ReceiptItem(1, "item1", 20, 100, 15);
         item2FromStore1 = new ReceiptItem(2, "item12", 20, 100, 15);
@@ -40,7 +40,7 @@ public class ReceiptTest {
 
 
     @Test
-    public void testAddItems() {
+    public void testAddItems() throws Exception {
         ArrayList<ReceiptItem> items = new ArrayList<>();
         items.add(item1FromStore1);
         ArrayList<ReceiptItem> items2 = new ArrayList<>();
@@ -55,7 +55,7 @@ public class ReceiptTest {
     }
 
     @Test
-    public void testDeleteItem() {
+    public void testDeleteItem() throws Exception {
 
         int removedId = item2FromStore1.getId();
         receipt.deleteItem(store1Id, removedId);

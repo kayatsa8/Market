@@ -1,6 +1,7 @@
 package BusinessLayer.Stores.Conditions.NumericCompositions;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.CartAndBasket.Coupon;
 import BusinessLayer.Stores.Discounts.Discount;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ public abstract class NumericComposite extends Discount
         return discounts;
     }
 
-    public List<CartItemInfo> updateBasket(List<CartItemInfo> basketItems, List<String> coupons)
+    public List<CartItemInfo> updateBasket(List<CartItemInfo> basketItems, List<Coupon> coupons)
     {
         List<List<CartItemInfo>> tempBaskets = new ArrayList<>();
         if (getDiscounts().size() == 0)

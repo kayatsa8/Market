@@ -2,11 +2,7 @@ package ServiceLayer.Objects;
 
 import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.Cart;
-import PresentationLayer.views.MainLayout;
-import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
-
-import com.vaadin.flow.component.notification.Notification;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +15,7 @@ public class CartService {
 
     public CartService(Cart cart) {
         baskets = new ArrayList<>();
-        for (Basket basket : cart.getBaskets().values()) {
+        for (Basket basket : cart.getBasketsAsHashMap().values()) {
             baskets.add(new BasketService(basket));
         }
     }

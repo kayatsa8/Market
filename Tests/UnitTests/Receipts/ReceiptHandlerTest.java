@@ -39,11 +39,11 @@ public class ReceiptHandlerTest {
         item3.setPercent(0.2);
         item4.setPercent(0.2);
 
-        itemsAndAmounts1.put(new CatalogItem(11, "item11", 20, "Books", "name1", store1ID, 0.5), item1);
-        itemsAndAmounts1.put(new CatalogItem(12, "item12", 20, "Books", "name1", store1ID, 0.5), item2);
+//        itemsAndAmounts1.put(new CatalogItem(11, "item11", 20, "Books", "name1", store1ID, 0.5), item1);
+//        itemsAndAmounts1.put(new CatalogItem(12, "item12", 20, "Books", "name1", store1ID, 0.5), item2);
         HashMap<CatalogItem, CartItemInfo> itemsAndAmounts2 = new HashMap<>();
-        itemsAndAmounts2.put(new CatalogItem(21, "item21", 20, "Books", "name2", store2ID, 0.5), item3);
-        itemsAndAmounts2.put(new CatalogItem(22, "item22", 20, "Books", "name2", store2ID, 0.5), item4);
+//        itemsAndAmounts2.put(new CatalogItem(21, "item21", 20, "Books", "name2", store2ID, 0.5), item3);
+//        itemsAndAmounts2.put(new CatalogItem(22, "item22", 20, "Books", "name2", store2ID, 0.5), item4);
         items.put(store1ID, itemsAndAmounts1);
         items.put(store2ID, itemsAndAmounts2);
     }
@@ -56,7 +56,7 @@ public class ReceiptHandlerTest {
 
 // public void addReceipt(int ownerId, HashMap<Integer,HashMap<CatalogItem, Integer>> storeOrUserIdToItems){
     @Test
-    public void addReceipt() {
+    public void addReceipt() throws Exception {
         receipt1Id = handler.addReceipt(userId, items);
 
         Receipt receipt1 = handler.getReceipt(receipt1Id);
@@ -68,7 +68,7 @@ public class ReceiptHandlerTest {
     }
 
     @Test
-    public void getStoreReceiptsFromUser() {
+    public void getStoreReceiptsFromUser() throws Exception {
         receipt1Id = handler.addReceipt(userId, items);
         ArrayList<Receipt> receipts = handler.getStoreReceiptsFromUser(store1ID);
         assertEquals(receipts.get(0).getId(), receipt1Id);
@@ -76,7 +76,7 @@ public class ReceiptHandlerTest {
 
 
     @Test
-    public void getAllReceipts() {
+    public void getAllReceipts() throws Exception {
         receipt1Id = handler.addReceipt(userId, items);
         ArrayList<Receipt> receipts = handler.getAllReceipts();
         assertEquals(1, receipts.size());

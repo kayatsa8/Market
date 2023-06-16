@@ -2,6 +2,7 @@ package IntegrationTests;
 
 import BusinessLayer.Market;
 import BusinessLayer.NotificationSystem.Mailbox;
+import BusinessLayer.StorePermissions.StoreEmployees;
 import BusinessLayer.StorePermissions.StoreManager;
 import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Store;
@@ -14,6 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -32,6 +34,7 @@ public class StoreEmployeesTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
+        System.setProperty("env", "test");
         Market market = Market.getInstance();
         storeFacade = market.getStoreFacade();
         userFacade = market.getUserFacade();
@@ -60,33 +63,45 @@ public class StoreEmployeesTest {
         int store1ID = market.addStore(user1.getId(), "store1");
         store1 = market.getStoreInfo(store1ID);
         StoreOwner storeOwner1 = new StoreOwner(user1.getId(), store1); //Why new and not addOwner method???
-        user1.getStoresIOwn().put(store1.getStoreID(), storeOwner1);
+        user1.getStoresIOwn().add(storeOwner1);
         int store2ID = market.addStore(user4.getId(), "store2");
         store2 = market.getStoreInfo(store2ID);
         StoreOwner storeOwner2 = new StoreOwner(user4.getId(), store2); //Why new and not addOwner method???
-        user4.getStoresIOwn().put(store2.getStoreID(), storeOwner2);
+        user4.getStoresIOwn().add(storeOwner2);
     }
 
     private void ensureOwnershipWithParent(RegisteredUser child, RegisteredUser parent, Store store) {
-        StoreOwner ownership1 = child.getStoresIOwn().get(store.getStoreID());
+        Set<StoreOwner> ownerSet = child.getStoresIOwn();
+        StoreOwner ownership1 = (StoreOwner)getOwnership(ownerSet, store);
         assertEquals(child.getUsername() + " should have " + store.getStoreName() + "store1 as store he owns",
                 store, ownership1.getStore());
         assertEquals(child.getUsername() + " should have " + parent.getUsername() + " as parent in ownership",
                 parent.getId(), ownership1.getParentID());
-        StoreOwner ownership2 = parent.getStoresIOwn().get(store.getStoreID());
+        ownerSet = parent.getStoresIOwn();
+        StoreOwner ownership2 = (StoreOwner)getOwnership(ownerSet, store);
+
         assertTrue(parent.getUsername() + " should have " + child.getUsername() + " as ownerIDefined",
                 ownership2.getOwnersIDefined().contains(child));
         assertTrue(store.getStoreName() + " should have " + child.getUsername() + "'s id as in owners",
                 store.getStoreOwners().contains(child.getStoreIOwn(store.getStoreID())));
     }
 
+    private StoreEmployees getOwnership(Set<? extends StoreEmployees> ownerSet, Store store) {
+        for (StoreEmployees storeOwner : ownerSet) {
+            if (storeOwner.getStoreID() == store.getStoreID())
+                return storeOwner;
+        }
+        return null;
+    }
+
     private void ensureManagerWithParent(RegisteredUser child, RegisteredUser parent, Store store) {
-        StoreManager manager = child.getStoresIManage().get(store.getStoreID());
+        Set<StoreManager> managers = child.getStoresIManage();
+        StoreManager manager = (StoreManager)getOwnership(managers, store);
         assertEquals(child.getUsername() + " should have " + store.getStoreName() + " as store he manages",
                 store, manager.getStore());
         assertEquals(child.getUsername() + " should have " + parent.getUsername() + " as parent in managing",
                 parent.getId(), manager.getParentID());
-        StoreOwner ownership = parent.getStoresIOwn().get(store.getStoreID());
+        StoreOwner ownership = (StoreOwner) getOwnership(parent.getStoresIOwn(), store);
         assertTrue(parent.getUsername() + " should have " + child.getUsername() + " as managerIDefined",
                 ownership.getManagersIDefined().contains(child));
     }
@@ -109,7 +124,7 @@ public class StoreEmployeesTest {
                 store.getStoreManagers().contains(manager.getId()));
     }
 
-    private void removeOwnerSetup() {
+    private void removeOwnerSetup() throws Exception {
         if (user2.getStoreIOwn(store2.getStoreID())==null) {
             user4.addOwner(user2, store2.getStoreID());
         }
@@ -133,7 +148,7 @@ public class StoreEmployeesTest {
     }
 
     @Test
-    public void addOwner() {
+    public void addOwner() throws Exception {
         try {
             user2.addOwner(user1, store1.getStoreID());
             fail("Should not allow to add owner if you aren't owner");
@@ -149,7 +164,7 @@ public class StoreEmployeesTest {
     }
 
     @Test
-    public void addManager() {
+    public void addManager() throws Exception{
         try {
             user3.addManager(user1, store1.getStoreID());
             fail("Should not allow to add manager if you aren't owner");
@@ -165,7 +180,7 @@ public class StoreEmployeesTest {
     }
 
     @Test
-    public void removeOwner() {
+    public void removeOwner() throws Exception {
         try {
             user1.removeOwner(user4, store2.getStoreID());
             fail("Should not allow to remove owner if you aren't owner");
@@ -221,7 +236,7 @@ public class StoreEmployeesTest {
     }
 
     @Test
-    public void removeManagerFromCascade() {
+    public void removeManagerFromCascade() throws Exception {
         //test that remove owner also removes relevant managers
         removeOwnerSetup();
         removeManagerSetup(user3);
