@@ -1,6 +1,7 @@
 package BusinessLayer.Stores.Discounts.DiscountsTypes;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.CartAndBasket.Coupon;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.*;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.Rules.BasketTotalPriceRule;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.Rules.MustItemsAmountsRule;
@@ -35,7 +36,7 @@ public class Conditional extends DiscountType {
         this.store = store;
     }
 
-    protected boolean checkConditions(List<CartItemInfo> basketItems, List<String> coupons) {
+    protected boolean checkConditions(List<CartItemInfo> basketItems, List<Coupon> coupons) {
         return finished && root.checkConditions(basketItems, -1);
     }
 

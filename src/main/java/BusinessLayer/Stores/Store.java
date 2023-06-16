@@ -1,6 +1,7 @@
 package BusinessLayer.Stores;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.CartAndBasket.Coupon;
 import BusinessLayer.ExternalSystems.ESPurchaseManager;
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.ExternalSystems.PurchaseInfo;
@@ -763,7 +764,7 @@ public class Store {
         mailbox.sendMessageToList(sendToList, s);
     }
 
-    public synchronized void saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems, List<String> coupons, int userID, int age) throws Exception
+    public synchronized void saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems, List<Coupon> coupons, int userID, int age) throws Exception
     {
         if (storeStatus == OPEN) {
             if (checkIfItemsInStock(basketItems)) {
@@ -822,7 +823,7 @@ public class Store {
         return true;
     }
 
-    private boolean checkIfBasketPriceChanged(List<CartItemInfo> basketItems, List<String> coupons) throws Exception {
+    private boolean checkIfBasketPriceChanged(List<CartItemInfo> basketItems, List<Coupon> coupons) throws Exception {
         List<CartItemInfo> copyBasketItems = new ArrayList<>();
         for (CartItemInfo item : basketItems) {
             copyBasketItems.add(new CartItemInfo(item));
@@ -853,7 +854,7 @@ public class Store {
         return true;
     }
 
-    public void updateBasket(List<CartItemInfo> basketItems, List<String> coupons) throws Exception {
+    public void updateBasket(List<CartItemInfo> basketItems, List<Coupon> coupons) throws Exception {
         updateBasketPrices(basketItems);
         if (discounts.size() == 0 || basketItems.size() == 0 || !checkIfDiscountsAreValid(basketItems)) {
             for (CartItemInfo item : basketItems) {

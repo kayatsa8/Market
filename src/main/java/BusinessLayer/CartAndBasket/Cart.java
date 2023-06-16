@@ -1,5 +1,6 @@
 package BusinessLayer.CartAndBasket;
 
+import BusinessLayer.CartAndBasket.Repositories.Carts.BasketsRepository;
 import BusinessLayer.ExternalSystems.ESPurchaseManager;
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
@@ -56,7 +57,7 @@ public class Cart {
     //for tests with Mocks
     public Cart(){
         userID = 1;
-        baskets = new BasketsRepository();
+        baskets = new ArrayList<>();
         coupons = new ArrayList<>();
         dao = new CartDAO();
     }
@@ -70,7 +71,7 @@ public class Cart {
             dao.addItem(this, b);
         }
 
-        b.addItem(item, quantity, getCouponStrings());
+        b.addItem(item, quantity, coupons);
 
         Log.log.info("The item " + item.getItemID() + " of store " +
                 store.getStoreID() + " was added (" + quantity + " units)");
@@ -84,7 +85,7 @@ public class Cart {
             throw new Exception("Cart::removeItemFromCart: the store " + storeID + " was not found!");
         }
 
-        basket.removeItem(itemID, getCouponStrings());
+        basket.removeItem(itemID, coupons);
         Log.log.info("The item " + itemID + " of store " + storeID + " was removed from the cart");
     }
 
@@ -114,7 +115,7 @@ public class Cart {
             throw new Exception("Cart::changeItemQuantityInCart: the store " + storeID + " was not found!");
         }
 
-        basket.changeItemQuantity(itemID, quantity, getCouponStrings());
+        basket.changeItemQuantity(itemID, quantity, coupons);
         Log.log.info("The quantity of item " + itemID + "was changed");
     }
 
@@ -200,20 +201,20 @@ public class Cart {
     }
 
     public void createReceipt(HashMap<Integer, Map<CatalogItem, CartItemInfo>> receiptData) throws Exception {
-        for(Basket basket : baskets.values()){
+        for(Basket basket : baskets){
             receiptData.putIfAbsent(basket.getStore().getStoreID(), basket.buyBasket(userID));
         }
         Log.log.info("All items of " + userID + "are bought");
     }
 
     public void releaseItemFromBaskets() throws Exception {
-        for(Basket basket : baskets.values()){
-            basket.releaseItems();
+        for(Basket basket : baskets){
+            basket.releaseItems(basket.getItemsInfo());
         }
     }
 
     public void saveItemsInBaskets(PurchaseInfo purchaseInfo) throws Exception {
-        for(Basket basket : baskets.values()){
+        for(Basket basket : baskets){
 
             basket.saveItems(coupons, userID, purchaseInfo.getAge());
         }
@@ -290,7 +291,7 @@ public class Cart {
 
     private void updateBasketsWithCoupons() throws Exception {
         for(Basket basket : baskets){
-            basket.updateBasketWithCoupons(getCouponStrings());
+            basket.updateBasketWithCoupons(coupons);
         }
     }
 
@@ -304,7 +305,7 @@ public class Cart {
 
     public Basket baskets_getBasketByStoreId(int storeId){
         for(Basket b : baskets){
-            if(b.getStore().getId() == storeId){
+            if(b.getStore().getStoreID() == storeId){
                 return b;
             }
         }

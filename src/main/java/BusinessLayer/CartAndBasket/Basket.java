@@ -57,7 +57,7 @@ public class Basket {
         dao = new BasketDAO();
     }
 
-    public void addItem(CatalogItem item, int quantity, List<String> coupons) throws Exception {
+    public void addItem(CatalogItem item, int quantity, List<Coupon> coupons) throws Exception {
         validateAddItem(item, quantity);
         ItemWrapper wrapper = searchInItemsById(item.getItemID());
         boolean wrapperPersisted = false;
@@ -85,7 +85,7 @@ public class Basket {
         }
     }
 
-    public void changeItemQuantity(int itemID, int quantity, List<String> coupons) throws Exception {
+    public void changeItemQuantity(int itemID, int quantity, List<Coupon> coupons) throws Exception {
         validateChangeItemQuantity(itemID, quantity);
         List<CartItemInfo> savedItemsInfos = getItemsInfo();
 
@@ -104,7 +104,7 @@ public class Basket {
         }
     }
 
-    public void removeItem(int itemID, List<String> coupons) throws Exception {
+    public void removeItem(int itemID, List<Coupon> coupons) throws Exception {
         ItemWrapper wrapper = searchInItemsById(itemID);
         List<CartItemInfo> savedItemsInfos = getItemsInfo();
 
@@ -179,7 +179,7 @@ public class Basket {
         return new CatalogItem(item.getItemID(), item.getItemName(), item.getPrice(), item.getCategory(), item.getStoreName(), getStore(), item.getWeight());
     }
 
-    public void saveItems(List<String> coupons, int userID, int age) throws Exception{
+    public void saveItems(List<Coupon> coupons, int userID, int age) throws Exception{
 //        savedItems = getItemsInfo();
 
         try{
@@ -277,7 +277,7 @@ public class Basket {
         return searchInItemsById(itemID) != null;
     }
 
-    public void updateBasketWithCoupons(List<String> coupons) throws Exception {
+    public void updateBasketWithCoupons(List<Coupon> coupons) throws Exception {
         List<CartItemInfo> updatedBasketItems = getItemsInfo();
         store.updateBasket(updatedBasketItems, coupons);
         //checkIfPurchaseIsValid(updatedBasketItems, age);

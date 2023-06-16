@@ -1,6 +1,7 @@
 package BusinessLayer.Stores.Discounts;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.CartAndBasket.Coupon;
 
 import java.util.List;
 
@@ -14,7 +15,7 @@ public abstract class Discount {
         this.discountID = discountID;
     }
 
-    public abstract List<CartItemInfo> updateBasket(List<CartItemInfo> basketItems, List<String> coupons);
+    public abstract List<CartItemInfo> updateBasket(List<CartItemInfo> basketItems, List<Coupon> coupons);
 
     public int getDiscountID() {
         return discountID;

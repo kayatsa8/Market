@@ -1,6 +1,7 @@
 package BusinessLayer.Stores.Discounts.DiscountsTypes;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.CartAndBasket.Coupon;
 import BusinessLayer.Stores.Discounts.Discount;
 import BusinessLayer.Stores.Discounts.DiscountScopes.DiscountScope;
 import BusinessLayer.Stores.Store;
@@ -43,7 +44,7 @@ public abstract class DiscountType extends Discount {
         discountScope.removeItem(itemID);
     }
 
-    public List<CartItemInfo> updateBasket(List<CartItemInfo> basketItems, List<String> coupons) {
+    public List<CartItemInfo> updateBasket(List<CartItemInfo> basketItems, List<Coupon> coupons) {
         List<CartItemInfo> copyBasket = new ArrayList<>();
         for (CartItemInfo item : basketItems) {
             copyBasket.add(new CartItemInfo(item));
@@ -56,7 +57,7 @@ public abstract class DiscountType extends Discount {
         return copyBasket;
     }
 
-    protected abstract boolean checkConditions(List<CartItemInfo> basketItems, List<String> coupons);
+    protected abstract boolean checkConditions(List<CartItemInfo> basketItems, List<Coupon> coupons);
 
     public boolean isDiscountApplyForItem(int itemID, String category) {
         return discountScope.isDiscountApplyForItem(itemID, category);
