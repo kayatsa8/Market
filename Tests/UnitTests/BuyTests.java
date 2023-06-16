@@ -138,6 +138,24 @@ public class BuyTests {
         }
     }
 
+    @Test
+    public void buyTest_FailInSaveItems(){
+        try {
+            doThrow(Exception.class).when(cart).saveItemsInBaskets(isA(PurchaseInfo.class));
+
+            cart.buyCart(purchaseClient, supplyClient, purchaseFail, supplyInfo);
+            fail("Should have thrown an exception");
+        } catch (Exception e) {
+            assertTrue(true);
+            try {
+                doNothing().when(cart).saveItemsInBaskets(isA(PurchaseInfo.class));
+            } catch (Exception ex) {
+                fail();
+            }
+
+        }
+    }
+
 
 
 }
