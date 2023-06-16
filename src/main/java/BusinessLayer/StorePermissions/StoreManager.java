@@ -1,11 +1,11 @@
 package BusinessLayer.StorePermissions;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class StoreManager extends StoreEmployees {
 
-    private ConcurrentHashMap<StoreActionPermissions, Integer> map;
 
     public Set<StoreActionPermissions> getStoreActionPermissions() {
         return storeActionPermissions;
@@ -15,8 +15,7 @@ public class StoreManager extends StoreEmployees {
 
     public StoreManager(int id, StoreOwner storeOwnerShip) {
         super(id, storeOwnerShip.getUserID(),storeOwnerShip.getStore());
-        map = new ConcurrentHashMap<>();
-        storeActionPermissions = map.newKeySet();
+        storeActionPermissions = new HashSet<>();
     }
 
     public void addPermission(StoreActionPermissions permission) {

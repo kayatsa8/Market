@@ -4,6 +4,6 @@ public enum StoreActionPermissions {
     INVENTORY,
     PURCHASE_POLICY,
     DISCOUNT_POLICY,
-    COMPLAINTS,
+    HISTORY,
     BID_MANAGEMENT
 }

@@ -35,8 +35,8 @@ public class Application implements AppShellConfigurator {
         ConfigReader configReader=new ConfigReader();
         String relativePath = configReader.getInitializePath();
 
-        Loader loader=new Loader();
-        loader.load(relativePath);
+//        Loader loader=new Loader();
+//        loader.load(relativePath);
 
         SpringApplication.run(Application.class, args);
     }

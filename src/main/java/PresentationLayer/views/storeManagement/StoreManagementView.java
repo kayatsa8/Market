@@ -20,6 +20,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
+import com.vaadin.flow.component.grid.contextmenu.GridMenuItem;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
@@ -41,6 +42,7 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.Route;
@@ -289,20 +291,32 @@ public class StoreManagementView extends VerticalLayout {
 
     private void addMenuItems(Grid<StoreService> storesGrid, boolean managerMode) {
         GridContextMenu<StoreService> menu = storesGrid.addContextMenu();
-        storesGrid.addSelectionListener(e->
-                            {
-                                if (e.getAllSelectedItems().size()==0) {menu.close();}
-                            });
         menu.setOpenOnClick(true);
-        menu.addItem("View Items Of Store", event -> {viewItemsDialog(storesGrid, managerMode);});
+
+        storesGrid.addSelectionListener(e ->
+        {
+            if (e.getAllSelectedItems().size() == 0) {
+                menu.close();
+            }
+        });
+
+        storesGrid.getDataProvider().fetch(new Query<>()).forEach(bean -> {
+            addMenuItems(bean, menu, storesGrid, managerMode);
+        });
+    }
+    private void addMenuItems(StoreService store, GridContextMenu<StoreService> menu, Grid<StoreService> storesGrid, boolean managerMode) {
+        menu.addItem("View Items Of Store", event -> {viewItemsDialog(storesGrid, managerMode);}).setVisible(hasPermission(store, StoreActionPermissions.INVENTORY));
         menu.addItem("View Discounts Of Store", e -> {viewDiscountsDialog(storesGrid);});
         menu.addItem("Close Store", event -> {closeStoreDialog();}).setVisible(!managerMode);  //only store founder
         menu.addItem("Open Store", event -> {openStoreDialog();}).setVisible(!managerMode);   //only store founder
-        menu.addItem("Get Store History", event -> {getHistoryDialog(storesGrid);});  //Requirement 4.13
+        menu.addItem("Get Store History", event -> {getHistoryDialog(storesGrid);}).setVisible(hasPermission(store, StoreActionPermissions.HISTORY));  //Requirement 4.13
         menu.addItem("Get Staff Info", event -> {getStaffInfoDialog();}).setVisible(!managerMode);  //Requirement 4.11
-        menu.addItem("View Store Purchase policies", event -> {viewPoliciesDialog(PURCHASE_POLICY, storesGrid);});
-        menu.addItem("View Store Discount policies", event -> {viewPoliciesDialog(DISCOUNT_POLICY, storesGrid);});
+        menu.addItem("View Store Purchase policies", event -> {viewPoliciesDialog(PURCHASE_POLICY, storesGrid);}).setVisible(hasPermission(store, StoreActionPermissions.PURCHASE_POLICY));
+        menu.addItem("View Store Discount policies", event -> {viewPoliciesDialog(DISCOUNT_POLICY, storesGrid);}).setVisible(hasPermission(store, StoreActionPermissions.DISCOUNT_POLICY));
         menu.addItem("Store Mailbox", event -> startMailbox()).setVisible(!managerMode);
+    }
+
+    private boolean hasPermission(StoreService store, StoreActionPermissions storeActionPermissions) {
     }
 
     //mark
