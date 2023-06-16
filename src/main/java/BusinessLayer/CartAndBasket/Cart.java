@@ -53,7 +53,11 @@ public class Cart {
         Log.log.info("A new cart was created for user " + userID);
     }
 
+    //for tests with Mocks
     public Cart(){
+        userID = 1;
+        baskets = new BasketsRepository();
+        coupons = new ArrayList<>();
         dao = new CartDAO();
     }
 
@@ -162,12 +166,7 @@ public class Cart {
         if(!purchaseManager.handShake()){
             throw new Exception("Problem with connection to external System");
         }
-
-        for(Basket basket : baskets){
-            basket.saveItems(getCouponStrings(), userID, purchaseInfo.getAge());
-        }
-
-        Log.log.info("Items of cart " + userID + " are saved");
+        saveItemsInBaskets(purchaseInfo);
 
         //TODO: should change in future versions
         double finalPrice = calculateTotalPrice();
@@ -178,11 +177,7 @@ public class Cart {
         int supplyTransId = purchaseManager.supply();
 
         if( purchaseTransId == -1 || supplyTransId == -1 ){
-
-            for(Basket basket : baskets){
-                basket.releaseItems(basket.getItemsInfo());
-            }
-
+            releaseItemFromBaskets();
             purchaseManager.cancelSupply(supplyTransId);
             purchaseManager.cancelPay(purchaseTransId);
             throw new Exception("Problem with Supply or Purchase");
@@ -192,16 +187,37 @@ public class Cart {
             Log.log.info("Cart " + userID + " delivery is scheduled");
         }
 
-        for(Basket basket : baskets){
-            receiptData.putIfAbsent(basket.getStore().getStoreID(), basket.buyBasket(userID));
-        }
+        createReceipt(receiptData);
 
-        Log.log.info("All items of " + userID + "are bought");
-
-        empty();
-        Log.log.info("Cart " + userID + " is empty");
+        emptyCart();
 
         return receiptData;
+    }
+
+    public void emptyCart() {
+        empty();
+        Log.log.info("Cart " + userID + " is empty");
+    }
+
+    public void createReceipt(HashMap<Integer, Map<CatalogItem, CartItemInfo>> receiptData) throws Exception {
+        for(Basket basket : baskets.values()){
+            receiptData.putIfAbsent(basket.getStore().getStoreID(), basket.buyBasket(userID));
+        }
+        Log.log.info("All items of " + userID + "are bought");
+    }
+
+    public void releaseItemFromBaskets() throws Exception {
+        for(Basket basket : baskets.values()){
+            basket.releaseItems();
+        }
+    }
+
+    public void saveItemsInBaskets(PurchaseInfo purchaseInfo) throws Exception {
+        for(Basket basket : baskets.values()){
+
+            basket.saveItems(coupons, userID, purchaseInfo.getAge());
+        }
+        Log.log.info("Items of cart " + userID + " are saved");
     }
 
     /**
@@ -288,7 +304,7 @@ public class Cart {
 
     public Basket baskets_getBasketByStoreId(int storeId){
         for(Basket b : baskets){
-            if(b.getStore().getStoreID() == storeId){
+            if(b.getStore().getId() == storeId){
                 return b;
             }
         }

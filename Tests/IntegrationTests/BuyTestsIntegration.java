@@ -1,18 +1,30 @@
-package UnitTests.CartAndBasket;
+package IntegrationTests;
 
 import BusinessLayer.CartAndBasket.Cart;
+import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
+import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.Supply.SupplyClient;
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.Market;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.UserFacade;
+import UnitTests.CartAndBasket.Mocks.PurchaseClientMock;
+import UnitTests.CartAndBasket.Mocks.SupplyClientMock;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import static org.junit.Assert.*;
 
 
@@ -20,7 +32,7 @@ import static org.junit.Assert.*;
  * Cart and basket are tested together since Basket is an extension of Cart
  * and functioning as a Cart for a certain Store
  */
-public class CartBasketTests {
+public class BuyTestsIntegration {
 
     static RegisteredUser storeOwner;
     static RegisteredUser client;
@@ -42,10 +54,10 @@ public class CartBasketTests {
         userFacade = market.getUserFacade();
         String addressOk="addressOk";
         LocalDate bDayOk=LocalDate.of(1999, 7, 11);
-        int user1ID = market.register("storeOwnerCartTests", "111111",addressOk,bDayOk);
+        int user1ID = market.register("BuyTestIntegration", "111111",addressOk,bDayOk);
         storeOwner = userFacade.getRegisteredUser(user1ID);
         userFacade.logIn(storeOwner.getUsername(), "111111");
-        int user2ID = market.register("clientCartTests", "123456",addressOk,bDayOk);
+        int user2ID = market.register("BuyTestIntegration2", "123456",addressOk,bDayOk);
         client = userFacade.getRegisteredUser(user2ID);
         userFacade.logIn(client.getUsername(), "123456");
         int store1ID = market.addStore(storeOwner.getId(), "store1");
@@ -63,231 +75,7 @@ public class CartBasketTests {
         cart = client.getCart();
     }
 
-    @Test
-    public void addItem_positiveResults(){
-        try{
-            //GOOD
-            cart.addItem(store1, item1, 1);
-            assertTrue("The item is not inside the cart!",
-                    cart.isItemInCart(item1.getItemID(), store1.getStoreID()));
 
-            cart.addItem(store1, item2, 5);
-            assertTrue("The item is not inside the cart!",
-                    cart.isItemInCart(item2.getItemID(), store1.getStoreID()));
-
-            cart.addItem(store2, item3, 83);
-            assertTrue("The item is not inside the cart!",
-                    cart.isItemInCart(item3.getItemID(), store2.getStoreID()));
-
-        }
-        catch(Exception e){
-            fail(e.getMessage());
-        }
-
-        cart.empty();
-    }
-
-    @Test
-    public void addItem_unrecognizedItem(){
-        try{
-            cart.addItem(store1, item3, 3);
-            fail("The cart added an item of one store to another.");
-        }
-        catch (Exception e){
-            assertEquals("ERROR: Basket::addItemToCart: the item is not in the store!", e.getMessage());
-        }
-
-        cart.empty();
-    }
-
-    @Test
-    public void addItem_nonPositiveAmount(){
-        try{
-            cart.addItem(store2, item4, -17);
-            fail("The cart added a non-positive amount of the item.");
-        }
-        catch(Exception e){
-            assertEquals("ERROR: Basket::addItemToCart: given quantity is not valid!", e.getMessage());
-        }
-
-        cart.empty();
-    }
-
-    @Test
-    public void addItem_alreadyInCart(){
-        try{
-            cart.addItem(store1, item1, 1);
-            cart.addItem(store1, item1, 1);
-        }
-        catch(Exception e){
-            fail("should be able to increase the amount in the cart. got error:\n" + e.getMessage());
-        }
-
-        cart.empty();
-    }
-
-    @Test
-    public void removeItem_positiveResults(){
-        try{
-            cart.addItem(store1, item1, 1);
-            cart.addItem(store1, item2, 5);
-            cart.addItem(store2, item3, 83);
-
-            //GOOD
-            cart.removeItem(store1.getStoreID(), item1.getItemID());
-            assertFalse("The item is inside the cart!",
-                    cart.isItemInCart(item1.getItemID(), store1.getStoreID()));
-
-            cart.removeItem(store1.getStoreID(), item2.getItemID());
-            assertFalse("The item is inside the cart!",
-                    cart.isItemInCart(item2.getItemID(), store1.getStoreID()));
-
-            cart.removeItem(store2.getStoreID(), item3.getItemID());
-            assertFalse("The item is inside the cart!",
-                    cart.isItemInCart(item3.getItemID(), store2.getStoreID()));
-
-        }
-        catch(Exception e){
-            fail(e.getMessage());
-        }
-        finally {
-            cart.empty();
-        }
-    }
-
-    @Test
-    public void removeItem_storeAndItemNotExist(){
-        try{
-            cart.addItem(store1, item1, 1);
-            cart.addItem(store1, item2, 5);
-            cart.addItem(store2, item3, 83);
-
-            cart.removeItem(78952, 2311);
-            fail("The store and item does not exist!");
-        }
-        catch(Exception e){
-            assertEquals("Cart::removeItemFromCart: the store " + 78952 + " was not found!", e.getMessage());
-        }
-        finally {
-            cart.empty();
-        }
-    }
-
-    @Test
-    public void removeItem_itemNotExist(){
-        try{
-            cart.addItem(store1, item1, 1);
-            cart.addItem(store1, item2, 5);
-            cart.addItem(store2, item3, 83);
-
-            cart.removeItem(store1.getStoreID(), 3251351);
-            fail("An item that does not exists was removed!");
-        }
-        catch(Exception e){
-            assertEquals("ERROR: Basket::removeItemFromCart: no such item in basket!", e.getMessage());
-        }
-        finally {
-            cart.empty();
-        }
-    }
-
-    @Test
-    public void changeItemQuantity_positiveResults(){
-
-        HashMap<CatalogItem, CartItemInfo> map;
-
-        try{
-            cart.addItem(store1, item1, 1);
-            cart.addItem(store1, item2, 5);
-            cart.addItem(store2, item3, 83);
-
-            cart.changeItemQuantity(store1.getStoreID(), item1.getItemID(), 17);
-            map = cart.getItemsInBasket(store1.getStoreName());
-
-            //GOOD
-            assertEquals("The item quantity was not change!",
-                    getCiiFromMap(map, item1).getAmount(), 17);
-
-            cart.changeItemQuantity(store1.getStoreID(), item2.getItemID(), 52);
-            map = cart.getItemsInBasket(store1.getStoreName());
-            assertEquals("The item quantity was not change!",
-                    getCiiFromMap(map, item2).getAmount(), 52);
-
-            cart.changeItemQuantity(store2.getStoreID(), item3.getItemID(), 44);
-            map = cart.getItemsInBasket(store2.getStoreName());
-            assertEquals("The item quantity was not change!",
-                    getCiiFromMap(map, item3).getAmount(), 44);
-
-            cart.empty();
-        }
-        catch(Exception e){
-            fail(e.getMessage());
-        }
-
-        cart.empty();
-    }
-
-    @Test
-    public void changeItemQuantity_storeAndItemNotExist(){
-        try{
-            cart.addItem(store1, item1, 1);
-            cart.addItem(store1, item2, 5);
-            cart.addItem(store2, item3, 83);
-
-            cart.changeItemQuantity(78952, 2311, 1);
-            fail("The store and item does not exist!");
-        }
-        catch(Exception e){
-            assertEquals("Cart::changeItemQuantityInCart: the store " + 78952 + " was not found!", e.getMessage());
-        }
-        finally{
-            cart.empty();
-        }
-    }
-
-    @Test
-    public void changeItemQuantity_itemNotExist(){
-        try{
-            cart.addItem(store1, item1, 1);
-            cart.changeItemQuantity(store1.getStoreID(), 3251351, 1);
-            fail("An item that does not exists was changed!");
-        }
-        catch(Exception e){
-            assertEquals("ERROR: Basket::changeItemQuantityInCart: the item is not in the basket!", e.getMessage());
-        }
-        finally{
-            cart.empty();
-        }
-    }
-
-    @Test
-    public void changeItemQuantity_nonPositiveQuantity(){
-        try{
-            cart.addItem(store1, item1, 1);
-            cart.changeItemQuantity(store1.getStoreID(), item1.getItemID(), -50);
-            fail("An item quantity was changed to non-positive!");
-        }
-        catch(Exception e){
-            assertEquals("ERROR: Basket::changeItemQuantityInCart: given quantity is not valid!", e.getMessage());
-        }
-        finally{
-            cart.empty();
-        }
-    }
-
-    private CartItemInfo getCiiFromMap(HashMap<CatalogItem, CartItemInfo> map, CatalogItem item){
-        for(CatalogItem t : map.keySet()){
-            if(item.equals(t)){
-                return map.get(t);
-            }
-        }
-
-        return null;
-    }
-
-
-    //Moved to BuyTestsIntegration
-    /**
     @Test
     public void buy_positiveResults(){
         try{
@@ -557,6 +345,6 @@ public class CartBasketTests {
     public SupplyInfo getSupplyInfo(){
         return new SupplyInfo("Name", "address", "city", "counyrt", "asd");
     }
-    */
+
 
 }

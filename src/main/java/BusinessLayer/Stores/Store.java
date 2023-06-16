@@ -754,11 +754,17 @@ public class Store {
         receiptInfo.put(userID, receiptItems);
         receiptHandler.addReceipt(storeID, receiptInfo);
         List<Integer> sendToList = storeOwners.stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
-        mailbox.sendMessageToList(sendToList, "User " + userID + " made a purchase in store " + storeName + " where you are one of the owners");
+
+        sendMsgToList(sendToList, "User " + userID + " made a purchase in store " + storeName + " where you are one of the owners");
         log.info("A basket was bought at store " + storeID);
     }
 
-    public synchronized void saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems, List<String> coupons, int userID, int age) throws Exception {
+    public void sendMsgToList(List<Integer> sendToList, String s) {
+        mailbox.sendMessageToList(sendToList, s);
+    }
+
+    public synchronized void saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems, List<String> coupons, int userID, int age) throws Exception
+    {
         if (storeStatus == OPEN) {
             if (checkIfItemsInStock(basketItems)) {
                 if (checkIfBasketPriceChanged(basketItems, coupons)) {
@@ -768,8 +774,9 @@ public class Store {
                 }
                 try {
                     checkIfPurchaseIsValid(basketItems, age);
-                } catch (IllegalStateException msg) {
-                    mailbox.sendMessage(userID, msg.getMessage());
+                }
+                catch (IllegalStateException msg) {
+                    sendMsg(userID, msg.getMessage());
                     log.warning("Trying to buy a basket in store: " + storeName + ", but you don't comply with the purchase policies");
                     throw new IllegalStateException(msg);
                 }
@@ -792,6 +799,10 @@ public class Store {
         }
     }
 
+    private void sendMsg(int userID, String message) {
+        mailbox.sendMessage(userID, message);
+    }
+
     public boolean checkIfPurchaseIsValid(List<CartItemInfo> basketItems, int age) throws Exception {
         for (Map.Entry<Integer, PurchasePolicy> purchasePolicy : purchasePolicies.entrySet()) {
             if (!purchasePolicy.getValue().isValidForPurchase(basketItems, age)) {
@@ -800,6 +811,7 @@ public class Store {
         }
         return true;
     }
+
 
     private boolean checkIfDiscountsAreValid(List<CartItemInfo> basketItems) throws Exception {
         for (Map.Entry<Integer, DiscountPolicy> discountPolicy : discountPolicies.entrySet()) {
@@ -946,7 +958,7 @@ public class Store {
         List<Integer> sendToList = storeOwnersAndManagers.stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
         newBid.setRepliers(sendToList);
         bids.put(bidsIDs++, newBid);
-        mailbox.sendMessageToList(sendToList, "User " + userID + " offered new bid for item " + getItem(itemID).getItemName() + " at store " + storeName + " with price of " + offeredPrice + " while the original price is " + getItem(itemID).getPrice());
+        sendMsgToList(sendToList, "User " + userID + " offered new bid for item " + getItem(itemID).getItemName() + " at store " + storeName + " with price of " + offeredPrice + " while the original price is " + getItem(itemID).getPrice());
         log.info("Added new bid for item " + itemID + " at store " + storeID);
         return newBid;
     }
@@ -999,11 +1011,11 @@ public class Store {
         int userID = bid.getUserID();
         addSavedItemAmount(itemID, -1);
         if (bid.getHighestCounterOffer() == -1) {
-            mailbox.sendMessage(userID, "Hi, your bid for the item: " + getItem(itemID).getItemName() + ", was approved by the store, and the item will be sent to you soon");
+            sendMsg(userID, "Hi, your bid for the item: " + getItem(itemID).getItemName() + ", was approved by the store, and the item will be sent to you soon");
             log.info("Bid " + bidID + " was fully approved");
             return BidReplies.APPROVED;
         } else {
-            mailbox.sendMessage(userID, "Hi, your bid for the item: " + getItem(itemID).getItemName() + ", was countered by the store with counter-offer of: " + bid.getHighestCounterOffer() + " while the original price is: " + getItem(itemID).getPrice());
+            sendMsg(userID, "Hi, your bid for the item: " + getItem(itemID).getItemName() + ", was countered by the store with counter-offer of: " + bid.getHighestCounterOffer() + " while the original price is: " + getItem(itemID).getPrice());
             log.info("Bid " + bidID + " was counter-offered with price of " + bid.getHighestCounterOffer());
             return BidReplies.COUNTERED;
         }
@@ -1016,7 +1028,7 @@ public class Store {
         addItemAmount(itemID, 1);
         addSavedItemAmount(itemID, -1);
         removeBid(bidID);
-        mailbox.sendMessage(userID, "Hi, we apologize for the inconvenience, but your bid for the item: " + getItem(itemID).getItemName() + ", was rejected by the store");
+        sendMsg(userID, "Hi, we apologize for the inconvenience, but your bid for the item: " + getItem(itemID).getItemName() + ", was rejected by the store");
         log.info("Bid " + bidID + " was rejected");
     }
 
@@ -1029,7 +1041,7 @@ public class Store {
         myAuction.getAuctionTimer().cancel();
         myAuction.getAuctionTimer().purge();
         removeAuction(auctionID);
-        mailbox.sendMessage(winnerID, "Congratulations, you are the winner in our auction in store " + storeName + " of item " + getItem(itemID).getItemName() + " with an offer of " + myAuction.getCurrentPrice() + " while the original price is " + getItem(itemID).getPrice());
+        sendMsg(winnerID, "Congratulations, you are the winner in our auction in store " + storeName + " of item " + getItem(itemID).getItemName() + " with an offer of " + myAuction.getCurrentPrice() + " while the original price is " + getItem(itemID).getPrice());
         log.info("Auction " + auctionID + " finished successfully and item was sold");
     }
 
@@ -1052,10 +1064,10 @@ public class Store {
         myLottery.getLotteryTimer().cancel();
         myLottery.getLotteryTimer().purge();
         removeLottery(lotteryID);
-        mailbox.sendMessage(winnerID, "Congratulations, you are the winner in our lottery in store " + storeName + " of item " + getItem(itemID).getItemName());
+        sendMsg(winnerID, "Congratulations, you are the winner in our lottery in store " + storeName + " of item " + getItem(itemID).getItemName());
         List<Integer> losers = myLottery.getParticipants();
         losers.remove(winnerID);
-        mailbox.sendMessageToList(losers, "We are sorry, but you lost the lottery in store " + storeName + " of item " + getItem(itemID).getItemName());
+        sendMsgToList(losers, "We are sorry, but you lost the lottery in store " + storeName + " of item " + getItem(itemID).getItemName());
         log.info("Lottery " + lotteryID + " finished successfully and item was sold to user " + winnerID);
     }
 
@@ -1068,8 +1080,9 @@ public class Store {
         myLottery.getLotteryTimer().purge();
         removeLottery(lotteryID);
         List<Integer> participants = myLottery.getParticipants();
-        if (participants.size() > 0)
-            mailbox.sendMessageToList(participants, "We are sorry, but the lottery in store " + storeName + " of item " + getItem(itemID).getItemName() + " has canceled due to lack of demand. Your money will be returned.");
+        if (participants.size() > 0){
+            sendMsgToList(participants, "We are sorry, but the lottery in store " + storeName + " of item " + getItem(itemID).getItemName() + " has canceled due to lack of demand. Your money will be returned.");
+        }
         log.info("Lottery " + lotteryID + " finished unsuccessfully and item was not sold");
     }
 
@@ -1095,7 +1108,7 @@ public class Store {
         boolean result = myAuction.offerToAuction(userID, offerPrice);
         double bestOfferNow = myAuction.getCurrentPrice();
         if (result)
-            mailbox.sendMessage(winnerBefore, "Hi, we want to inform you that other user passed your offer of " + bestOfferBefore + " with an offer of " + bestOfferNow + " at the auction of item " + itemName + " at store " + storeName);
+            sendMsg(winnerBefore, "Hi, we want to inform you that other user passed your offer of " + bestOfferBefore + " with an offer of " + bestOfferNow + " at the auction of item " + itemName + " at store " + storeName);
         log.info("User " + userID + " offered to auction " + auctionID + " with price of " + offerPrice);
         return result;
     }
@@ -1151,9 +1164,10 @@ public class Store {
         }
         return false;
     }
-
-    public boolean reopenStore(int userID) throws Exception {
-        if (userID != founderID)
+    
+    public boolean reopenStore(int userID) throws Exception
+    {
+        if (!isFounder(userID))
             throw new Exception("Only the founder of the store can open it");
         if (storeStatus == OPEN) {
             return false;
@@ -1165,11 +1179,17 @@ public class Store {
             storeOwnersAndManagers.addAll(storeOwners);
             storeOwnersAndManagers.addAll(storeManagers);
             List<Integer> sendToList = storeOwnersAndManagers.stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
-            mailbox.sendMessageToList(sendToList, "Store " + storeName + " has opened");
-            mailbox.setMailboxAsAvailable();
+
+            sendMsgToListAndAvailable(sendToList, "Store " + storeName + " has opened");
+
             log.info("Store " + storeID + " opened");
             return true;
         }
+    }
+
+    public void sendMsgToListAndAvailable(List<Integer> sendToList, String s) throws Exception {
+        mailbox.sendMessageToList(sendToList, s);
+        mailbox.setMailboxAsAvailable();
     }
 
     private List<Integer> getOwnerIDs() {
@@ -1179,9 +1199,10 @@ public class Store {
     private List<Integer> getManagerIDs() {
         return storeManagers.stream().map(StoreEmployees::getUserID).toList();
     }
-
-    public boolean closeStore(int userID) throws Exception {
-        if (userID != founderID)
+    
+    public boolean closeStore(int userID) throws Exception
+    {
+        if (!isFounder(userID))
             throw new Exception("Only the founder of the store can close it");
         if (storeStatus == CLOSE) {
             return false;
@@ -1193,12 +1214,23 @@ public class Store {
             storeOwnersAndManagers.addAll(storeOwners);
             storeOwnersAndManagers.addAll(storeManagers);
             List<Integer> sendToList = storeOwnersAndManagers.stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
-            mailbox.sendMessageToList(sendToList, "Store " + storeName + " has closed");
-            mailbox.setMailboxAsUnavailable();
+
+            sendMsgToListAndUnavailable(sendToList,  "Store " + storeName + " has closed");
+
             log.info("Store " + storeID + " closed");
             return true;
         }
     }
+
+    public void sendMsgToListAndUnavailable(List<Integer> sendToList, String s) throws Exception {
+        mailbox.sendMessageToList(sendToList, s);
+        mailbox.setMailboxAsUnavailable();
+    }
+
+    public boolean isFounder(int userId) {
+        return founderID == userId;
+    }
+
 
     public boolean closeStorePermanently() throws Exception {
         if (storeStatus == PERMANENTLY_CLOSE) {
@@ -1209,8 +1241,7 @@ public class Store {
             storeOwnersAndManagers.addAll(storeOwners);
             storeOwnersAndManagers.addAll(storeManagers);
             List<Integer> sendToList = storeOwnersAndManagers.stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
-            mailbox.sendMessageToList(sendToList, "Store " + storeName + " has closed permanently");
-            mailbox.setMailboxAsUnavailable();
+            sendMsgToListAndUnavailable(sendToList, "Store " + storeName + " has closed permanently");
             storeOwners = new HashSet<>();
             storeManagers = new HashSet<>();
             log.info("Store " + storeID + " is permanently closed");
@@ -1367,13 +1398,11 @@ public class Store {
 
     public Map<Integer, Visible> getStoreVisibleDiscounts() {
         Map<Integer, Visible> visibleDiscounts = new HashMap<>();
-
         for(DiscountPair pair : discounts){
             if(pair.getValue() instanceof Visible){
                 visibleDiscounts.put(pair.getKey(), (Visible) pair.getValue());
             }
         }
-
         return visibleDiscounts;
     }
 
@@ -1448,8 +1477,9 @@ public class Store {
         //check bid validity
         try {
             checkIfPurchaseIsValid(cartItems, purchaseInfo.getAge());
-        } catch (IllegalStateException msg) {
-            mailbox.sendMessage(bid.getUserID(), msg.getMessage());
+        }
+        catch (IllegalStateException msg) {
+            sendMsg(bid.getUserID(), msg.getMessage());
             log.warning("Trying to buy a Item from Bid with store: " + storeName + ", but you don't comply with the purchase policies");
             throw new IllegalStateException(msg);
         }

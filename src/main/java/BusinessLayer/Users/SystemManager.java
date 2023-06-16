@@ -26,6 +26,11 @@ public class SystemManager {
     }
 
 
+    public SystemManager(){
+        this.userFacade = null;
+        this.storeFacade = null;
+    }
+
     public void closeStorePermanently(Store store) throws Exception
     {
         //remove all owners -> will automatically remove all managers
