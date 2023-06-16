@@ -2,11 +2,19 @@ package PresentationLayer.initialize;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Properties;
 
 public class ConfigReader {
     private final Properties properties;
+
+    public void setFilepath(String filepath) {
+        this.filepath = filepath;
+    }
+
+    private String filepath;
     public ConfigReader() {
+        filepath = Objects.equals(System.getProperty("env"), "test") ? "testconfig.properties" : "config.properties";
         properties = new Properties();
     }
     private static class ConfigProperties{
@@ -28,7 +36,7 @@ public class ConfigReader {
     private String getConfigDetail(String configProperty){
         String property="";
 
-        try (FileInputStream fis = new FileInputStream("config.properties")) {
+        try (FileInputStream fis = new FileInputStream(filepath)) {
             properties.load(fis);
 
             // Read the relative addresses of the files

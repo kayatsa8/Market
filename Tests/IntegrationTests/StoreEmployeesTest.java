@@ -34,6 +34,7 @@ public class StoreEmployeesTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
+        System.setProperty("env", "test");
         Market market = Market.getInstance();
         storeFacade = market.getStoreFacade();
         userFacade = market.getUserFacade();
@@ -123,7 +124,7 @@ public class StoreEmployeesTest {
                 store.getStoreManagers().contains(manager.getId()));
     }
 
-    private void removeOwnerSetup() {
+    private void removeOwnerSetup() throws Exception {
         if (user2.getStoreIOwn(store2.getStoreID())==null) {
             user4.addOwner(user2, store2.getStoreID());
         }
@@ -147,7 +148,7 @@ public class StoreEmployeesTest {
     }
 
     @Test
-    public void addOwner() {
+    public void addOwner() throws Exception {
         try {
             user2.addOwner(user1, store1.getStoreID());
             fail("Should not allow to add owner if you aren't owner");
@@ -163,7 +164,7 @@ public class StoreEmployeesTest {
     }
 
     @Test
-    public void addManager() {
+    public void addManager() throws Exception{
         try {
             user3.addManager(user1, store1.getStoreID());
             fail("Should not allow to add manager if you aren't owner");
@@ -179,7 +180,7 @@ public class StoreEmployeesTest {
     }
 
     @Test
-    public void removeOwner() {
+    public void removeOwner() throws Exception {
         try {
             user1.removeOwner(user4, store2.getStoreID());
             fail("Should not allow to remove owner if you aren't owner");
@@ -235,7 +236,7 @@ public class StoreEmployeesTest {
     }
 
     @Test
-    public void removeManagerFromCascade() {
+    public void removeManagerFromCascade() throws Exception {
         //test that remove owner also removes relevant managers
         removeOwnerSetup();
         removeManagerSetup(user3);

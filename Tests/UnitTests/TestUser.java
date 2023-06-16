@@ -21,6 +21,7 @@ public class TestUser {
 
     @BeforeClass
     public static void setUp() throws Exception {
+        System.setProperty("env", "test");
         market = Market.getInstance();
         userFacade=market.getUserFacade();
         id1=userFacade.registerUser(userName1,goodPass1,addressOk,bDayOk);
