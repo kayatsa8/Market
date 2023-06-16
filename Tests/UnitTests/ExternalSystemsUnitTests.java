@@ -4,6 +4,9 @@ import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.net.SocketException;
+
 import static org.junit.Assert.*;
 
 public class ExternalSystemsUnitTests {
@@ -111,4 +114,19 @@ public class ExternalSystemsUnitTests {
         }
     }
 
+
+    @Test
+    public void testPay_Timeout(){
+        try{
+            boolean check = purchaseClient.handShake();
+            if(check){
+                purchaseClient.pay("2222333344445555", 4, 2021, "Israel Israelovice", 984, 20444444);
+                fail();
+            }
+        } catch (SocketException e1){
+            assertTrue(true);
+        } catch (Exception e){
+            fail();
+        }
+    }
 }
