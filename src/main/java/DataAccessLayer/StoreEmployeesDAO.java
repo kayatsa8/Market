@@ -10,12 +10,11 @@ import java.util.HashMap;
 
 //DB mock
 public class StoreEmployeesDAO {
-    private static HashMap<Integer, RegisteredUser> userMap = new HashMap<>();
     DBConnector<StoreOwner> soConnector;
     DBConnector<StoreManager> smConnector;
-    public StoreEmployeesDAO() {
-        soConnector = new DBConnector<>(StoreOwner.class, Market.getConfigurations_static());
-        smConnector = new DBConnector<>(StoreManager.class, Market.getConfigurations_static());
+    public StoreEmployeesDAO() throws Exception {
+        soConnector = new DBConnector<>(StoreOwner.class, Market.getInstance().getConfigurations());
+        smConnector = new DBConnector<>(StoreManager.class, Market.getInstance().getConfigurations());
     }
 
 

@@ -32,6 +32,12 @@ public class NotificationHub {
         mailboxes = new ConcurrentHashMap<>();
         dao = new NotificationHubDAO();
 
+
+
+        Log.log.info("The notification hub has started successfully.");
+    }
+
+    public void loadHub(){
         try{
             dao.loadMailboxes(this);
         }
@@ -39,10 +45,7 @@ public class NotificationHub {
             System.err.println("ERROR: notification hub load failed!");
             System.err.println(e.getMessage());
         }
-
-        Log.log.info("The notification hub has started successfully.");
     }
-
     // class methods
 //    public static NotificationHubImpl getInstance() {
 //        synchronized (instanceLock) {

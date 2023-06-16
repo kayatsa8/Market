@@ -22,7 +22,7 @@ public class StoreOwner extends StoreEmployees {
     /*
     founder calls this constructor
      */
-    public StoreOwner(int userID, Store store) {
+    public StoreOwner(int userID, Store store) throws Exception {
         super(userID, userID, store);
         store.addOwner(this);
         this.ownersIDefined = new HashSet<>();
@@ -30,7 +30,7 @@ public class StoreOwner extends StoreEmployees {
         this.employeesDAO = new StoreEmployeesDAO();
     }
 
-    public StoreOwner(int userID, StoreOwner parentStoreOwnership) {
+    public StoreOwner(int userID, StoreOwner parentStoreOwnership) throws Exception {
         super(userID, parentStoreOwnership.getUserID(), parentStoreOwnership.getStore());
         this.ownersIDefined = new HashSet<>();
         this.managersIDefined = new HashSet<>();
@@ -61,7 +61,7 @@ public class StoreOwner extends StoreEmployees {
         return this.getUserID() == this.getParentID();
     }
 
-    public void addOwner(RegisteredUser newOwner) {
+    public void addOwner(RegisteredUser newOwner) throws Exception {
         ownersIDefined.add(newOwner);
         employeesDAO.save(this);
         StoreOwner owner = newOwner.addStoreOwnership(this);

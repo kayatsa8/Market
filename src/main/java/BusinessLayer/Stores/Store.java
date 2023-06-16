@@ -78,8 +78,8 @@ public class Store {
 //    @OneToMany(cascade = CascadeType.ALL)
 //    @LazyCollection(LazyCollectionOption.FALSE)
 //    @JoinColumn(name = "storeId")
-    @Transient
-    private List<SavedItemAmount> savedItemsAmounts;
+//    @Transient
+//    private List<SavedItemAmount> savedItemsAmounts;
 
     @Transient
     private Map<Integer, Bid> bids;
@@ -106,7 +106,7 @@ public class Store {
         this.discounts = new ArrayList<>();
         this.purchasePolicies = new HashMap<>();
         this.discountPolicies = new HashMap<>();
-        this.savedItemsAmounts = new ArrayList<>();
+//        this.savedItemsAmounts = new ArrayList<>();
         this.auctions = new HashMap<>();
         this.lotteries = new HashMap<>();
         this.bids = new HashMap<>();
@@ -132,7 +132,7 @@ public class Store {
         this.purchasePolicies = new HashMap<>();
         this.discountPolicies = new HashMap<>();
         this.items = new HashSet<>();
-        this.savedItemsAmounts = new ArrayList<>();
+//        this.savedItemsAmounts = new ArrayList<>();
         this.auctions = new HashMap<>();
         this.lotteries = new HashMap<>();
         this.bids = new HashMap<>();
@@ -156,7 +156,7 @@ public class Store {
         this.discountPolicies = new HashMap<>();
 //        this.storeDAO = new StoreDAO();
         this.items = new HashSet<>();
-        this.savedItemsAmounts = new ArrayList<>();
+//        this.savedItemsAmounts = new ArrayList<>();
         this.auctions = new HashMap<>();
         this.lotteries = new HashMap<>();
         this.bids = new HashMap<>();
@@ -736,7 +736,7 @@ public class Store {
         }
         CatalogItem newItem = new CatalogItem(itemID, itemName, itemPrice, itemCategory, this.storeName, this, weight);
         items.add(newItem);
-        savedItemsAmounts.add(new SavedItemAmount(itemID, 0));
+//        savedItemsAmounts.add(new SavedItemAmount(itemID, 0));
 //        StoreDAO.addItem(newItem);
         log.info("Added new item: " + itemName + ", at store " + storeID);
         return newItem;
@@ -746,14 +746,9 @@ public class Store {
         Map<CatalogItem, CartItemInfo> receiptItems = new HashMap<>();
         for (CartItemInfo cartItemInfo : basketItems) {
             int itemID = cartItemInfo.getItemID();
-            receiptItems.put(getItem(itemID), cartItemInfo);
-            SavedItemAmount itemAmountPair = (SavedItemAmount)Pair.searchPair(savedItemsAmounts, itemID);
-
-            if(itemAmountPair == null){
-                throw new Exception("ERROR: The item " + itemID + " was not found!");
-            }
-
-            itemAmountPair.setValue(itemAmountPair.getValue() - cartItemInfo.getAmount());
+            CatalogItem item = getItem(itemID);
+            receiptItems.put(item, cartItemInfo);
+            item.setSavedAmount(item.getSavedAmount() - cartItemInfo.getAmount());
         }
         Map<Integer, Map<CatalogItem, CartItemInfo>> receiptInfo = new HashMap<>();
         receiptInfo.put(userID, receiptItems);
@@ -889,12 +884,11 @@ public class Store {
 
     //TODO: change the return type to boolean and fix all calls to here to check the return value.
     public void saveItemAmount(int itemID, int amountToSave) {
-        int itemNewAmount = getItemAmount(itemID) - amountToSave;
-        int itemNewSavedAmount = Pair.searchPair(savedItemsAmounts, itemID).getKey() + amountToSave;
-        if ((itemNewAmount >= 0) && (itemNewSavedAmount >= 0)) {
-            getItem(itemID).setAmount(itemNewAmount);
-            Pair.searchPair(savedItemsAmounts, itemID).setValue(itemNewSavedAmount);
-        }
+        CatalogItem item = getItem(itemID);
+        int itemNewAmount = item.getAmount() - amountToSave;
+        int itemNewSavedAmount = item.getSavedAmount() + amountToSave;
+        item.setAmount(itemNewAmount);
+        item.setSavedAmount(itemNewSavedAmount);
     }
 
     public void reverseSavedItems(List<CartItemInfo> basketItems) throws Exception {
@@ -909,13 +903,15 @@ public class Store {
     }
 
     public boolean checkIfItemsSaved(List<CartItemInfo> basketItems) {
+        CatalogItem item;
         int itemID;
         int itemAmountToRemoveFromSaved;
         int itemCurrentSavedAmount;
         for (CartItemInfo cartItemInfo : basketItems) {
             itemID = cartItemInfo.getItemID();
+            item = getItem(itemID);
             itemAmountToRemoveFromSaved = cartItemInfo.getAmount();
-            itemCurrentSavedAmount = Pair.searchPair(savedItemsAmounts, itemID).getKey();
+            itemCurrentSavedAmount = item.getSavedAmount();
             if (itemCurrentSavedAmount < itemAmountToRemoveFromSaved) {
                 return false;
             }
@@ -980,8 +976,9 @@ public class Store {
     }
 
     public void addSavedItemAmount(int itemID, int amountToRemove) {
-        int currentAmountSaved = Pair.searchPair(savedItemsAmounts, itemID).getValue();
-        Pair.searchPair(savedItemsAmounts, itemID).setValue(currentAmountSaved + amountToRemove);
+        CatalogItem item = getItem(itemID);
+        int currentAmountSaved = item.getSavedAmount();
+        item.setSavedAmount(currentAmountSaved + amountToRemove);
     }
 
     private void removeBid(int bidID) {
@@ -1242,10 +1239,6 @@ public class Store {
     public CatalogItem removeItemFromStore(int itemID) throws Exception {
         if (getItem(itemID) == null)
             return null;
-        if (Pair.searchPair(savedItemsAmounts, itemID).getKey() > 0)
-            throw new Exception("Someone is in the middle of a purchase with this item, please try again in a few seconds");
-        else
-            savedItemsAmounts.remove(itemID);
         if (haveActiveNonEmptyLottery(itemID))
             throw new Exception("Someone participates in a lottery for this item, please try again when the lottery ends");
         else

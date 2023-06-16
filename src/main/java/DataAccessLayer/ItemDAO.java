@@ -11,8 +11,8 @@ import java.util.Map;
 //DB mock
 public class ItemDAO {
     DBConnector<CatalogItem> itemDBConnector;
-    public ItemDAO() {
-        itemDBConnector = new DBConnector<>(CatalogItem.class, Market.getConfigurations_static());
+    public ItemDAO() throws Exception {
+        itemDBConnector = new DBConnector<>(CatalogItem.class, Market.getInstance().getConfigurations());
     }
 
 

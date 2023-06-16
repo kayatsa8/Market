@@ -176,13 +176,13 @@ public class RegisteredUser extends User {
         return (getStoreIManage(storeID) != null);
     }
 
-    public void addStore(Store store) {
+    public void addStore(Store store) throws Exception {
         StoreOwner ownership = new StoreOwner(this.getId(), store);
         storesIOwn.add(ownership);
         employeesDAO.addOwner(ownership);
     }
 
-    public void addOwner(RegisteredUser newOwner, int storeID) throws RuntimeException {
+    public void addOwner(RegisteredUser newOwner, int storeID) throws Exception {
         //ensure I am an owner
         StoreOwner storeOwnership = getStoreIOwn(storeID);
         if (storeOwnership == null) {
@@ -199,7 +199,7 @@ public class RegisteredUser extends User {
         mailbox.sendMessage(newOwner.getId(), "You have been appointed owner of Store: " + storeOwnership.getStore().getStoreName());
     }
 
-    public StoreOwner addStoreOwnership(StoreOwner storeOwnership) {
+    public StoreOwner addStoreOwnership(StoreOwner storeOwnership) throws Exception {
         int storeID = storeOwnership.getStoreID();
         StoreOwner ownership = new StoreOwner(this.getId(), storeOwnership);
         storesIOwn.add(ownership);

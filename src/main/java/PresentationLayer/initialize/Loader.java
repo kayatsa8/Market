@@ -28,13 +28,9 @@ public class Loader {
     private List<Store> createdStore;
 
 
-    public Loader() {
-        try {
-            shoppingService = new ShoppingService();
-            userService = new UserService();
-        }catch (Exception e) {
-            System.out.println("Problem initiating Market\n"+e.getMessage());
-        }
+    public Loader() throws Exception {
+        shoppingService = new ShoppingService();
+        userService = new UserService();
         registeredNames=new ArrayList<>();
         createdStore=new ArrayList<>();
     }

@@ -5,69 +5,60 @@ import BusinessLayer.Stores.Discounts.Discount;
 import BusinessLayer.Stores.Discounts.DiscountScopes.DiscountScope;
 import BusinessLayer.Stores.Store;
 
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-@Entity
-@Inheritance(strategy = InheritanceType.JOINED)
+//@Entity
+//@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class DiscountType extends Discount {
     protected double percent;
-    @Column(name = "endOfSale")
+    //    @Column(name = "endOfSale")
     protected Calendar endOfSale;
-    @Transient
-    private DiscountScope discountScope;
-    @ManyToOne
-    @JoinColumn(name = "storeId")
+    //    @ManyToOne
+//    @JoinColumn(name = "storeId")
     protected Store store;
+    //    @Transient
+    private DiscountScope discountScope;
 
-    public DiscountType() {
-
-    }
-
-    @Override
-    public String toString() {
-        return  "Percent is: " + percent + ", " +
-                "End of sale is at: " + getEndOfSaleString(endOfSale) + ", " +
-                discountScope.toString();
-    }
-    private String getEndOfSaleString(Calendar endOfSale)
-    {
-        return  endOfSale.get(5) + "." + endOfSale.get(2) + "." + endOfSale.get(1);
-    }
-    public void removeItem(int itemID)
-    {
-        discountScope.removeItem(itemID);
-    }
-
-    public DiscountType(int discountID, double percent, Calendar endOfSale, DiscountScope discountScope)
-    {
+    public DiscountType(int discountID, double percent, Calendar endOfSale, DiscountScope discountScope) {
         super(discountID);
         this.percent = percent;
         this.endOfSale = endOfSale;
         this.discountScope = discountScope;
     }
+
+    @Override
+    public String toString() {
+        return "Percent is: " + percent + ", " +
+                "End of sale is at: " + getEndOfSaleString(endOfSale) + ", " +
+                discountScope.toString();
+    }
+
+    private String getEndOfSaleString(Calendar endOfSale) {
+        return endOfSale.get(5) + "." + endOfSale.get(2) + "." + endOfSale.get(1);
+    }
+
+    public void removeItem(int itemID) {
+        discountScope.removeItem(itemID);
+    }
+
     public List<CartItemInfo> updateBasket(List<CartItemInfo> basketItems, List<String> coupons) {
         List<CartItemInfo> copyBasket = new ArrayList<>();
-        for (CartItemInfo item: basketItems)
-        {
+        for (CartItemInfo item : basketItems) {
             copyBasket.add(new CartItemInfo(item));
         }
-        if (checkConditions(basketItems, coupons))
-        {
+        if (checkConditions(basketItems, coupons)) {
             discountScope.setItemsPercents(copyBasket, percent);
-        }
-        else
-        {
+        } else {
             discountScope.setItemsPercents(copyBasket, 0);
         }
         return copyBasket;
     }
+
     protected abstract boolean checkConditions(List<CartItemInfo> basketItems, List<String> coupons);
 
-    public boolean isDiscountApplyForItem(int itemID, String category)
-    {
+    public boolean isDiscountApplyForItem(int itemID, String category) {
         return discountScope.isDiscountApplyForItem(itemID, category);
     }
 

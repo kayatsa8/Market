@@ -14,11 +14,11 @@ public class UserDAO {
     private static HashMap<Integer, RegisteredUser> userMap = new HashMap<>();
     DBConnector<RegisteredUser> connector;
     private static UserDAO instance;
-    private UserDAO() {
-        connector = new DBConnector<>(RegisteredUser.class, Market.getConfigurations_static());
+    private UserDAO() throws Exception {
+        connector = new DBConnector<>(RegisteredUser.class, Market.getInstance().getConfigurations());
     }
 
-    public static synchronized UserDAO getUserDao() {
+    public static synchronized UserDAO getUserDao() throws Exception {
         if (instance==null) {
             instance = new UserDAO();
         }

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 @Entity
 public class UserMailbox extends Mailbox {
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "userId")
     private User owner;
     @Transient

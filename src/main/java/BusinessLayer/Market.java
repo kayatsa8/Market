@@ -24,6 +24,7 @@ import DataAccessLayer.Hibernate.ConnectorConfigurations;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
+import PresentationLayer.initialize.ConfigReader;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -40,16 +41,18 @@ public class Market {
     private static ConnectorConfigurations configurations_static;
 
     private Market() throws Exception {
+        readDBConfigurations();
         systemManagerMap = new HashMap<>();
         userFacade = new UserFacade();
         storeFacade = new StoreFacade();
         notificationHub = new NotificationHub();
     }
 
-    public static synchronized Market getInstance() throws Exception {
+    public static Market getInstance() throws Exception {
         synchronized (instanceLock) {
             if (instance == null) {
                 instance = new Market();
+                instance.notificationHub.loadHub();
                 instance.createFirstAdmin();
                 instance.userFacade.loadUsers();
                 instance.userFacade.setGuest();
@@ -58,8 +61,14 @@ public class Market {
         }
     }
 
-    public static void setConfigurations(String unitName, String url, String username, String password, String driver){
-        configurations_static = new ConnectorConfigurations(unitName, url, username, password, driver);
+    public void readDBConfigurations() {
+        ConfigReader configReader=new ConfigReader();
+        String name = configReader.getDBName();
+        String url = configReader.getDBUrl();
+        String username = configReader.getDBUsername();
+        String password = configReader.getDBPassword();
+        String driver = configReader.getDBDriver();
+        configurations = new ConnectorConfigurations(name, url, username, password, driver);
     }
 
     public void setConfigurations(ConnectorConfigurations conf){
@@ -68,15 +77,6 @@ public class Market {
 
     public ConnectorConfigurations getConfigurations(){
         return configurations;
-    }
-
-    public static ConnectorConfigurations getConfigurations_static(){//TODO SAGI WHY
-        if (configurations_static == null) {
-            String url = "jdbc:mysql://localhost:3306/shefaissashar";
-            String driver = "com.mysql.cj.jdbc.Driver";
-            setConfigurations("Name", url, System.getenv("username"), System.getenv("pass"), driver);
-        }
-        return configurations_static;
     }
 
     public User addGuest() throws Exception {

@@ -2,18 +2,19 @@ package BusinessLayer.Stores.Discounts.DiscountScopes;
 
 import BusinessLayer.CartAndBasket.CartItemInfo;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
 import java.util.List;
 
-@Entity
+//@Entity
 public class ItemsDiscount implements DiscountScope {
-    @Id
-    @Column(name = "id", nullable = false)
+    //    @Id
+//    @Column(name = "id", nullable = false)
     private Integer id;
-
+    //    @Transient //TODO
     private List<Integer> itemIDs;
+
+    public ItemsDiscount(List<Integer> itemIDs) {
+        this.itemIDs = itemIDs;
+    }
 
     public Integer getId() {
         return id;
@@ -23,36 +24,23 @@ public class ItemsDiscount implements DiscountScope {
         this.id = id;
     }
 
-    public ItemsDiscount(List<Integer> itemIDs) {
-        this.itemIDs = itemIDs;
-    }
-
-    public ItemsDiscount() {
-
-    }
-
     public void setItemsPercents(List<CartItemInfo> copyBasket, double percent) //ByItemsList
     {
-        for (CartItemInfo item: copyBasket)
-        {
-            if (itemIDs.contains(item.getItemID()))
-            {
+        for (CartItemInfo item : copyBasket) {
+            if (itemIDs.contains(item.getItemID())) {
                 item.setPercent(percent);
-            }
-            else
-            {
+            } else {
                 item.setPercent(0);
             }
         }
     }
+
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Discount is applied on the items IDs: " + itemIDs;
     }
 
-    public boolean isDiscountApplyForItem(int itemID, String category)
-    {
+    public boolean isDiscountApplyForItem(int itemID, String category) {
         return itemIDs.contains(itemID);
     }
 

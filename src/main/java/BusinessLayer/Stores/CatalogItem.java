@@ -24,17 +24,16 @@ public class CatalogItem {
     private Store store;
     private double weight;
     private int amount;
+    private int savedAmount;
     @Transient
     private List<Discount> discounts;
     @Transient
     private List<PurchasePolicy> purchasePolicies;
     @Transient
     private List<DiscountPolicy> discountPolicies;
-
     public CatalogItem() {
 //        this.itemDAO = new ItemDAO();
     }
-
     public CatalogItem(int itemID, String itemName, double price, String category, String storeName, Store store, double weight) {
         this.itemID = itemID;
         this.itemName = itemName;
@@ -44,10 +43,19 @@ public class CatalogItem {
         this.store = store;
         this.weight = weight;
         this.amount = 0;
+        this.savedAmount = 0;
         this.discounts = new ArrayList<>();
         this.purchasePolicies = new ArrayList<>();
         this.discountPolicies = new ArrayList<>();
 //        this.itemDAO = new ItemDAO();
+    }
+
+    public int getSavedAmount() {
+        return savedAmount;
+    }
+
+    public void setSavedAmount(int savedAmount) {
+        this.savedAmount = savedAmount;
     }
 
     public int getAmount() {
@@ -155,6 +163,6 @@ public class CatalogItem {
     }
 
     public void addAmount(int amountToAdd) {
-        setAmount(this.amount+amountToAdd);
+        setAmount(this.amount + amountToAdd);
     }
 }

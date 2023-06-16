@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
-@Entity
+@Entity //todo this doesn't need to be an entity, similar to facade
 public class ReceiptHandler {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

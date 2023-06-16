@@ -23,13 +23,13 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-@Table(name = "users")
+@Inheritance(strategy = InheritanceType.JOINED)//TODO maybe need diff strategy
+@Table(name = "abstractusers")
 public abstract class User {
 
     @Id
     protected int id;
-    @Transient
+    @OneToOne(cascade = CascadeType.ALL)
     protected Cart cart;
     protected LocalDate bDay = null;
     protected String address = null;

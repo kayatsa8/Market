@@ -33,20 +33,20 @@ import java.util.logging.Logger;
 public class Application implements AppShellConfigurator {
     private static final String relativePath = "src/main/java/PresentationLayer/initialize/data.json";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         String addressOk="addressOk";
         LocalDate bDayOk=LocalDate.of(2022, 7, 11);
 
         ConfigReader configReader=new ConfigReader();
         String relativePath = configReader.getInitializePath();
 
-        try{
-            readDBConfigurations(configReader);
-        }
-        catch(Exception e){
-            System.out.println("ERROR: unable to load the DB configurations to the system!");
-            System.exit(1);
-        }
+//        try{
+//            readDBConfigurations(configReader);
+//        }
+//        catch(Exception e){
+//            System.out.println("ERROR: unable to load the DB configurations to the system!");
+//            System.exit(1);
+//        }
 
         Loader loader=new Loader();
         loader.load(relativePath);
