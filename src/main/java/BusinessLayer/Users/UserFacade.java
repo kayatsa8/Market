@@ -145,25 +145,25 @@ public class UserFacade {
     }
 
 
-    private boolean checkPassword(String password) throws Exception {
+    public boolean checkPassword(String password) throws Exception {
         if (password == null)
             throw new Exception("Password can't be null");
         if (password.length() < MIN_PASS_LENGTH)
             throw new Exception("Password too short! Must be at least 6 chars");
         return true;
     }
-    private boolean checkAddress(String address) throws Exception {
+    public boolean checkAddress(String address) throws Exception {
         if (address == null)
             throw new Exception("Address can't be null");
         return true;
     }
-    private boolean checkBDay(LocalDate bDay) throws Exception {
+    public boolean checkBDay(LocalDate bDay) throws Exception {
         if (bDay == null)
             throw new Exception("bDay can't be null");
         return true;
     }
 
-    private boolean checkUserName(String userName) throws Exception {
+    public boolean checkUserName(String userName) throws Exception {
         if (userName == null) {
             throw new Exception("User name can't be null");
         }

@@ -1,30 +1,18 @@
 package UnitTests.CartAndBasket;
 
 import BusinessLayer.CartAndBasket.Cart;
-import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
-import BusinessLayer.ExternalSystems.PurchaseInfo;
-import BusinessLayer.ExternalSystems.Supply.SupplyClient;
 import BusinessLayer.CartAndBasket.CartItemInfo;
-import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.Market;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.UserFacade;
-import UnitTests.CartAndBasket.Mocks.PurchaseClientMock;
-import UnitTests.CartAndBasket.Mocks.SupplyClientMock;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import static org.junit.Assert.*;
 
 
