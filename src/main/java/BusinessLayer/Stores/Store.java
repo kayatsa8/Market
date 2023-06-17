@@ -1415,7 +1415,7 @@ public class Store {
         return discountPolicies;
     }
 
-    private void updateItemDiscounts(int itemID) {
+    public void updateItemDiscounts(int itemID) {
         CatalogItem item = getItem(itemID);
         String category = item.getCategory();
         List<Discount> result = new ArrayList<>();
@@ -1431,7 +1431,7 @@ public class Store {
         item.setDiscounts(result);
     }
 
-    private void updateItemPurchasePolicies(int itemID) {
+    public void updateItemPurchasePolicies(int itemID) {
         CatalogItem item = getItem(itemID);
         String category = item.getCategory();
         List<PurchasePolicy> result = new ArrayList<>();
@@ -1443,7 +1443,7 @@ public class Store {
         item.setPurchasePolicies(result);
     }
 
-    private void updateItemDiscountPolicies(int itemID) {
+    public void updateItemDiscountPolicies(int itemID) {
         CatalogItem item = getItem(itemID);
         String category = item.getCategory();
         List<DiscountPolicy> result = new ArrayList<>();
