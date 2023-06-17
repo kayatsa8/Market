@@ -55,8 +55,6 @@ public class RegisteredUser extends User {
         this.password = Password.hashPassword(pass);
         this.storesIOwn = new HashSet<>();
         this.storesIManage = new HashSet<>();
-//        this.userDAO = UserDAO.getUserDao();
-//        this.employeesDAO = new StoreEmployeesDAO();
         this.isLoggedIn = false;
         this.isSystemManager = isAdmin;
         if (isAdmin) {
@@ -120,8 +118,16 @@ public class RegisteredUser extends User {
         return storesIOwn;
     }
 
+    public void setStoresIOwn(Set<StoreOwner> storesIOwn) {
+        this.storesIOwn = storesIOwn;
+    }
+
     public Set<StoreManager> getStoresIManage() {
         return storesIManage;
+    }
+
+    public void setStoresIManage(Set<StoreManager> storesIManage) {
+        this.storesIManage = storesIManage;
     }
 
     public boolean isLoggedIn() {
