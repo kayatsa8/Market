@@ -31,8 +31,8 @@ public class CatalogItem {
     private List<PurchasePolicy> purchasePolicies;
     @Transient
     private List<DiscountPolicy> discountPolicies;
-    public CatalogItem() {
-//        this.itemDAO = new ItemDAO();
+    public CatalogItem() throws Exception {
+        this.itemDAO = new ItemDAO();
     }
     public CatalogItem(int itemID, String itemName, double price, String category, String storeName, Store store, double weight) {
         this.itemID = itemID;
@@ -47,7 +47,7 @@ public class CatalogItem {
         this.discounts = new ArrayList<>();
         this.purchasePolicies = new ArrayList<>();
         this.discountPolicies = new ArrayList<>();
-//        this.itemDAO = new ItemDAO();
+        this.itemDAO = new ItemDAO();
     }
 
     public int getSavedAmount() {
@@ -64,7 +64,7 @@ public class CatalogItem {
 
     public void setAmount(int amount) {
         this.amount = amount;
-//        itemDAO.save(this);
+        itemDAO.save(this);
     }
 
     public String getStoreName() {

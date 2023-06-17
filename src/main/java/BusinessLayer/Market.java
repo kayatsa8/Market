@@ -56,6 +56,7 @@ public class Market {
                 instance.userFacade.loadUsers();
                 instance.createFirstAdmin();
                 instance.userFacade.setGuest();
+                instance.storeFacade.loadStores();
             }
             return instance;
         }

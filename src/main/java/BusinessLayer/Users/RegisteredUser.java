@@ -320,10 +320,12 @@ public class RegisteredUser extends User {
 
     public void logIn() {
         this.isLoggedIn = true;
+        userDAO.save(this);
     }
 
     public void logout() {
         this.isLoggedIn = false;
+        userDAO.save(this);
     }
 
     @Transient
