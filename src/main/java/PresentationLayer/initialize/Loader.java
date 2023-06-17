@@ -194,20 +194,6 @@ public class Loader {
         }
     }
 
-    public void crateJson(){
-
-    }
-    public List<Item> initializeItemList(){
-        HashMap<String, List<String>> doubleBraceMap  = new HashMap<String, List<String>>() {{
-            put("Dairy", Arrays.asList("Milk","Butter"));
-            put("Wheat", Arrays.asList("Bread","Baguette"));
-        }};
-        return  Arrays.asList(
-                new Item("Milk",5.0,"Dairy",1.0,3),
-                new Item("Butter",7.0,"Dairy",1.0,3)
-        );
-    }
-
     private static String readFileAsString(String filePath) throws IOException {
         return new String(Files.readAllBytes(Paths.get(filePath)));
     }

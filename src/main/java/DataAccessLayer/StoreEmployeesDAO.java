@@ -23,7 +23,7 @@ public class StoreEmployeesDAO {
     }
 
     public void removeOwner(StoreOwner owner) {
-//        soConnector.delete(owner.getUserID()); //TODO Change
+        soConnector.delete(owner.getUserID()); //TODO Change
     }
 
     public void removeOwnership(StoreOwner owner) {
@@ -35,7 +35,7 @@ public class StoreEmployeesDAO {
     }
 
     public void removeManager(StoreManager manager) {
-//        smConnector.delete(owner.getUserID()); //TODO Change
+        smConnector.delete(manager.getUserID()); //TODO Change
     }
 
     public void removeManagership(StoreManager manager) {
@@ -44,5 +44,9 @@ public class StoreEmployeesDAO {
 
     public void save(StoreOwner storeOwner) {
         soConnector.saveState(storeOwner);
+    }
+
+    public void save(StoreManager storeOwner) {
+        smConnector.saveState(storeOwner);
     }
 }

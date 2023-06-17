@@ -15,6 +15,7 @@ import BusinessLayer.Stores.Discounts.Discount;
 import BusinessLayer.Stores.Discounts.DiscountsTypes.Visible;
 import BusinessLayer.Stores.Policies.PurchasePolicy;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
+import BusinessLayer.Users.RegisteredUser;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -323,6 +324,25 @@ public class ShoppingService {
         }
     }
 
+    public Result addManagerPermission(int userID, int storeID, int manager, Set<String> permission) {
+        try {
+            market.addManagerPermission(userID, storeID, manager, permission);
+            return new Result<>(false, "Success");
+        }
+        catch (Exception e) {
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+    public Result removeManagerPermission(int userID, int storeID, int manager, Set<String> permission) {
+        try {
+            market.removeManagerPermission(userID, storeID, manager, permission);
+            return new Result<>(false, "Success");
+        }
+        catch (Exception e) {
+            return new Result<>(true, e.getMessage());
+        }
+    }
     public Result<Boolean> closeStorePermanently(int userID, int storeID)
     {
         try {

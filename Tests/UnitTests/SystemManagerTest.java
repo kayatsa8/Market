@@ -14,7 +14,6 @@ import org.junit.Test;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 
 import static BusinessLayer.Stores.StoreStatus.OPEN;
 import static BusinessLayer.Stores.StoreStatus.PERMANENTLY_CLOSE;
@@ -41,11 +40,11 @@ public class SystemManagerTest {
         adminID = uf.getUserByName(adminName).getId();
         manager = new SystemManager();
 
-        Set<StoreOwner> stores = new HashSet<>();
+        HashSet<StoreOwner> stores = new HashSet<>();
         stores.add(null);
         when(user.getStoresIOwn()).thenReturn(stores);
 
-        Set<StoreManager> storesIManage = new HashSet<>();
+        HashSet<StoreManager> storesIManage = new HashSet<>();
         storesIManage.add(null);
         when(user.getStoresIManage()).thenReturn(storesIManage);
 

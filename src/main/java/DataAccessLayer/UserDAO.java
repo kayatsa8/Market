@@ -25,17 +25,6 @@ public class UserDAO {
         return instance;
     }
 
-    public static HashMap<Integer, RegisteredUser> getAllUsers() {
-        return userMap;
-    }
-
-    public void addUser(RegisteredUser user) {
-        userMap.put(user.getId(), user);
-        connector.insert(user);
-//        if(userMap.put(user.getUsername(),user)==null)
-//            throw new Exception("Fail to add user in UserDAO");
-    }
-
     public void removeUser(RegisteredUser user) throws Exception {
         connector.delete(user.getId());
         if (userMap.remove(user.getId()) == null)

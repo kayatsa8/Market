@@ -14,8 +14,8 @@ public final class UserPL {
     public UserPL() {
         GUEST_ID = Guest.GUEST_USER_ID+1;
         currUserID = Guest.GUEST_USER_ID+1;
-
     }
+
     public int getCurrUserID() {
         return currUserID != null ? currUserID : GUEST_ID;
     }
