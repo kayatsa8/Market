@@ -15,6 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -76,7 +77,7 @@ public class StoreEmployeesTest {
         assertEquals(child.getUsername() + " should have " + store.getStoreName() + "store1 as store he owns",
                 store, ownership1.getStore());
         assertEquals(child.getUsername() + " should have " + parent.getUsername() + " as parent in ownership",
-                parent.getId(), ownership1.getParentID());
+                Optional.ofNullable(parent.getId()), ownership1.getParentID());
         ownerSet = parent.getStoresIOwn();
         StoreOwner ownership2 = (StoreOwner)getOwnership(ownerSet, store);
 
@@ -100,7 +101,7 @@ public class StoreEmployeesTest {
         assertEquals(child.getUsername() + " should have " + store.getStoreName() + " as store he manages",
                 store, manager.getStore());
         assertEquals(child.getUsername() + " should have " + parent.getUsername() + " as parent in managing",
-                parent.getId(), manager.getParentID());
+                Optional.ofNullable(parent.getId()), manager.getParentID());
         StoreOwner ownership = (StoreOwner) getOwnership(parent.getStoresIOwn(), store);
         assertTrue(parent.getUsername() + " should have " + child.getUsername() + " as managerIDefined",
                 ownership.getManagersIDefined().contains(child));

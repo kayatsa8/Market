@@ -53,9 +53,10 @@ public class Market {
             if (instance == null) {
                 instance = new Market();
                 instance.notificationHub.loadHub();
-                instance.createFirstAdmin();
                 instance.userFacade.loadUsers();
-                instance.userFacade.setGuest();
+                instance.createFirstAdmin();
+//                instance.userFacade.setGuest();
+                instance.storeFacade.loadStores();
             }
             return instance;
         }
@@ -96,7 +97,8 @@ public class Market {
     }
 
     private void createFirstAdmin() throws Exception {
-        userFacade.createAdmin();
+        if (systemManagerMap.isEmpty())
+            userFacade.createAdmin();
     }
 
 

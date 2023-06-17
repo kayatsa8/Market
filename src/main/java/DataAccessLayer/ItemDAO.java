@@ -10,19 +10,24 @@ import java.util.Map;
 
 //DB mock
 public class ItemDAO {
-    DBConnector<CatalogItem> itemDBConnector;
-    public ItemDAO() throws Exception {
-        itemDBConnector = new DBConnector<>(CatalogItem.class, Market.getInstance().getConfigurations());
+    public ItemDAO() {
     }
 
-
+    public DBConnector<CatalogItem> getItemDBConnector() {
+        try {
+            return new DBConnector<>(CatalogItem.class, Market.getInstance().getConfigurations());
+        }
+        catch (Exception e) {
+        }
+        return null;
+    }
     public void addItem(CatalogItem newItem) {
-//        itemDBConnector.insert(newItem);
+        getItemDBConnector().insert(newItem);
     }
     public void removeItem(CatalogItem item) {
-        itemDBConnector.delete(item.getItemID());
+        getItemDBConnector().delete(item.getItemID());
     }
     public void save(CatalogItem item) {
-        itemDBConnector.saveState(item);
+        getItemDBConnector().saveState(item);
     }
 }

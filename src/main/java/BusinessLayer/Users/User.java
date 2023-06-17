@@ -72,7 +72,7 @@ public abstract class User {
         this.cart = cart;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 

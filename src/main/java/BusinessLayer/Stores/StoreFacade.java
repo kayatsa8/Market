@@ -23,26 +23,24 @@ import java.util.concurrent.ConcurrentHashMap;
 import static Globals.SearchFilter.STORE_RATING;
 
 public class StoreFacade {
-    private final Map<Integer, Store> stores;
+    private Map<Integer, Store> stores;
     private final Set<String> categoryPool;
     private int storesIDs;
     private int itemsIDs;
     StoreDAO storeDAO;
 
-    public StoreFacade() {
+    public StoreFacade() throws Exception {
         this.categoryPool = new HashSet<>();
         this.storesIDs = 0;
         this.itemsIDs = 0;
-//        this.storeDAO = new StoreDAO();
-//        this.stores =StoreDAO.getStores();
-        stores = new HashMap<>();
+        this.stores = new HashMap<>();
     }
 
     public Store addStore(int founderID, String name) throws Exception
     {
         Store newStore = new Store(storesIDs, founderID, name);
         stores.put(storesIDs++, newStore);
-//        StoreDAO.addStore(newStore);
+        storeDAO.addStore(newStore);
         return newStore;
     }
     public Store addStore(int founderID, String name, MarketMock marketMock) throws Exception
@@ -729,5 +727,10 @@ public class StoreFacade {
     public void cancelBid(int storeId, int id) throws Exception {
         Store store = getStore(storeId);
         store.cancelBid(id);
+    }
+
+    public void loadStores() throws Exception {
+        this.storeDAO = new StoreDAO();
+        this.stores = storeDAO.getStores();
     }
 }

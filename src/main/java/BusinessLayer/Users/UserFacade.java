@@ -39,7 +39,6 @@ public class UserFacade {
     private Map<Integer, Guest> guests;
 
     public UserFacade() throws Exception {
-//        userDAO = UserDAO.getUserDao();
         guests = new HashMap<>();
         users = new HashMap<>();
 //        userID = userDAO.getMaxID() + 1;
@@ -59,12 +58,13 @@ public class UserFacade {
     public void createAdmin() throws Exception {
         RegisteredUser admin = new RegisteredUser(adminName, adminPass, getNewId(), true);
         users.put(admin.getId(), admin);
+        userDAO.save(admin);
     }
 
     public SystemManager makeAdmin(int id) throws Exception {
         RegisteredUser user = getRegisteredUser(id);
         SystemManager sm = user.makeAdmin();
-//        userDAO.save(user);
+        userDAO.save(user);
         return sm;
     }
 
@@ -120,7 +120,7 @@ public class UserFacade {
             int id = getNewId();
             RegisteredUser tempUser = new RegisteredUser(username, password, id, address, bDay);
             // add to DB
-//            userDAO.addUser(tempUser);
+            userDAO.save(tempUser);
             //add to cash
             users.put(id, tempUser);
             return id;
@@ -211,8 +211,10 @@ public class UserFacade {
         return true;
     }
 
-    public void loadUsers() {
-//        users = userDAO.getUsers();
+    public void loadUsers() throws Exception {
+        if (userDAO == null)
+            userDAO = UserDAO.getUserDao();
+        users = userDAO.getUsers();
     }
 
     public void addOwner(int userID, int userToAddID, int storeID) throws Exception {

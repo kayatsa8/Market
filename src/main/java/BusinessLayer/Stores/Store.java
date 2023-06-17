@@ -29,15 +29,12 @@ import BusinessLayer.Stores.Discounts.DiscountsTypes.Conditional;
 import BusinessLayer.Stores.Discounts.DiscountsTypes.Hidden;
 import BusinessLayer.Stores.Discounts.DiscountsTypes.Visible;
 import BusinessLayer.Stores.Pairs.DiscountPair;
-import BusinessLayer.Stores.Pairs.SavedItemAmount;
 import BusinessLayer.Stores.Policies.DiscountPolicy;
 import BusinessLayer.Stores.Policies.PurchasePolicy;
 import DataAccessLayer.StoreDAO;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.util.*;
@@ -74,13 +71,6 @@ public class Store {
     private Map<Integer, PurchasePolicy> purchasePolicies;
     @Transient
     private Map<Integer, DiscountPolicy> discountPolicies;
-
-//    @OneToMany(cascade = CascadeType.ALL)
-//    @LazyCollection(LazyCollectionOption.FALSE)
-//    @JoinColumn(name = "storeId")
-//    @Transient
-//    private List<SavedItemAmount> savedItemsAmounts;
-
     @Transient
     private Map<Integer, Bid> bids;
     @Transient
@@ -96,17 +86,16 @@ public class Store {
     @Transient
     private StoreDAO storeDAO;
 
-    public Store(int storeID, int founderID, String name) {
+    public Store(int storeID, int founderID, String name) throws Exception {
         this.storeID = storeID;
         this.storeName = name;
-//        this.storeDAO = new StoreDAO();
+        this.storeDAO = new StoreDAO();
         this.items = new HashSet<>();
         this.storeStatus = OPEN;
         this.founderID = founderID;
         this.discounts = new ArrayList<>();
         this.purchasePolicies = new HashMap<>();
         this.discountPolicies = new HashMap<>();
-//        this.savedItemsAmounts = new ArrayList<>();
         this.auctions = new HashMap<>();
         this.lotteries = new HashMap<>();
         this.bids = new HashMap<>();
@@ -132,7 +121,6 @@ public class Store {
         this.purchasePolicies = new HashMap<>();
         this.discountPolicies = new HashMap<>();
         this.items = new HashSet<>();
-//        this.savedItemsAmounts = new ArrayList<>();
         this.auctions = new HashMap<>();
         this.lotteries = new HashMap<>();
         this.bids = new HashMap<>();
@@ -150,13 +138,12 @@ public class Store {
         log.info("Store " + storeID + " created with name: " + storeName);
     }
 
-    public Store() {
+    public Store() throws Exception {
         this.discounts = new ArrayList<>();
         this.purchasePolicies = new HashMap<>();
         this.discountPolicies = new HashMap<>();
-//        this.storeDAO = new StoreDAO();
+        this.storeDAO = new StoreDAO();
         this.items = new HashSet<>();
-//        this.savedItemsAmounts = new ArrayList<>();
         this.auctions = new HashMap<>();
         this.lotteries = new HashMap<>();
         this.bids = new HashMap<>();
@@ -268,7 +255,7 @@ public class Store {
 
     public Discount getDiscount(int discountID) throws Exception {
         DiscountPair pair = (DiscountPair) Pair.searchPair(discounts, discountID);
-        if(pair == null){
+        if (pair == null) {
             throw new Exception("Error: discount ID " + discountID + " does not exist in store " + storeName);
         }
 
@@ -736,8 +723,7 @@ public class Store {
         }
         CatalogItem newItem = new CatalogItem(itemID, itemName, itemPrice, itemCategory, this.storeName, this, weight);
         items.add(newItem);
-//        savedItemsAmounts.add(new SavedItemAmount(itemID, 0));
-//        StoreDAO.addItem(newItem);
+        storeDAO.addItem(newItem);
         log.info("Added new item: " + itemName + ", at store " + storeID);
         return newItem;
     }
@@ -763,8 +749,7 @@ public class Store {
         mailbox.sendMessageToList(sendToList, s);
     }
 
-    public synchronized void saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems, List<Coupon> coupons, int userID, int age) throws Exception
-    {
+    public synchronized void saveItemsForUpcomingPurchase(List<CartItemInfo> basketItems, List<Coupon> coupons, int userID, int age) throws Exception {
         if (storeStatus == OPEN) {
             if (checkIfItemsInStock(basketItems)) {
                 if (checkIfBasketPriceChanged(basketItems, coupons)) {
@@ -774,8 +759,7 @@ public class Store {
                 }
                 try {
                     checkIfPurchaseIsValid(basketItems, age);
-                }
-                catch (IllegalStateException msg) {
+                } catch (IllegalStateException msg) {
                     sendMsg(userID, msg.getMessage());
                     log.warning("Trying to buy a basket in store: " + storeName + ", but you don't comply with the purchase policies");
                     throw new IllegalStateException(msg);
@@ -864,7 +848,7 @@ public class Store {
         List<List<CartItemInfo>> tempBaskets = new ArrayList<>();
 
         Discount discount;
-        for(DiscountPair pair : discounts){
+        for (DiscountPair pair : discounts) {
             discount = pair.getValue();
             tempBaskets.add(discount.updateBasket(basketItems, coupons));
         }
@@ -1080,7 +1064,7 @@ public class Store {
         myLottery.getLotteryTimer().purge();
         removeLottery(lotteryID);
         List<Integer> participants = myLottery.getParticipants();
-        if (participants.size() > 0){
+        if (participants.size() > 0) {
             sendMsgToList(participants, "We are sorry, but the lottery in store " + storeName + " of item " + getItem(itemID).getItemName() + " has canceled due to lack of demand. Your money will be returned.");
         }
         log.info("Lottery " + lotteryID + " finished unsuccessfully and item was not sold");
@@ -1164,9 +1148,8 @@ public class Store {
         }
         return false;
     }
-    
-    public boolean reopenStore(int userID) throws Exception
-    {
+
+    public boolean reopenStore(int userID) throws Exception {
         if (!isFounder(userID))
             throw new Exception("Only the founder of the store can open it");
         if (storeStatus == OPEN) {
@@ -1199,9 +1182,8 @@ public class Store {
     private List<Integer> getManagerIDs() {
         return storeManagers.stream().map(StoreEmployees::getUserID).toList();
     }
-    
-    public boolean closeStore(int userID) throws Exception
-    {
+
+    public boolean closeStore(int userID) throws Exception {
         if (!isFounder(userID))
             throw new Exception("Only the founder of the store can close it");
         if (storeStatus == CLOSE) {
@@ -1215,7 +1197,7 @@ public class Store {
             storeOwnersAndManagers.addAll(storeManagers);
             List<Integer> sendToList = storeOwnersAndManagers.stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
 
-            sendMsgToListAndUnavailable(sendToList,  "Store " + storeName + " has closed");
+            sendMsgToListAndUnavailable(sendToList, "Store " + storeName + " has closed");
 
             log.info("Store " + storeID + " closed");
             return true;
@@ -1347,7 +1329,7 @@ public class Store {
     private CatalogItem removeItem(int itemID) {
         CatalogItem item = getItem(itemID);
         items.remove(item);
-//        StoreDAO.removeItem(item);
+        storeDAO.removeItem(item);
         return item;
     }
 
@@ -1389,7 +1371,7 @@ public class Store {
     public Map<Integer, Discount> getStoreDiscounts() {
         Map<Integer, Discount> discountsMap = new HashMap<>();
 
-        for(DiscountPair pair : discounts){
+        for (DiscountPair pair : discounts) {
             discountsMap.put(pair.getKey(), pair.getValue());
         }
 
@@ -1398,8 +1380,8 @@ public class Store {
 
     public Map<Integer, Visible> getStoreVisibleDiscounts() {
         Map<Integer, Visible> visibleDiscounts = new HashMap<>();
-        for(DiscountPair pair : discounts){
-            if(pair.getValue() instanceof Visible){
+        for (DiscountPair pair : discounts) {
+            if (pair.getValue() instanceof Visible) {
                 visibleDiscounts.put(pair.getKey(), (Visible) pair.getValue());
             }
         }
@@ -1477,8 +1459,7 @@ public class Store {
         //check bid validity
         try {
             checkIfPurchaseIsValid(cartItems, purchaseInfo.getAge());
-        }
-        catch (IllegalStateException msg) {
+        } catch (IllegalStateException msg) {
             sendMsg(bid.getUserID(), msg.getMessage());
             log.warning("Trying to buy a Item from Bid with store: " + storeName + ", but you don't comply with the purchase policies");
             throw new IllegalStateException(msg);

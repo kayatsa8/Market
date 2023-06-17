@@ -51,7 +51,7 @@ public class DBTester {
         System.out.println(infoConnector.getAll());
     }
 
-    public static void wrapperTest(ConnectorConfigurations conf){
+    public static void wrapperTest(ConnectorConfigurations conf) throws Exception {
         DBConnector<Basket.ItemWrapper> wrapperConnector = new DBConnector<>(Basket.ItemWrapper.class, conf);
         Store store1 = new Store(11, 75, "store1");
         Store store2 = new Store(22, 89, "store2");
@@ -75,7 +75,7 @@ public class DBTester {
 
     }
 
-    public static void basketTest(ConnectorConfigurations conf){
+    public static void basketTest(ConnectorConfigurations conf) throws Exception {
         try{
             Market.getInstance().setConfigurations(conf);
         }

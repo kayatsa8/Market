@@ -3,7 +3,10 @@ package PresentationLayer;
 import BusinessLayer.ExternalSystems.PurchaseInfo;
 import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.Market;
+import BusinessLayer.Stores.Store;
+import BusinessLayer.Users.RegisteredUser;
 import DataAccessLayer.Hibernate.ConnectorConfigurations;
+import DataAccessLayer.Hibernate.DBConnector;
 import PresentationLayer.initialize.ConfigReader;
 import PresentationLayer.initialize.Loader;
 import ServiceLayer.Objects.CatalogItemService;
@@ -17,6 +20,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,18 +40,18 @@ public class Application implements AppShellConfigurator {
 
     public static void main(String[] args) throws Exception {
         ConfigReader configReader=new ConfigReader();
-        String relativePath = configReader.getInitializePath();
+        DBConnector<Store> connector = new DBConnector<>(Store.class, readDBConfigurations(configReader));
 
-//        try{
-//            readDBConfigurations(configReader);
-//        }
-//        catch(Exception e){
-//            System.out.println("ERROR: unable to load the DB configurations to the system!");
-//            System.exit(1);
-//        }
+        List<Store> stores = connector.getAll();
+        if (stores.size()>0) {
+            System.out.println("The system already has stores, not loading from loader.");
+        }
+        else {
+            String relativePath = configReader.getInitializePath();
 
-        Loader loader=new Loader();
-        loader.load(relativePath);
+            Loader loader = new Loader();
+            loader.load(relativePath);
+        }
 
         SpringApplication.run(Application.class, args);
     }
@@ -60,15 +65,14 @@ public class Application implements AppShellConfigurator {
         return new SupplyInfo("Name", "address", "city", "counyrt", "asd");
     }
 
-    public static void readDBConfigurations(ConfigReader configReader) throws Exception {
+    public static ConnectorConfigurations readDBConfigurations(ConfigReader configReader) throws Exception {
         String name = configReader.getDBName();
         String url = configReader.getDBUrl();
         String username = configReader.getDBUsername();
         String password = configReader.getDBPassword();
         String driver = configReader.getDBDriver();
-        ConnectorConfigurations conf = new ConnectorConfigurations(name, url, username, password, driver);
 
-        Market.getInstance().setConfigurations(conf);
+        return new ConnectorConfigurations(name, url, username, password, driver);
     }
 
 }
