@@ -53,7 +53,7 @@ public class SystemManagerIntegration {
             store1 = market.addStore(user.getId(), "test store 1");
             store2 = market.addStore(user.getId(), "test store 2");
             store3 = market.addStore(secondUser.getId(), "test store 3");
-            market.addOwner(secondUser.getId(), user.getId(), secondUser.getStoresIOwn().keySet().iterator().next());
+            market.addOwner(secondUser.getId(), user.getId(), secondUser.getStoresIOwn().iterator().next().getStoreID());
 
         }
         catch (Exception e) {

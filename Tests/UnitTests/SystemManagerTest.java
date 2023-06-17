@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import static BusinessLayer.Stores.StoreStatus.OPEN;
 import static BusinessLayer.Stores.StoreStatus.PERMANENTLY_CLOSE;
@@ -38,12 +39,12 @@ public class SystemManagerTest {
         adminID = uf.getUserByName(adminName).getId();
         manager = new SystemManager();
 
-        HashMap<Integer, StoreOwner> stores = new HashMap<>();
-        stores.put(1, null);
+        HashSet<StoreOwner> stores = new HashSet<>();
+        stores.add(null);
         when(user.getStoresIOwn()).thenReturn(stores);
 
-        HashMap<Integer, StoreManager> storesIManage = new HashMap<>();
-        storesIManage.put(1, null);
+        HashSet<StoreManager> storesIManage = new HashSet<>();
+        storesIManage.add(null);
         when(user.getStoresIManage()).thenReturn(storesIManage);
 
     }
