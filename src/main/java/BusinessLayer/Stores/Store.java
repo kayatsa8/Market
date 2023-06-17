@@ -800,7 +800,7 @@ public class Store {
         }
     }
 
-    private void sendMsg(int userID, String message) {
+    public void sendMsg(int userID, String message) {
         mailbox.sendMessage(userID, message);
     }
 
@@ -953,15 +953,20 @@ public class Store {
         saveItemAmount(itemID, 1);
         double originalPrice = getItem(itemID).getPrice();
         Bid newBid = new Bid(bidsIDs, itemID, getItem(itemID).getItemName(), userID, offeredPrice, originalPrice, getStoreID());
-        List<StoreEmployees> storeOwnersAndManagers = new ArrayList<>();
-        storeOwnersAndManagers.addAll(storeOwners);
-        storeOwnersAndManagers.addAll(storeManagers.stream().filter(manager -> manager.hasPermission(BID_MANAGEMENT)).toList());
-        List<Integer> sendToList = storeOwnersAndManagers.stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
+
+        List<Integer> sendToList = addContactsToBid();
         newBid.setRepliers(sendToList);
         bids.put(bidsIDs++, newBid);
         sendMsgToList(sendToList, "User " + userID + " offered new bid for item " + getItem(itemID).getItemName() + " at store " + storeName + " with price of " + offeredPrice + " while the original price is " + getItem(itemID).getPrice());
         log.info("Added new bid for item " + itemID + " at store " + storeID);
         return newBid;
+    }
+
+    public List<Integer> addContactsToBid() {
+        List<StoreEmployees> storeOwnersAndManagers = new ArrayList<>();
+        storeOwnersAndManagers.addAll(storeOwners);
+        storeOwnersAndManagers.addAll(storeManagers.stream().filter(manager -> manager.hasPermission(BID_MANAGEMENT)).toList());
+        return storeOwnersAndManagers.stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
     }
 
     public List<Bid> getUserBids(int userID) {

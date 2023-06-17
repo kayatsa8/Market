@@ -3,21 +3,14 @@ package UnitTests.CartAndBasket;
 import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
-import BusinessLayer.Market;
 import BusinessLayer.Stores.CatalogItem;
-import BusinessLayer.Stores.Store;
-import BusinessLayer.Stores.StoreFacade;
-import BusinessLayer.Users.RegisteredUser;
-import BusinessLayer.Users.UserFacade;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.*;
 
 /**
