@@ -28,13 +28,9 @@ public class Loader {
     private List<Store> createdStore;
 
 
-    public Loader() {
-        try {
-            shoppingService = new ShoppingService();
-            userService = new UserService();
-        }catch (Exception e) {
-            System.out.println("Problem initiating Market"+e.getMessage());
-        }
+    public Loader() throws Exception {
+        shoppingService = new ShoppingService();
+        userService = new UserService();
         registeredNames=new ArrayList<>();
         createdStore=new ArrayList<>();
     }
@@ -52,7 +48,7 @@ public class Loader {
             //TODO build APP using API
             loadUsers(myData.getRegisteredUserList());
             loadAdmins(myData.adminsList);
-            
+
 
 
         } catch (IOException e) {
@@ -103,7 +99,6 @@ public class Loader {
     /**
      * assume all the store all ready created and now just add extra owners by owners that are not the founder
      * @param stores
-     * @param value
      */
     private void addOwners(List<Store> stores, int founderId) {
         for (Store store:stores) {
@@ -117,6 +112,7 @@ public class Loader {
                     if (addOwnerResult.isError()) System.out.println("Fail to addOwner"+addOwnerResult.getMessage());
                 }else System.out.println("Fail to getUserIdByName"+newOwnerIdResult.getMessage());
             }
+//            else System.out.println("Problem register or login"+registerResult.getMessage()+"\n"+loginResult.getMessage());
         }
     }
 

@@ -6,6 +6,9 @@ import BusinessLayer.NotificationSystem.Repositories.MailboxesRepository;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.User;
+import DataAccessLayer.NotificationsSystemDAOs.NotificationHubDAO;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -20,15 +23,29 @@ public class NotificationHub {
 
     // fields
     //private final ConcurrentHashMap<Integer, Mailbox> mailboxes; // <ID, Mailbox>
-    private final MailboxesRepository mailboxes;
+    private final ConcurrentHashMap<Integer, Mailbox> mailboxes; // <ID, Mailbox>
+    private final NotificationHubDAO dao;
 
 
     // object methods
     public NotificationHub() {
-        mailboxes = new MailboxesRepository();
+        mailboxes = new ConcurrentHashMap<>();
+        dao = new NotificationHubDAO();
+
+
+
         Log.log.info("The notification hub has started successfully.");
     }
 
+    public void loadHub(){
+        try{
+            dao.loadMailboxes(this);
+        }
+        catch(Exception e){
+            System.err.println("ERROR: notification hub load failed!");
+            System.err.println(e.getMessage());
+        }
+    }
     // class methods
 //    public static NotificationHubImpl getInstance() {
 //        synchronized (instanceLock) {
@@ -39,7 +56,7 @@ public class NotificationHub {
 //        return instance;
 //    }
 
-    public MailboxesRepository getMailboxes() {
+    public ConcurrentHashMap<Integer, Mailbox> getMailboxes() {
         return mailboxes;
     }
 
@@ -50,6 +67,8 @@ public class NotificationHub {
         }
         UserMailbox mailbox = new UserMailbox(user, this);
         mailboxes.putIfAbsent(userID, mailbox);
+
+        dao.registerToMailService(mailbox);
 
         Log.log.info("NotificationHub::registerToMailService: user "
                 + user.getId() + " is registered to notification service");
@@ -65,6 +84,8 @@ public class NotificationHub {
         StoreMailbox mailbox = new StoreMailbox(store, this);
         mailboxes.putIfAbsent(storeID, mailbox);
 
+        dao.registerToMailService(mailbox);
+
         Log.log.info("NotificationHub::registerToMailService: store " + store.getStoreID()
                 + " is registered to notification service");
         return mailbox;
@@ -76,7 +97,8 @@ public class NotificationHub {
             throw new Exception("NotificationHub::removeFromService: the given ID " + ID + " is not of a registered user or store!");
         }
 
-        mailboxes.remove(ID);
+        Mailbox mailbox = mailboxes.remove(ID);
+        dao.removeFromService(mailbox);
     }
 
     public boolean isRegistered(int ID) {

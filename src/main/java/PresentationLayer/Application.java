@@ -2,6 +2,8 @@ package PresentationLayer;
 
 import BusinessLayer.ExternalSystems.PurchaseInfo;
 import BusinessLayer.ExternalSystems.SupplyInfo;
+import BusinessLayer.Market;
+import DataAccessLayer.Hibernate.ConnectorConfigurations;
 import PresentationLayer.initialize.ConfigReader;
 import PresentationLayer.initialize.Loader;
 import ServiceLayer.Objects.CatalogItemService;
@@ -15,6 +17,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.time.LocalDate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The entry point of the Spring Boot application.
@@ -27,16 +31,25 @@ import java.time.LocalDate;
 @Theme(value = "Market")
 @Push
 public class Application implements AppShellConfigurator {
+    private static final String relativePath = "src/main/java/PresentationLayer/initialize/data.json";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         String addressOk="addressOk";
         LocalDate bDayOk=LocalDate.of(2022, 7, 11);
 
         ConfigReader configReader=new ConfigReader();
         String relativePath = configReader.getInitializePath();
 
-//        Loader loader=new Loader();
-//        loader.load(relativePath);
+//        try{
+//            readDBConfigurations(configReader);
+//        }
+//        catch(Exception e){
+//            System.out.println("ERROR: unable to load the DB configurations to the system!");
+//            System.exit(1);
+//        }
+
+        Loader loader=new Loader();
+        loader.load(relativePath);
 
         SpringApplication.run(Application.class, args);
     }
@@ -48,6 +61,17 @@ public class Application implements AppShellConfigurator {
 
     public static SupplyInfo getSupplyInfo(){
         return new SupplyInfo("Name", "address", "city", "counyrt", "asd");
+    }
+
+    public static void readDBConfigurations(ConfigReader configReader) throws Exception {
+        String name = configReader.getDBName();
+        String url = configReader.getDBUrl();
+        String username = configReader.getDBUsername();
+        String password = configReader.getDBPassword();
+        String driver = configReader.getDBDriver();
+        ConnectorConfigurations conf = new ConnectorConfigurations(name, url, username, password, driver);
+
+        Market.getInstance().setConfigurations(conf);
     }
 
 }

@@ -2,50 +2,75 @@ package BusinessLayer.StorePermissions;
 
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Users.RegisteredUser;
+import DataAccessLayer.StoreEmployeesDAO;
 
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
+@Entity
+@Table(name = "storeOwners")
 public class StoreOwner extends StoreEmployees {
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "storeowners_ownersDefined")//,
     private Set<RegisteredUser> ownersIDefined;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "storeowners_managersDefined")
     private Set<RegisteredUser> managersIDefined;
-
+    @Transient
+    private StoreEmployeesDAO employeesDAO;
     /*
     founder calls this constructor
      */
-    public StoreOwner(int userID, Store store) {
+    public StoreOwner(int userID, Store store) throws Exception {
         super(userID, userID, store);
         store.addOwner(this);
         this.ownersIDefined = new HashSet<>();
         this.managersIDefined = new HashSet<>();
+        this.employeesDAO = new StoreEmployeesDAO();
     }
 
-    public StoreOwner(int userID, StoreOwner parentStoreOwnership) {
+    public StoreOwner(int userID, StoreOwner parentStoreOwnership) throws Exception {
         super(userID, parentStoreOwnership.getUserID(), parentStoreOwnership.getStore());
         this.ownersIDefined = new HashSet<>();
         this.managersIDefined = new HashSet<>();
+        this.employeesDAO = new StoreEmployeesDAO();
+    }
+
+    public StoreOwner() {
+        super();
     }
 
     public Set<RegisteredUser> getOwnersIDefined() {
         return ownersIDefined;
     }
 
+    public void setOwnersIDefined(Set<RegisteredUser> ownersIDefined) {
+        this.ownersIDefined = ownersIDefined;
+    }
+
     public Set<RegisteredUser> getManagersIDefined() {
         return managersIDefined;
+    }
+
+    public void setManagersIDefined(Set<RegisteredUser> managersIDefined) {
+        this.managersIDefined = managersIDefined;
     }
 
     public boolean isFounder() {
         return this.getUserID() == this.getParentID();
     }
 
-    public void addOwner(RegisteredUser newOwner) {
+    public void addOwner(RegisteredUser newOwner) throws Exception {
         ownersIDefined.add(newOwner);
+        employeesDAO.save(this);
         StoreOwner owner = newOwner.addStoreOwnership(this);
         this.getStore().addOwner(owner);
     }
 
     public void addManager(RegisteredUser newManager) {
         managersIDefined.add(newManager);
+        employeesDAO.save(this);
         newManager.addStoreManagership(this);
         this.getStore().addManager(newManager.getStoreIManage(getStoreID()));
     }
@@ -62,6 +87,7 @@ public class StoreOwner extends StoreEmployees {
         this.ownersIDefined.remove(ownerToRemove);
         this.getStore().removeOwner(ownership);
         ownerToRemove.removeOwnership(this.getStoreID());
+        employeesDAO.save(this);
     }
 
     private void destruct() {
@@ -86,6 +112,7 @@ public class StoreOwner extends StoreEmployees {
         this.getStore().removeManager(managerToRemove.getStoreIManage(getStoreID()));
         managerToRemove.removeManagership(this.getStoreID());
         managersIDefined.remove(managerToRemove);
+        employeesDAO.save(this);
     }
 
     public void closeStore() {

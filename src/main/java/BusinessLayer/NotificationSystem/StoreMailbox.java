@@ -1,26 +1,50 @@
 package BusinessLayer.NotificationSystem;
 
+import BusinessLayer.Market;
 import BusinessLayer.NotificationSystem.Repositories.ChatRepository;
 import BusinessLayer.StorePermissions.StoreEmployees;
 import BusinessLayer.Stores.Store;
+import DataAccessLayer.NotificationsSystemDAOs.MailboxDAO;
 
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Entity
 public class StoreMailbox extends Mailbox{
 
-    private final Store owner;
+    @OneToOne
+    @JoinColumn(name = "storeId")
+    private Store owner;
 
     public StoreMailbox(Store _owner, NotificationHub _hub){
         owner = _owner;
         available = true;
         ownerID = owner.getStoreID();
-        chats = new ChatRepository();
+        chats = new ArrayList<>();
         hub = _hub;
+
+        mailboxDAO = new MailboxDAO();
 
 //        notReadMessages = new NotReadMessagesRepository();
 //        readMessages = new ReadMessagesRepository();
 //        sentMessages = new SentMessagesRepository();
+    }
+
+    public StoreMailbox(){
+        mailboxDAO = new MailboxDAO();
+
+        try{
+            hub = Market.getInstance().getNotificationHub();
+        }
+        catch(Exception e){
+            System.err.println("Error in StoreMailbox empty constructor");
+            System.err.println(e.getMessage());
+        }
     }
 
     @Override
@@ -28,11 +52,19 @@ public class StoreMailbox extends Mailbox{
         List<Integer> IDs = owner.getStoreOwners().stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
         IDs.addAll(owner.getStoreManagers().stream().map(StoreEmployees::getUserID).toList());
         Message notificationMessage;
+        Chat chat;
 
         for(Integer id : IDs){
             notificationMessage = makeNotificationMessage(id);
-            chats.putIfAbsent(id, new Chat(ownerID, id));
-            chats.get(id).addMessage(notificationMessage);
+
+            chat = chats_searchChat(id);
+
+            if(chat == null){
+                chat = new Chat(ownerID, id);
+                chats.add(chat);
+            }
+
+            chat.addMessage(notificationMessage);
             hub.passMessage(notificationMessage);
             //sentMessages.add(notificationMessage);
         }
@@ -63,5 +95,13 @@ public class StoreMailbox extends Mailbox{
         for(Integer id : staffIDs){
             sendMessage(id, content);
         }
+    }
+
+    public Store getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Store owner) {
+        this.owner = owner;
     }
 }

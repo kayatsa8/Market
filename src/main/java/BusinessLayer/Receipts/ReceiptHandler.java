@@ -7,19 +7,35 @@ import BusinessLayer.Receipts.Receipt.ReceiptCollection;
 import BusinessLayer.Receipts.ReceiptItem.ReceiptItem;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.Stores.CatalogItem;
+import DataAccessLayer.ReceiptsDAOs.ReceiptHandlerDAO;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
+import javax.persistence.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
+@Entity //todo this doesn't need to be an entity, similar to facade
 public class ReceiptHandler {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
     private static final Logger log = Log.log;
-    private static AtomicInteger counterIds = new AtomicInteger(1);
-    private ReceiptCollection receipts;
-    public ReceiptHandler(){
-        receipts = new ReceiptCollection();
-    }
 
+    @OneToMany(cascade = CascadeType.ALL)
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @JoinColumn(name = "ReceiptHandlerId")
+    private List<Receipt> receipts;
+
+    @Transient
+    private ReceiptHandlerDAO dao;
+
+
+    public ReceiptHandler(){
+        receipts = new ArrayList<>();
+        dao = new ReceiptHandlerDAO();
+    }
 
     /**
      * add receipts to the owner of this class
@@ -35,15 +51,16 @@ public class ReceiptHandler {
      *        for user: keys = storesId (you have multiple keys if he bought from several store)
      *
      */
-    public int addReceipt(int ownerId, Map<Integer,Map<CatalogItem, CartItemInfo>> storeOrUserIdToItems){
-        Receipt newReceipt = new Receipt(counterIds.getAndIncrement(), ownerId, Calendar.getInstance());
+    public int addReceipt(int ownerId, Map<Integer,Map<CatalogItem, CartItemInfo>> storeOrUserIdToItems) throws Exception {
+        Receipt newReceipt = new Receipt(ownerId, Calendar.getInstance());
+        receipts.add(newReceipt);
+        dao.addReceipt(this, newReceipt);
 
         for (Map.Entry<Integer,Map<CatalogItem, CartItemInfo>> set : storeOrUserIdToItems.entrySet()) {
             ArrayList<ReceiptItem> items = convertToReceiptItems(set.getValue());
             newReceipt.addItems(set.getKey(), items);
         }
         log.info("Created receipt successfully.");
-        receipts.add(ownerId, newReceipt);
         log.info("Added receipt successfully.");
         return newReceipt.getId();
     }
@@ -62,21 +79,49 @@ public class ReceiptHandler {
     }
 
     public ArrayList<Receipt> getStoreReceiptsFromUser(int storeId){
-        return receipts.getByOwnerId(storeId);
+        return getByOwnerId(storeId);
     }
 
     public ArrayList<Receipt> getUserReceiptsFromStore(int userId){
-        return receipts.getByOwnerId(userId);
+        return getByOwnerId(userId);
     }
 
     public ArrayList<Receipt> getAllReceipts(){
-        return receipts.getAll();
+        return new ArrayList<>(receipts);
     }
 
     public Receipt getReceipt(int receiptId){
-        return receipts.get(receiptId);
+        for(Receipt receipt: receipts){
+            if(receipt.getId() == receiptId){
+                return receipt;
+            }
+        }
+        return null;
     }
 
+    private ArrayList<Receipt> getByOwnerId(int ownerId) {
+        ArrayList<Receipt> result = new ArrayList<>();
+        for(Receipt receipt : receipts){
+            if(receipt.hasKeyId(ownerId))
+                result.add(receipt);
+        }
+        return result;
+    }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public List<Receipt> getReceipts() {
+        return receipts;
+    }
+
+    public void setReceipts(List<Receipt> receipts) {
+        this.receipts = receipts;
+    }
 }
 

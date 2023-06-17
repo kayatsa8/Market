@@ -37,7 +37,11 @@ public class Lottery {
             @Override
             public void run()
             {
-                store.finishLotteryUnsuccessfully(lotteryID);
+                try {
+                    store.finishLotteryUnsuccessfully(lotteryID);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
         };
         lotteryTimer.schedule(endOfLotteryTask, endOfSale.getTime());

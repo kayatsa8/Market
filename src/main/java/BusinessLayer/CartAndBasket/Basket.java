@@ -1,39 +1,81 @@
 package BusinessLayer.CartAndBasket;
 
-import BusinessLayer.CartAndBasket.Repositories.Baskets.ItemsRepository;
-import BusinessLayer.CartAndBasket.Repositories.Baskets.SavedItemsRepository;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
+import DataAccessLayer.CartAndBasketDAOs.BasketDAO;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * DBConnector must have a separate query, and NOT use getById
+ */
+@Entity
+@Table(name = "basket")
 public class Basket {
-    //fields
-    private final Store store;
-    private final ItemsRepository items;
+//    fields
+    @ManyToOne
+    @JoinColumn(name = "storeId")
+    private Store store;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @JoinColumn(name = "basketId")
+    private List<Basket.ItemWrapper> items;
+
     private boolean itemsSaved; // true if the store saves the items inside the basket for the user
-    private SavedItemsRepository savedItems;
+//    @OneToMany()
+//    @LazyCollection(LazyCollectionOption.FALSE)
+//    @JoinTable(name = "savedItems",
+//            joinColumns = @JoinColumn(name = "basketId"))
+//    private List<CartItemInfo> savedItems;
+
+    private int userId;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @Transient
+    private BasketDAO dao;
 
     //methods
-    public Basket(Store _store){
+    public Basket(Store _store, int _userId){
         store = _store;
-        items = new ItemsRepository();
+        items = new ArrayList<>();
         itemsSaved = false;
-        savedItems = new SavedItemsRepository();
+//        savedItems = new ArrayList<>();
+        userId = _userId;
+        dao = new BasketDAO();
     }
 
-    public void addItem(CatalogItem item, int quantity, List<String> coupons) throws Exception {
+    public Basket(){
+        dao = new BasketDAO();
+    }
+
+    public void addItem(CatalogItem item, int quantity, List<Coupon> coupons) throws Exception {
         validateAddItem(item, quantity);
-        if (items.containsKey(item.getItemID())){
-            int prevAmount= items.getAmount(item.getItemID());
-            items.put(item.getItemID(), new ItemWrapper(item, quantity+prevAmount));
-        }
-        else
-            items.putIfAbsent(item.getItemID(), new ItemWrapper(item, quantity));
+        ItemWrapper wrapper = searchInItemsById(item.getItemID());
+        boolean wrapperPersisted = false;
+        List<CartItemInfo> savedItemsInfos = getItemsInfo();
 
-        releaseItems();
+        if (wrapper != null){
+            int prevAmount= wrapper.info.getAmount();
+            wrapper.info.setAmount(quantity + prevAmount);
+            wrapperPersisted = true;
+        }
+        else{
+            wrapper = new ItemWrapper(item, quantity);
+            items.add(wrapper);
+        }
+
+        dao.addItem(this, wrapper, wrapperPersisted);
+
+        releaseItems(savedItemsInfos);
 
         try{
             updateBasketWithCoupons(coupons);
@@ -43,12 +85,16 @@ public class Basket {
         }
     }
 
-    public void changeItemQuantity(int itemID, int quantity, List<String> coupons) throws Exception {
+    public void changeItemQuantity(int itemID, int quantity, List<Coupon> coupons) throws Exception {
         validateChangeItemQuantity(itemID, quantity);
+        List<CartItemInfo> savedItemsInfos = getItemsInfo();
 
-        items.get(itemID).info.setAmount(quantity);
+        ItemWrapper wrapper = searchInItemsById(itemID);
+        wrapper.info.setAmount(quantity);
 
-        releaseItems();
+        dao.changeItemQuantity(wrapper.info);
+
+        releaseItems(savedItemsInfos);
 
         try{
             updateBasketWithCoupons(coupons);
@@ -58,15 +104,20 @@ public class Basket {
         }
     }
 
-    public void removeItem(int itemID, List<String> coupons) throws Exception {
-        if(!items.containsKey(itemID)){
+    public void removeItem(int itemID, List<Coupon> coupons) throws Exception {
+        ItemWrapper wrapper = searchInItemsById(itemID);
+        List<CartItemInfo> savedItemsInfos = getItemsInfo();
+
+        if(wrapper == null){
             //LOG
             throw new Exception("ERROR: Basket::removeItemFromCart: no such item in basket!");
         }
 
-        items.remove(itemID);
+        items.remove(wrapper);
 
-        releaseItems();
+        dao.removeItem(wrapper);
+
+        releaseItems(savedItemsInfos);
 
         try{
             updateBasketWithCoupons(coupons);
@@ -99,7 +150,7 @@ public class Basket {
             throw new Exception("ERROR: Basket::changeItemQuantityInCart: given quantity is not valid!");
         }
 
-        if(!items.containsKey(itemID)){
+        if(searchInItemsById(itemID) == null){
             //LOG
             throw new Exception("ERROR: Basket::changeItemQuantityInCart: the item is not in the basket!");
         }
@@ -109,27 +160,32 @@ public class Basket {
         return store;
     }
 
-    public HashMap<CatalogItem, CartItemInfo> getItems(){
+    public HashMap<CatalogItem, CartItemInfo> getItemsAsMap(){
         HashMap<CatalogItem, CartItemInfo> inBasket = new HashMap<>();
 
-        for(Integer itemID : items.keySet()){
-            inBasket.putIfAbsent(makeCopyOfCatalogItem(items.get(itemID).item),
-                    new CartItemInfo(items.get(itemID).info));
+        for(ItemWrapper wrapper : items){
+            inBasket.putIfAbsent(makeCopyOfCatalogItem(wrapper.item),
+                    new CartItemInfo(wrapper.info));
         }
 
         return inBasket;
     }
 
-    private CatalogItem makeCopyOfCatalogItem(CatalogItem item){
-        return new CatalogItem(item.getItemID(), item.getItemName(), item.getPrice(), item.getCategory(), item.getStoreName(), item.getItemID(), item.getWeight());
+    public List<ItemWrapper> getItems(){
+        return items;
     }
 
-    public void saveItems(List<String> coupons, int userID, int age) throws Exception{
-        savedItems.set(getItemsInfo());
+    private CatalogItem makeCopyOfCatalogItem(CatalogItem item){ //@TODO TOMER
+        return new CatalogItem(item.getItemID(), item.getItemName(), item.getPrice(), item.getCategory(), item.getStoreName(), getStore(), item.getWeight());
+    }
+
+    public void saveItems(List<Coupon> coupons, int userID, int age) throws Exception{
+//        savedItems = getItemsInfo();
 
         try{
             store.saveItemsForUpcomingPurchase(getItemsInfo(), coupons, userID, age);
             itemsSaved = true;
+            dao.saveItems(this);
         }
         catch(Exception e){
             //LOG
@@ -138,8 +194,12 @@ public class Basket {
                 NOTICE: the Store may throw an exception if Basket requests a certain
                 item more than Store can provide.
             */
-            savedItems.set(null);
+
+//            savedItems = null;
             itemsSaved = false;
+            dao.saveItems(this);
+
+            //NOTE: maybe need to delete every CartItemInfo in savedItems -> possible solution: empty savedItems, save, make null, save
             throw e;
         }
 
@@ -147,10 +207,10 @@ public class Basket {
 
     }
 
-    private List<CartItemInfo> getItemsInfo(){
+    public List<CartItemInfo> getItemsInfo(){
         List<CartItemInfo> infos = new ArrayList<>();
 
-        for(ItemWrapper wrapper : items.values()){
+        for(ItemWrapper wrapper : items){
             infos.add(new CartItemInfo(wrapper.info));
         }
 
@@ -167,7 +227,7 @@ public class Basket {
         }
 
         try{
-            store.buyBasket(savedItems.getList(), userID);
+            store.buyBasket(getItemsInfo(), userID);
         }
         catch(Exception e){
             //LOG
@@ -180,7 +240,7 @@ public class Basket {
     private HashMap<CatalogItem, CartItemInfo> prepareItemsForReceipt(){
         HashMap<CatalogItem, CartItemInfo> data = new HashMap<>();
 
-        for(ItemWrapper item : items.values()){
+        for(ItemWrapper item : items){
             data.putIfAbsent(item.item, item.info);
         }
 
@@ -191,18 +251,22 @@ public class Basket {
      * if the basket contents had changed for some reason, the basket
      * asks the store to release the saved items
      */
-    public void releaseItems() throws Exception {
+    public void releaseItems(List<CartItemInfo> savedItemsInfos) throws Exception {
         if(itemsSaved){
             itemsSaved = false;
-            store.reverseSavedItems(savedItems.getList());
-            savedItems.set(null);
+            store.reverseSavedItems(savedItemsInfos);
+
+            dao.releaseItems(this);
+//            savedItems.clear();
+
+//            savedItems = null;
         }
     }
 
     public double calculateTotalPrice(){
         double price = 0;
 
-        for(ItemWrapper wrapper : items.values()){
+        for(ItemWrapper wrapper : items){
             price += wrapper.info.getFinalPrice();
         }
 
@@ -210,20 +274,23 @@ public class Basket {
     }
 
     public boolean isItemInBasket(int itemID){
-        return items.containsKey(itemID);
+        return searchInItemsById(itemID) != null;
     }
 
-    public void updateBasketWithCoupons(List<String> coupons) throws Exception {
+    public void updateBasketWithCoupons(List<Coupon> coupons) throws Exception {
         List<CartItemInfo> updatedBasketItems = getItemsInfo();
         store.updateBasket(updatedBasketItems, coupons);
         //checkIfPurchaseIsValid(updatedBasketItems, age);
         updateBasketByCartItemInfoList(updatedBasketItems);
     }
 
-    private void updateBasketByCartItemInfoList(List<CartItemInfo> updatedBasketItems) {
+    private void updateBasketByCartItemInfoList(List<CartItemInfo> updatedBasketItems) throws Exception {
+
         for(CartItemInfo info : updatedBasketItems){
-            items.get(info.getItemID()).info = info;
+            searchInItemsById(info.getItemID()).info.steal(info);
+            dao.updateBasketByCartItemInfoList(searchInItemsById(info.getItemID()).info);
         }
+
     }
 
     private void checkIfPurchaseIsValid(List<CartItemInfo> updatedBasketItems, int age) throws Exception {
@@ -232,23 +299,134 @@ public class Basket {
         }
     }
 
+    public void setStore(Store store) {
+        this.store = store;
+    }
+
+    public void setItems(List<ItemWrapper> items) {
+        this.items = items;
+    }
+
+    public boolean isItemsSaved() {
+        return itemsSaved;
+    }
+
+    public void setItemsSaved(boolean itemsSaved) {
+        this.itemsSaved = itemsSaved;
+    }
+
+//    public List<CartItemInfo> getSavedItems() {
+//        return savedItems;
+//    }
+
+//    public void setSavedItems(List<CartItemInfo> savedItems) {
+//        this.savedItems = savedItems;
+//    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    private ItemWrapper searchInItemsById(int id){
+        for(ItemWrapper wrapper : items){
+            if(wrapper.item.getItemID() == id){
+                return wrapper;
+            }
+        }
+
+        return null;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return "Basket{" +
+                "store=" + store +
+                ", items=" + items +
+                ", itemsSaved=" + itemsSaved +
+//                ", savedItems=" + savedItems +
+                ", userId=" + userId +
+                ", id=" + id +
+                '}';
+    }
 
 
 
 
 
 
+
+    @Entity
+    @Table(name = "itemwrapper")
     /**
      * <CatalogItem, quantity>
      * this class is a wrapper for Basket use only
      */
-    public class ItemWrapper{
+    public static class ItemWrapper{
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private int id;
+
+//        @ManyToOne
+//        @JoinColumn(name = "itemId")
+        @ManyToOne
+        @JoinColumn(name = "itemId")
         public CatalogItem item;
+
+        @OneToOne(cascade = CascadeType.ALL)
+        @JoinColumn(name = "infoId")
         public CartItemInfo info;
 
         public ItemWrapper(CatalogItem _item, int quantity){
             item = _item;
             info = new CartItemInfo(item.getItemID(), quantity, item.getPrice(), _item.getCategory(), _item.getItemName(), _item.getWeight());
+        }
+
+        public ItemWrapper() {
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int _id) {
+            this.id = _id;
+        }
+
+        public CatalogItem getItem() {
+            return item;
+        }
+
+        public void setItem(CatalogItem item) {
+            this.item = item;
+        }
+
+        public CartItemInfo getInfo() {
+            return info;
+        }
+
+        public void setInfo(CartItemInfo info) {
+            this.info = info;
+        }
+
+        @Override
+        public String toString() {
+            return "ItemWrapper{" +
+                    "id=" + id +
+                    ", item=" + item +
+                    ", info=" + info +
+                    '}';
         }
     }
 

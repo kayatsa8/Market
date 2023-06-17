@@ -7,6 +7,7 @@ import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
 import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.User;
+import DataAccessLayer.Hibernate.ConnectorConfigurations;
 import ServiceLayer.Objects.ChatService;
 import ServiceLayer.Objects.MessageService;
 import ServiceLayer.Objects.UserInfoService;
@@ -26,11 +27,6 @@ public class UserService {
     private UserInfoService loggedInUser;
     public UserService() throws Exception {
         market = Market.getInstance();
-    }
-
-    public void start() {
-        log.info("Starting System");
-        market.systemStart();
     }
 
     public Result<Integer> addGuest() {
@@ -57,10 +53,10 @@ public class UserService {
     public Result<Integer> register(String userName, String pass, String address, LocalDate bDay) {
         try {
             int id=market.register(userName, pass, address, bDay);
-            log.info("logIn succeeded");
+            log.info("register succeeded");
             return new Result<>(false, id);//login == true,isErr==false
         } catch (Exception e) {
-            log.info("logIn failed");
+            log.info("register failed");
             return new Result<>(true, e.getMessage());//login==false
         }
     }

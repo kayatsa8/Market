@@ -1,15 +1,32 @@
 package BusinessLayer.NotificationSystem;
 
 import BusinessLayer.Log;
-import BusinessLayer.NotificationSystem.Repositories.ChatRepository;
+import DataAccessLayer.NotificationsSystemDAOs.MailboxDAO;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
+import javax.persistence.*;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Mailbox {
+    @Id
     protected int ownerID;
     protected boolean available;
-    protected ChatRepository chats; // <otherSideId, Chat>
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @JoinColumn(name = "mailboxOwner")
+    protected List<Chat> chats; // <otherSideId, Chat>
+
+    @Transient
     protected NotificationHub hub;
+
+    @Transient
+    protected MailboxDAO mailboxDAO;
 
 
 //    protected NotReadMessagesRepository notReadMessages;
@@ -18,12 +35,22 @@ public abstract class Mailbox {
 
     public void sendMessage(int receiverID, String content){
         Message message = new Message(ownerID, receiverID, content);
+        boolean newChat = false;
 
         try{
-            chats.putIfAbsent(receiverID, new Chat(ownerID, receiverID));
-            chats.get(receiverID).addMessage(message);
+            Chat chat = chats_searchChat(receiverID);
+
+            if(chat == null){
+                chat = new Chat(ownerID, receiverID);
+                chats.add(chat);
+                newChat = true;
+            }
+
+            chat.addMessage(message);
 
             hub.passMessage(message);
+
+            mailboxDAO.sendMessage(this, chat, message, newChat);
         }
         catch (Exception e){
             System.out.println(e.getMessage());
@@ -36,22 +63,34 @@ public abstract class Mailbox {
         //sentMessages.add(message);
     }
 
-    public void receiveMessage(Message message) throws Exception{
-        if(message == null){
+    public void receiveMessage(Message _message) throws Exception{
+        if(_message == null){
             Log.log.warning("ERROR: Mailbox::receiveMessage: the given message is null");
             throw new Exception("Mailbox::receiveMessage: the given message is null");
         }
 
-        if(ownerID != message.getReceiverID()){
+        if(ownerID != _message.getReceiverID()){
             Log.log.severe("ERROR: Mailbox::receiveMessage: A message for "
-                    + message.getReceiverID()
+                    + _message.getReceiverID()
                     + "was sent to " + ownerID);
-            throw new Exception("Mailbox::receiveMessage: A message for " + message.getReceiverID() +
+            throw new Exception("Mailbox::receiveMessage: A message for " + _message.getReceiverID() +
                     "was sent to " + ownerID);
         }
 
-        chats.putIfAbsent(message.getSenderID(), new Chat(ownerID, message.getSenderID()));
-        chats.get(message.getSenderID()).addMessage(message);
+        Message message = new Message(_message);
+
+        Chat chat = chats_searchChat(message.getSenderID());
+        boolean newChat = false;
+
+        if(chat == null){
+            chat = new Chat(ownerID, message.getSenderID());
+            chats.add(chat);
+            newChat = true;
+        }
+
+        chat.addMessage(message);
+
+        mailboxDAO.receiveMessage(this, chat, message, newChat);
         //notReadMessages.add(message);
         notifyOwner();
     }
@@ -98,22 +137,62 @@ public abstract class Mailbox {
 //        return new ArrayList<>(sentMessages.getMessages());
 //    }
 
-    public ConcurrentHashMap<Integer, Chat> getChats(){
-        return chats.getChats();
+    public ConcurrentHashMap<Integer, Chat> getChatsAsMap(){
+        ConcurrentHashMap<Integer, Chat> _chats = new ConcurrentHashMap<>();
+        for(Chat chat : chats){
+            _chats.putIfAbsent(chat.getOtherSideId(), chat);
+        }
+
+        return _chats;
     }
 
-    public void setMailboxAsUnavailable(){
+    public void setMailboxAsUnavailable() throws Exception {
         available = false;
+        mailboxDAO.setMailboxAvailability(this);
+
         Log.log.info("The mailbox of " + ownerID + " was marked as unavailable.");
     }
 
-    public void setMailboxAsAvailable(){
+    public void setMailboxAsAvailable() throws Exception {
         available = true;
+        mailboxDAO.setMailboxAvailability(this);
+
         Log.log.info("The mailbox of " + ownerID + " was marked as available.");
     }
 
     public boolean isAvailable(){
         return available;
     }
+
+    protected Chat chats_searchChat(int receiverId){
+        for(Chat chat : chats){
+            if(chat.getOtherSideId() == receiverId){
+                return chat;
+            }
+        }
+
+        return null;
+    }
+
+    public int getOwnerID() {
+        return ownerID;
+    }
+
+    public void setOwnerID(int ownerID) {
+        this.ownerID = ownerID;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
+
+    public List<Chat> getChats() {
+        return chats;
+    }
+
+    public void setChats(List<Chat> chats) {
+        this.chats = chats;
+    }
+
 
 }
