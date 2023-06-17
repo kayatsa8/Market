@@ -53,8 +53,8 @@ public class Market {
             if (instance == null) {
                 instance = new Market();
                 instance.notificationHub.loadHub();
-                instance.createFirstAdmin();
                 instance.userFacade.loadUsers();
+                instance.createFirstAdmin();
                 instance.userFacade.setGuest();
             }
             return instance;
