@@ -26,6 +26,7 @@ public class ReceiptHandlerTest {
     private Map<Integer, Map<CatalogItem, CartItemInfo>> items;
     @Before
     public void setUp() throws Exception {
+        System.setProperty("env", "test");
         handler = new ReceiptHandler();
 
         items = new HashMap<>();

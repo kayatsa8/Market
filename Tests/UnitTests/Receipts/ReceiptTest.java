@@ -23,6 +23,7 @@ public class ReceiptTest {
     int store2Id = 2;
     @Before
     public void setUp() throws Exception {
+        System.setProperty("env", "test");
         receipt = new Receipt(1000, Calendar.getInstance());
         receiptId = receipt.getId();
         item1FromStore1 = new ReceiptItem(1, "item1", 20, 100, 15);

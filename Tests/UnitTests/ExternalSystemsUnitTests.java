@@ -16,6 +16,7 @@ public class ExternalSystemsUnitTests {
     private SupplyClient supplyClient;
     @Before
     public void setUp() {
+        System.setProperty("env", "test");
         this.supplyClient = new SupplyClient();
         this.purchaseClient = new PurchaseClient();
 

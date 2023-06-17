@@ -29,7 +29,7 @@ public class StoreStatusTests {
 
     @BeforeClass
     public static void setUp() throws Exception {
-
+        System.setProperty("env", "test");
         store1 = spy(Store.class);
 
         when(store1.isFounder(storeOwnerId)).thenReturn(false);

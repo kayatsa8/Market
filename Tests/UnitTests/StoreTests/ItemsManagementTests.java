@@ -23,6 +23,7 @@ public class ItemsManagementTests {
 
     @BeforeClass
     public static void setUp() throws Exception {
+        System.setProperty("env", "test");
         storeFacade = new StoreFacade();
         store1 = new Store(1, 2, "Name");
     }

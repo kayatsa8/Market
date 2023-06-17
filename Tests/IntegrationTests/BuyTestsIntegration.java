@@ -49,6 +49,7 @@ public class BuyTestsIntegration {
 
     @BeforeClass
     public static void setUp() throws Exception {
+        System.setProperty("env", "test");
         market = Market.getInstance();
         storeFacade = market.getStoreFacade();
         userFacade = market.getUserFacade();

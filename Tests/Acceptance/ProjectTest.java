@@ -27,8 +27,10 @@ public abstract class ProjectTest {
     private Bridge bridge;
 
     public void setUp() {
-        if(bridge == null)
+        if(bridge == null) {
+            System.setProperty("env", "test");
             this.bridge = Driver.getBridge();
+        }
         user7SystemManagerId = 1000001;
         //setUpExternalSystems();
     }

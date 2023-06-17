@@ -25,6 +25,7 @@ public class UserMailboxTests {
     static Market market;
     @BeforeClass
     public static void setUp() throws Exception {
+        System.setProperty("env", "test");
         market = Market.getInstance();
         hub = market.getNotificationHub();
         userFacade = market.getUserFacade();

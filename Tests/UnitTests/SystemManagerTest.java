@@ -13,6 +13,8 @@ import org.junit.Test;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import static BusinessLayer.Stores.StoreStatus.OPEN;
 import static BusinessLayer.Stores.StoreStatus.PERMANENTLY_CLOSE;
@@ -32,18 +34,19 @@ public class SystemManagerTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
+        System.setProperty("env", "test");
         market = Market.getInstance();
         sf = market.getStoreFacade();
         uf = market.getUserFacade();
         adminID = uf.getUserByName(adminName).getId();
         manager = new SystemManager();
 
-        HashMap<Integer, StoreOwner> stores = new HashMap<>();
-        stores.put(1, null);
+        Set<StoreOwner> stores = new HashSet<>();
+        stores.add(null);
         when(user.getStoresIOwn()).thenReturn(stores);
 
-        HashMap<Integer, StoreManager> storesIManage = new HashMap<>();
-        storesIManage.put(1, null);
+        Set<StoreManager> storesIManage = new HashSet<>();
+        storesIManage.add(null);
         when(user.getStoresIManage()).thenReturn(storesIManage);
 
     }
