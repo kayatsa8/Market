@@ -56,6 +56,7 @@ public class CatalogItem {
 
     public void setSavedAmount(int savedAmount) {
         this.savedAmount = savedAmount;
+        itemDAO.save(this);
     }
 
     public int getAmount() {
