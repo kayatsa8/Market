@@ -42,7 +42,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static BusinessLayer.StorePermissions.StoreActionPermissions.BID_MANAGEMENT;
 import static BusinessLayer.Stores.StoreStatus.*;
 
 @Entity
@@ -939,7 +938,7 @@ public class Store {
         Bid newBid = new Bid(bidsIDs, itemID, getItem(itemID).getItemName(), userID, offeredPrice, originalPrice, getStoreID());
         List<StoreEmployees> storeOwnersAndManagers = new ArrayList<>();
         storeOwnersAndManagers.addAll(storeOwners);
-        storeOwnersAndManagers.addAll(storeManagers.stream().filter(manager -> manager.hasPermission(BID_MANAGEMENT)).toList());
+//        storeOwnersAndManagers.addAll(storeManagers.stream().filter(manager -> manager.hasPermission(BID_MANAGEMENT)).toList());
         List<Integer> sendToList = storeOwnersAndManagers.stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
         newBid.setRepliers(sendToList);
         bids.put(bidsIDs++, newBid);

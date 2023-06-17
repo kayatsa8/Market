@@ -279,11 +279,11 @@ public class Market {
         return storeFacade.closeStore(userID, storeID);
     }
 
-    public void addManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) throws Exception {
+    public void addManagerPermission(int userID, int storeID, int manager, Set<String> permission) throws Exception {
         userFacade.addManagerPermission(userID, storeID, manager, permission);
     }
 
-    public void removeManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) throws Exception {
+    public void removeManagerPermission(int userID, int storeID, int manager, Set<String> permission) throws Exception {
         userFacade.removeManagerPermission(userID, storeID, manager, permission);
     }
 

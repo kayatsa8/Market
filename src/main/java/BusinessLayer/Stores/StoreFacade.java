@@ -682,6 +682,8 @@ public class StoreFacade {
     private List<String> parsePermissions(Collection<StoreActionPermissions> values) {
         return Arrays.stream(values.toArray()).map(permissions -> permissions.toString().replace('_', ' ')).toList();
     }
+
+
     private StoreManager getStoreManager(int userID, int storeId) throws Exception {
         Store store = getStore(storeId);
         Set<StoreManager> permissions = store.getStoreManagers();

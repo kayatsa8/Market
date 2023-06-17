@@ -5,8 +5,11 @@ import BusinessLayer.Users.RegisteredUser;
 import DataAccessLayer.StoreEmployeesDAO;
 
 import javax.persistence.*;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "storeOwners")
@@ -141,21 +144,31 @@ public class StoreOwner extends StoreEmployees {
         return res;
     }
 
-    public void addManagerPermission(RegisteredUser manager, StoreActionPermissions permission) {
+    public void addManagerPermission(RegisteredUser manager, Set<String> permission) {
         if (!managersIDefined.contains(manager)) {
             throw new RuntimeException("This user is not the one who defined this owner");
         }
-        manager.getStoreIManage(this.getStoreID()).addPermission(permission);
+        StoreManager m = manager.getStoreIManage(this.getStoreID());
+        List<StoreActionPermissions> permissions = invParsePermissions(permission);
+        m.addPermission(permissions);
+        employeesDAO.save(m);
     }
 
-    public void removeManagerPermission(RegisteredUser manager, StoreActionPermissions permission) {
+    public void removeManagerPermission(RegisteredUser manager, Set<String> permission) {
         if (!managersIDefined.contains(manager)) {
             throw new RuntimeException("This user is not the one who defined this owner");
         }
-        manager.getStoreIManage(this.getStoreID()).removePermission(permission);
+        StoreManager m = manager.getStoreIManage(this.getStoreID());
+        List<StoreActionPermissions> permissions = invParsePermissions(permission);
+        m.removePermission(permissions);
+        employeesDAO.save(m);
     }
 
     public boolean hasPermission(StoreActionPermissions permission) {
         return true;
+    }
+
+    private List<StoreActionPermissions> invParsePermissions(Collection<String> values) {
+        return values.stream().map(v->StoreActionPermissions.valueOf(v.replace(' ', '_'))).toList();
     }
 }
