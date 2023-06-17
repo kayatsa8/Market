@@ -308,13 +308,15 @@ public class UserFacade {
         return getUser(userID).emptyCart();
     }
 
-    public void addManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) throws Exception {
+    public void addManagerPermission(int userID, int storeID, int managerID, Set<String> permission) throws Exception {
         RegisteredUser user = getLoggedInUser(userID);
+        RegisteredUser manager = getRegisteredUser(managerID);
         user.addManagerPermission(storeID, manager, permission);
     }
 
-    public void removeManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) throws Exception {
+    public void removeManagerPermission(int userID, int storeID, int managerID, Set<String> permission) throws Exception {
         RegisteredUser user = getLoggedInUser(userID);
+        RegisteredUser manager = getRegisteredUser(managerID);
         user.removeManagerPermission(storeID, manager, permission);
     }
 

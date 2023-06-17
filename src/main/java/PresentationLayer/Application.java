@@ -34,9 +34,6 @@ public class Application implements AppShellConfigurator {
     private static final String relativePath = "src/main/java/PresentationLayer/initialize/data.json";
 
     public static void main(String[] args) throws Exception {
-        String addressOk="addressOk";
-        LocalDate bDayOk=LocalDate.of(2022, 7, 11);
-
         ConfigReader configReader=new ConfigReader();
         String relativePath = configReader.getInitializePath();
 

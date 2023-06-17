@@ -227,14 +227,6 @@ public class MarketMock {
         return storeFacade.closeStore(userID, storeID);
     }
 
-    public void addManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) throws Exception {
-        userFacade.addManagerPermission(userID, storeID, manager, permission);
-    }
-
-    public void removeManagerPermission(int userID, int storeID, RegisteredUser manager, StoreActionPermissions permission) throws Exception {
-        userFacade.removeManagerPermission(userID, storeID, manager, permission);
-    }
-
     public boolean sendMessage(int senderID, int receiverID, String content) throws Exception{
         if(storeFacade.isStoreExists(senderID)){
             storeFacade.sendMessage(senderID, receiverID, content);

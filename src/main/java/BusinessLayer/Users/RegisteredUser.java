@@ -12,10 +12,7 @@ import DataAccessLayer.UserDAO;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
@@ -290,7 +287,7 @@ public class RegisteredUser extends User {
         userDAO.removeOwnership(this);
     }
 
-    public void addManagerPermission(int storeID, RegisteredUser manager, StoreActionPermissions permission) {
+    public void addManagerPermission(int storeID, RegisteredUser manager, Set<String> permission) {
         StoreOwner storeOwnership = getStoreIOwn(storeID);
         if (storeOwnership == null) {
             throw new RuntimeException("User is not a store owner");
@@ -301,7 +298,7 @@ public class RegisteredUser extends User {
         storeOwnership.addManagerPermission(manager, permission);
     }
 
-    public void removeManagerPermission(int storeID, RegisteredUser manager, StoreActionPermissions permission) {
+    public void removeManagerPermission(int storeID, RegisteredUser manager, Set<String> permission) {
         StoreOwner storeOwnership = getStoreIOwn(storeID);
         if (storeOwnership == null) {
             throw new RuntimeException("User is not a store owner");
