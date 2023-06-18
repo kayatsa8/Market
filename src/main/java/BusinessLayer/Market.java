@@ -638,7 +638,13 @@ public class Market {
     }
 
     public int getStoreIdByName(String name) throws Exception {
-        return storeFacade.getIdByStoreName(name);
+        int id = storeFacade.getIdByStoreName(name);
+
+        if(id == -1){
+            throw new Exception("ERROR: the searched store wa not found!");
+        }
+
+        return id;
     }
 
     public String getNameById(int id){
