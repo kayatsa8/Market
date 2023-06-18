@@ -4,16 +4,14 @@ import BusinessLayer.Market;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
-import BusinessLayer.Users.RegisteredUser;
-import BusinessLayer.Users.UserFacade;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import java.time.LocalDate;
-
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ItemsManagementTests {
@@ -23,8 +21,11 @@ public class ItemsManagementTests {
 
     @BeforeClass
     public static void setUp() throws Exception {
+        System.setProperty("env", "test");
         storeFacade = new StoreFacade();
         store1 = new Store(1, 2, "Name");
+        store1 = spy(Store.class);
+        doNothing().when(store1).addItemToStoreDAO(any());
     }
 
     @Test

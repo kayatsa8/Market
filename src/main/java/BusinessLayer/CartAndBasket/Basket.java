@@ -53,8 +53,10 @@ public class Basket {
         dao = new BasketDAO();
     }
 
+    //for mocking
     public Basket(){
         dao = new BasketDAO();
+        items = new ArrayList<>();
     }
 
     public void addItem(CatalogItem item, int quantity, List<Coupon> coupons) throws Exception {
@@ -73,7 +75,7 @@ public class Basket {
             items.add(wrapper);
         }
 
-        dao.addItem(this, wrapper, wrapperPersisted);
+        addItemToDAO(wrapper, wrapperPersisted);
 
         releaseItems(savedItemsInfos);
 
@@ -85,6 +87,10 @@ public class Basket {
         }
     }
 
+    public void addItemToDAO(ItemWrapper wrapper, boolean wrapperPersisted) throws Exception {
+        dao.addItem(this, wrapper, wrapperPersisted);
+    }
+
     public void changeItemQuantity(int itemID, int quantity, List<Coupon> coupons) throws Exception {
         validateChangeItemQuantity(itemID, quantity);
         List<CartItemInfo> savedItemsInfos = getItemsInfo();
@@ -92,7 +98,7 @@ public class Basket {
         ItemWrapper wrapper = searchInItemsById(itemID);
         wrapper.info.setAmount(quantity);
 
-        dao.changeItemQuantity(wrapper.info);
+        changeItemQuantityInDAO(wrapper);
 
         releaseItems(savedItemsInfos);
 
@@ -102,6 +108,10 @@ public class Basket {
         catch(Exception e){
             // preventing an unwanted exception
         }
+    }
+
+    public void changeItemQuantityInDAO(ItemWrapper wrapper) throws Exception {
+        dao.changeItemQuantity(wrapper.info);
     }
 
     public void removeItem(int itemID, List<Coupon> coupons) throws Exception {
@@ -115,7 +125,7 @@ public class Basket {
 
         items.remove(wrapper);
 
-        dao.removeItem(wrapper);
+        removeItemFromDAO(wrapper);
 
         releaseItems(savedItemsInfos);
 
@@ -125,6 +135,10 @@ public class Basket {
         catch(Exception e){
             // preventing an unwanted exception
         }
+    }
+
+    public void removeItemFromDAO(ItemWrapper wrapper) throws Exception {
+        dao.removeItem(wrapper);
     }
 
     private void validateAddItem(CatalogItem item, int quantity) throws Exception {
@@ -138,10 +152,14 @@ public class Basket {
             throw new Exception("ERROR: Basket::addItemToCart: given quantity is not valid!");
         }
 
-        if(!store.isItemInCatalog(item.getItemID())){
+        if(!isItemInStoreCatalog(item)){
             throw new Exception("ERROR: Basket::addItemToCart: the item is not in the store!");
             //throw new Exception("ERROR: Basket::addItemToCart: the item is already in the basket!");
         }
+    }
+
+    public boolean isItemInStoreCatalog(CatalogItem item) {
+        return store.isItemInCatalog(item.getItemID());
     }
 
     private void validateChangeItemQuantity(int itemID, int quantity) throws Exception {

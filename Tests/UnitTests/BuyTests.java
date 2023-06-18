@@ -36,6 +36,7 @@ public class BuyTests {
 
     @BeforeClass
     public static void setUp() throws Exception {
+        System.setProperty("env", "test");
         cart = new Cart(1);
 
         cart = spy(Cart.class);

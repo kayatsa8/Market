@@ -229,6 +229,17 @@ public class StoreManagementView extends VerticalLayout {
         dialog.open();
     }
 
+    private boolean isStoreOwner(int storeId) {
+        Result<Map<Integer, UserInfoService>> usersRes = userService.getAllRegisteredUsers();
+        for (UserInfoService userInfoService : usersRes.getValue().values()) {
+            if (userInfoService.getId() == mainLayout.getCurrUserID()) {
+                ArrayList<Integer> storesIds = userInfoService.getStoresIOwn();
+                return storesIds.contains(storeId);
+            }
+        }
+        return false;
+    }
+
     private boolean isStoreOwner() {
         Result<Map<Integer, UserInfoService>> usersRes = userService.getAllRegisteredUsers();
         for (UserInfoService userInfoService : usersRes.getValue().values()) {
@@ -398,7 +409,15 @@ public class StoreManagementView extends VerticalLayout {
         menu.addItem("Store Mailbox", event -> startMailbox()).setVisible(!managerMode);
     }
 
+    private boolean isFounder(StoreService storeService) {
+        int userId = mainLayout.getCurrUserID();
+        boolean res = storeService.getFounderID() == userId;
+        return res;
+    }
+
     private boolean hasPermission(StoreService store, StoreActionPermissions storeActionPermissions) {
+        if(isStoreOwner(store.getStoreId()))
+            return true;
         int userID = mainLayout.getCurrUserID();
         return shoppingService.managerHasPermission(userID, store.getStoreId(), storeActionPermissions);
     }

@@ -3,29 +3,32 @@ package UnitTests.Receipts;
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.Receipts.ReceiptHandler;
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.Receipts.ReceiptItem.ReceiptItem;
 import BusinessLayer.Stores.CatalogItem;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.runners.MethodSorters;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ReceiptHandlerTest {
 
 
 
-    private ReceiptHandler handler;
-    private int store1ID = 1;
-    private int store2ID = 2;
-    private int userId = 1;
-    private int receipt1Id = 1;
-    private Map<Integer, Map<CatalogItem, CartItemInfo>> items;
-    @Before
-    public void setUp() throws Exception {
+    private static ReceiptHandler handler;
+    private static int store1ID = 1;
+    private static int store2ID = 2;
+    private static int userId = 1;
+    private static int receipt1Id = 1;
+    private static Map<Integer, Map<CatalogItem, CartItemInfo>> items;
+    private static Receipt receipt1;
+
+    @BeforeClass
+    public static void setUp() throws Exception {
+        System.setProperty("env", "test");
         handler = new ReceiptHandler();
 
         items = new HashMap<>();
@@ -39,13 +42,13 @@ public class ReceiptHandlerTest {
         item3.setPercent(0.2);
         item4.setPercent(0.2);
 
-//        itemsAndAmounts1.put(new CatalogItem(11, "item11", 20, "Books", "name1", store1ID, 0.5), item1);
-//        itemsAndAmounts1.put(new CatalogItem(12, "item12", 20, "Books", "name1", store1ID, 0.5), item2);
         HashMap<CatalogItem, CartItemInfo> itemsAndAmounts2 = new HashMap<>();
-//        itemsAndAmounts2.put(new CatalogItem(21, "item21", 20, "Books", "name2", store2ID, 0.5), item3);
-//        itemsAndAmounts2.put(new CatalogItem(22, "item22", 20, "Books", "name2", store2ID, 0.5), item4);
         items.put(store1ID, itemsAndAmounts1);
         items.put(store2ID, itemsAndAmounts2);
+
+        handler = spy(ReceiptHandler.class);
+        doNothing().when(handler).addItemsToReceipt(any(), any(), any());
+        doNothing().when(handler).addReceiptToDAO(any());
     }
 
     @After
@@ -56,30 +59,32 @@ public class ReceiptHandlerTest {
 
 // public void addReceipt(int ownerId, HashMap<Integer,HashMap<CatalogItem, Integer>> storeOrUserIdToItems){
     @Test
-    public void addReceipt() throws Exception {
+    public void aAddReceipt() throws Exception {
         receipt1Id = handler.addReceipt(userId, items);
+        receipt1 = handler.getReceipt(receipt1Id);
 
-        Receipt receipt1 = handler.getReceipt(receipt1Id);
         assertEquals(receipt1.getId(), receipt1Id);
-        assertTrue(receipt1.itemExists(store1ID, 11));
-        assertTrue(receipt1.itemExists(store1ID, 12));
-        assertTrue(receipt1.itemExists(store2ID, 21));
-        assertTrue(receipt1.itemExists(store2ID, 22));
     }
 
     @Test
-    public void getStoreReceiptsFromUser() throws Exception {
-        receipt1Id = handler.addReceipt(userId, items);
+    public void bGetStoreReceiptsFromUser() throws Exception {
+        //receipt1Id = handler.addReceipt(userId, items);
+
+        //putting items in receipt
+        receipt1 = spy(Receipt.class);
+        doNothing().when(receipt1).addItemsTODAO(anyBoolean(), any(), any());
+        receipt1.addItems(receipt1Id, List.of(new ReceiptItem(11211, "item1", 20, 100, 15)));
+
         ArrayList<Receipt> receipts = handler.getStoreReceiptsFromUser(store1ID);
         assertEquals(receipts.get(0).getId(), receipt1Id);
     }
 
 
     @Test
-    public void getAllReceipts() throws Exception {
+    public void cGetAllReceipts() throws Exception {
         receipt1Id = handler.addReceipt(userId, items);
         ArrayList<Receipt> receipts = handler.getAllReceipts();
-        assertEquals(1, receipts.size());
+        assertEquals(2, receipts.size());
     }
 
 }

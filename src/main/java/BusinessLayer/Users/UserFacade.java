@@ -59,13 +59,13 @@ public class UserFacade {
     public void createAdmin() throws Exception {
         RegisteredUser admin = new RegisteredUser(adminName, adminPass, getNewId(), true);
         users.put(admin.getId(), admin);
-        userDAO.save(admin);
+        saveUserInDB(admin);
     }
 
     public SystemManager makeAdmin(int id) throws Exception {
         RegisteredUser user = getRegisteredUser(id);
         SystemManager sm = user.makeAdmin();
-        userDAO.save(user);
+        saveUserInDB(user);
         return sm;
     }
 
@@ -120,8 +120,7 @@ public class UserFacade {
         if (checkUserName(username) && checkPassword(password)&& checkAddress(address) && checkBDay(bDay)) {
             int id = getNewId();
             RegisteredUser tempUser = new RegisteredUser(username, password, id, address, bDay);
-            // add to DB
-            userDAO.save(tempUser);
+            saveUserInDB(tempUser);
             //add to cash
             users.put(id, tempUser);
             return id;
@@ -130,6 +129,11 @@ public class UserFacade {
             log.severe("Problem logging in. username or password check returned false but not error");
             throw new Exception("Problem logging in. username or password check returned false but not error");
         }
+    }
+
+    public void saveUserInDB(RegisteredUser tempUser) throws Exception {
+        // add to DB
+        userDAO.save(tempUser);
     }
 
     public int registerUser(String username, String password, MarketMock marketMock) throws Exception {

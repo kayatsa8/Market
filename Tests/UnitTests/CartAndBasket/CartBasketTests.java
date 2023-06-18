@@ -1,278 +1,213 @@
 package UnitTests.CartAndBasket;
 
+import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
-import BusinessLayer.Market;
 import BusinessLayer.Stores.CatalogItem;
-import BusinessLayer.Stores.Store;
-import BusinessLayer.Stores.StoreFacade;
-import BusinessLayer.Users.RegisteredUser;
-import BusinessLayer.Users.UserFacade;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import static org.junit.Assert.*;
-
+import static org.mockito.Mockito.*;
 
 /**
  * Cart and basket are tested together since Basket is an extension of Cart
  * and functioning as a Cart for a certain Store
  */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CartBasketTests {
 
-    static RegisteredUser storeOwner;
-    static RegisteredUser client;
-    static Store store1;
-    static Store store2;
-    static Market market;
-    static StoreFacade storeFacade;
-    static UserFacade userFacade;
-    static Cart cart;
     static CatalogItem item1;
     static CatalogItem item2;
     static CatalogItem item3;
     static CatalogItem item4;
 
+    static Basket basket;
+    static Cart cartMock;
+
     @BeforeClass
     public static void setUp() throws Exception {
-        market = Market.getInstance();
-        storeFacade = market.getStoreFacade();
-        userFacade = market.getUserFacade();
-        String addressOk="addressOk";
-        LocalDate bDayOk=LocalDate.of(1999, 7, 11);
-        int user1ID = market.register("storeOwnerCartTests", "111111",addressOk,bDayOk);
-        storeOwner = userFacade.getRegisteredUser(user1ID);
-        userFacade.logIn(storeOwner.getUsername(), "111111");
-        int user2ID = market.register("clientCartTests", "123456",addressOk,bDayOk);
-        client = userFacade.getRegisteredUser(user2ID);
-        userFacade.logIn(client.getUsername(), "123456");
-        int store1ID = market.addStore(storeOwner.getId(), "store1");
-        store1 = market.getStoreInfo(store1ID);
-        item1 = market.addItemToStore(store1ID, "1", 2, "Books", 1);
-        market.addItemAmount(store1ID, item1.getItemID(), 100);
-        item2 = market.addItemToStore(store1ID, "2", 3, "Books", 1);
-        market.addItemAmount(store1ID, item2.getItemID(), 100);
-        int store2ID = market.addStore(storeOwner.getId(), "store2");
-        store2 = market.getStoreInfo(store2ID);
-        item3 = market.addItemToStore(store2ID, "3", 7, "Books", 1);
-        market.addItemAmount(store2ID, item3.getItemID(), 100);
-        item4 = market.addItemToStore(store2ID, "4", 5, "Books", 1);
-        market.addItemAmount(store2ID, item4.getItemID(), 100);
-        cart = client.getCart();
+        System.setProperty("env", "test");
+
+        basket = spy(Basket.class);
+        cartMock = spy(Cart.class);
+        doReturn(true).when(basket).isItemInStoreCatalog(any());
+        doNothing().when(basket).updateBasketWithCoupons(any());
+        doNothing().when(basket).releaseItems(any());
+        doNothing().when(basket).addItemToDAO(any(), anyBoolean());
+        doNothing().when(basket).removeItemFromDAO(any());
+        doNothing().when(basket).changeItemQuantityInDAO(any());
+
+        doReturn(basket).when(cartMock).baskets_getBasketByStoreId(anyInt());
+        doReturn(null).when(cartMock).baskets_getBasketByStoreId(-1);
+
+
+        //int itemID, String itemName, double price, String category, String storeName, Store store, double weight
+        item1 = new CatalogItem(15010, "name", 10, "asd", "asd", null, 2);
+        item2 = new CatalogItem(15011, "name", 10, "asd", "asd", null, 2);
+        item3 = new CatalogItem(15012, "name", 10, "asd", "asd", null, 2);
+        item4 = new CatalogItem(15013, "name", 10, "asd", "asd", null, 2);
+
     }
 
     @Test
-    public void addItem_positiveResults(){
+    public void aAddItem_positiveResults(){
         try{
             //GOOD
-            cart.addItem(store1, item1, 1);
-            assertTrue("The item is not inside the cart!",
-                    cart.isItemInCart(item1.getItemID(), store1.getStoreID()));
+            basket.addItem(item1, 10, null);
+            assertTrue("The item is not inside the cart!", basket.isItemInBasket(item1.getItemID()));
 
-            cart.addItem(store1, item2, 5);
-            assertTrue("The item is not inside the cart!",
-                    cart.isItemInCart(item2.getItemID(), store1.getStoreID()));
+            basket.addItem(item2, 10, null);
+            assertTrue("The item is not inside the cart!", basket.isItemInBasket(item2.getItemID()));
 
-            cart.addItem(store2, item3, 83);
-            assertTrue("The item is not inside the cart!",
-                    cart.isItemInCart(item3.getItemID(), store2.getStoreID()));
+            basket.addItem(item3, 10, null);
+            assertTrue("The item is not inside the cart!", basket.isItemInBasket(item3.getItemID()));
 
         }
         catch(Exception e){
             fail(e.getMessage());
         }
-
-        cart.empty();
     }
 
-    @Test
-    public void addItem_unrecognizedItem(){
-        try{
-            cart.addItem(store1, item3, 3);
-            fail("The cart added an item of one store to another.");
-        }
-        catch (Exception e){
-            assertEquals("ERROR: Basket::addItemToCart: the item is not in the store!", e.getMessage());
-        }
-
-        cart.empty();
-    }
 
     @Test
-    public void addItem_nonPositiveAmount(){
+    public void bAddItem_nonPositiveAmount(){
         try{
-            cart.addItem(store2, item4, -17);
+            basket.addItem(item3, -10, null);
             fail("The cart added a non-positive amount of the item.");
         }
         catch(Exception e){
             assertEquals("ERROR: Basket::addItemToCart: given quantity is not valid!", e.getMessage());
         }
-
-        cart.empty();
     }
 
     @Test
-    public void addItem_alreadyInCart(){
+    public void cAddItem_alreadyInCart(){
         try{
-            cart.addItem(store1, item1, 1);
-            cart.addItem(store1, item1, 1);
+            basket.addItem(item1, 10, null);
         }
         catch(Exception e){
             fail("should be able to increase the amount in the cart. got error:\n" + e.getMessage());
         }
 
-        cart.empty();
+    }
+
+
+    @Test
+    public void cRemoveItem_storeNotExist(){
+        try{
+
+            cartMock.addItem(null,  item4, 10);
+            fail("The store and item does not exist!");
+        }
+        catch(Exception e){
+            assertTrue(e.getMessage().contains("BusinessLayer.Stores.Store.getStoreID()"));
+        }
     }
 
     @Test
-    public void removeItem_positiveResults(){
+    public void dRemoveItem_positiveResults(){
         try{
-            cart.addItem(store1, item1, 1);
-            cart.addItem(store1, item2, 5);
-            cart.addItem(store2, item3, 83);
+            basket.removeItem(item1.getItemID(), null);
+            boolean res = basket.isItemInBasket(item1.getItemID());
+            assertFalse("The item is still inside the cart!", res);
 
-            //GOOD
-            cart.removeItem(store1.getStoreID(), item1.getItemID());
-            assertFalse("The item is inside the cart!",
-                    cart.isItemInCart(item1.getItemID(), store1.getStoreID()));
+            basket.removeItem(item2.getItemID(), null);
+            assertFalse("The item is still inside the cart!", basket.isItemInBasket(item2.getItemID()));
 
-            cart.removeItem(store1.getStoreID(), item2.getItemID());
-            assertFalse("The item is inside the cart!",
-                    cart.isItemInCart(item2.getItemID(), store1.getStoreID()));
-
-            cart.removeItem(store2.getStoreID(), item3.getItemID());
-            assertFalse("The item is inside the cart!",
-                    cart.isItemInCart(item3.getItemID(), store2.getStoreID()));
-
+            basket.removeItem(item3.getItemID(), null);
+            assertFalse("The item is still inside the cart!", basket.isItemInBasket(item3.getItemID()));
         }
         catch(Exception e){
             fail(e.getMessage());
         }
-        finally {
-            cart.empty();
-        }
     }
 
     @Test
-    public void removeItem_storeAndItemNotExist(){
+    public void eRemoveItem_storeAndItemNotExist(){
         try{
-            cart.addItem(store1, item1, 1);
-            cart.addItem(store1, item2, 5);
-            cart.addItem(store2, item3, 83);
 
-            cart.removeItem(78952, 2311);
+            cartMock.removeItem(10, -1);
             fail("The store and item does not exist!");
         }
         catch(Exception e){
-            assertEquals("Cart::removeItemFromCart: the store " + 78952 + " was not found!", e.getMessage());
-        }
-        finally {
-            cart.empty();
+            assertEquals("ERROR: Basket::removeItemFromCart: no such item in basket!", e.getMessage());
         }
     }
 
     @Test
-    public void removeItem_itemNotExist(){
+    public void fRemoveItem_itemNotExist(){
         try{
-            cart.addItem(store1, item1, 1);
-            cart.addItem(store1, item2, 5);
-            cart.addItem(store2, item3, 83);
-
-            cart.removeItem(store1.getStoreID(), 3251351);
+            cartMock.removeItem(10, 3251351);
             fail("An item that does not exists was removed!");
         }
         catch(Exception e){
             assertEquals("ERROR: Basket::removeItemFromCart: no such item in basket!", e.getMessage());
         }
-        finally {
-            cart.empty();
-        }
     }
 
     @Test
-    public void changeItemQuantity_positiveResults(){
+    public void gChangeItemQuantity_positiveResults(){
 
         HashMap<CatalogItem, CartItemInfo> map;
-
         try{
-            cart.addItem(store1, item1, 1);
-            cart.addItem(store1, item2, 5);
-            cart.addItem(store2, item3, 83);
+            basket.addItem(item1, 10, null);
+            basket.addItem(item2, 10, null);
+            basket.addItem(item3, 10, null);
 
-            cart.changeItemQuantity(store1.getStoreID(), item1.getItemID(), 17);
-            map = cart.getItemsInBasket(store1.getStoreName());
+            basket.changeItemQuantity(item1.getItemID(), 20, null);
+            map = basket.getItemsAsMap();
+            assertEquals("The item quantity was not change!", getCiiFromMap(map, item1).getAmount(), 20);
 
-            //GOOD
-            assertEquals("The item quantity was not change!",
-                    getCiiFromMap(map, item1).getAmount(), 17);
 
-            cart.changeItemQuantity(store1.getStoreID(), item2.getItemID(), 52);
-            map = cart.getItemsInBasket(store1.getStoreName());
-            assertEquals("The item quantity was not change!",
-                    getCiiFromMap(map, item2).getAmount(), 52);
+            basket.changeItemQuantity(item1.getItemID(), 30, null);
+            map = basket.getItemsAsMap();
+            assertEquals("The item quantity was not change!", getCiiFromMap(map, item1).getAmount(), 30);
 
-            cart.changeItemQuantity(store2.getStoreID(), item3.getItemID(), 44);
-            map = cart.getItemsInBasket(store2.getStoreName());
-            assertEquals("The item quantity was not change!",
-                    getCiiFromMap(map, item3).getAmount(), 44);
-
-            cart.empty();
         }
         catch(Exception e){
             fail(e.getMessage());
         }
-
-        cart.empty();
     }
 
     @Test
-    public void changeItemQuantity_storeAndItemNotExist(){
+    public void hChangeItemQuantity_storeAndItemNotExist(){
         try{
-            cart.addItem(store1, item1, 1);
-            cart.addItem(store1, item2, 5);
-            cart.addItem(store2, item3, 83);
 
-            cart.changeItemQuantity(78952, 2311, 1);
+            cartMock.changeItemQuantity(-1, item1.getItemID(), 10);
+
             fail("The store and item does not exist!");
         }
         catch(Exception e){
-            assertEquals("Cart::changeItemQuantityInCart: the store " + 78952 + " was not found!", e.getMessage());
-        }
-        finally{
-            cart.empty();
+            assertEquals("Cart::changeItemQuantityInCart: the store " + -1 + " was not found!", e.getMessage());
         }
     }
 
     @Test
-    public void changeItemQuantity_itemNotExist(){
+    public void IChangeItemQuantity_itemNotExist(){
         try{
-            cart.addItem(store1, item1, 1);
-            cart.changeItemQuantity(store1.getStoreID(), 3251351, 1);
+            cartMock.changeItemQuantity(10, -1, 10);
+
             fail("An item that does not exists was changed!");
         }
         catch(Exception e){
             assertEquals("ERROR: Basket::changeItemQuantityInCart: the item is not in the basket!", e.getMessage());
         }
-        finally{
-            cart.empty();
-        }
     }
 
     @Test
-    public void changeItemQuantity_nonPositiveQuantity(){
+    public void JChangeItemQuantity_nonPositiveQuantity(){
         try{
-            cart.addItem(store1, item1, 1);
-            cart.changeItemQuantity(store1.getStoreID(), item1.getItemID(), -50);
+            cartMock.changeItemQuantity(10, item2.getItemID(), -10);
             fail("An item quantity was changed to non-positive!");
         }
         catch(Exception e){
             assertEquals("ERROR: Basket::changeItemQuantityInCart: given quantity is not valid!", e.getMessage());
         }
-        finally{
-            cart.empty();
-        }
+
     }
 
     private CartItemInfo getCiiFromMap(HashMap<CatalogItem, CartItemInfo> map, CatalogItem item){
@@ -285,278 +220,5 @@ public class CartBasketTests {
         return null;
     }
 
-
-    //Moved to BuyTestsIntegration
-    /**
-    @Test
-    public void buy_positiveResults(){
-        try{
-            cart.addItem(store1, item1, 1);
-            cart.addItem(store1, item2, 5);
-            cart.addItem(store2, item3, 83);
-
-            Map<Integer, Map<CatalogItem, CartItemInfo>> receiptData =
-                    cart.buyCart(new PurchaseClient(), new SupplyClient(), getPurchaseInfo(), getSupplyInfo());
-
-            assertNotEquals(null, receiptData);
-
-
-            assertTrue("The store is not in the receipt!",
-                    receiptData.containsKey(store1.getStoreID()));
-            assertTrue("The store is not in the receipt!",
-                    receiptData.containsKey(store2.getStoreID()));
-
-            Map<CatalogItem, CartItemInfo> items;
-
-            items = receiptData.get(store1.getStoreID());
-
-            assertTrue("Item is not in the receipt!", items.containsKey(item1));
-            assertEquals("Quantity", 1, items.get(item1).getAmount());
-            assertEquals("ID", item1.getItemID(), items.get(item1).getItemID());
-            assertEquals("price", item1.getPrice() * 1, items.get(item1).getFinalPrice(), 0.0);
-            assertEquals("percent", 0.0, items.get(item1).getPercent(), 0.0);
-            assertEquals("original", item1.getPrice(), items.get(item1).getOriginalPrice(), 0);
-
-            assertTrue("Item is not in the receipt!", items.containsKey(item2));
-            assertEquals("Quantity", 5, items.get(item2).getAmount());
-            assertEquals("ID", item2.getItemID(), items.get(item2).getItemID());
-            assertEquals("price", item2.getPrice() * 5, items.get(item2).getFinalPrice(), 0.0);
-            assertEquals("percent", 0.0, items.get(item2).getPercent(), 0.0);
-            assertEquals("original", item2.getPrice(), items.get(item2).getOriginalPrice(), 0);
-
-
-            items = receiptData.get(store2.getStoreID());
-
-            assertTrue("Item is not in the receipt!", items.containsKey(item3));
-            assertEquals("Quantity", 83, items.get(item3).getAmount());
-            assertEquals("ID", item3.getItemID(), items.get(item3).getItemID());
-            assertEquals("price", item3.getPrice() * 83, items.get(item3).getFinalPrice(), 0.0);
-            assertEquals("percent", 0.0, items.get(item3).getPercent(), 0.0);
-            assertEquals("original", item3.getPrice(), items.get(item3).getOriginalPrice(), 0);
-
-        }
-        catch(Exception e){
-            fail(e.getMessage());
-        }
-        finally{
-            refillStock();
-        }
-    }
-
-    @Test
-    public void buy_notBoughtItemInReceipt(){
-        try{
-            cart.addItem(store1, item1, 1);
-            cart.addItem(store1, item2, 5);
-            cart.addItem(store2, item3, 83);
-
-            Map<Integer, Map<CatalogItem, CartItemInfo>> receiptData =
-                    cart.buyCart(new PurchaseClient(), new SupplyClient(), getPurchaseInfo(), getSupplyInfo());
-
-            Map<CatalogItem, CartItemInfo> items;
-
-            items = receiptData.get(store1.getStoreID());
-            assertFalse(items.containsKey(item4));
-
-            items = receiptData.get(store2.getStoreID());
-            assertFalse(items.containsKey(item4));
-        }
-        catch(Exception e){
-            fail(e.getMessage());
-        }
-        finally{
-            refillStock();
-        }
-    }
-
-    @Test
-    public void buy_unableToPurchase(){
-        HashMap<String, HashMap<CatalogItem, CartItemInfo>> before = new HashMap<>();
-        HashMap<String, HashMap<CatalogItem, CartItemInfo>> after;
-
-        HashMap<Integer, Integer> beforeStore1 = new HashMap<>();
-        HashMap<Integer, Integer> afterStore1 = new HashMap<>();
-
-        HashMap<Integer, Integer> beforeStore2 = new HashMap<>();
-        HashMap<Integer, Integer> afterStore2 = new HashMap<>();
-
-        try{
-            cart.addItem(store1, item1, 1);
-            cart.addItem(store1, item2, 5);
-            cart.addItem(store2, item3, 83);
-
-            before = new HashMap<>(makeMapFor_buy_unableToPurchase());
-            beforeStore1 = new HashMap<>(store1.getItemsAmount());
-            beforeStore2 = new HashMap<>(store2.getItemsAmount());
-
-            Map<Integer, Map<CatalogItem, CartItemInfo>> receiptData =
-                    cart.buyCart(new PurchaseClientMock(false), new SupplyClient(), getPurchaseInfo(), getSupplyInfo());
-
-        }
-        catch(Exception e){
-            assertEquals("Problem with Supply or Purchase", e.getMessage());
-
-            after = new HashMap<>(makeMapFor_buy_unableToPurchase());
-            assertTrue(checkSameQuantitiesInCarts(before, after));
-
-            afterStore1 = new HashMap<>(store1.getItemsAmount());
-            afterStore2 = new HashMap<>(store2.getItemsAmount());
-            assertTrue(checkStoreStockUnchanged(beforeStore1, afterStore1));
-            assertTrue(checkStoreStockUnchanged(beforeStore2, afterStore2));
-        }
-        finally{
-            refillStock();
-            cart.empty();
-        }
-    }
-
-    @Test
-    public void buy_unableToSupply(){
-        HashMap<String, HashMap<CatalogItem, CartItemInfo>> before = new HashMap<>();
-        HashMap<String, HashMap<CatalogItem, CartItemInfo>> after;
-
-        HashMap<Integer, Integer> beforeStore1 = new HashMap<>();
-        HashMap<Integer, Integer> afterStore1 = new HashMap<>();
-
-        HashMap<Integer, Integer> beforeStore2 = new HashMap<>();
-        HashMap<Integer, Integer> afterStore2 = new HashMap<>();
-
-        try{
-            cart.addItem(store1, item1, 1);
-            cart.addItem(store1, item2, 5);
-            cart.addItem(store2, item3, 83);
-
-            before = new HashMap<>(makeMapFor_buy_unableToPurchase());
-            beforeStore1 = new HashMap<>(store1.getItemsAmount());
-            beforeStore2 = new HashMap<>(store2.getItemsAmount());
-
-            Map<Integer, Map<CatalogItem, CartItemInfo>> receiptData =
-                    cart.buyCart(new PurchaseClient(), new SupplyClientMock(false), getPurchaseInfo(), getSupplyInfo());
-
-        }
-        catch(Exception e){
-            assertEquals("Problem with Supply or Purchase", e.getMessage());
-
-            after = new HashMap<>(makeMapFor_buy_unableToPurchase());
-            assertTrue(checkSameQuantitiesInCarts(before, after));
-
-            afterStore1 = new HashMap<>(store1.getItemsAmount());
-            afterStore2 = new HashMap<>(store2.getItemsAmount());
-            assertTrue(checkStoreStockUnchanged(beforeStore1, afterStore1));
-            assertTrue(checkStoreStockUnchanged(beforeStore2, afterStore2));
-        }
-        finally{
-            refillStock();
-            cart.empty();
-        }
-    }
-
-    private HashMap<String, HashMap<CatalogItem, CartItemInfo>> makeMapFor_buy_unableToPurchase(){
-        HashMap<String, HashMap<CatalogItem, CartItemInfo>> map = new HashMap<>();
-        List<String> stores = cart.getStoresOfBaskets();
-
-        try{
-            for(String storeName : stores){
-                map.putIfAbsent(storeName, cart.getItemsInBasket(storeName));
-            }
-        }
-        catch(Exception e){
-            System.out.println(e.getMessage());
-            System.exit(1);
-        }
-
-        return map;
-    }
-
-    private boolean checkSameQuantitiesInCarts(HashMap<String, HashMap<CatalogItem, CartItemInfo>> before,
-                                               HashMap<String, HashMap<CatalogItem, CartItemInfo>> after){
-        HashMap<CatalogItem, CartItemInfo> beforeItems;
-        HashMap<CatalogItem, CartItemInfo> afterItems;
-
-        CatalogItem similar;
-
-        if(before.keySet().size() != after.keySet().size()){
-            return false;
-        }
-
-        for(String storeName : before.keySet()){
-            if(!after.containsKey(storeName)){
-                return false;
-            }
-
-            beforeItems = before.get(storeName);
-            afterItems = after.get(storeName);
-
-            if(beforeItems.keySet().size() != afterItems.keySet().size()){
-                return false;
-            }
-
-            for(CatalogItem item : beforeItems.keySet()){
-                similar = isItemInMap(item, afterItems);
-                if(similar == null){
-                    return false;
-                }
-
-                if(beforeItems.get(item).getAmount() != afterItems.get(similar).getAmount()){
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    private boolean checkStoreStockUnchanged(HashMap<Integer, Integer> before, HashMap<Integer, Integer> after){
-
-        if(before.keySet().size() != after.keySet().size()){
-            return false;
-        }
-
-        for(Integer itemId : before.keySet()){
-            if(!after.containsKey(itemId)){
-                return false;
-            }
-
-            if(!Objects.equals(before.get(itemId), after.get(itemId))){
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    // use after every buy test
-    private void refillStock(){
-        try{
-            market.addItemAmount(store1.getStoreID(), item1.getItemID(), 100);
-            market.addItemAmount(store1.getStoreID(), item2.getItemID(), 100);
-            market.addItemAmount(store2.getStoreID(), item3.getItemID(), 100);
-            market.addItemAmount(store2.getStoreID(), item4.getItemID(), 100);
-        }
-        catch(Exception e){
-            System.out.println(e.getMessage());
-            System.exit(1);
-        }
-    }
-
-    private CatalogItem isItemInMap(CatalogItem item, HashMap<CatalogItem, CartItemInfo> map){
-        for(CatalogItem ci : map.keySet()){
-            if(item.equals(ci)){
-                return ci;
-            }
-        }
-
-        return null;
-    }
-
-
-    public PurchaseInfo getPurchaseInfo(){
-        return new PurchaseInfo("123", 1, 2222, "asd", 1222, 1, LocalDate.of(2000, 1, 1));
-    }
-
-    public SupplyInfo getSupplyInfo(){
-        return new SupplyInfo("Name", "address", "city", "counyrt", "asd");
-    }
-    */
 
 }

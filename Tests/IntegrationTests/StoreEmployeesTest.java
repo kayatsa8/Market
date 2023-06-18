@@ -227,13 +227,17 @@ public class StoreEmployeesTest {
         try {
             user1.removeManager(user4, store2.getStoreID());
             fail("Should not allow to remove manager if you aren't owner");
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
         }
         removeManagerSetup(user4);
-        user4.removeManager(user1, store2.getStoreID());
-        //should only affect user1
-        ensureManagerWithParent(user6, user4, store2);
-        ensureManagerRemovedWithOwner(user1, user4, store2);
+        try {
+            user4.removeManager(user1, store2.getStoreID());
+            //should only affect user1
+            ensureManagerWithParent(user6, user4, store2);
+            ensureManagerRemovedWithOwner(user1, user4, store2);
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     @Test

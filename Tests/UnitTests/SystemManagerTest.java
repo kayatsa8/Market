@@ -33,6 +33,7 @@ public class SystemManagerTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
+        System.setProperty("env", "test");
         market = Market.getInstance();
         sf = market.getStoreFacade();
         uf = market.getUserFacade();

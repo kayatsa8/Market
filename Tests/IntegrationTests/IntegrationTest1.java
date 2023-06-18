@@ -32,6 +32,7 @@ public class IntegrationTest1 {
 
     @BeforeClass
     public static void setUp() throws Exception {
+        System.setProperty("env", "test");
         market = new MarketMock();
         storeFacade = market.getStoreFacade();
         userFacade = market.getUserFacade();

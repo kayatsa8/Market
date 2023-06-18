@@ -723,9 +723,13 @@ public class Store {
         }
         CatalogItem newItem = new CatalogItem(itemID, itemName, itemPrice, itemCategory, this.storeName, this, weight);
         items.add(newItem);
-        storeDAO.addItem(newItem);
+        addItemToStoreDAO(newItem);
         log.info("Added new item: " + itemName + ", at store " + storeID);
         return newItem;
+    }
+
+    public void addItemToStoreDAO(CatalogItem newItem) {
+        storeDAO.addItem(newItem);
     }
 
     public synchronized void buyBasket(List<CartItemInfo> basketItems, int userID) throws Exception {
@@ -783,7 +787,7 @@ public class Store {
         }
     }
 
-    private void sendMsg(int userID, String message) {
+    public void sendMsg(int userID, String message) {
         mailbox.sendMessage(userID, message);
     }
 
@@ -936,15 +940,20 @@ public class Store {
         saveItemAmount(itemID, 1);
         double originalPrice = getItem(itemID).getPrice();
         Bid newBid = new Bid(bidsIDs, itemID, getItem(itemID).getItemName(), userID, offeredPrice, originalPrice, getStoreID());
-        List<StoreEmployees> storeOwnersAndManagers = new ArrayList<>();
-        storeOwnersAndManagers.addAll(storeOwners);
-//        storeOwnersAndManagers.addAll(storeManagers.stream().filter(manager -> manager.hasPermission(BID_MANAGEMENT)).toList());
-        List<Integer> sendToList = storeOwnersAndManagers.stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
+
+        List<Integer> sendToList = addContactsToBid();
         newBid.setRepliers(sendToList);
         bids.put(bidsIDs++, newBid);
         sendMsgToList(sendToList, "User " + userID + " offered new bid for item " + getItem(itemID).getItemName() + " at store " + storeName + " with price of " + offeredPrice + " while the original price is " + getItem(itemID).getPrice());
         log.info("Added new bid for item " + itemID + " at store " + storeID);
         return newBid;
+    }
+
+    public List<Integer> addContactsToBid() {
+        List<StoreEmployees> storeOwnersAndManagers = new ArrayList<>();
+        storeOwnersAndManagers.addAll(storeOwners);
+        //storeOwnersAndManagers.addAll(storeManagers.stream().filter(manager -> manager.hasPermission(BID_MANAGEMENT)).toList());
+        return storeOwnersAndManagers.stream().map(StoreEmployees::getUserID).collect(Collectors.toList());
     }
 
     public List<Bid> getUserBids(int userID) {
@@ -1396,7 +1405,7 @@ public class Store {
         return discountPolicies;
     }
 
-    private void updateItemDiscounts(int itemID) {
+    public void updateItemDiscounts(int itemID) {
         CatalogItem item = getItem(itemID);
         String category = item.getCategory();
         List<Discount> result = new ArrayList<>();
@@ -1412,7 +1421,7 @@ public class Store {
         item.setDiscounts(result);
     }
 
-    private void updateItemPurchasePolicies(int itemID) {
+    public void updateItemPurchasePolicies(int itemID) {
         CatalogItem item = getItem(itemID);
         String category = item.getCategory();
         List<PurchasePolicy> result = new ArrayList<>();
@@ -1424,7 +1433,7 @@ public class Store {
         item.setPurchasePolicies(result);
     }
 
-    private void updateItemDiscountPolicies(int itemID) {
+    public void updateItemDiscountPolicies(int itemID) {
         CatalogItem item = getItem(itemID);
         String category = item.getCategory();
         List<DiscountPolicy> result = new ArrayList<>();

@@ -54,15 +54,23 @@ public class ReceiptHandler {
     public int addReceipt(int ownerId, Map<Integer,Map<CatalogItem, CartItemInfo>> storeOrUserIdToItems) throws Exception {
         Receipt newReceipt = new Receipt(ownerId, Calendar.getInstance());
         receipts.add(newReceipt);
-        dao.addReceipt(this, newReceipt);
+        addReceiptToDAO(newReceipt);
 
         for (Map.Entry<Integer,Map<CatalogItem, CartItemInfo>> set : storeOrUserIdToItems.entrySet()) {
             ArrayList<ReceiptItem> items = convertToReceiptItems(set.getValue());
-            newReceipt.addItems(set.getKey(), items);
+            addItemsToReceipt(newReceipt, set, items);
         }
         log.info("Created receipt successfully.");
         log.info("Added receipt successfully.");
         return newReceipt.getId();
+    }
+
+    public void addReceiptToDAO(Receipt newReceipt) throws Exception {
+        dao.addReceipt(this, newReceipt);
+    }
+
+    public void addItemsToReceipt(Receipt newReceipt, Map.Entry<Integer, Map<CatalogItem, CartItemInfo>> set, ArrayList<ReceiptItem> items) throws Exception {
+        newReceipt.addItems(set.getKey(), items);
     }
 
     private ArrayList<ReceiptItem> convertToReceiptItems(Map<CatalogItem, CartItemInfo> catalogItemsToAmount){
