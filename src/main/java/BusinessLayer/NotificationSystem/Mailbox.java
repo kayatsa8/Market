@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class Mailbox {
     @Id
     protected int ownerID;

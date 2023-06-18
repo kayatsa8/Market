@@ -1,6 +1,7 @@
 package BusinessLayer.Users;
 
 import BusinessLayer.Market;
+import com.mysql.cj.Session;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;

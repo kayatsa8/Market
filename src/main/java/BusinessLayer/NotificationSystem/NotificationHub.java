@@ -23,7 +23,7 @@ public class NotificationHub {
 
     // fields
     //private final ConcurrentHashMap<Integer, Mailbox> mailboxes; // <ID, Mailbox>
-    private final ConcurrentHashMap<Integer, Mailbox> mailboxes; // <ID, Mailbox>
+    private ConcurrentHashMap<Integer, Mailbox> mailboxes; // <ID, Mailbox>
     private final NotificationHubDAO dao;
 
 
@@ -32,14 +32,12 @@ public class NotificationHub {
         mailboxes = new ConcurrentHashMap<>();
         dao = new NotificationHubDAO();
 
-
-
         Log.log.info("The notification hub has started successfully.");
     }
 
     public void loadHub(){
         try{
-            dao.loadMailboxes(this);
+            mailboxes = dao.loadMailboxes(this);
         }
         catch(Exception e){
             System.err.println("ERROR: notification hub load failed!");

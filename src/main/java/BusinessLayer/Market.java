@@ -41,11 +41,13 @@ public class Market {
     private static ConnectorConfigurations configurations_static;
 
     private Market() throws Exception {
-        readDBConfigurations();
-        systemManagerMap = new HashMap<>();
-        userFacade = new UserFacade();
-        storeFacade = new StoreFacade();
-        notificationHub = new NotificationHub();
+        synchronized (instanceLock) {
+            readDBConfigurations();
+            systemManagerMap = new HashMap<>();
+            userFacade = new UserFacade();
+            storeFacade = new StoreFacade();
+            notificationHub = new NotificationHub();
+        }
     }
 
     public static Market getInstance() throws Exception {
