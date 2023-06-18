@@ -35,7 +35,7 @@ public abstract class Mailbox {
 
     public void sendMessage(int receiverID, String content){
         Message message = new Message(ownerID, receiverID, content);
-        boolean newChat = false;
+//        boolean newChat = false;
 
         try{
             Chat chat = chats_searchChat(receiverID);
@@ -43,14 +43,15 @@ public abstract class Mailbox {
             if(chat == null){
                 chat = new Chat(ownerID, receiverID);
                 chats.add(chat);
-                newChat = true;
+                mailboxDAO.sendMessage(this, chat/*, message, newChat*/);
+//                newChat = true;
             }
 
             chat.addMessage(message);
 
             hub.passMessage(message);
 
-            mailboxDAO.sendMessage(this, chat, message, newChat);
+//            mailboxDAO.sendMessage(this, chat, message, newChat);
         }
         catch (Exception e){
             System.out.println(e.getMessage());
@@ -80,17 +81,18 @@ public abstract class Mailbox {
         Message message = new Message(_message);
 
         Chat chat = chats_searchChat(message.getSenderID());
-        boolean newChat = false;
+//        boolean newChat = false;
 
         if(chat == null){
             chat = new Chat(ownerID, message.getSenderID());
             chats.add(chat);
-            newChat = true;
+            mailboxDAO.receiveMessage(this, chat/*, message, newChat*/);
+//            newChat = true;
         }
 
         chat.addMessage(message);
 
-        mailboxDAO.receiveMessage(this, chat, message, newChat);
+//        mailboxDAO.receiveMessage(this, chat/*, message, newChat*/);
         //notReadMessages.add(message);
         notifyOwner();
     }

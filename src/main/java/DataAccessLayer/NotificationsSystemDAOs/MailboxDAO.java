@@ -12,32 +12,41 @@ public class MailboxDAO {
 
     }
 
-    public void sendMessage(Mailbox mailbox, Chat chat, Message message, boolean newChat) throws Exception {
-        addMessage(mailbox, chat, message, newChat);
+    public void sendMessage(Mailbox mailbox, Chat chat/*, Message message, boolean newChat*/) throws Exception {
+        addMessage(mailbox, chat/*, message, newChat*/);
     }
 
-    public void receiveMessage(Mailbox mailbox, Chat chat, Message message, boolean newChat) throws Exception {
-        addMessage(mailbox, chat, message, newChat);
+    public void receiveMessage(Mailbox mailbox, Chat chat/*, Message message, boolean newChat*/) throws Exception {
+        addMessage(mailbox, chat/*, message, newChat*/);
     }
 
-    private void addMessage(Mailbox mailbox, Chat chat, Message message, boolean newChat) throws Exception{
-        DBConnector<Message> messageConnector =
-                new DBConnector<>(Message.class, Market.getInstance().getConfigurations());
-        messageConnector.insert(message);
+    private void addMessage(Mailbox mailbox, Chat chat/*, Message message, boolean newChat*/) throws Exception{
+//        DBConnector<Message> messageConnector =
+//                new DBConnector<>(Message.class, Market.getInstance().getConfigurations());
+//        messageConnector.insert(message);
+//
+//        DBConnector<Chat> chatConnector =
+//                new DBConnector<>(Chat.class, Market.getInstance().getConfigurations());
+//
+//        if(newChat){
+//            chatConnector.insert(chat);
+//        }
+//        else{
+//            chatConnector.saveState(chat);
+//        }
+//
+//        DBConnector<Mailbox> mailboxConnector =
+//                new DBConnector<>(Mailbox.class, Market.getInstance().getConfigurations());
+//        mailboxConnector.saveState(mailbox);
 
         DBConnector<Chat> chatConnector =
                 new DBConnector<>(Chat.class, Market.getInstance().getConfigurations());
-
-        if(newChat){
-            chatConnector.insert(chat);
-        }
-        else{
-            chatConnector.saveState(chat);
-        }
+        chatConnector.insert(chat);
 
         DBConnector<Mailbox> mailboxConnector =
                 new DBConnector<>(Mailbox.class, Market.getInstance().getConfigurations());
         mailboxConnector.saveState(mailbox);
+
     }
 
     public void setMailboxAvailability(Mailbox mailbox) throws Exception {
