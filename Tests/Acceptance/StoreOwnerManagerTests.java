@@ -106,16 +106,6 @@ public class StoreOwnerManagerTests extends ProjectTest{
 
 
     /**
-     * Change discount and buying policies #30
-     */
-    @Test
-    @Ignore
-    public void changePolicies_Valid(){
-        //NOT IMPLEMENTED YET
-        //add negative tests
-    }
-
-    /**
      * Define Store Owner #32
      */
     @Test

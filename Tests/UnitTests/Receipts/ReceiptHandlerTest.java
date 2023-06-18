@@ -79,6 +79,12 @@ public class ReceiptHandlerTest {
         assertEquals(receipts.get(0).getId(), receipt1Id);
     }
 
+    @Test
+    public void bGetReceipt(){
+
+        Receipt receipt = handler.getReceipt(receipt1Id);
+        assertEquals(receipt.getId(), receipt1Id);
+    }
 
     @Test
     public void cGetAllReceipts() throws Exception {
