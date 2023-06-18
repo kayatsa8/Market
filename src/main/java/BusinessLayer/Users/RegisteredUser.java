@@ -28,6 +28,7 @@ public class RegisteredUser extends User {
     @Transient
     private SystemManager systemManager;
     private boolean isSystemManager;
+    @Transient
     private boolean isLoggedIn;
     @Transient
     private UserDAO userDAO;
