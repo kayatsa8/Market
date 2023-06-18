@@ -233,7 +233,7 @@ public class RegisteredUser extends User {
         employeesDAO.addManager(managership);
     }
 
-    public void removeOwner(RegisteredUser ownerToRemove, int storeID) {
+    public void removeOwner(RegisteredUser ownerToRemove, int storeID) throws Exception {
         StoreOwner storeOwnership = getStoreIOwn(storeID);
         if (storeOwnership == null) {
             throw new RuntimeException("User is not a store owner");
@@ -244,13 +244,13 @@ public class RegisteredUser extends User {
         storeOwnership.removeOwner(ownerToRemove);
     }
 
-    public void closeStore(RegisteredUser founder, int storeID) {
+    public void closeStore(RegisteredUser founder, int storeID) throws Exception {
         StoreOwner storeOwnership = founder.getStoreIOwn(storeID);
         storeOwnership.closeStore();
         founder.removeOwnership(storeID);
     }
 
-    public void removeManager(RegisteredUser managerToRemove, int storeID) {
+    public void removeManager(RegisteredUser managerToRemove, int storeID) throws Exception {
         StoreOwner storeOwnership = getStoreIOwn(storeID);
         if (storeOwnership == null) {
             throw new RuntimeException("User is not a store owner");
@@ -261,7 +261,7 @@ public class RegisteredUser extends User {
         storeOwnership.removeManager(managerToRemove);
     }
 
-    public void removeManagership(int storeID) {
+    public void removeManagership(int storeID) throws Exception {
         StoreManager manager = getStoreIManage(storeID);
         employeesDAO.removeManagership(manager);
         removeStoreIManage(storeID);
@@ -286,7 +286,7 @@ public class RegisteredUser extends User {
         }
     }
 
-    public void removeOwnership(int storeID) {
+    public void removeOwnership(int storeID) throws Exception {
         StoreOwner owner = getStoreIOwn(storeID);
         employeesDAO.removeOwnership(owner);
         removeStoreIOwn(storeID);
@@ -315,12 +315,12 @@ public class RegisteredUser extends User {
         storeOwnership.removeManagerPermission(manager, permission);
     }
 
-    public void logIn() {
+    public void logIn() throws Exception {
         this.isLoggedIn = true;
         userDAO.save(this);
     }
 
-    public void logout() {
+    public void logout() throws Exception {
         this.isLoggedIn = false;
         userDAO.save(this);
     }

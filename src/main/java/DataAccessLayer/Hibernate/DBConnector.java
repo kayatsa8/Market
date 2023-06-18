@@ -234,6 +234,14 @@ public class DBConnector<T>{
         }
     }
 
+    /**
+     * @param query a query that does not expect return value
+     */
+    public void noValueQuery(String queryString){
+        start();
+        Query query = manager.createQuery(queryString);
+        noValueQuery(query);
+    }
 
     public int getMaxId() {
         start();

@@ -4,14 +4,18 @@ import BusinessLayer.Market;
 import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
 import BusinessLayer.Users.User;
 import DataAccessLayer.NotificationsSystemDAOs.MailboxDAO;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 @Entity
 public class UserMailbox extends Mailbox {
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "userId")
+    @OneToOne
+    @JoinColumn(name = "ownerID")
+    @MapsId
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User owner;
     @Transient
     private List<NotificationObserver> listeners;

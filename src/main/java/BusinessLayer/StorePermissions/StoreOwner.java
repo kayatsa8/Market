@@ -78,7 +78,7 @@ public class StoreOwner extends StoreEmployees {
         this.getStore().addManager(newManager.getStoreIManage(getStoreID()));
     }
 
-    public void removeOwner(RegisteredUser ownerToRemove) {
+    public void removeOwner(RegisteredUser ownerToRemove) throws Exception {
         if (!ownersIDefined.contains(ownerToRemove)) {
             throw new RuntimeException("This user is not the one who defined this owner");
         }
@@ -93,7 +93,7 @@ public class StoreOwner extends StoreEmployees {
         employeesDAO.save(this);
     }
 
-    private void destruct() {
+    private void destruct() throws Exception {
         StoreOwner ownership;
         for (RegisteredUser manager : managersIDefined) {
             this.getStore().removeManager(manager.getStoreIManage(getStoreID()));
@@ -108,7 +108,7 @@ public class StoreOwner extends StoreEmployees {
 
     }
 
-    public void removeManager(RegisteredUser managerToRemove) {
+    public void removeManager(RegisteredUser managerToRemove) throws Exception {
         if (!managersIDefined.contains(managerToRemove)) {
             throw new RuntimeException("This user is not the one who defined this owner");
         }
@@ -118,7 +118,7 @@ public class StoreOwner extends StoreEmployees {
         employeesDAO.save(this);
     }
 
-    public void closeStore() {
+    public void closeStore() throws Exception {
         if (!this.isFounder()) {
             throw new RuntimeException("process to initiate store closing must be through founder");
         }
