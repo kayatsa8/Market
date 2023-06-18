@@ -24,6 +24,10 @@ public class SearchTests {
         store2 = spy(Store.class);
         store3 = spy(Store.class);
 
+        doNothingToStore(store1);
+        doNothingToStore(store2);
+        doNothingToStore(store3);
+
         store1.addCatalogItem(1001, "item1K", 10, "category1k", 1);
         store1.addCatalogItem(1002, "item2K", 10, "category2k", 1);
         store1.addCatalogItem(1003, "item5K", 10, "category5k", 1);
@@ -32,15 +36,14 @@ public class SearchTests {
         store2.addCatalogItem(1003, "item3K", 10, "category3k", 1);
         store2.addCatalogItem(1004, "item4K", 10, "category4k", 1);
 
-        doNothingToStore(store1);
-        doNothingToStore(store2);
-        doNothingToStore(store3);
+
     }
 
     private static void doNothingToStore(Store store) {
         doNothing().when(store).updateItemDiscounts(anyInt());
         doNothing().when(store).updateItemDiscountPolicies(anyInt());
         doNothing().when(store).updateItemPurchasePolicies(anyInt());
+        doNothing().when(store).addItemToStoreDAO(any());
     }
 
     @Test

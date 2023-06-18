@@ -723,9 +723,13 @@ public class Store {
         }
         CatalogItem newItem = new CatalogItem(itemID, itemName, itemPrice, itemCategory, this.storeName, this, weight);
         items.add(newItem);
-        storeDAO.addItem(newItem);
+        addItemToStoreDAO(newItem);
         log.info("Added new item: " + itemName + ", at store " + storeID);
         return newItem;
+    }
+
+    public void addItemToStoreDAO(CatalogItem newItem) {
+        storeDAO.addItem(newItem);
     }
 
     public synchronized void buyBasket(List<CartItemInfo> basketItems, int userID) throws Exception {

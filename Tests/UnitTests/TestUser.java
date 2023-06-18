@@ -1,9 +1,12 @@
 package UnitTests;
 import BusinessLayer.Market;
+import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.UserFacade;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import java.time.LocalDate;
 
@@ -11,6 +14,7 @@ import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.*;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestUser {
     static Market market;
     static String goodPass1="ab123456";
@@ -28,20 +32,19 @@ public class TestUser {
         System.setProperty("env", "test");
         market = Market.getInstance();
         userFacade=market.getUserFacade();
-        id1=userFacade.registerUser(userName1,goodPass1,addressOk,bDayOk);
+
+        userFacade = spy(UserFacade.class);
+        doReturn(true).when(userFacade).checkPassword(anyString());
+        doReturn(true).when(userFacade).checkAddress(anyString());
+        doReturn(true).when(userFacade).checkBDay(any());
+        doReturn(true).when(userFacade).checkUserName(anyString());
+        doNothing().when(userFacade).saveUserInDB(any());
+        //id1=userFacade.registerUser(userName1,goodPass1,addressOk,bDayOk);
     }
 
 
 
-    @Test
-    public void registerShouldPass(){
-        try {
-            userFacade.registerUser(userName2,goodPass1,addressOk,bDayOk);//assume pass
-            assertTrue("Registration succeeded",true);
-        } catch (Exception e) {
-            fail(e.getMessage());
-        }
-    }
+
     @Test
     public void registerShouldFailExisted(){
         try {
@@ -137,15 +140,24 @@ public class TestUser {
     }
 
     @Test
-    public void logInShouldPass(){
+    public void z1RegisterShouldPass(){
         try {
-            reset(userFacade);
-            id1=userFacade.registerUser(userName1,goodPass1,addressOk,bDayOk);
+            doNothing().when(userFacade).saveUserInDB(any());
+            id1 = userFacade.registerUser(userName2,goodPass1,addressOk,bDayOk);//assume pass
+            assertTrue("Registration succeeded",true);
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void z2LogInShouldPass(){
+        try {
             try {
                 userFacade.logout(id1);
             }
             catch (Exception ignored) {}
-            userFacade.logIn(userName1,goodPass1);
+            userFacade.logIn(userName2, goodPass1);
             assertTrue("logIn succeeded",true);
         } catch (Exception e) {
             fail(e.getMessage());

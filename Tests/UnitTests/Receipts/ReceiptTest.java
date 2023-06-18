@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.spy;
 
 public class ReceiptTest {
 
@@ -26,12 +30,16 @@ public class ReceiptTest {
         System.setProperty("env", "test");
         receipt = new Receipt(1000, Calendar.getInstance());
         receiptId = receipt.getId();
-        item1FromStore1 = new ReceiptItem(1, "item1", 20, 100, 15);
-        item2FromStore1 = new ReceiptItem(2, "item12", 20, 100, 15);
-        item2FromStore2 = new ReceiptItem(2, "item2", 20, 1000, 900);
+        item1FromStore1 = new ReceiptItem(1121, "item1", 20, 100, 15);
+        item2FromStore1 = new ReceiptItem(2121, "item12", 20, 100, 15);
+        item2FromStore2 = new ReceiptItem(2122, "item2", 20, 1000, 900);
 
         ArrayList<ReceiptItem> items = new ArrayList<>();
         items.add(item2FromStore1);
+
+        receipt = spy(Receipt.class);
+        doNothing().when(receipt).addItemsTODAO(anyBoolean(), any(), any());
+
         receipt.addItems(store1Id, items);
     }
 
@@ -49,9 +57,9 @@ public class ReceiptTest {
         receipt.addItems(store1Id, items);
         receipt.addItems(store2Id, items2);
 
-        assertTrue(receipt.itemExists(store1Id, 1));
-        assertTrue(receipt.itemExists(store2Id, 2));
-        assertFalse(receipt.itemExists(store2Id, 1));
+        assertTrue(receipt.itemExists(store1Id, 1121));
+        assertTrue(receipt.itemExists(store2Id, 2122));
+        assertFalse(receipt.itemExists(store2Id, 1121));
 
     }
 

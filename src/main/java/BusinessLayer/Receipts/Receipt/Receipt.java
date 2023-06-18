@@ -3,7 +3,6 @@ package BusinessLayer.Receipts.Receipt;
 import BusinessLayer.Pair;
 import BusinessLayer.Receipts.Pairs.ItemsPair;
 import BusinessLayer.Receipts.ReceiptItem.ReceiptItem;
-import BusinessLayer.Receipts.ReceiptItem.ReceiptItemCollection;
 import DataAccessLayer.ReceiptsDAOs.ReceiptDAO;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -39,6 +38,7 @@ public class Receipt {
 
     public Receipt(){
         dao = new ReceiptDAO();
+        items = new ArrayList<>();
     }
 
     public int getId() {
@@ -60,8 +60,12 @@ public class Receipt {
 
             pair.getReceiptItems().add(item);
 
-            dao.addItems(this, pair, item, newPair);
+            addItemsTODAO(newPair, item, pair);
         }
+    }
+
+    public void addItemsTODAO(boolean newPair, ReceiptItem item, ItemsPair pair) throws Exception {
+        dao.addItems(this, pair, item, newPair);
     }
 
     public boolean itemExists(int userStoreId, int id){
