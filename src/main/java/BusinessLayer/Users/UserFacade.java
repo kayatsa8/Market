@@ -131,7 +131,7 @@ public class UserFacade {
         }
     }
 
-    public void saveUserInDB(RegisteredUser tempUser) {
+    public void saveUserInDB(RegisteredUser tempUser) throws Exception {
         // add to DB
         userDAO.save(tempUser);
     }
