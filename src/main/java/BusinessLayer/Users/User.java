@@ -23,20 +23,19 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)//TODO maybe need diff strategy
-@Table(name = "abstractusers")
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)//TODO maybe need diff strategy
 public abstract class User {
 
     @Id
     protected int id;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "id")
     protected Cart cart;
     protected LocalDate bDay = null;
     protected String address = null;
     @Transient
     protected ReceiptHandler receiptHandler;
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "mailboxId")
     protected UserMailbox mailbox;
     public User() throws Exception {
         this.receiptHandler = new ReceiptHandler();

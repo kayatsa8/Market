@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class StoreMailbox extends Mailbox{
 
     @OneToOne
-    @JoinColumn(name = "storeId")
+    @JoinColumn(name = "ownerID")
     private Store owner;
 
     public StoreMailbox(Store _owner, NotificationHub _hub){

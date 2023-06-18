@@ -59,11 +59,11 @@ public class Store {
     private int policiesIDs;
     @Enumerated(EnumType.STRING)
     private StoreStatus storeStatus;
-    @OneToMany(mappedBy = "store")
+    @OneToMany(mappedBy = "store", fetch = FetchType.EAGER)
     private Set<CatalogItem> items;
-    @OneToMany(mappedBy = "store")
+    @OneToMany(mappedBy = "store", fetch = FetchType.EAGER)
     private Set<StoreOwner> storeOwners;
-    @OneToMany(mappedBy = "store")
+    @OneToMany(mappedBy = "store", fetch = FetchType.EAGER)
     private Set<StoreManager> storeManagers;
     @Transient
     private List<DiscountPair> discounts;

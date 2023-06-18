@@ -41,11 +41,13 @@ public class Market {
     private static ConnectorConfigurations configurations_static;
 
     private Market() throws Exception {
-        readDBConfigurations();
-        systemManagerMap = new HashMap<>();
-        userFacade = new UserFacade();
-        storeFacade = new StoreFacade();
-        notificationHub = new NotificationHub();
+        synchronized (instanceLock) {
+            readDBConfigurations();
+            systemManagerMap = new HashMap<>();
+            userFacade = new UserFacade();
+            storeFacade = new StoreFacade();
+            notificationHub = new NotificationHub();
+        }
     }
 
     public static Market getInstance() throws Exception {
@@ -638,7 +640,13 @@ public class Market {
     }
 
     public int getStoreIdByName(String name) throws Exception {
-        return storeFacade.getIdByStoreName(name);
+        int id = storeFacade.getIdByStoreName(name);
+
+        if(id == -1){
+            throw new Exception("ERROR: the searched store wa not found!");
+        }
+
+        return id;
     }
 
     public String getNameById(int id){

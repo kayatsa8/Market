@@ -52,6 +52,7 @@ public class UserFacade {
     public Guest setGuest() throws Exception {
         Guest guest = new Guest();
         guests.put(Guest.GUEST_USER_ID--, guest);
+        userDAO.save(guest);
         return guest;
     }
 
