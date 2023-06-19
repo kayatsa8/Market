@@ -50,18 +50,24 @@ public class Receipt {
 
         for(ReceiptItem item: _items){
             ItemsPair pair = (ItemsPair) Pair.searchPair(items, id);
-            newPair = false;
 
             if(pair == null){
                 pair = new ItemsPair(id, new ArrayList<>());
                 items.add(pair);
-                newPair = true;
+                addItemPairTODAO(pair);
             }
 
             pair.getReceiptItems().add(item);
-
-            addItemsTODAO(newPair, item, pair);
+            addItemToPAirTODAO(pair, item);
         }
+    }
+
+    public void addItemPairTODAO(ItemsPair pair){
+        dao.addItemPair(this, pair);
+    }
+
+    public void addItemToPAirTODAO(ItemsPair pair, ReceiptItem item){
+        dao.addItemToPAir(pair, item);
     }
 
     public void addItemsTODAO(boolean newPair, ReceiptItem item, ItemsPair pair) throws Exception {
