@@ -5,6 +5,7 @@ import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.CartAndBasket.Coupon;
 import BusinessLayer.Market;
+import DataAccessLayer.Hibernate.ConnectorConfigurations;
 import DataAccessLayer.Hibernate.DBConnector;
 
 import java.util.List;
@@ -14,39 +15,44 @@ import java.util.concurrent.ConcurrentHashMap;
  * the class will be changed in next versions
  */
 public class CartDAO {
-
-    public CartDAO(){
-
+    ConnectorConfigurations config;
+    public CartDAO() throws Exception {
+        config = Market.getConfigurations();
     }
 
-    public void addItem(Cart cart, Basket basket) throws Exception {
-        DBConnector<Basket> basketConnector =
-                new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
-        basketConnector.insert(basket);
-
-        DBConnector<Cart> cartConnector =
-                new DBConnector<>(Cart.class, Market.getInstance().getConfigurations());
-        cartConnector.saveState(cart);
+    private DBConnector<Cart> cartDBConnector() {
+        return new DBConnector<>(Cart.class, config);
     }
 
-    public void removeBasket(Basket basket) throws Exception {
-        DBConnector<Basket.ItemWrapper> wrapperConnector =
-                new DBConnector<>(Basket.ItemWrapper.class, Market.getInstance().getConfigurations());
+    private DBConnector<CartItemInfo> cartItemInfoDBConnector() {
+        return new DBConnector<>(CartItemInfo.class, config);
+    }
+
+    private DBConnector<Basket.ItemWrapper> itemWrapperDBConnector() {
+        return new DBConnector<>(Basket.ItemWrapper.class, config);
+    }
+
+    private DBConnector<Basket> basketDBConnector() {
+        return new DBConnector<>(Basket.class, config);
+    }
+
+    public void addItem(Cart cart, Basket basket){
+        basketDBConnector().insert(basket);
+
+        cartDBConnector().saveState(cart);
+    }
+
+    public void removeBasket(Basket basket) {
 
         for(Basket.ItemWrapper wrapper : basket.getItems()){
-            wrapperConnector.delete(wrapper.getId());
+            itemWrapperDBConnector().delete(wrapper.getId());
         }
 
-        DBConnector<CartItemInfo> infoConnector =
-                new DBConnector<>(CartItemInfo.class, Market.getInstance().getConfigurations());
 
         for(Basket.ItemWrapper wrapper : basket.getItems()){
-            infoConnector.delete(wrapper.info.getId());
+            cartItemInfoDBConnector().delete(wrapper.info.getId());
         }
-
-        DBConnector<Basket> basketConnector =
-                new DBConnector<>(Basket.class, Market.getInstance().getConfigurations());
-        basketConnector.delete(basket.getId());
+        basketDBConnector().delete(basket.getId());
     }
 
     public void empty(List<Basket> baskets, List<Coupon> coupons) throws Exception {
@@ -54,9 +60,8 @@ public class CartDAO {
             removeBasket(basket);
         }
 
-
         DBConnector<Coupon> couponConnector =
-                new DBConnector<>(Coupon.class, Market.getInstance().getConfigurations());
+                new DBConnector<>(Coupon.class, Market.getConfigurations());
 
         for(Coupon coupon : coupons){
             couponConnector.delete(coupon.getId());
@@ -65,17 +70,14 @@ public class CartDAO {
 
     public void addCoupon(Cart cart, Coupon coupon) throws Exception {
         DBConnector<Coupon> couponConnector =
-                new DBConnector<>(Coupon.class, Market.getInstance().getConfigurations());
+                new DBConnector<>(Coupon.class, Market.getConfigurations());
         couponConnector.insert(coupon);
-
-        DBConnector<Cart> cartConnector =
-                new DBConnector<>(Cart.class, Market.getInstance().getConfigurations());
-        cartConnector.saveState(cart);
+        cartDBConnector().saveState(cart);
     }
 
     public void removeCoupon(Coupon coupon) throws Exception {
         DBConnector<Coupon> couponConnector =
-                new DBConnector<>(Coupon.class, Market.getInstance().getConfigurations());
+                new DBConnector<>(Coupon.class, Market.getConfigurations());
         couponConnector.delete(coupon.getId());
     }
 

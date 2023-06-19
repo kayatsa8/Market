@@ -3,23 +3,29 @@ package DataAccessLayer.ReceiptsDAOs;
 import BusinessLayer.Market;
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.Receipts.ReceiptHandler;
+import BusinessLayer.StorePermissions.StoreManager;
+import DataAccessLayer.Hibernate.ConnectorConfigurations;
 import DataAccessLayer.Hibernate.DBConnector;
 
 public class ReceiptHandlerDAO {
+    ConnectorConfigurations config;
 
-    public ReceiptHandlerDAO(){
+    public ReceiptHandlerDAO() throws Exception {
+        config = Market.getConfigurations();
 
     }
 
-    public void addReceipt(ReceiptHandler handler, Receipt receipt) throws Exception {
-        DBConnector<Receipt> receiptConnector =
-                new DBConnector<>(Receipt.class, Market.getInstance().getConfigurations());
-        receiptConnector.insert(receipt);
+    private DBConnector<Receipt> receiptDBConnector() {
+        return new DBConnector<>(Receipt.class, config);
+    }
 
-        DBConnector<ReceiptHandler> handlerConnector =
-                new DBConnector<>(ReceiptHandler.class, Market.getInstance().getConfigurations());
-        handlerConnector.saveState(handler);
+    private DBConnector<ReceiptHandler> receiptHandlerDBConnector() {
+        return new DBConnector<>(ReceiptHandler.class, config);
+    }
 
+    public void addReceipt(ReceiptHandler handler, Receipt receipt) {
+        receiptDBConnector().insert(receipt);
+        receiptHandlerDBConnector().saveState(handler);
     }
 
 }

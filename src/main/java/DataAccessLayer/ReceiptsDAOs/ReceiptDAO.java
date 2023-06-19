@@ -4,38 +4,53 @@ import BusinessLayer.Market;
 import BusinessLayer.Receipts.Pairs.ItemsPair;
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.Receipts.ReceiptItem.ReceiptItem;
+import BusinessLayer.Users.Guest;
+import BusinessLayer.Users.RegisteredUser;
+import DataAccessLayer.Hibernate.ConnectorConfigurations;
 import DataAccessLayer.Hibernate.DBConnector;
 
 public class ReceiptDAO {
+    ConnectorConfigurations config;
 
-    public ReceiptDAO(){
-
+    public ReceiptDAO() throws Exception {
+        config = Market.getConfigurations();
     }
 
-    public void addItems(Receipt receipt, ItemsPair pair, ReceiptItem item, boolean newPair) throws Exception {
-        DBConnector<ReceiptItem> itemConnector =
-                new DBConnector<>(ReceiptItem.class, Market.getInstance().getConfigurations());
-        itemConnector.insert(item);
+    private DBConnector<Receipt> receiptDBConnector() {
+        return new DBConnector<>(Receipt.class, config);
+    }
 
-        DBConnector<ItemsPair> pairConnector =
-                new DBConnector<>(ItemsPair.class, Market.getInstance().getConfigurations());
+    private DBConnector<ItemsPair> itemsPairDBConnector() {
+        try {
+            return new DBConnector<>(ItemsPair.class, config);
+        }
+        catch (Exception e) {
+            return null;
+        }
+    }
 
+    private DBConnector<ReceiptItem> receiptItemDBConnector() {
+        try {
+            return new DBConnector<>(ReceiptItem.class, config);
+        }
+        catch (Exception e) {
+            return null;
+        }
+    }
+
+    public void addItems(Receipt receipt, ItemsPair pair, ReceiptItem item, boolean newPair) {
+        receiptItemDBConnector().insert(item);
         if(newPair){
-            pairConnector.insert(pair);
+            itemsPairDBConnector().insert(pair);
         }
         else{
-            pairConnector.saveState(pair);
+            itemsPairDBConnector().saveState(pair);
         }
-
-        DBConnector<Receipt> receiptConnector =
-                new DBConnector<>(Receipt.class, Market.getInstance().getConfigurations());
-        receiptConnector.saveState(receipt);
+        receiptDBConnector().saveState(receipt);
     }
 
-    public void deleteItem(ReceiptItem item) throws Exception {
-        DBConnector<ReceiptItem> connector =
-                new DBConnector<>(ReceiptItem.class, Market.getInstance().getConfigurations());
-        connector.delete(item.getId());
+    public void deleteItem(ReceiptItem item) {
+        receiptItemDBConnector().delete(item.getId());
     }
 
     public void update(Receipt receipt, ItemsPair pair, ReceiptItem toDelete, ReceiptItem toInsert) throws Exception {

@@ -13,11 +13,11 @@ public class ChatDAO {
 
     public void addMessage(Chat chat, Message message) throws Exception {
         DBConnector<Message> messageConnector =
-                new DBConnector<>(Message.class, Market.getInstance().getConfigurations());
+                new DBConnector<>(Message.class, Market.getConfigurations());
         messageConnector.insert(message);
 
         DBConnector<Chat> chatConnector =
-                new DBConnector<>(Chat.class, Market.getInstance().getConfigurations());
+                new DBConnector<>(Chat.class, Market.getConfigurations());
         chatConnector.saveState(chat);
     }
 

@@ -3,6 +3,7 @@ package IntegrationTests;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.ExternalSystems.PurchaseInfo;
 import BusinessLayer.ExternalSystems.SupplyInfo;
+import BusinessLayer.Market;
 import BusinessLayer.MarketMock;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
@@ -28,28 +29,33 @@ public class IntegrationTest1 {
     static RegisteredUser noRole;
     static CatalogItem item;
     static Store store;
-    static MarketMock market;
+    static Market market;
+    static String userName1 = "userName1_IT1";
+    static String userName2 = "userName2_IT1";
+    static String userName3 = "userName3_IT1";
+    static String userName4 = "userName4_IT1";
 
     @BeforeClass
     public static void setUp() throws Exception {
         System.setProperty("env", "test");
-        market = new MarketMock();
+        market = Market.getInstance();
         storeFacade = market.getStoreFacade();
         userFacade = market.getUserFacade();
-
-        int id1 = market.register("userName1", "password1");
+        String address = "address";
+        LocalDate bday = LocalDate.now();
+        int id1 = market.register(userName1, "password1", address, bday);
         founder = userFacade.getRegisteredUser(id1);
-        int id2 = market.register("userName2", "password2");
+        int id2 = market.register(userName2, "password2", address, bday);
         storeOwner = userFacade.getRegisteredUser(id2);
-        int id3 = market.register("userName3", "password3");
+        int id3 = market.register(userName3, "password3", address, bday);
         storeManager = userFacade.getRegisteredUser(id3);
-        int id4 = market.register("userName4", "password4");
+        int id4 = market.register(userName4, "password4", address, bday);
         noRole = userFacade.getRegisteredUser(id4);
 
-        market.login("userName1", "password1");
-        market.login("userName2", "password2");
-        market.login("userName3", "password3");
-        market.login("userName4", "password4");
+        market.login(userName1, "password1");
+        market.login(userName2, "password2");
+        market.login(userName3, "password3");
+        market.login(userName4, "password4");
 
         int storeID = market.addStore(founder.getId(), "storeName1");
         store = market.getStoreInfo(storeID);

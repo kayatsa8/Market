@@ -28,7 +28,7 @@ public class Receipt {
     @Transient
     private ReceiptDAO dao;
 
-    public Receipt(int ownerId, Calendar instance){
+    public Receipt(int ownerId, Calendar instance) throws Exception {
         items = new ArrayList<>();
         this.ownerId = ownerId;
         this.date = instance.getTime();
@@ -36,7 +36,7 @@ public class Receipt {
         dao = new ReceiptDAO();
     }
 
-    public Receipt(){
+    public Receipt() throws Exception {
         dao = new ReceiptDAO();
         items = new ArrayList<>();
     }

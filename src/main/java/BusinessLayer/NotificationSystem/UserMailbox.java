@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 @Entity
 public class UserMailbox extends Mailbox {
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "ownerID")
     @MapsId
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -21,7 +21,7 @@ public class UserMailbox extends Mailbox {
     private List<NotificationObserver> listeners;
 
 
-    public UserMailbox(User _owner, NotificationHub _hub){
+    public UserMailbox(User _owner, NotificationHub _hub) throws Exception {
         owner = _owner;
         ownerID = owner.getId();
         chats = new ArrayList<>();
@@ -36,7 +36,7 @@ public class UserMailbox extends Mailbox {
 //        sentMessages = new SentMessagesRepository();
     }
 
-    public UserMailbox() {
+    public UserMailbox() throws Exception {
         mailboxDAO = new MailboxDAO();
 
         try{

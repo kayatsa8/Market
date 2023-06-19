@@ -4,6 +4,7 @@ import BusinessLayer.Market;
 import BusinessLayer.Users.Guest;
 import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.UserFacade;
+import DataAccessLayer.Hibernate.ConnectorConfigurations;
 import DataAccessLayer.Hibernate.DBConnector;
 
 import java.util.HashMap;
@@ -14,18 +15,20 @@ import java.util.Map;
 public class UserDAO {
     private static HashMap<Integer, RegisteredUser> userMap = new HashMap<>();
     private static UserDAO instance;
+    ConnectorConfigurations config;
+
     private UserDAO() {
-
+        config = Market.getConfigurations();
     }
-    private DBConnector<RegisteredUser> getConnector() throws Exception {
-        return new DBConnector<>(RegisteredUser.class, Market.getInstance().getConfigurations());
-    }
-
-    private DBConnector<Guest> getGuestConnector() throws Exception {
-        return new DBConnector<>(Guest.class, Market.getInstance().getConfigurations());
+    private DBConnector<RegisteredUser> getConnector() {
+        return new DBConnector<>(RegisteredUser.class, config);
     }
 
-    public static synchronized UserDAO getUserDao() throws Exception {
+    private DBConnector<Guest> getGuestConnector() {
+        return new DBConnector<>(Guest.class, config);
+    }
+
+    public static synchronized UserDAO getUserDao() {
         if (instance==null) {
             instance = new UserDAO();
         }
@@ -38,20 +41,15 @@ public class UserDAO {
             throw new Exception("Fail to remove user in UserDAO");
     }
 
-    public int getMaxID() {
-        //temp like this, in future change using db and change var in UF to private
-        return UserFacade.userID;
-    }
-
     public void removeManagership(RegisteredUser user) throws Exception {
         getConnector().saveState(user);
     }
 
-    public void removeOwnership(RegisteredUser user) throws Exception {
+    public void removeOwnership(RegisteredUser user) {
         getConnector().saveState(user);
     }
 
-    public Map<Integer, RegisteredUser> getUsers() throws Exception {
+    public Map<Integer, RegisteredUser> getUsers() {
         List<RegisteredUser> users = getConnector().getAll();
         Map<Integer, RegisteredUser> res = new HashMap<>();
         for (RegisteredUser user : users) {

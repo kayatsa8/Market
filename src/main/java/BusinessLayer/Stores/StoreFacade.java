@@ -40,7 +40,7 @@ public class StoreFacade {
     {
         Store newStore = new Store(storesIDs, founderID, name);
         stores.put(storesIDs++, newStore);
-        storeDAO.addStore(newStore);
+//        storeDAO.addStore(newStore);
         return newStore;
     }
     public Store addStore(int founderID, String name, MarketMock marketMock) throws Exception
@@ -729,8 +729,10 @@ public class StoreFacade {
         store.cancelBid(id);
     }
 
-    public void loadStores() throws Exception {
+    public void loadStores() {
         this.storeDAO = new StoreDAO();
         this.stores = storeDAO.getStores();
+        if (!stores.isEmpty())
+            this.storesIDs = Collections.max(stores.keySet()) + 1;
     }
 }
