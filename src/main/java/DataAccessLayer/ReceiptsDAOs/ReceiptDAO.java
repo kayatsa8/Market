@@ -49,6 +49,16 @@ public class ReceiptDAO {
         receiptDBConnector().saveState(receipt);
     }
 
+    public void addItemPair(Receipt receipt, ItemsPair pair){
+        itemsPairDBConnector().insert(pair);
+        receiptDBConnector().saveState(receipt);
+    }
+
+    public void addItemToPAir(ItemsPair pair, ReceiptItem item){
+        receiptItemDBConnector().insert(item);
+        itemsPairDBConnector().saveState(pair);
+    }
+
     public void deleteItem(ReceiptItem item) {
         receiptItemDBConnector().delete(item.getId());
     }
