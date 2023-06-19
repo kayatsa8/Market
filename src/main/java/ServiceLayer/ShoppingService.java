@@ -1152,9 +1152,8 @@ public class ShoppingService {
 
     public Result<Boolean> addAppointment(int storeID,int creatorId,int newOwnerId){
         try {
-            List<Integer> ownersIdList=market.getOwnersByStore(storeID);
-            market.addAppointment(storeID,ownersIdList,creatorId,newOwnerId);
-            market.acceptAppointment(creatorId,newOwnerId);
+            market.addAppointment(storeID,creatorId,newOwnerId);
+            market.acceptAppointment(storeID,creatorId,newOwnerId);
             log.info("Succeeded to add appointment");
             return new Result<Boolean>(false, true);
         }
@@ -1175,9 +1174,9 @@ public class ShoppingService {
             return new Result<>(true, e.getMessage());
         }
     }
-    public Result<Boolean> acceptAppointment(int myId,int theOwnerId) {
+    public Result<Boolean> acceptAppointment(int storeID,int myId,int theOwnerId) {
         try {
-            market.acceptAppointment(myId,theOwnerId);
+            market.acceptAppointment(storeID, myId,theOwnerId);
             //log.info("Succeeded to acceptAppointment");
             return new Result<>(false, true);
         }
@@ -1186,9 +1185,9 @@ public class ShoppingService {
             return new Result<>(true, e.getMessage());
         }
     }
-    public Result<Boolean> rejectAppointment(int theOwnerId){
+    public Result<Boolean> rejectAppointment(int storeID, int theOwnerId){
         try {
-            market.rejectAppointment(theOwnerId);
+            market.rejectAppointment(storeID, theOwnerId);
             //log.info("Succeeded to rejectAppointment");
             return new Result<>(false, true);
         }

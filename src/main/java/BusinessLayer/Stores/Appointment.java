@@ -1,13 +1,21 @@
 package BusinessLayer.Stores;
 
+import javax.persistence.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+@Entity
+@IdClass(Appointmentid.class)
 public class Appointment {//should be per store
+    @ElementCollection
+    @MapKeyColumn(name = "ownerID")
+    @Column(name = "accepted")
     private Map<Integer,Boolean> acceptMap=new HashMap<>();//<ownerId,acceptOrNo>
+    @Id
     private int creatorId;
+    @Id
     private int storeId;
+    @Id
     private int newOwnerId;
     /**
      *
@@ -21,6 +29,10 @@ public class Appointment {//should be per store
             //the creator automatically accept, and the creator should be one of the owners
             acceptMap.put(id, id == creatorId);
         }
+    }
+
+    public Appointment() {
+
     }
 
     public Map<Integer, Boolean> getAcceptMap() {

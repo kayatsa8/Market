@@ -10,7 +10,6 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -24,7 +23,7 @@ public class AppointmentDialog extends VerticalLayout {
     UserService userService;
     private MainLayout mainLayout;
 
-    public AppointmentDialog(StoreManagementView storeManagementView){
+    public AppointmentDialog() {
         try {
             shoppingService = new ShoppingService();
             userService = new UserService();
@@ -33,11 +32,11 @@ public class AppointmentDialog extends VerticalLayout {
         }
         mainLayout = MainLayout.getMainLayout();
 
-        createAppointmentDialog(storeManagementView);
+        createAppointmentDialog();
     }
 
 
-    private void createAppointmentDialog(StoreManagementView storeManagementView) {
+    private void createAppointmentDialog() {
 
         appointmentsGrid = new Grid<>();
         Dialog dialog = new Dialog();
@@ -61,10 +60,8 @@ public class AppointmentDialog extends VerticalLayout {
 
             appointmentsGrid.addColumn(e -> shoppingService.getStoreName(e.getStoreId())).setHeader("Store").setSortable(true);
             appointmentsGrid.addColumn(e -> userService.getUsername(e.getCreatorId())).setHeader("User").setSortable(true);
-            appointmentsGrid.addColumn(AppointmentService::getAccepted).setHeader("Accepted").setSortable(true);
-            appointmentsGrid.addColumn(AppointmentService::getNotYetAnswer).setHeader("NotYetAnswer").setSortable(true);
-            appointmentsGrid.addColumn(this::acceptButton).setHeader("Accept");
-            appointmentsGrid.addColumn(this::acceptButton).setHeader("Reject");
+            appointmentsGrid.addColumn(e -> String.join(", ", e.getAccepted().stream().map(id -> userService.getUsername(id)).toList())).setHeader("Accepted").setSortable(true);
+            appointmentsGrid.addColumn(e -> String.join(", ", e.getNotYetAnswer().stream().map(id -> userService.getUsername(id)).toList())).setHeader("Waiting For Response").setSortable(true);
 
 
             GridContextMenu<AppointmentService> menu = appointmentsGrid.addContextMenu();
@@ -75,7 +72,7 @@ public class AppointmentDialog extends VerticalLayout {
                     acceptAppointment(event.getItem().get());
             });
 
-            menu.addItem("Reject", event ->  {
+            menu.addItem("Reject", event -> {
                 if (event.getItem().isPresent())
                     rejectAppointment(event.getItem().get());
             });
@@ -83,20 +80,9 @@ public class AppointmentDialog extends VerticalLayout {
             Button cancelButton = new Button("Exit", e -> dialog.close());
             dialog.getFooter().add(cancelButton);
 
-            storeManagementView.add(dialog);
             dialog.open();
             dialog.add(menu);
         }
-
-    }
-
-    private Button acceptButton(AppointmentService appServ) {
-        Button accButton = new Button("accept",new Icon());
-        accButton.addClickListener(event -> {
-            acceptAppointment(appServ);
-        });
-
-        return accButton;
     }
 
     private void rejectAppointment(AppointmentService appServ) {
@@ -104,7 +90,7 @@ public class AppointmentDialog extends VerticalLayout {
         if (appointmentService == null)
             printError("You didn't choose a Appointment");
         else {
-            Result<Boolean> result = shoppingService.rejectAppointment(appServ.getNewOwnerId());
+            Result<Boolean> result = shoppingService.rejectAppointment(appointmentService.getStoreId(), appServ.getNewOwnerId());
             if (result.isError()) {
                 printError(result.getMessage());
             } else {
@@ -123,9 +109,10 @@ public class AppointmentDialog extends VerticalLayout {
         if (appointmentService == null)
             printError("You didn't choose a Appointment");
         else {
-            Result<Boolean> result = shoppingService.approve(
-                    appointmentService.getStoreId(), appointmentService.getCreatorId(), mainLayout.getCurrUserID());
-            shoppingService.acceptAppointment(mainLayout.getCurrUserID(),appServ.getNewOwnerId());
+            //this is leftover from bid
+//            Result<Boolean> result = shoppingService.approve(
+//                    appointmentService.getStoreId(), appointmentService.getCreatorId(), mainLayout.getCurrUserID());
+            Result<Boolean> result = shoppingService.acceptAppointment(appointmentService.getStoreId(), mainLayout.getCurrUserID(), appServ.getNewOwnerId());
             if (result.isError()) {
                 printError(result.getMessage());
             } else {
@@ -138,6 +125,7 @@ public class AppointmentDialog extends VerticalLayout {
         }
         refreshAppointmentsGrid();
     }
+
     private AppointmentService getSelectedAppointmentFromGrid(Grid<AppointmentService> grid) {
         List<AppointmentService> appointments = grid.getSelectedItems().stream().toList();
         if (appointments.size() > 1) {
@@ -150,6 +138,7 @@ public class AppointmentDialog extends VerticalLayout {
             return appointments.get(0);
         }
     }
+
     private void refreshAppointmentsGrid() {
         Result<List<AppointmentService>> result = shoppingService.getUserAppointments(mainLayout.getCurrUserID());
         if (!result.isError()) {

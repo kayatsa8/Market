@@ -13,7 +13,7 @@ import java.util.HashMap;
 public class StoreEmployeesDAO {
     ConnectorConfigurations config;
 
-    public StoreEmployeesDAO() throws Exception {
+    public StoreEmployeesDAO() {
         config = Market.getConfigurations();
     }
 

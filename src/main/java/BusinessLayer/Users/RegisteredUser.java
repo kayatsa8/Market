@@ -89,6 +89,7 @@ public class RegisteredUser extends User {
 
     public RegisteredUser() throws Exception {
         super();
+        this.employeesDAO = new StoreEmployeesDAO();
     }
 
     public boolean isSystemManager() {

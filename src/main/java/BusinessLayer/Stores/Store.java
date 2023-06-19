@@ -65,6 +65,8 @@ public class Store {
     private Set<StoreOwner> storeOwners;
     @OneToMany(mappedBy = "store", fetch = FetchType.EAGER)
     private Set<StoreManager> storeManagers;
+    @OneToMany(mappedBy = "storeId", fetch = FetchType.EAGER)
+    private Set<Appointment> appointments;
     @Transient
     private List<DiscountPair> discounts;
     @Transient
@@ -79,7 +81,6 @@ public class Store {
     private Map<Integer, Lottery> lotteries;
     @Transient
     private ReceiptHandler receiptHandler;
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "mailboxId")
     private StoreMailbox mailbox;
@@ -99,6 +100,7 @@ public class Store {
         this.auctions = new HashMap<>();
         this.lotteries = new HashMap<>();
         this.bids = new HashMap<>();
+        this.appointments = new HashSet<>();
         this.receiptHandler = new ReceiptHandler();
         this.bidsIDs = 0;
         this.lotteriesIDs = 0;
@@ -110,7 +112,6 @@ public class Store {
         this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(this);
         log.info("Store " + storeID + " created with name: " + storeName);
     }
-
     public Store(int storeID, int founderID, String name, MarketMock marketMock) throws Exception {
         this.storeID = storeID;
         this.storeName = name;
@@ -121,6 +122,7 @@ public class Store {
         this.auctions = new HashMap<>();
         this.lotteries = new HashMap<>();
         this.bids = new HashMap<>();
+        this.appointments = new HashSet<>();
         this.receiptHandler = new ReceiptHandler();
         this.bidsIDs = 0;
         this.lotteriesIDs = 0;
@@ -144,6 +146,7 @@ public class Store {
         this.auctions = new HashMap<>();
         this.lotteries = new HashMap<>();
         this.bids = new HashMap<>();
+        this.appointments = new HashSet<>();
         this.receiptHandler = new ReceiptHandler();
         this.bidsIDs = 0;
         this.lotteriesIDs = 0;
@@ -157,6 +160,14 @@ public class Store {
             this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(this);
         } catch (Exception ignored) {
         }
+    }
+
+    public Set<Appointment> getAppointments() {
+        return appointments;
+    }
+
+    public void setAppointments(Set<Appointment> appointmentsList) {
+        this.appointments = appointmentsList;
     }
 
     public Set<CatalogItem> getItems() {
@@ -1499,5 +1510,57 @@ public class Store {
 
     public void cancelBid(int id) {
         removeBid(id);
+    }
+
+    public Appointment addAppointment(Integer creatorId, int newOwnerId) {
+        //maybe check if store owners contains key
+        Appointment appointment = new Appointment(getOwnerIDs(), creatorId, storeID, newOwnerId);
+        appointments.add(appointment);
+        List<Integer> sendToList = getOwnerIDs();
+        sendToList.remove(creatorId);
+        sendMsgToList(sendToList, "User " + creatorId + " offered new appointment for user " + newOwnerId + " at store " + storeName);
+
+        return appointment;
+    }
+
+    public void removeAppointment(int userId) throws Exception {
+        appointments.remove(getAppointmentByNewOwnerId(userId));
+    }
+
+    private Appointment getAppointmentByNewOwnerId(int newOwnerId) throws Exception {
+        List<Appointment> appointmentList=appointments.stream().filter(appointment -> appointment.getNewOwnerId()==newOwnerId).toList();
+        if (!appointmentList.isEmpty())
+            return appointmentList.get(0);
+        else throw new Exception("id not found");
+    }
+
+    public void rejectAppointment(int theOwnerId) throws Exception {
+        removeAppointment(theOwnerId);
+        List<Integer> sendToList = getOwnerIDs();
+        sendMsgToList(sendToList, "Appointment of " + theOwnerId + " at store " + storeName + " was rejected");
+
+    }
+
+    private void accept(int myId, int theNewOwnerId) throws Exception {
+        Appointment appointment=getAppointmentByNewOwnerId(theNewOwnerId);
+        if (appointment==null)
+            throw new Exception("cant find this appointment");
+        appointment.accept(myId);
+    }
+
+    private boolean isAllAccepted(int newOwnerId) throws Exception {
+        Appointment appointment=getAppointmentByNewOwnerId(newOwnerId);
+        if (appointment==null)
+            throw new Exception("cant find this appointment");
+        else
+            return !appointment.getAcceptMap().containsValue(false);//at least one not yet accepted
+    }
+
+    public boolean acceptAppointment(int myId, int theOwnerId) throws Exception {
+        accept(myId, theOwnerId);
+        if (isAllAccepted(theOwnerId)) {
+            return true;
+        }
+        return false;
     }
 }

@@ -148,8 +148,7 @@ public class StoreManagementView extends VerticalLayout {
 
         managerInfoGrid = new Grid();
         refreshManagerInfoGrid();
-        Map<Integer, StoreService> stores = shoppingService.getStoresIOwn(mainLayout.getCurrUserID()).getValue();
-        managerInfoGrid.addColumn(entry -> stores.get(entry.getKey()).getStoreName()).setHeader("Store").setSortable(true);
+        managerInfoGrid.addColumn(entry -> storesIOwn.get(entry.getKey()).getStoreName()).setHeader("Store").setSortable(true);
         managerInfoGrid.addColumn(entry -> userService.getUsername(entry.getValue())).setHeader("Manager").setSortable(true);
 
         for (String permission : shoppingService.possibleManagerPermissions()) {
@@ -164,9 +163,9 @@ public class StoreManagementView extends VerticalLayout {
     }
 
     private void refreshManagerInfoGrid() {
-        Map<Integer, StoreService> stores = shoppingService.getStoresIOwn(mainLayout.getCurrUserID()).getValue();
+        storesIOwn = shoppingService.getStoresIOwn(mainLayout.getCurrUserID()).getValue();
         Map<Integer, Integer> storeToManagerMap = new HashMap<>();
-        for (StoreService store : stores.values()) {
+        for (StoreService store : storesIOwn.values()) {
             for (Integer managerID : store.getManagers().keySet()) {
                 storeToManagerMap.put(store.getStoreId(), managerID);
             }
@@ -357,8 +356,8 @@ public class StoreManagementView extends VerticalLayout {
         Button createStore = new Button("Create Store", e -> createStoreDialog());
         owning.addContent(createStore);
 
-        Button getBids = new Button("Get Bids Waiting", e -> createBidDialog());
-        Button getAppointments = new Button("Get Appointments Waiting", e -> new AppointmentDialog(this));
+        Button getBids = new Button("Get Pending Bids", e -> createBidDialog());
+        Button getAppointments = new Button("Get Pending Appointments", e -> new AppointmentDialog());
 
         storesDiv.add(getBids,getAppointments, accordion);
     }
@@ -599,7 +598,7 @@ public class StoreManagementView extends VerticalLayout {
     private HorizontalLayout addButtons() {
         /*Button addOwnerButton = new Button("Add Owner");
         addOwnerButton.addClickListener(e -> addOwnerAction());*/
-        Button addOwnerButton = new Button("Create appointment request");
+        Button addOwnerButton = new Button("Request to Add Owner");
         addOwnerButton.addClickListener(e -> createAppointAction());
 
         Button addManagerButton = new Button("Add Manager");
@@ -2359,7 +2358,7 @@ public class StoreManagementView extends VerticalLayout {
     }
 
     private void getStaffInfoDialog() {
-
+        //TODO add refresh
         Grid<Map.Entry<Integer, Integer>> staffInfo = new Grid<>();
         Dialog dialog = new Dialog();
         dialog.setDraggable(true);

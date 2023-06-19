@@ -6,12 +6,14 @@ import BusinessLayer.MarketMock;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.StorePermissions.StoreManager;
+import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
 import BusinessLayer.Stores.Policies.DiscountPolicy;
 import BusinessLayer.Stores.Discounts.Discount;
 import BusinessLayer.Stores.Discounts.DiscountsTypes.Visible;
 import BusinessLayer.Stores.Policies.PurchasePolicy;
+import BusinessLayer.Users.RegisteredUser;
 import DataAccessLayer.StoreDAO;
 import Globals.FilterValue;
 import Globals.SearchBy;
@@ -734,5 +736,43 @@ public class StoreFacade {
         this.stores = storeDAO.getStores();
         if (!stores.isEmpty())
             this.storesIDs = Collections.max(stores.keySet()) + 1;
+    }
+
+    public Appointment addAppointment(int storeID, int creatorId, int newOwnerId) throws Exception {
+        Store store = getStore(storeID);
+        return store.addAppointment(creatorId, newOwnerId);
+    }
+
+    public void removeAppointment(int storeID, int userId) throws Exception {
+        Store store = getStore(storeID);
+        store.removeAppointment(userId);
+    }
+
+    public List<Appointment> getUserAppointments(RegisteredUser user) {
+        List<Store> stores = user.getStoresIOwn().stream().map(StoreOwner::getStore).toList();
+        List<Appointment> appointmentList = new LinkedList<>();
+        Set<Appointment> appointmentMap;
+        for (Store store : stores) {
+            appointmentMap = store.getAppointments();
+            for (Appointment appointment : appointmentMap) {
+                Map<Integer, Boolean> acceptMap = appointment.getAcceptMap();
+                if (acceptMap.containsKey(user.getId())) {
+                    appointmentList.add(appointment);
+                }
+            }
+        }
+        return appointmentList;
+    }
+
+    public void rejectAppointment(int storeID, int theOwnerId) throws Exception {
+        Store store = getStore(storeID);
+        store.rejectAppointment(theOwnerId);
+    }
+
+    public boolean acceptAppointment(int storeID, int myId, int theOwnerId) throws Exception {
+        Store store = getStore(storeID);
+        if (store.acceptAppointment(myId, theOwnerId))
+            return true;
+        return false;
     }
 }

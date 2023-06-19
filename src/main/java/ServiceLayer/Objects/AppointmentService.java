@@ -43,20 +43,20 @@ public class AppointmentService {
     public void setAcceptMap(Map<Integer, Boolean> acceptMap) {
         this.acceptMap = acceptMap;
     }
-    public List<String> getAccepted(){
-        List<String> resultList = new ArrayList<>();
+    public List<Integer> getAccepted(){
+        List<Integer> resultList = new ArrayList<>();
         acceptMap.forEach((key, value) -> {
             if (value) {
-                resultList.add(Integer.toString(key));
+                resultList.add(key);
             }
         });
         return resultList;
     }
-    public List<String> getNotYetAnswer(){
-        List<String> resultList = new ArrayList<>();
+    public List<Integer> getNotYetAnswer(){
+        List<Integer> resultList = new ArrayList<>();
         acceptMap.forEach((key, value) -> {
             if (!value) {
-                resultList.add(Integer.toString(key));
+                resultList.add(key);
             }
         });
         return resultList;
