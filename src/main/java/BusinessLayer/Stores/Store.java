@@ -82,7 +82,6 @@ public class Store {
     private ReceiptHandler receiptHandler;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "mailboxId")
     private StoreMailbox mailbox;
     @Transient
     private StoreDAO storeDAO;
