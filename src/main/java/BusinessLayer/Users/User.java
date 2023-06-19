@@ -35,12 +35,13 @@ public abstract class User {
     protected Cart cart;
     protected LocalDate bDay = null;
     protected String address = null;
-    @Transient
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "receiptHandlerId")
     protected ReceiptHandler receiptHandler;
     @OneToOne(cascade = CascadeType.ALL)
     protected UserMailbox mailbox;
     public User() throws Exception {
-        this.receiptHandler = new ReceiptHandler();
+
     }
     public User(int id) throws Exception {
         this.id = id;
@@ -168,5 +169,17 @@ public abstract class User {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public ReceiptHandler getReceiptHandler() {
+        return receiptHandler;
+    }
+
+    public void setReceiptHandler(ReceiptHandler receiptHandler) {
+        this.receiptHandler = receiptHandler;
+    }
+
+    public void setMailbox(UserMailbox mailbox) {
+        this.mailbox = mailbox;
     }
 }

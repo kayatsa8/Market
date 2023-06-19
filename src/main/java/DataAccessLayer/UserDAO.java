@@ -1,6 +1,8 @@
 package DataAccessLayer;
 
 import BusinessLayer.Market;
+import BusinessLayer.NotificationSystem.Mailbox;
+import BusinessLayer.Receipts.ReceiptHandler;
 import BusinessLayer.Users.Guest;
 import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.UserFacade;
@@ -64,5 +66,12 @@ public class UserDAO {
 
     public void save(Guest user) throws Exception {
         getGuestConnector().saveState(user);
+    }
+
+    public void addUser(RegisteredUser user){
+        DBConnector<ReceiptHandler> handlerDBConnector = new DBConnector<>(ReceiptHandler.class, config);
+        handlerDBConnector.insert(user.getReceiptHandler());
+        DBConnector<Mailbox> mailboxDBConnector = new DBConnector<>(Mailbox.class, config);
+        getConnector().insert(user);
     }
 }
