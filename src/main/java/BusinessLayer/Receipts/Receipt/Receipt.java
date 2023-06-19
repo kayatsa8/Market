@@ -100,7 +100,7 @@ public class Receipt {
             if(receiptItem.getId() == id){
                 pair.getValue().remove(receiptItem);
 
-                dao.deleteItem(receiptItem);
+                dao.deleteItem(receiptItem);//
                 return true;
             }
         }
