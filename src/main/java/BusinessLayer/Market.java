@@ -7,6 +7,7 @@ import BusinessLayer.ExternalSystems.PurchaseInfo;
 import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.NotificationHub;
+import BusinessLayer.NotificationSystem.UserMailbox;
 import BusinessLayer.Receipts.Receipt.Receipt;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.Stores.*;
@@ -16,11 +17,9 @@ import BusinessLayer.Stores.Policies.DiscountPolicy;
 import BusinessLayer.Stores.Discounts.Discount;
 import BusinessLayer.Stores.Discounts.DiscountsTypes.Visible;
 import BusinessLayer.Stores.Policies.PurchasePolicy;
-import BusinessLayer.Users.RegisteredUser;
-import BusinessLayer.Users.SystemManager;
-import BusinessLayer.Users.User;
-import BusinessLayer.Users.UserFacade;
+import BusinessLayer.Users.*;
 import DataAccessLayer.Hibernate.ConnectorConfigurations;
+import DataAccessLayer.Hibernate.DBConnector;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
@@ -42,6 +41,7 @@ public class Market {
     private Market() throws Exception {
         synchronized (instanceLock) {
             readDBConfigurations();
+            deleteGuestsFromDB(); //in case system did not shut down properly
             systemManagerMap = new HashMap<>();
             userFacade = new UserFacade();
             storeFacade = new StoreFacade();
@@ -70,6 +70,24 @@ public class Market {
         String password = configReader.getDBPassword();
         String driver = configReader.getDBDriver();
         configurations = new ConnectorConfigurations(name, url, username, password, driver);
+    }
+    //Proper System shutdown. Only System Managers may do this
+    public boolean system_shutdown(int userID) throws Exception {
+        if (!isAdmin(userID)) {
+            throw new Exception("Only System Admin may shut down the system");
+        }
+        deleteGuestsFromDB();
+        return true;
+    }
+
+    private void deleteGuestsFromDB() {
+        ConnectorConfigurations configurations = getConfigurations();
+        DBConnector<UserMailbox> guestConnector = new DBConnector<>(UserMailbox.class, configurations);
+        DBConnector<Guest> c = new DBConnector<>(Guest.class, configurations);
+        DBConnector<Cart> cart = new DBConnector<>(Cart.class, configurations);
+        c.emptyTable();
+        guestConnector.noValueQuery("delete from UserMailbox where ownerID < " + (Guest.MAX_GUEST_USER_ID+1));
+        cart.noValueQuery("delete from Cart where userID < " + (Guest.MAX_GUEST_USER_ID+1));
     }
 
     public void setConfigurations(ConnectorConfigurations conf){

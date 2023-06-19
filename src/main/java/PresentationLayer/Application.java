@@ -43,13 +43,6 @@ public class Application implements AppShellConfigurator {
 
     public static void main(String[] args) throws Exception {
         ConfigReader configReader = new ConfigReader();
-        ConnectorConfigurations configurations = readDBConfigurations(configReader);
-        DBConnector<UserMailbox> guestConnector = new DBConnector<>(UserMailbox.class, configurations);
-        DBConnector<Guest> c = new DBConnector<>(Guest.class, configurations);
-        DBConnector<Cart> cart = new DBConnector<>(Cart.class, configurations);
-        c.emptyTable();
-        guestConnector.noValueQuery("delete from UserMailbox where ownerID < " + (Guest.MAX_GUEST_USER_ID+1));
-        cart.noValueQuery("delete from Cart where userID < " + (Guest.MAX_GUEST_USER_ID+1));
         DBConnector<Store> connector = new DBConnector<>(Store.class, readDBConfigurations(configReader));
 
         List<Store> stores = connector.getAll();
