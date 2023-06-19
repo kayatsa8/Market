@@ -1517,7 +1517,6 @@ public class Store {
         Appointment appointment = new Appointment(getOwnerIDs(), creatorId, storeID, newOwnerId);
         appointments.add(appointment);
         List<Integer> sendToList = getOwnerIDs();
-        sendToList.remove(creatorId);
         sendMsgToList(sendToList, "User " + creatorId + " offered new appointment for user " + newOwnerId + " at store " + storeName);
 
         return appointment;
