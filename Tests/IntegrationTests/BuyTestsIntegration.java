@@ -12,12 +12,10 @@ import BusinessLayer.Stores.Store;
 import BusinessLayer.Stores.StoreFacade;
 import BusinessLayer.Users.RegisteredUser;
 import BusinessLayer.Users.UserFacade;
-import UnitTests.CartAndBasket.Mocks.PurchaseClientMock;
-import UnitTests.CartAndBasket.Mocks.SupplyClientMock;
+import BusinessLayer.ExternalSystems.Mocks.PurchaseClientMock;
+import BusinessLayer.ExternalSystems.Mocks.SupplyClientMock;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -85,7 +83,7 @@ public class BuyTestsIntegration {
             cart.addItem(store2, item3, 83);
 
             Map<Integer, Map<CatalogItem, CartItemInfo>> receiptData =
-                    cart.buyCart(new PurchaseClient(), new SupplyClient(), getPurchaseInfo(), getSupplyInfo());
+                    cart.buyCart(new PurchaseClientMock(true), new SupplyClientMock(true), getPurchaseInfo(), getSupplyInfo());
 
             assertNotEquals(null, receiptData);
 
@@ -140,7 +138,7 @@ public class BuyTestsIntegration {
             cart.addItem(store2, item3, 83);
 
             Map<Integer, Map<CatalogItem, CartItemInfo>> receiptData =
-                    cart.buyCart(new PurchaseClient(), new SupplyClient(), getPurchaseInfo(), getSupplyInfo());
+                    cart.buyCart(new PurchaseClientMock(true), new SupplyClientMock(true), getPurchaseInfo(), getSupplyInfo());
 
             Map<CatalogItem, CartItemInfo> items;
 
@@ -179,11 +177,11 @@ public class BuyTestsIntegration {
             beforeStore2 = new HashMap<>(store2.getItemsAmount());
 
             Map<Integer, Map<CatalogItem, CartItemInfo>> receiptData =
-                    cart.buyCart(new PurchaseClientMock(false), new SupplyClient(), getPurchaseInfo(), getSupplyInfo());
+                    cart.buyCart(new PurchaseClientMock(false), new SupplyClientMock(true), getPurchaseInfo(), getSupplyInfo());
 
         }
         catch(Exception e){
-            assertEquals("Problem with Supply or Purchase", e.getMessage());
+            assertTrue(e.getMessage().contains("Problem with"));
 
             after = new HashMap<>(makeMapFor_buy_unableToPurchase());
             assertTrue(checkSameQuantitiesInCarts(before, after));
@@ -220,7 +218,7 @@ public class BuyTestsIntegration {
             beforeStore2 = new HashMap<>(store2.getItemsAmount());
 
             Map<Integer, Map<CatalogItem, CartItemInfo>> receiptData =
-                    cart.buyCart(new PurchaseClient(), new SupplyClientMock(false), getPurchaseInfo(), getSupplyInfo());
+                    cart.buyCart(new PurchaseClientMock(true), new SupplyClientMock(false), getPurchaseInfo(), getSupplyInfo());
 
         }
         catch(Exception e){

@@ -1,4 +1,4 @@
-package UnitTests.CartAndBasket.Mocks;
+package BusinessLayer.ExternalSystems.Mocks;
 
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 
@@ -11,8 +11,18 @@ public class PurchaseClientMock extends PurchaseClient {
         wantedAnswer = _wantedAnswer;
     }
 
-    public int pay(String cardNumber, int month, int year, String buyerName, int ccv, int buyerId){
-        return 10000;
+    public boolean handShake(){
+        return wantedAnswer;
     }
 
+    public int pay(String cardNumber, int month, int year, String buyerName, int ccv, int buyerId){
+        if(wantedAnswer)
+            return 10000;
+        return -1;
+    }
+
+
+    public boolean cancelPay(int transactionId) {
+        return wantedAnswer;
+    }
 }

@@ -31,7 +31,7 @@ public abstract class ProjectTest {
             System.setProperty("env", "test");
             this.bridge = Driver.getBridge();
         }
-        user7SystemManagerId = 1000001;
+        user7SystemManagerId = 1000000;
         //setUpExternalSystems();
     }
     protected static int user7SystemManagerId = -1;
