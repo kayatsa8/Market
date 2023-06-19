@@ -478,7 +478,9 @@ public interface Bridge {
     List<BidService> getUserBidsToReply(int userID);
 
 
-    boolean approveOwner(int storeId, int approvingId, int newOwnerId);
+    boolean approveOwner(int approvingId, int newOwnerId);
+
+    public boolean rejectOwner(int newOwnerId);
 
 
 }

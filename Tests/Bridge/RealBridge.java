@@ -457,7 +457,15 @@ public class RealBridge implements Bridge{
     }
 
     @Override
-    public boolean approveOwner(int storeId, int approvingId, int newOwnerId) {
+    public boolean approveOwner(int approvingId, int newOwnerId) {
+        Result<Boolean> res = null; // = shoppingService.approve()  //todo
+        if(res == null)
+            return false;
+        return false;
+    }
+
+    @Override
+    public boolean rejectOwner(int newOwnerId) {
         Result<Boolean> res = null; // = shoppingService.approve()  //todo
         if(res == null)
             return false;

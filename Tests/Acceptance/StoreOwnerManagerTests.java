@@ -40,7 +40,7 @@ public class StoreOwnerManagerTests extends ProjectTest{
      * Manage Inventory - Add #27
      */
     @Test
-    public void addItemToStore_Valid(){
+    public void AddItemToStore_Valid(){
         int itemId = addItemToStoreForTests(store2Id, "itemNameValid", 10, "Kitchen", 1);
         assertTrue(itemId > 0);
 
@@ -51,7 +51,7 @@ public class StoreOwnerManagerTests extends ProjectTest{
 
 
     @Test
-    public void addItemToStore_StoreNotExisting(){
+    public void AddItemToStore_StoreNotExisting(){
         int itemId = this.addCatalogItem(-1, "itemName2", 1, "Kitchen");
         assertTrue(itemId < 0);
     }
@@ -108,7 +108,7 @@ public class StoreOwnerManagerTests extends ProjectTest{
      * Define Store Owner #32
      */
     @Test
-    public void defineStoreOwner_Valid(){
+    public void a3defineStoreOwner_Valid(){
         boolean defined = this.defineStoreOwner(store2Id, user2LoggedInId, user3NotLoggedInId);
         assertTrue(defined);
         assertTrue(checkIfStoreOwner(user3NotLoggedInId, store2Id));
@@ -116,19 +116,19 @@ public class StoreOwnerManagerTests extends ProjectTest{
     }
 
     @Test    //Checks circle of owners!
-    public void defineStoreOwner_DefineMyOwner(){
+    public void a2defineStoreOwner_DefineMyOwner(){
         boolean defined = this.defineStoreOwner(store2Id, user6OwnerOfStore2, user2LoggedInId);
         assertFalse(defined);
     }
 
     @Test
-    public void defineStoreOwner_AlreadyStoreOwner(){
+    public void a1defineStoreOwner_AlreadyStoreOwner(){
         boolean defined = this.defineStoreOwner(store2Id, user2LoggedInId, user6OwnerOfStore2);
         assertFalse(defined);
     }
 
     @Test
-    public void defineStoreOwner_UserNotStoreOwner(){
+    public void a4defineStoreOwner_UserNotStoreOwner(){
         boolean defined = this.defineStoreOwner(store4Id, user2LoggedInId, user6OwnerOfStore2);
         assertFalse(defined);
     }
@@ -202,7 +202,7 @@ public class StoreOwnerManagerTests extends ProjectTest{
      * Remove Store Owner #34   NotForVersion1
      */
     @Test
-    public void removeStoreOwner_Valid(){
+    public void a13removeStoreOwner_Valid(){
         int userToRemove = setUser("UsertoRemoveeee", "UsertoRemoveeee!!", MEMBER, LOGGED);
         defineStoreOwner(store2Id, user2LoggedInId, userToRemove);
         assertTrue(checkIfStoreOwner(userToRemove, store2Id));
@@ -215,14 +215,14 @@ public class StoreOwnerManagerTests extends ProjectTest{
     }
 
     @Test
-    public void removeStoreOwner_NotByTheRightManager(){
+    public void a11removeStoreOwner_NotByTheRightManager(){
         //User5 was positioned by User2 and he is removed by User6, error!
         boolean removed = this.removeStoreOwner(store2Id, user6OwnerOfStore2, user5ManagerOfStore2ToBeRemoved);
         assertFalse(removed);
     }
 
     @Test
-    public void removeStoreOwner_NotByStoreOwner(){
+    public void a12removeStoreOwner_NotByStoreOwner(){
         boolean removed = this.removeStoreOwner(store2Id, user1GuestId, user6OwnerOfStore2);
         assertFalse(removed);
     }
@@ -366,7 +366,7 @@ public class StoreOwnerManagerTests extends ProjectTest{
      * Approve Owner #53
      */
     @Test
-    public void ZZ1AddStoreOwner_NoOneConfirmed(){
+    public void aaa1ApproveStoreOwner_NoOneConfirmed(){
         int ownerId = setUser("UserNameasdasd", "pass34asA", MEMBER, LOGGED);
 
         boolean res = defineStoreOwner(store2Id, user2LoggedInId, ownerId);
@@ -381,7 +381,7 @@ public class StoreOwnerManagerTests extends ProjectTest{
     }
 
     @Test
-    public void ZZ2AddStoreOwner_UserNotOwner(){
+    public void aaa2ApproveStoreOwner_UserNotOwner(){
         int ownerId = setUser("UserNameasdasdas", "pass34asA", MEMBER, LOGGED);
 
         boolean res = defineStoreOwner(store2Id, user2LoggedInId, ownerId);
@@ -394,7 +394,20 @@ public class StoreOwnerManagerTests extends ProjectTest{
     }
 
 
+    @Test
+    public void aaa3rejectOwner_Valid(){
+        int ownerId = setUser("UserNameasdassdda", "pass34asA", MEMBER, LOGGED);
 
+        boolean res = defineStoreOwner(store2Id, user2LoggedInId, ownerId);
+        assertFalse(res);
+
+        //rejectUser();
+
+        boolean approved = checkIfStoreOwner(ownerId, store2Id);
+        assertFalse(approved);
+        //not implemented yet
+        fail();
+    }
 
 
 

@@ -583,9 +583,16 @@ public class ProxyBridge implements Bridge {
     }
 
     @Override
-    public boolean approveOwner(int storeId, int approvingId, int newOwnerId) {
+    public boolean approveOwner(int approvingId, int newOwnerId) {
         if(real != null)
-            return real.approveOwner(storeId, approvingId, newOwnerId);
+            return real.approveOwner(approvingId, newOwnerId);
+        return true;
+    }
+
+    @Override
+    public boolean rejectOwner(int newOwnerId) {
+        if(real != null)
+            return real.rejectOwner(newOwnerId);
         return true;
     }
 

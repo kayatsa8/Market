@@ -401,8 +401,12 @@ public abstract class ProjectTest {
         return this.bridge.getChats(id);
     }
 
-    protected boolean approveOwner(int storeId, int approvingId, int newOwnerId){
-        return this.bridge.approveOwner(storeId, approvingId, newOwnerId);
+    protected boolean approveOwner(int approvingId, int newOwnerId){
+        return this.bridge.approveOwner(approvingId, newOwnerId);
+    }
+
+    protected boolean rejectOwner(int newOwnerId){
+        return this.bridge.rejectOwner(newOwnerId);
     }
 
 }

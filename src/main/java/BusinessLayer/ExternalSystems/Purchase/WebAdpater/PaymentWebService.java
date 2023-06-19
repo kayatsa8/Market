@@ -39,7 +39,7 @@ public class PaymentWebService extends URLRequest{
         StringBuilder query = setQuery(postContent);
         String response = getUrlResponse(query);
 
-        if(response.equals(""))
+        if(response.equals("")|| response.equals("unexpected-output"))
             return -1;
         return Integer.parseInt(response);
     }
