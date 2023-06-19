@@ -201,6 +201,12 @@ public class RealBridge implements Bridge{
     }
 
     @Override
+    public boolean appointOwner(int storeId, int ownerId, int newCoOwnerId) {
+        Result<Boolean> result = shoppingService.addAppointment(storeId, ownerId, newCoOwnerId);
+        return handleBoolResult(result);
+    }
+
+    @Override
     public void addItemAmount(int storeId, int itemId, int amount) throws Exception
     {
         shoppingService.addItemAmount(storeId, itemId, amount);
@@ -457,16 +463,16 @@ public class RealBridge implements Bridge{
     }
 
     @Override
-    public boolean approveOwner(int approvingId, int newOwnerId) {
-        Result<Boolean> res = null; // = shoppingService.approve()  //todo
+    public boolean approveOwner(int store, int approvingId, int newOwnerId) {
+        Result<Boolean> res = shoppingService.acceptAppointment(store, approvingId, newOwnerId);
         if(res == null)
             return false;
         return false;
     }
 
     @Override
-    public boolean rejectOwner(int newOwnerId) {
-        Result<Boolean> res = null; // = shoppingService.approve()  //todo
+    public boolean rejectOwner(int store, int newOwnerId) {
+        Result<Boolean> res = shoppingService.rejectAppointment(store, newOwnerId);
         if(res == null)
             return false;
         return false;

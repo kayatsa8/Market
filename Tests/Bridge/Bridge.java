@@ -216,6 +216,7 @@ public interface Bridge {
      * @return true if successful
      */
     boolean defineStoreOwner(int storeId, int ownerId, int newCoOwnerId);
+    boolean appointOwner(int storeId, int ownerId, int newCoOwnerId);
 
     /**
      * Removes a co-StoreOwner
@@ -478,9 +479,9 @@ public interface Bridge {
     List<BidService> getUserBidsToReply(int userID);
 
 
-    boolean approveOwner(int approvingId, int newOwnerId);
+    boolean approveOwner(int store, int approvingId, int newOwnerId);
 
-    public boolean rejectOwner(int newOwnerId);
+    public boolean rejectOwner(int store, int newOwnerId);
 
 
 }

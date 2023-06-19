@@ -204,6 +204,14 @@ public class ProxyBridge implements Bridge {
     }
 
     @Override
+    public boolean appointOwner(int storeId, int ownerId, int newCoOwnerId) {
+        if(real != null){
+            return real.appointOwner(storeId, ownerId, newCoOwnerId);
+        }
+        return false;
+    }
+
+    @Override
     public boolean removeStoreOwner(int storeId, int storeOwnerId, int newStoreOwnerId) {
         if(real != null){
             return real.removeStoreOwner(storeId, storeOwnerId, newStoreOwnerId);
@@ -583,16 +591,16 @@ public class ProxyBridge implements Bridge {
     }
 
     @Override
-    public boolean approveOwner(int approvingId, int newOwnerId) {
+    public boolean approveOwner(int store, int approvingId, int newOwnerId) {
         if(real != null)
-            return real.approveOwner(approvingId, newOwnerId);
+            return real.approveOwner(store, approvingId, newOwnerId);
         return true;
     }
 
     @Override
-    public boolean rejectOwner(int newOwnerId) {
+    public boolean rejectOwner(int store, int newOwnerId) {
         if(real != null)
-            return real.rejectOwner(newOwnerId);
+            return real.rejectOwner(store, newOwnerId);
         return true;
     }
 

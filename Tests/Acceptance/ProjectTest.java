@@ -255,6 +255,10 @@ public abstract class ProjectTest {
         return this.bridge.defineStoreOwner(storeId, ownerId, newCoOwnerId);
     }
 
+    protected boolean appointOwner(int storeId, int ownerId, int newCoOwnerId) {
+        return this.bridge.appointOwner(storeId, ownerId, newCoOwnerId);
+    }
+
     protected List<ReceiptService> getSellingHistoryOfStore(int userId, int storeId) {
         return this.bridge.getSellingHistoryOfStoreForManager(storeId, userId);
     }
@@ -401,12 +405,12 @@ public abstract class ProjectTest {
         return this.bridge.getChats(id);
     }
 
-    protected boolean approveOwner(int approvingId, int newOwnerId){
-        return this.bridge.approveOwner(approvingId, newOwnerId);
+    protected boolean approveOwner(int store, int approvingId, int newOwnerId){
+        return this.bridge.approveOwner(store, approvingId, newOwnerId);
     }
 
-    protected boolean rejectOwner(int newOwnerId){
-        return this.bridge.rejectOwner(newOwnerId);
+    protected boolean rejectOwner(int store, int newOwnerId){
+        return this.bridge.rejectOwner(store, newOwnerId);
     }
 
 }
