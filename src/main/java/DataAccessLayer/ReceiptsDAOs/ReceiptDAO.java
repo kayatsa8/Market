@@ -39,13 +39,13 @@ public class ReceiptDAO {
     }
 
     public void addItems(Receipt receipt, ItemsPair pair, ReceiptItem item, boolean newPair) {
-        receiptItemDBConnector().insert(item);
         if(newPair){
             itemsPairDBConnector().insert(pair);
         }
-        else{
-            itemsPairDBConnector().saveState(pair);
-        }
+
+        receiptItemDBConnector().insert(item);
+
+        itemsPairDBConnector().saveState(pair);
         receiptDBConnector().saveState(receipt);
     }
 

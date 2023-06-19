@@ -38,7 +38,7 @@ public class UserMailbox extends Mailbox {
 
     public UserMailbox() throws Exception {
         mailboxDAO = new MailboxDAO();
-
+        listeners = new ArrayList<>();
         try{
             hub = Market.getInstance().getNotificationHub();
         }
