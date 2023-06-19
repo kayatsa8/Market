@@ -40,8 +40,9 @@ public class StoreOwner extends StoreEmployees {
         this.employeesDAO = new StoreEmployeesDAO();
     }
 
-    public StoreOwner() {
+    public StoreOwner() throws Exception {
         super();
+        this.employeesDAO = new StoreEmployeesDAO();
     }
 
     public Set<RegisteredUser> getOwnersIDefined() {

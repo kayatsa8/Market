@@ -38,12 +38,6 @@ public class GuestVisitorTests extends ProjectTest{
     }
 
 
-    @Ignore
-    @Test
-    public void loadSystemDBConnectionLost(){
-        assertTrue(false);
-    }
-
 
     /**
      * Exit System #8
@@ -56,11 +50,6 @@ public class GuestVisitorTests extends ProjectTest{
         assertNull(cart);
     }
 
-    @Test
-    @Ignore
-    public void exitSystemDBConnectionLost(){
-        assertTrue(false);
-    }
 
 
     /**

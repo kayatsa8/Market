@@ -1,5 +1,7 @@
 package Acceptance;
 
+import BusinessLayer.ExternalSystems.PurchaseInfo;
+import BusinessLayer.ExternalSystems.SupplyInfo;
 import ServiceLayer.Objects.CartService;
 import ServiceLayer.Objects.ReceiptService;
 import org.junit.After;
@@ -7,6 +9,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -53,8 +56,10 @@ public class UserPurchaseTestBuyCart extends ProjectTest{
     @Test
     @Ignore
     public void buyCart_WrongPaymentDetails(){
-        //TODO when adding the address and paying method check this tests.
-        boolean added = this.buyCart(user4LoggedInId, "");
+        //ccv = 984 should get the system stuck
+        PurchaseInfo purchaseInfo = new PurchaseInfo("number", 1, 2020, "adasd", 984, user4LoggedInId, LocalDate.of(2000, 1, 1));
+        SupplyInfo supplyInfo = new SupplyInfo("name", "address", "city", "country", "zip");
+        boolean added = this.getBridge().buyCart(user4LoggedInId, purchaseInfo, supplyInfo);
         assertFalse(added);
     }
 

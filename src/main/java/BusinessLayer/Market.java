@@ -29,6 +29,8 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static BusinessLayer.Stores.StoreStatus.OPEN;
+
 public class Market {
     private static volatile Market instance;
     private UserFacade userFacade;
@@ -216,6 +218,8 @@ public class Market {
 
     public Cart addItemToCart(int userID, int storeID, int itemID, int quantity) throws Exception {
         Store store = storeFacade.getStore(storeID);
+        if (store.getStoreStatus() != OPEN)
+            throw new Exception("Error: Can't add item to cart from unopened store");
         CatalogItem item = store.getItem(itemID);
         return userFacade.addItemToCart(userID, store, item, quantity);
     }

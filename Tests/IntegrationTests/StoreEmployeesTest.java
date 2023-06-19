@@ -76,8 +76,9 @@ public class StoreEmployeesTest {
         StoreOwner ownership1 = (StoreOwner)getOwnership(ownerSet, store);
         assertEquals(child.getUsername() + " should have " + store.getStoreName() + "store1 as store he owns",
                 store, ownership1.getStore());
+        int parentId = parent.getId();
         assertEquals(child.getUsername() + " should have " + parent.getUsername() + " as parent in ownership",
-                Optional.ofNullable(parent.getId()), ownership1.getParentID());
+                parentId, ownership1.getParentID());
         ownerSet = parent.getStoresIOwn();
         StoreOwner ownership2 = (StoreOwner)getOwnership(ownerSet, store);
 
@@ -100,8 +101,9 @@ public class StoreEmployeesTest {
         StoreManager manager = (StoreManager)getOwnership(managers, store);
         assertEquals(child.getUsername() + " should have " + store.getStoreName() + " as store he manages",
                 store, manager.getStore());
-        assertEquals(child.getUsername() + " should have " + parent.getUsername() + " as parent in managing",
-                Optional.ofNullable(parent.getId()), manager.getParentID());
+        int parentId = parent.getId();
+        assertEquals(child.getUsername() + " should have " + parent.getUsername() + " as parent in managing"
+                , manager.getParentID(), parentId);
         StoreOwner ownership = (StoreOwner) getOwnership(parent.getStoresIOwn(), store);
         assertTrue(parent.getUsername() + " should have " + child.getUsername() + " as managerIDefined",
                 ownership.getManagersIDefined().contains(child));

@@ -31,7 +31,7 @@ public abstract class ProjectTest {
             System.setProperty("env", "test");
             this.bridge = Driver.getBridge();
         }
-        user7SystemManagerId = 1000001;
+        user7SystemManagerId = 1000000;
         //setUpExternalSystems();
     }
     protected static int user7SystemManagerId = -1;
@@ -399,6 +399,14 @@ public abstract class ProjectTest {
     }
     protected HashMap<Integer, ChatService> getChats(int id){
         return this.bridge.getChats(id);
+    }
+
+    protected boolean approveOwner(int approvingId, int newOwnerId){
+        return this.bridge.approveOwner(approvingId, newOwnerId);
+    }
+
+    protected boolean rejectOwner(int newOwnerId){
+        return this.bridge.rejectOwner(newOwnerId);
     }
 
 }
