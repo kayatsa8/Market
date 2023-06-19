@@ -31,8 +31,8 @@ import java.util.stream.Collectors;
 public class UserFacade {
     private static final Logger log = Log.log;
     private final static int MIN_PASS_LENGTH = 6;
-    private final static String adminName = "admin"; //new ConfigReader().getAdminUserName(); //"admin"
-    private final static String adminPass = "adminpass";//new ConfigReader().getAdminPassword(); //"adminpass";
+    private final static String adminName = new ConfigReader().getAdminUserName(); //"admin"
+    private final static String adminPass = new ConfigReader().getAdminPassword(); //"adminpass";
     public static int userID = 1000000;
     //    private Map<String, RegisteredUser> users;
     private Map<Integer, RegisteredUser> users;

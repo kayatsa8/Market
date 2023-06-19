@@ -363,7 +363,7 @@ public class StoreOwnerManagerTests extends ProjectTest{
 
 
     /**
-     * Approve Owner #60
+     * Approve Owner #53
      */
     @Test
     public void ZZ1AddStoreOwner_NoOneConfirmed(){
