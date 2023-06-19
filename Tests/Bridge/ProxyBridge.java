@@ -583,6 +583,13 @@ public class ProxyBridge implements Bridge {
     }
 
     @Override
+    public boolean approveOwner(int storeId, int approvingId, int newOwnerId) {
+        if(real != null)
+            return real.approveOwner(storeId, approvingId, newOwnerId);
+        return true;
+    }
+
+    @Override
     public HashMap<Integer, ChatService> getChats(int id){
         if(real != null){
             return real.getChats(id);
