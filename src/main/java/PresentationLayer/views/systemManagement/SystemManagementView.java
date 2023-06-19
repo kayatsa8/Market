@@ -1,5 +1,6 @@
 package PresentationLayer.views.systemManagement;
 
+import PresentationLayer.Application;
 import PresentationLayer.views.MainLayout;
 import ServiceLayer.Objects.ReceiptItemService;
 import ServiceLayer.Objects.ReceiptService;
@@ -19,7 +20,9 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.grid.editor.Editor;
-import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -40,12 +43,11 @@ import java.util.stream.Collectors;
 public class SystemManagementView extends VerticalLayout {
     ShoppingService shoppingService;
     UserService userService;
-    private Map<Integer, StoreService> stores;
-
     Grid<UserInfoService> loggedOut;
     Grid<UserInfoService> loggedIn;
     Grid<StoreService> storeGrid;
     MainLayout mainLayout;
+
     public SystemManagementView() {
         setSpacing(false);
         mainLayout = MainLayout.getMainLayout();
@@ -59,8 +61,7 @@ public class SystemManagementView extends VerticalLayout {
         try {
             shoppingService = new ShoppingService();
             userService = new UserService();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             add("Problem initiating Store:(");
         }
 
@@ -68,9 +69,37 @@ public class SystemManagementView extends VerticalLayout {
         addUsersInfo(userLayout);
         accordion.setWidthFull();
         add(accordion);
+        createExitButton();
         setSizeFull();
         setJustifyContentMode(JustifyContentMode.START);
         getStyle().set("text-align", "center");
+    }
+
+    private void createExitButton() {
+        Button exitButton = new Button("Shut Down Market", e -> {
+            ConfirmDialog dialog = new ConfirmDialog();
+            dialog.setHeader("System Shut Down");
+            dialog.setText("Are you sure you want to shut down the Market?");
+            dialog.setCancelable(true);
+            dialog.addCancelListener(event -> printSuccess("Canceled"));
+            dialog.addConfirmListener(a -> {
+                Result<Boolean> r = userService.system_shutdown(MainLayout.getMainLayout().getCurrUserID());
+                if (r.isError())
+                    printError(r.getMessage());
+                else if (r.getValue()){
+                    ConfirmDialog dialog1 = new ConfirmDialog();
+                    dialog1.setText("System Shut Down Successfully. You may leave this page");
+                    dialog1.open();
+                    dialog1.addConfirmListener(l->System.exit(0));
+                }
+            });
+            dialog.setConfirmText("Shutdown");
+            dialog.setConfirmButtonTheme("error primary");
+            dialog.open();
+        });
+        exitButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        add(exitButton);
+        setHorizontalComponentAlignment(Alignment.CENTER, exitButton);
     }
 
     private void addUsersInfo(AccordionPanel usersSpan) {
@@ -79,8 +108,7 @@ public class SystemManagementView extends VerticalLayout {
 
         if (loggedInUsersRes.isError() || loggedOutUsersRes.isError()) {
             usersSpan.addContent(new H2("Problem getting users :("));
-        }
-        else {
+        } else {
             loggedIn = new Grid();
             loggedIn.setItems(loggedInUsersRes.getValue().values());
             loggedIn.addColumn(UserInfoService::getUsername).setHeader("Username").setSortable(true);
@@ -166,10 +194,9 @@ public class SystemManagementView extends VerticalLayout {
     private void deleteUser(Grid<UserInfoService> grid) {
         UserInfoService userToRemove = grid.getSelectedItems().stream().toList().get(0);
         Result<Boolean> result = userService.removeUser(mainLayout.getCurrUserID(), userToRemove.getId());
-        if(result.isError()){
+        if (result.isError()) {
             printError("Error Removing User:\n" + result.getMessage());
-        }
-        else{
+        } else {
             printSuccess("Removed User");
             resetUserGrids();
         }
@@ -179,8 +206,7 @@ public class SystemManagementView extends VerticalLayout {
         Result<Map<Integer, StoreService>> storesRes = shoppingService.getAllStoresInfo();
         if (storesRes.isError()) {
             printError("Problem getting stores :(");
-        }
-        else {
+        } else {
             grid.setItems(storesRes.getValue().values());
         }
     }
@@ -275,7 +301,7 @@ public class SystemManagementView extends VerticalLayout {
     private void getStoreReceipts(Grid<StoreService> grid) {
         int chosenId = getIdOfSelectedRow(grid);
 
-        if(chosenId != -1){
+        if (chosenId != -1) {
             Grid<ReceiptService> receiptsGrid = new Grid<>();
             Dialog dialog = new Dialog();
             dialog.setDraggable(true);
@@ -288,26 +314,24 @@ public class SystemManagementView extends VerticalLayout {
 
             Result<List<ReceiptService>> result = shoppingService.getSellingHistoryOfStoreForManager(chosenId, mainLayout.getCurrUserID());
 
-            if(result.isError()){
+            if (result.isError()) {
                 printError(result.getMessage());
-            }
-            else{
-                if(result.getValue() == null){
+            } else {
+                if (result.getValue() == null) {
                     printError("Something went wrong");
-                }
-                else{
+                } else {
                     receiptsGrid.setItems(result.getValue());
                     receiptsGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
 
-                    receiptsGrid.addColumn(ReceiptService:: getId).setHeader("Receipt ID").setSortable(true);
-                    receiptsGrid.addColumn(ReceiptService:: getOwnerId).setHeader("User ID").setSortable(true);
-                    receiptsGrid.addColumn(ReceiptService:: getDate).setHeader("Date").setSortable(true);
+                    receiptsGrid.addColumn(ReceiptService::getId).setHeader("Receipt ID").setSortable(true);
+                    receiptsGrid.addColumn(ReceiptService::getOwnerId).setHeader("User ID").setSortable(true);
+                    receiptsGrid.addColumn(ReceiptService::getDate).setHeader("Date").setSortable(true);
 
                     GridContextMenu<ReceiptService> menu = receiptsGrid.addContextMenu();
                     menu.setOpenOnClick(true);
 
                     menu.addItem("View Items", event -> viewReceiptItemsAction(receiptsGrid, result.getValue(),
-                            receiptsGrid.getSelectedItems().stream().toList().get(0).getId()) );
+                            receiptsGrid.getSelectedItems().stream().toList().get(0).getId()));
 
                     Button cancelButton = new Button("Exit", e -> dialog.close());
                     dialog.getFooter().add(cancelButton);
@@ -335,19 +359,19 @@ public class SystemManagementView extends VerticalLayout {
         dialog.setWidth("1000px");
 
         ReceiptService curr = null;
-        for(ReceiptService receiptService: receipts){
-            if(receiptService.getId() == receiptId)
+        for (ReceiptService receiptService : receipts) {
+            if (receiptService.getId() == receiptId)
                 curr = receiptService;
         }
-        if(curr != null){
+        if (curr != null) {
             itemsGrid.setItems(curr.getItemsInList());
             itemsGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
-            itemsGrid.addColumn(ReceiptItemService:: getOwnerId).setHeader("User ID").setSortable(true);
-            itemsGrid.addColumn(ReceiptItemService:: getId).setHeader("Item ID").setSortable(true);
-            itemsGrid.addColumn(ReceiptItemService:: getName).setHeader("Name").setSortable(true);
-            itemsGrid.addColumn(ReceiptItemService:: getAmount).setHeader("Amount").setSortable(true);
-            itemsGrid.addColumn(ReceiptItemService:: getPriceBeforeDiscount).setHeader("Price Before Discount").setSortable(true);
-            itemsGrid.addColumn(ReceiptItemService:: getFinalPrice).setHeader("Final Price").setSortable(true);
+            itemsGrid.addColumn(ReceiptItemService::getOwnerId).setHeader("User ID").setSortable(true);
+            itemsGrid.addColumn(ReceiptItemService::getId).setHeader("Item ID").setSortable(true);
+            itemsGrid.addColumn(ReceiptItemService::getName).setHeader("Name").setSortable(true);
+            itemsGrid.addColumn(ReceiptItemService::getAmount).setHeader("Amount").setSortable(true);
+            itemsGrid.addColumn(ReceiptItemService::getPriceBeforeDiscount).setHeader("Price Before Discount").setSortable(true);
+            itemsGrid.addColumn(ReceiptItemService::getFinalPrice).setHeader("Final Price").setSortable(true);
 
             Button cancelButton = new Button("Exit", e -> dialog.close());
             dialog.getFooter().add(cancelButton);
@@ -360,22 +384,20 @@ public class SystemManagementView extends VerticalLayout {
 
     private void closeStorePermanently(Grid grid) {
         int chosenId = getIdOfSelectedRow(grid);
-        if( chosenId!= -1){
+        if (chosenId != -1) {
 
             Result<Boolean> result = shoppingService.closeStorePermanently(mainLayout.getCurrUserID(), chosenId);
-            if(result.isError()){
+            if (result.isError()) {
                 printError("Error in close store permanently:\n" + result.getMessage());
-            }
-            else{
-                if(result.getValue()){
+            } else {
+                if (result.getValue()) {
                     printSuccess("Closed Store");
 
 //                    StoreService curr = shoppingService.getStoreInfo(chosenId).getValue();
 //                    stores.replace(chosenId, curr);
                     addStoresInfo(grid);
 //                    grid.getDataProvider().refreshItem(curr);
-                }
-                else{
+                } else {
                     printError("Something went wrong");
                 }
                 System.out.println(result.getValue());
@@ -386,15 +408,13 @@ public class SystemManagementView extends VerticalLayout {
 
     private int getIdOfSelectedRow(Grid grid) {
         List<StoreService> stores = grid.getSelectedItems().stream().toList();
-        if(stores.size() > 1){
+        if (stores.size() > 1) {
             printError("Chosen More than one!");
             return -1;
-        }
-        else if(stores.size() == 0){
+        } else if (stores.size() == 0) {
             printError("You need to choose a User!");
             return -1;
-        }
-        else{
+        } else {
             return stores.get(0).getStoreId();
         }
     }
