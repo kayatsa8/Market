@@ -43,8 +43,8 @@ public class BasketDAO {
     }
 
     public void removeItem(Basket.ItemWrapper wrapper) {
-        cartItemInfoDBConnector().delete(wrapper.getInfo().getId());
         itemWrapperDBConnector().delete(wrapper.getId());
+        cartItemInfoDBConnector().delete(wrapper.getInfo().getId());
     }
 
     public void saveItems(Basket basket) {
