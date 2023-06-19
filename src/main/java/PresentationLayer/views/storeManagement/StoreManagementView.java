@@ -727,7 +727,7 @@ public class StoreManagementView extends VerticalLayout {
     }
 
     private void printError(String errorMsg) {
-        Notification notification = Notification.show(errorMsg, 2000, Notification.Position.BOTTOM_CENTER);
+        Notification notification = Notification.show(errorMsg, 4000, Notification.Position.BOTTOM_CENTER);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
 

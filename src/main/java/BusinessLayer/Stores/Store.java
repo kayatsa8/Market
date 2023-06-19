@@ -1528,8 +1528,12 @@ public class Store {
         removeBid(id);
     }
 
-    public Appointment addAppointment(Integer creatorId, int newOwnerId) {
+    public Appointment addAppointment(Integer creatorId, Integer newOwnerId) throws Exception {
         //maybe check if store owners contains key
+        if (getOwnerIDs().contains(newOwnerId))
+            throw new Exception("This User is already a store Owner");
+        if (getAppointmentByNewOwnerId(newOwnerId)!=null)
+            throw new Exception("This User is already a candidate in this store!");
         Appointment appointment = new Appointment(getOwnerIDs(), creatorId, storeID, newOwnerId);
         appointments.add(appointment);
         List<Integer> sendToList = getOwnerIDs();
@@ -1544,11 +1548,12 @@ public class Store {
         storeDAO.save(this);
     }
 
-    private Appointment getAppointmentByNewOwnerId(int newOwnerId) throws Exception {
+    private Appointment getAppointmentByNewOwnerId(int newOwnerId) {
         List<Appointment> appointmentList=appointments.stream().filter(appointment -> appointment.getNewOwnerId()==newOwnerId).toList();
         if (!appointmentList.isEmpty())
             return appointmentList.get(0);
-        else throw new Exception("id not found");
+        else
+            return null;
     }
 
     public void rejectAppointment(int theOwnerId) throws Exception {
