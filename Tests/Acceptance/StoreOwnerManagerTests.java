@@ -372,7 +372,7 @@ public class StoreOwnerManagerTests extends ProjectTest{
         boolean res = defineStoreOwner(store2Id, user2LoggedInId, ownerId);
         assertFalse(res);
 
-        //approveUser();
+        //approveUser(user6OwnerOfStore2, ownerId);
 
         boolean approved = checkIfStoreOwner(ownerId, store2Id);
         assertTrue(approved);
@@ -401,7 +401,7 @@ public class StoreOwnerManagerTests extends ProjectTest{
         boolean res = defineStoreOwner(store2Id, user2LoggedInId, ownerId);
         assertFalse(res);
 
-        //rejectUser();
+        //rejectUser(ownerId);
 
         boolean approved = checkIfStoreOwner(ownerId, store2Id);
         assertFalse(approved);
