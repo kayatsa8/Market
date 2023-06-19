@@ -740,7 +740,11 @@ public class StoreFacade {
     }
 
     public Appointment addAppointment(int storeID, int creatorId, int newOwnerId) throws Exception {
+        if (storeID<0|creatorId<0|newOwnerId<0)
+            throw new Exception("id cant be negative");
         Store store = getStore(storeID);
+        if (!checkIfStoreOwner(creatorId,store.getStoreID()))
+            throw new Exception("creator must be this store owner");
         return store.addAppointment(creatorId, newOwnerId);
     }
 
