@@ -201,6 +201,7 @@ public class RegisteredUser extends User {
             throw new RuntimeException("User already manages store");
         }
         storeOwnership.addOwner(newOwner);
+        employeesDAO.save(storeOwnership);
         mailbox.sendMessage(newOwner.getId(), "You have been appointed owner of Store: " + storeOwnership.getStore().getStoreName());
     }
 

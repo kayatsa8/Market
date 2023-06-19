@@ -51,4 +51,8 @@ public class StoreDAO {
     public List<CatalogItem> getItems() {
         return getCatalogConnector().getAll();
     }
+
+    public void save(Store newStore) {
+        getStoreConnector().saveState(newStore);
+    }
 }

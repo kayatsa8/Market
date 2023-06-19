@@ -59,7 +59,7 @@ public class AppointmentDialog extends VerticalLayout {
             appointmentsGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
 
             appointmentsGrid.addColumn(e -> shoppingService.getStoreName(e.getStoreId())).setHeader("Store").setSortable(true);
-            appointmentsGrid.addColumn(e -> userService.getUsername(e.getCreatorId())).setHeader("User").setSortable(true);
+            appointmentsGrid.addColumn(e -> userService.getUsername(e.getNewOwnerId())).setHeader("Candidate").setSortable(true);
             appointmentsGrid.addColumn(e -> String.join(", ", e.getAccepted().stream().map(id -> userService.getUsername(id)).toList())).setHeader("Accepted").setSortable(true);
             appointmentsGrid.addColumn(e -> String.join(", ", e.getNotYetAnswer().stream().map(id -> userService.getUsername(id)).toList())).setHeader("Waiting For Response").setSortable(true);
 

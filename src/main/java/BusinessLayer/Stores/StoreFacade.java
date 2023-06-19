@@ -42,7 +42,7 @@ public class StoreFacade {
     {
         Store newStore = new Store(storesIDs, founderID, name);
         stores.put(storesIDs++, newStore);
-//        storeDAO.addStore(newStore);
+        storeDAO.save(newStore);
         return newStore;
     }
     public Store addStore(int founderID, String name, MarketMock marketMock) throws Exception

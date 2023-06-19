@@ -357,7 +357,11 @@ public class StoreManagementView extends VerticalLayout {
         owning.addContent(createStore);
 
         Button getBids = new Button("Get Pending Bids", e -> createBidDialog());
-        Button getAppointments = new Button("Get Pending Appointments", e -> new AppointmentDialog());
+        Button getAppointments = new Button("Get Pending Appointments", e -> {
+            new AppointmentDialog();
+            refreshStoreList();
+            updateStoresGrid();
+        });
 
         storesDiv.add(getBids,getAppointments, accordion);
     }
@@ -375,13 +379,10 @@ public class StoreManagementView extends VerticalLayout {
             }
         });
 
-//        menu.setDynamicContentHandler((item, contextMenuEvent) -> {
-//            menu.removeAll();
-            storesGrid.getDataProvider().fetch(new Query<>()).forEach(bean -> {
-                menu.removeAll();
-                addMenuItems(bean, menu, storesGrid, managerMode);
-            });
-//        }
+        storesGrid.getDataProvider().fetch(new Query<>()).forEach(bean -> {
+            menu.removeAll();
+            addMenuItems(bean, menu, storesGrid, managerMode);
+        });
     }
 
     private void addMenuItems(StoreService store, GridContextMenu<StoreService> menu, Grid<StoreService> storesGrid, boolean managerMode) {
@@ -614,7 +615,6 @@ public class StoreManagementView extends VerticalLayout {
     }
 
     private void createAppointAction() {
-        //TODO mfix
         int chosenUserId = getIdOfSelectedRow(userGrid);
         int storeId = Integer.parseInt(storeSelectorAdd.getValue().split(":")[0]);
 
@@ -628,6 +628,9 @@ public class StoreManagementView extends VerticalLayout {
                 if (result.getValue()) {
                     printSuccess("Appointment added Successfully");
                     refreshUserGrids();
+                    refreshStoreList();
+                    updateStoresGrid();
+                    refreshManagerInfoGrid();
                 } else {
                     printError("Something went wrong");
                 }
