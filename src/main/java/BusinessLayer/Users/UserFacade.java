@@ -227,7 +227,7 @@ public class UserFacade {
     }
 
     public void addOwner(int userID, int userToAddID, int storeID) throws Exception {
-        RegisteredUser currUser = getLoggedInUser(userID);
+        RegisteredUser currUser = getRegisteredUser(userID);
         RegisteredUser newOwner = getRegisteredUser(userToAddID);
         if (currUser == null || newOwner == null) {
             throw new RuntimeException("User does not exist");

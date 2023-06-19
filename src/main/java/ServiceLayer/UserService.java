@@ -83,6 +83,7 @@ public class UserService {
         }
     }
 
+
     public Result<Boolean> addManager(int userID, int userToAdd, int storeID) {
         try {
             market.addManager(userID, userToAdd, storeID);

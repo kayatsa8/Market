@@ -77,6 +77,7 @@ public class StoreManagementView extends VerticalLayout {
     Grid<StoreService> storesManagedGrid;
     Grid<BidService> bidsGrid;
 
+
     //uncomment
     boolean isStoreOwner;
     boolean isStoreManager;
@@ -357,9 +358,12 @@ public class StoreManagementView extends VerticalLayout {
         owning.addContent(createStore);
 
         Button getBids = new Button("Get Bids Waiting", e -> createBidDialog());
+        Button getAppointments = new Button("Get Appointments Waiting", e -> new AppointmentDialog(this));
 
-        storesDiv.add(getBids, accordion);
+        storesDiv.add(getBids,getAppointments, accordion);
     }
+
+
 
     private void addMenuItems(Grid<StoreService> storesGrid, boolean managerMode) {
         GridContextMenu<StoreService> menu = storesGrid.addContextMenu();
@@ -593,8 +597,10 @@ public class StoreManagementView extends VerticalLayout {
     }
 
     private HorizontalLayout addButtons() {
-        Button addOwnerButton = new Button("Add Owner");
-        addOwnerButton.addClickListener(e -> addOwnerAction());
+        /*Button addOwnerButton = new Button("Add Owner");
+        addOwnerButton.addClickListener(e -> addOwnerAction());*/
+        Button addOwnerButton = new Button("Create appointment request");
+        addOwnerButton.addClickListener(e -> createAppointAction());
 
         Button addManagerButton = new Button("Add Manager");
         addManagerButton.addClickListener(e -> addManagerAction());
@@ -606,6 +612,29 @@ public class StoreManagementView extends VerticalLayout {
 
         horizontalLayout1.setAlignItems(FlexComponent.Alignment.BASELINE);
         return horizontalLayout1;
+    }
+
+    private void createAppointAction() {
+        //TODO mfix
+        int chosenUserId = getIdOfSelectedRow(userGrid);
+        int storeId = Integer.parseInt(storeSelectorAdd.getValue().split(":")[0]);
+
+        if (chosenUserId != -1) {
+            Result<Boolean> result =shoppingService.addAppointment(storeId,mainLayout.getCurrUserID(),chosenUserId);
+            //userService.addOwner(mainLayout.getCurrUserID(), chosenUserId, storeId);
+
+            if (result.isError()) {
+                printError("Error in addAppointment:\n" + result.getMessage());
+            } else {
+                if (result.getValue()) {
+                    printSuccess("Appointment added Successfully");
+                    refreshUserGrids();
+                } else {
+                    printError("Something went wrong");
+                }
+            }
+        }
+
     }
 
     private void addOwnerAction() {

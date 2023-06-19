@@ -8,7 +8,7 @@ import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.Receipts.Receipt.Receipt;
-import BusinessLayer.StorePermissions.StoreActionPermissions;
+import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.*;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
@@ -38,6 +38,7 @@ public class Market {
     private NotificationHub notificationHub;
     private static final Object instanceLock = new Object();
     private static ConnectorConfigurations configurations;
+    private AppointmentManager appointmentManager;
 
     private Market() throws Exception {
         synchronized (instanceLock) {
@@ -46,6 +47,7 @@ public class Market {
             userFacade = new UserFacade();
             storeFacade = new StoreFacade();
             notificationHub = new NotificationHub();
+            appointmentManager=new AppointmentManager();
         }
     }
 
@@ -130,6 +132,7 @@ public class Market {
     }
 
     public void addOwner(int userID, int userToAddID, int storeID) throws Exception {
+        removeAppointment(userToAddID);
         userFacade.addOwner(userID, userToAddID, storeID);
     }
 
@@ -667,6 +670,41 @@ public class Market {
     public void cancelBid(int storeId, int id) throws Exception {
         storeFacade.cancelBid(storeId, id);
     }
+    public void addAppointment(int storeID,List<Integer> ownersIdList,int creatorId,int newOwnerId) throws Exception {
+        appointmentManager.addAppointment(new Appointment(ownersIdList,creatorId,storeID,newOwnerId));
+    }
+    public List<Appointment> getUserAppointments(int userID){
+        List<Appointment> appointmentList=new LinkedList<>();
+        List<Appointment> appointmentMap=appointmentManager.getAppointmentsList();
+        for (Appointment appointment : appointmentMap) {
+            Map<Integer,Boolean> acceptMap =appointment.getAcceptMap();
+            if (acceptMap.containsKey(userID)){
+                appointmentList.add(appointment);
+            }
+        }
+        return appointmentList;
+    }
+    public List<Integer> getOwnersByStore(int storeID) throws Exception {
+        List<Integer>ownersId=storeFacade.getStore(storeID).getStoreOwners().stream()
+                .map(StoreOwner::getUserID)
+                .toList();
+        return ownersId;
+    }
 
 
+    public void removeAppointment(int userId) throws Exception {
+        appointmentManager.removeAppointment(userId);
+    }
+
+
+    public void acceptAppointment(int myId,int theOwnerId) throws Exception {
+        appointmentManager.accept(myId,theOwnerId);
+        if (appointmentManager.isAllAccepted(theOwnerId)){
+            int storeId=appointmentManager.getStoreId(theOwnerId);
+            addOwner(myId,theOwnerId,storeId);
+        }
+    }
+    public void rejectAppointment(int theOwnerId) throws Exception {
+        removeAppointment(theOwnerId);
+    }
 }
