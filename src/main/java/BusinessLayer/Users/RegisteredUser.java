@@ -287,7 +287,7 @@ public class RegisteredUser extends User {
         }
     }
 
-    public void removeOwnership(int storeID) throws Exception {
+    public void removeOwnership(int storeID) {
         StoreOwner owner = getStoreIOwn(storeID);
         employeesDAO.removeOwnership(owner);
         removeStoreIOwn(storeID);
@@ -318,12 +318,19 @@ public class RegisteredUser extends User {
 
     public void logIn() throws Exception {
         this.isLoggedIn = true;
-        userDAO.save(this);
+        getUserDao().save(this);
+    }
+
+    private UserDAO getUserDao() {
+        if (userDAO == null) {
+            this.userDAO = UserDAO.getUserDao();
+        }
+        return userDAO;
     }
 
     public void logout() throws Exception {
         this.isLoggedIn = false;
-        userDAO.save(this);
+        getUserDao().save(this);
     }
 
     @Transient
