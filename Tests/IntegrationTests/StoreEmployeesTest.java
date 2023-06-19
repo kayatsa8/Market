@@ -204,6 +204,8 @@ public class StoreEmployeesTest {
             user4.removeOwner(user1, store2.getStoreID());
             fail("Should not be able to remove owner you did not define, even if 'grandchild'");
         } catch (RuntimeException e) {
+        } catch (Exception e) {
+            fail("Should not allow to remove manager if you aren't owner");
         }
         try {
             user5.removeOwner(user2, store2.getStoreID());
@@ -223,7 +225,7 @@ public class StoreEmployeesTest {
     }
 
     @Test
-    public void removeManager() {
+    public void removeManager() throws Exception {
         try {
             user1.removeManager(user4, store2.getStoreID());
             fail("Should not allow to remove manager if you aren't owner");

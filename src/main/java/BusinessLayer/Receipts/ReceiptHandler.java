@@ -32,7 +32,7 @@ public class ReceiptHandler {
     private ReceiptHandlerDAO dao;
 
 
-    public ReceiptHandler(){
+    public ReceiptHandler() throws Exception {
         receipts = new ArrayList<>();
         dao = new ReceiptHandlerDAO();
     }

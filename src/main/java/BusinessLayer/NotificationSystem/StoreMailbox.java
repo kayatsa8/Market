@@ -6,10 +6,7 @@ import BusinessLayer.StorePermissions.StoreEmployees;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.NotificationsSystemDAOs.MailboxDAO;
 
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,11 +14,11 @@ import java.util.stream.Collectors;
 @Entity
 public class StoreMailbox extends Mailbox{
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "ownerID")
     private Store owner;
 
-    public StoreMailbox(Store _owner, NotificationHub _hub){
+    public StoreMailbox(Store _owner, NotificationHub _hub) throws Exception {
         owner = _owner;
         available = true;
         ownerID = owner.getStoreID();
@@ -35,7 +32,7 @@ public class StoreMailbox extends Mailbox{
 //        sentMessages = new SentMessagesRepository();
     }
 
-    public StoreMailbox(){
+    public StoreMailbox() throws Exception {
         mailboxDAO = new MailboxDAO();
 
         try{

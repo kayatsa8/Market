@@ -61,7 +61,7 @@ public class NotificationHubTests {
     }
 
     @Test
-    public void registerUserToService() throws Exception {
+    public void registerUserToService() {
         try{
             assertNotNull(user2.getMailbox());
             hub.removeFromService(user2.getId());

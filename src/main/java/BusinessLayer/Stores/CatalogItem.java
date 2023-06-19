@@ -31,7 +31,7 @@ public class CatalogItem {
     private List<PurchasePolicy> purchasePolicies;
     @Transient
     private List<DiscountPolicy> discountPolicies;
-    public CatalogItem() throws Exception {
+    public CatalogItem() {
         this.itemDAO = new ItemDAO();
     }
     public CatalogItem(int itemID, String itemName, double price, String category, String storeName, Store store, double weight) {

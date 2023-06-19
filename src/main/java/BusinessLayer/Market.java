@@ -37,8 +37,7 @@ public class Market {
     private Map<Integer, SystemManager> systemManagerMap;
     private NotificationHub notificationHub;
     private static final Object instanceLock = new Object();
-    private ConnectorConfigurations configurations;
-    private static ConnectorConfigurations configurations_static;
+    private static ConnectorConfigurations configurations;
 
     private Market() throws Exception {
         synchronized (instanceLock) {
@@ -57,7 +56,6 @@ public class Market {
                 instance.notificationHub.loadHub();
                 instance.userFacade.loadUsers();
                 instance.createFirstAdmin();
-//                instance.userFacade.setGuest();
                 instance.storeFacade.loadStores();
             }
             return instance;
@@ -78,7 +76,7 @@ public class Market {
         configurations = conf;
     }
 
-    public ConnectorConfigurations getConfigurations(){
+    public static ConnectorConfigurations getConfigurations(){
         return configurations;
     }
 

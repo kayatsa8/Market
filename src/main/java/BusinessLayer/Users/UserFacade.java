@@ -52,6 +52,8 @@ public class UserFacade {
     public Guest setGuest() throws Exception {
         Guest guest = new Guest();
         guests.put(Guest.GUEST_USER_ID--, guest);
+        if (userDAO == null)
+            userDAO = UserDAO.getUserDao();
         userDAO.save(guest);
         return guest;
     }
@@ -216,10 +218,12 @@ public class UserFacade {
         return true;
     }
 
-    public void loadUsers() throws Exception {
+    public void loadUsers() {
         if (userDAO == null)
             userDAO = UserDAO.getUserDao();
         users = userDAO.getUsers();
+        if (!users.isEmpty())
+            userID = Collections.max(users.keySet()) + 1;
     }
 
     public void addOwner(int userID, int userToAddID, int storeID) throws Exception {

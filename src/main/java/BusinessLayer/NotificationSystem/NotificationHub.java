@@ -28,7 +28,7 @@ public class NotificationHub {
 
 
     // object methods
-    public NotificationHub() {
+    public NotificationHub() throws Exception {
         mailboxes = new ConcurrentHashMap<>();
         dao = new NotificationHubDAO();
 
@@ -65,7 +65,6 @@ public class NotificationHub {
         }
         UserMailbox mailbox = new UserMailbox(user, this);
         mailboxes.putIfAbsent(userID, mailbox);
-
         dao.registerToMailService(mailbox);
 
         Log.log.info("NotificationHub::registerToMailService: user "

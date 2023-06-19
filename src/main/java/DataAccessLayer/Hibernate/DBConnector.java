@@ -23,7 +23,7 @@ public class DBConnector<T>{
         persistenceMap.put("javax.persistence.jdbc.password", configurations.getPassword());
         persistenceMap.put("javax.persistence.jdbc.driver", configurations.getDriver());
 
-        factory = Persistence.createEntityManagerFactory(configurations.getUnitName(), persistenceMap);
+        factory = null;
 
     }
 
@@ -31,6 +31,7 @@ public class DBConnector<T>{
      * start should be called before each non-basic query.
      */
     public void start(){
+        factory = Persistence.createEntityManagerFactory(configurations.getUnitName(), persistenceMap);
         manager = factory.createEntityManager();
     }
 
@@ -50,6 +51,7 @@ public class DBConnector<T>{
         manager.getTransaction().commit();
 
         manager.close();
+        factory.close();
     }
 
     /** Basic Query **/
@@ -65,6 +67,8 @@ public class DBConnector<T>{
 
         T object = singleValueQuery(query);
 
+        manager.close();
+        factory.close();
         return object;
     }
 
@@ -79,6 +83,8 @@ public class DBConnector<T>{
 
         List<T> all = manyValuesQuery(query);
 
+        manager.close();
+        factory.close();
         return all;
     }
 
@@ -97,6 +103,9 @@ public class DBConnector<T>{
         query.setParameter("_id", _id);
 
         noValueQuery(query);
+
+        manager.close();
+        factory.close();
     }
 
     /** Basic Query
@@ -114,6 +123,9 @@ public class DBConnector<T>{
         query.setParameter("_id", _id);
 
         noValueQuery(query);
+
+        manager.close();
+        factory.close();
     }
 
     /** Basic Query **/
@@ -127,6 +139,9 @@ public class DBConnector<T>{
         query.setParameter("_id", _id);
 
         noValueQuery(query);
+
+        manager.close();
+        factory.close();
     }
 
     /** Basic Query **/
@@ -138,6 +153,9 @@ public class DBConnector<T>{
         Query query = manager.createQuery(queryString);
 
         noValueQuery(query);
+
+        manager.close();
+        factory.close();
     }
 
     //send here an object after an update
@@ -165,6 +183,7 @@ public class DBConnector<T>{
         finally {
             // Close EntityManager
             manager.close();
+            factory.close();
         }
     }
 
@@ -187,6 +206,7 @@ public class DBConnector<T>{
         }
         finally{
             manager.close();
+            factory.close();
         }
 
         return object;
@@ -208,6 +228,7 @@ public class DBConnector<T>{
         }
         finally{
             manager.close();
+            factory.close();
         }
 
         return list;
@@ -231,6 +252,7 @@ public class DBConnector<T>{
         }
         finally{
             manager.close();
+            factory.close();
         }
     }
 
@@ -243,15 +265,4 @@ public class DBConnector<T>{
         noValueQuery(query);
     }
 
-    public int getMaxId() {
-        start();
-
-        String stringQuery = "SELECT max(x.id) " +
-                "FROM " + clazz.getName() + " x";
-
-        TypedQuery<T> query = manager.createQuery(stringQuery, clazz);
-        Integer object = (Integer) singleValueQuery(query);
-
-        return object;
-    }
 }

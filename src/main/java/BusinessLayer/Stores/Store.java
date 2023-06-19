@@ -80,7 +80,7 @@ public class Store {
     @Transient
     private ReceiptHandler receiptHandler;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "mailboxId")
     private StoreMailbox mailbox;
     @Transient
@@ -107,10 +107,7 @@ public class Store {
         this.policiesIDs = 0;
         this.storeManagers = new HashSet<>();
         this.storeOwners = new HashSet<>();
-        try {
-            this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(this);
-        } catch (Exception ignored) {
-        }
+        this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(this);
         log.info("Store " + storeID + " created with name: " + storeName);
     }
 

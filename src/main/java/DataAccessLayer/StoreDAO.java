@@ -13,8 +13,8 @@ import java.util.Map;
 //DB mock
 public class StoreDAO {
     ConnectorConfigurations config;
-    public StoreDAO() throws Exception {
-        config = Market.getInstance().getConfigurations();
+    public StoreDAO() {
+        config = Market.getConfigurations();
     }
     public DBConnector<Store> getStoreConnector() {
         return new DBConnector<>(Store.class, config);

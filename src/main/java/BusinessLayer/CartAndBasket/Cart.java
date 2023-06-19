@@ -46,7 +46,7 @@ public class Cart {
      * a constructor for registered user
      * @param _userID the id of the user
      */
-    public Cart(int _userID){
+    public Cart(int _userID) throws Exception {
         userID = _userID;
         baskets = new ArrayList<>();
         coupons = new ArrayList<>();
@@ -55,7 +55,7 @@ public class Cart {
     }
 
     //for tests with Mocks
-    public Cart(){
+    public Cart() throws Exception {
         userID = 1;
         baskets = new ArrayList<>();
         coupons = new ArrayList<>();
