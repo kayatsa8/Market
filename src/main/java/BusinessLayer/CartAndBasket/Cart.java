@@ -226,9 +226,9 @@ public class Cart {
      */
     public void empty(){
         try{
+            dao.empty(baskets, coupons);
             baskets.clear();
             coupons.clear();
-            dao.empty(baskets, coupons);
         }
         catch(Exception e){
             System.out.println("Cart::empty: " + e.getMessage());
