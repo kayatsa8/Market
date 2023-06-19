@@ -111,9 +111,11 @@ public abstract class User {
     }
 
     public Cart buyCart(PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) throws Exception {
-        if(System.getProperty("env").equals("test")){
-            receiptHandler.addReceipt(id, cart.buyCart(new PurchaseClientMock(true),
-                    new SupplyClientMock(true), purchaseInfo, supplyInfo));
+        if(System.getProperty("env") != null){
+            if(System.getProperty("env").equals("test")){
+                receiptHandler.addReceipt(id, cart.buyCart(new PurchaseClientMock(true),
+                        new SupplyClientMock(true), purchaseInfo, supplyInfo));
+            }
         }
         else
             receiptHandler.addReceipt(id, cart.buyCart(new PurchaseClient(), new SupplyClient(), purchaseInfo, supplyInfo));
