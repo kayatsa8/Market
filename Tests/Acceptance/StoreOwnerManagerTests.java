@@ -4,16 +4,15 @@ import ServiceLayer.Objects.CatalogItemService;
 import ServiceLayer.Objects.ReceiptService;
 import ServiceLayer.Objects.StoreService;
 import ServiceLayer.Objects.UserStaffInfoService;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.runners.MethodSorters;
 
 
 import java.util.List;
 
 import static org.junit.Assert.*;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class StoreOwnerManagerTests extends ProjectTest{
 
 
@@ -360,6 +359,43 @@ public class StoreOwnerManagerTests extends ProjectTest{
         List<ReceiptService> history = this.getSellingHistoryOfStore(-1, user2LoggedInId);
         assertNull(history);
     }
+
+
+
+    /**
+     * Approve Owner #60
+     */
+    @Test
+    public void ZZ1AddStoreOwner_NoOneConfirmed(){
+        int ownerId = setUser("UserNameasdasd", "pass34asA", MEMBER, LOGGED);
+
+        boolean res = defineStoreOwner(store2Id, user2LoggedInId, ownerId);
+        assertFalse(res);
+
+        //approveUser();
+
+        boolean approved = checkIfStoreOwner(ownerId, store2Id);
+        assertTrue(approved);
+        //not implemented yet
+        fail();
+    }
+
+    @Test
+    public void ZZ2AddStoreOwner_UserNotOwner(){
+        int ownerId = setUser("UserNameasdasdas", "pass34asA", MEMBER, LOGGED);
+
+        boolean res = defineStoreOwner(store2Id, user2LoggedInId, ownerId);
+        assertFalse(res);
+
+        //approveUser(NotOwnerID);
+
+        boolean approved = checkIfStoreOwner(ownerId, store2Id);
+        assertFalse(approved);
+    }
+
+
+
+
 
 
 

@@ -24,6 +24,10 @@ public class ConfigReader {
         public static final String DB_username="DB_username";
         public static final String DB_password = "DB_password";
         public static final String DB_driver="DB_driver";
+        public static final String ExternalSystems_URL="ExternalSystemsURL";
+        public static final String adminUserName="adminUserName";
+        public static final String adminPassword="adminPassword";
+
 
     }
 
@@ -63,4 +67,10 @@ public class ConfigReader {
     public String getDBDriver(){
         return getConfigDetail(ConfigProperties.DB_driver);
     }
+
+    public String getExternalSystemsURL(){
+        return getConfigDetail(ConfigProperties.ExternalSystems_URL);
+    }
+    public String getAdminUserName(){return getConfigDetail(ConfigProperties.adminUserName);}
+    public String getAdminPassword(){return getConfigDetail(ConfigProperties.adminPassword);}
 }

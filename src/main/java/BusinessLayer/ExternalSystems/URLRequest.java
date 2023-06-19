@@ -1,5 +1,7 @@
 package BusinessLayer.ExternalSystems;
 
+import PresentationLayer.initialize.ConfigReader;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -26,8 +28,8 @@ public abstract class URLRequest {
 
     public String getUrlResponse(StringBuilder query) throws IOException {
         try {
-            String urlString = "https://php-server-try.000webhostapp.com/";
-
+            //String urlString = "https://php-server-try.000webhostapp.com/";
+            String urlString = new ConfigReader().getExternalSystemsURL();
             URL url = new URL(urlString);
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
