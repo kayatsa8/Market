@@ -70,9 +70,9 @@ public class Receipt {
         dao.addItemToPAir(pair, item);
     }
 
-    public void addItemsTODAO(boolean newPair, ReceiptItem item, ItemsPair pair) throws Exception {
-        dao.addItems(this, pair, item, newPair);
-    }
+//    public void addItemsTODAO(boolean newPair, ReceiptItem item, ItemsPair pair) throws Exception {
+//        dao.addItems(this, pair, item, newPair);
+//    }
 
     public boolean itemExists(int userStoreId, int id){
         ItemsPair pair = (ItemsPair) Pair.searchPair(items, userStoreId);

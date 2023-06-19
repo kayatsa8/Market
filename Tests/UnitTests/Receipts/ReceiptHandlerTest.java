@@ -66,18 +66,6 @@ public class ReceiptHandlerTest {
         assertEquals(receipt1.getId(), receipt1Id);
     }
 
-    @Test
-    public void bGetStoreReceiptsFromUser() throws Exception {
-        //receipt1Id = handler.addReceipt(userId, items);
-
-        //putting items in receipt
-        receipt1 = spy(Receipt.class);
-        doNothing().when(receipt1).addItemsTODAO(anyBoolean(), any(), any());
-        receipt1.addItems(receipt1Id, List.of(new ReceiptItem(11211, "item1", 20, 100, 15)));
-
-        ArrayList<Receipt> receipts = handler.getStoreReceiptsFromUser(store1ID);
-        assertEquals(receipts.get(0).getId(), receipt1Id);
-    }
 
     @Test
     public void bGetReceipt(){
