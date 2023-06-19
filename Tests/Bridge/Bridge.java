@@ -476,4 +476,11 @@ public interface Bridge {
 
     boolean counterOffer(int storeID, int bidID, int replierUserID, double counterOffer);
     List<BidService> getUserBidsToReply(int userID);
+
+
+    boolean approveOwner(int approvingId, int newOwnerId);
+
+    public boolean rejectOwner(int newOwnerId);
+
+
 }

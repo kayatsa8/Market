@@ -22,6 +22,7 @@ import java.util.Map;
 
 public class RealBridge implements Bridge{
 
+
     public UserService userService;
     public ShoppingService shoppingService;
 
@@ -453,6 +454,22 @@ public class RealBridge implements Bridge{
         if(result == null)
             return null;
         return result.getValue();
+    }
+
+    @Override
+    public boolean approveOwner(int approvingId, int newOwnerId) {
+        Result<Boolean> res = null; // = shoppingService.approve()  //todo
+        if(res == null)
+            return false;
+        return false;
+    }
+
+    @Override
+    public boolean rejectOwner(int newOwnerId) {
+        Result<Boolean> res = null; // = shoppingService.approve()  //todo
+        if(res == null)
+            return false;
+        return false;
     }
 
 

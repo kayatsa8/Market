@@ -70,87 +70,6 @@ public class RegisteredUserTests extends ProjectTest{
 
 
     /**
-     * Rate an Item or a Store #19
-     */
-    /*@Test
-    public void rankAStore_Valid(){
-        boolean ranked = this.rankAStore(user4LoggedInId, store2Id, 5);
-        assertTrue(ranked);
-
-        double rank = this.getStoreRank(user2LoggedInId, store2Id);
-        assertEquals(5, rank, 0.0);
-    }
-
-    @Test
-    public void rankAStore_WrongRank(){
-        boolean ranked = this.rankAStore(user4LoggedInId, store2Id, 11);
-        assertFalse(ranked);
-    }
-
-    @Test
-    public void rankAnItemInStore_Valid(){
-        boolean ranked = this.rankAnItemInStore(user4LoggedInId, store2Id, item2Id, 5);
-        assertTrue(ranked);
-
-        double rank = this.getItemRank(user2LoggedInId, store2Id, item2Id);
-        assertTrue(rank == 5);
-    }*/
-
-    /**
-     * send request to store #20
-     */
-    /*
-    @Test
-    public void sendRequestToStore_Valid(){
-        String msg = "Item4 is not very good";
-        boolean sent = this.sendMsg(user2LoggedInId, store4Id, msg);
-        assertTrue(sent);
-
-        HashMap<Integer, List<String>> complaints = this.getMsgs(store4Id);
-        assertEquals(complaints.get(user7SystemManagerId).get(0), msg);
-    }
-
-    @Test
-    public void sendRequestToStore_WrongStore(){
-        String msg = "Msg Important";
-        boolean sent = this.sendMsg(user2LoggedInId, -1, msg);
-        assertFalse(sent);
-    }
-
-    @Test
-    public void sendRequestToStore_EmptyMsg(){
-        String msg = "";
-        boolean sent = this.sendMsg(user2LoggedInId, store4Id, msg);
-        assertFalse(sent);
-    }*/
-
-    /**
-     * Make a complaint #21
-     */
-    /*
-    @Test
-    public void makeAComplaint_Valid(){
-        this.sendComplaint(user4LoggedInId, "Complaint very very");
-
-        HashMap<Integer, String> complaints = this.getComplaints(user7SystemManagerId);
-        assertTrue(complaints.get(user4LoggedInId).contains("Complaint very very"));
-    }
-
-    @Test
-    public void makeAComplaint_WrongId(){
-        this.sendComplaint(-1, "Complaint very very2");
-        HashMap<Integer, String> complaints = this.getComplaints(user7SystemManagerId);
-        assertFalse(complaints.get(user4LoggedInId).contains("Complaint very very2"));
-    }
-
-    @Test
-    public void makeAComplaint_NoMsg(){
-        this.sendComplaint(user4LoggedInId, "");
-        HashMap<Integer, String> complaints = this.getComplaints(user7SystemManagerId);
-        assertFalse(complaints.get(user4LoggedInId).contains(""));
-    }*/
-
-    /**
      * Get Personal history purchase #22
      */
 //     @Test
@@ -173,51 +92,6 @@ public class RegisteredUserTests extends ProjectTest{
         List<ReceiptService> history = this.getPersonalHistory(user3NotLoggedInId);
         assertNull(history);
     }
-
-    /**
-     * show and edit personal information #23
-     */
-    /*
-    @Test
-    public void showPersonalInformation_Valid(){
-        List<String> info = this.showPersonalInformation(user2LoggedInId);
-        assertEquals(info.get(0), "User2");
-        assertEquals(info.get(1), "User2!");
-    }
-
-    @Test
-    public void showPersonalInformation_NotAMember(){
-        List<String> info = this.showPersonalInformation(user1GuestId);
-        assertNull(info);
-    }
-
-    //personal history need to be above
-     @Test
-    public void getPersonalHistory_Valid(){
-         List<ReceiptService> history = this.getPersonalHistory(user2LoggedInId);
-         assertNotNull(history);
-         assertFalse(true);
-
-         //assertTrue(history.get(0) );
-    }
-
-    @Test
-    public void changePassword_Valid(){
-        boolean changed = this.changePassword(user6ManagerOwnerOfStore2, "User6!", "User6!!");
-        assertTrue(changed);
-
-        List<String> info = this.showPersonalInformation(user6ManagerOwnerOfStore2);
-        assertEquals(info.get(0), "User6");
-        assertEquals(info.get(1), "User6!!");
-    }
-
-    @Test
-    public void changePassword_NotCorrectPassword(){
-        boolean changed = this.changePassword(user6ManagerOwnerOfStore2, "Us", "User6!!");
-        assertFalse(changed);
-    }*/
-
-
 
 
 

@@ -39,6 +39,17 @@ public class UserService {
             return new Result<>(true, e.getMessage());
         }
     }
+
+    public Result<Boolean> system_shutdown(int userID) {
+        try {
+            boolean res = market.system_shutdown(userID);
+            return new Result<>(false, res);
+        }
+        catch (Exception e) {
+            return new Result<Boolean>(true, e.getMessage());
+        }
+    }
+
     public Result<Integer> login(String userName, String pass) {
         try {
             int id=market.login(userName,pass);

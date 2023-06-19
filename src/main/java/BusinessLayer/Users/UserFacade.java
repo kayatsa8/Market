@@ -16,6 +16,7 @@ import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
+import PresentationLayer.initialize.ConfigReader;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -30,8 +31,8 @@ import java.util.stream.Collectors;
 public class UserFacade {
     private static final Logger log = Log.log;
     private final static int MIN_PASS_LENGTH = 6;
-    private final static String adminName = "admin";
-    private final static String adminPass = "adminpass";
+    private final static String adminName = new ConfigReader().getAdminUserName(); //"admin"
+    private final static String adminPass = new ConfigReader().getAdminPassword(); //"adminpass";
     public static int userID = 1000000;
     //    private Map<String, RegisteredUser> users;
     private Map<Integer, RegisteredUser> users;

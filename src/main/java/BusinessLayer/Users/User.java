@@ -3,6 +3,8 @@ package BusinessLayer.Users;
 import BusinessLayer.CartAndBasket.Basket;
 import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.CartAndBasket.CartItemInfo;
+import BusinessLayer.ExternalSystems.Mocks.PurchaseClientMock;
+import BusinessLayer.ExternalSystems.Mocks.SupplyClientMock;
 import BusinessLayer.ExternalSystems.Purchase.PurchaseClient;
 import BusinessLayer.ExternalSystems.PurchaseInfo;
 import BusinessLayer.ExternalSystems.Supply.SupplyClient;
@@ -33,12 +35,13 @@ public abstract class User {
     protected Cart cart;
     protected LocalDate bDay = null;
     protected String address = null;
-    @Transient
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "receiptHandlerId")
     protected ReceiptHandler receiptHandler;
     @OneToOne(cascade = CascadeType.ALL)
     protected UserMailbox mailbox;
     public User() throws Exception {
-        this.receiptHandler = new ReceiptHandler();
+
     }
     public User(int id) throws Exception {
         this.id = id;
@@ -109,7 +112,14 @@ public abstract class User {
     }
 
     public Cart buyCart(PurchaseInfo purchaseInfo, SupplyInfo supplyInfo) throws Exception {
-        receiptHandler.addReceipt(id, cart.buyCart(new PurchaseClient(), new SupplyClient(), purchaseInfo, supplyInfo));
+        if(System.getProperty("env") != null){
+            if(System.getProperty("env").equals("test")){ //for testing with mocks the external system
+                receiptHandler.addReceipt(id, cart.buyCart(new PurchaseClientMock(true),
+                        new SupplyClientMock(true), purchaseInfo, supplyInfo));
+            }
+        }
+        else
+            receiptHandler.addReceipt(id, cart.buyCart(new PurchaseClient(), new SupplyClient(), purchaseInfo, supplyInfo));
         return cart;
     }
 
@@ -159,5 +169,17 @@ public abstract class User {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public ReceiptHandler getReceiptHandler() {
+        return receiptHandler;
+    }
+
+    public void setReceiptHandler(ReceiptHandler receiptHandler) {
+        this.receiptHandler = receiptHandler;
+    }
+
+    public void setMailbox(UserMailbox mailbox) {
+        this.mailbox = mailbox;
     }
 }

@@ -38,7 +38,9 @@ public class ReceiptTest {
         items.add(item2FromStore1);
 
         receipt = spy(Receipt.class);
-        doNothing().when(receipt).addItemsTODAO(anyBoolean(), any(), any());
+
+        doNothing().when(receipt).addItemPairTODAO(any());
+        doNothing().when(receipt).addItemToPAirTODAO(any(), any());
 
         receipt.addItems(store1Id, items);
     }

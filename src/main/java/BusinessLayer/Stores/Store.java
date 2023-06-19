@@ -80,7 +80,8 @@ public class Store {
     private Map<Integer, Auction> auctions;
     @Transient
     private Map<Integer, Lottery> lotteries;
-    @Transient
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "receiptHandlerId")
     private ReceiptHandler receiptHandler;
     @OneToOne(cascade = CascadeType.ALL)
     private StoreMailbox mailbox;
@@ -160,10 +161,6 @@ public class Store {
         this.storeStatus = OPEN;
         this.storeManagers = new HashSet<>();
         this.storeOwners = new HashSet<>();
-//        try {
-//            this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(this);
-//        } catch (Exception ignored) {
-//        }
     }
 
     public Set<Appointment> getAppointments() {
@@ -1368,7 +1365,9 @@ public class Store {
 
     public String updateItemName(int itemID, String newName) throws Exception {
         if (isItemInCatalog(itemID)) {
-            return getItem(itemID).setName(newName);
+            String name = getItem(itemID).setName(newName);
+            storeDAO.updateItemName(getItem(itemID));
+            return name;
         }
         throw new Exception("Item with ID " + itemID + " is not exist in store " + storeName);
     }

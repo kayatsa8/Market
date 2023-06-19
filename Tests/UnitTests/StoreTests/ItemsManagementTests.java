@@ -23,7 +23,7 @@ public class ItemsManagementTests {
     public static void setUp() throws Exception {
         System.setProperty("env", "test");
         storeFacade = new StoreFacade();
-        store1 = new Store(1, 2, "Name");
+        store1 = new Store(1785, 2, "Name");
         store1 = spy(Store.class);
         doNothing().when(store1).addItemToStoreDAO(any());
     }

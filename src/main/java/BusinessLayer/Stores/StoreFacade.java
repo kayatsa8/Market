@@ -389,7 +389,8 @@ public class StoreFacade {
         Store store = getStore(storeID);
         if (!categoryPool.contains(forbiddenCategory))
         {
-            throw new Exception("Error: Category " + forbiddenCategory + " does not exists");
+            categoryPool.add(forbiddenCategory);
+            //throw new Exception("Error: Category " + forbiddenCategory + " does not exists");
         }
         return store.addPurchasePolicyForbiddenCategoryRule(forbiddenCategory);
     }

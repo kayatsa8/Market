@@ -31,7 +31,8 @@ public class BasketDAO {
     public void addItem(Basket basket, Basket.ItemWrapper wrapper, boolean wrapperPersistent) throws Exception {
         if (wrapperPersistent) {
             cartItemInfoDBConnector().saveState(wrapper.info);
-        } else {
+        }
+        else {
             itemWrapperDBConnector().insert(wrapper);
         }
 
@@ -43,8 +44,8 @@ public class BasketDAO {
     }
 
     public void removeItem(Basket.ItemWrapper wrapper) {
-        cartItemInfoDBConnector().delete(wrapper.getInfo().getId());
         itemWrapperDBConnector().delete(wrapper.getId());
+        cartItemInfoDBConnector().delete(wrapper.getInfo().getId());
     }
 
     public void saveItems(Basket basket) {
