@@ -1,4 +1,4 @@
-package PresentationLayer.initialize;
+package initialize;
 
 import ServiceLayer.Objects.CatalogItemService;
 import ServiceLayer.Result;

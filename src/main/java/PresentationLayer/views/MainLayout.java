@@ -247,7 +247,8 @@ public class MainLayout extends AppLayout implements NotificationObserver, Befor
             }
             Result<Integer> res = userService.addGuest();
             UserPL userPL = new UserPL();
-            userPL.setCurrUserID(res.getValue());
+            if(res.getValue()!=null)
+                userPL.setCurrUserID(res.getValue());
             currUsers.put(session.getId(), userPL);
             // Set the session attribute to indicate that the function has been called
             session.setAttribute("isNewTab", true);

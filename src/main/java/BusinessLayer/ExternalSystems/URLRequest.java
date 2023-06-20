@@ -1,6 +1,6 @@
 package BusinessLayer.ExternalSystems;
 
-import PresentationLayer.initialize.ConfigReader;
+import initialize.ConfigReader;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;

@@ -1,4 +1,4 @@
-package PresentationLayer.initialize;
+package initialize;
 
 import java.io.FileInputStream;
 import java.io.IOException;

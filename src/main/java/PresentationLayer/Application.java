@@ -1,22 +1,15 @@
 package PresentationLayer;
 
-import BusinessLayer.CartAndBasket.Cart;
 import BusinessLayer.ExternalSystems.PurchaseInfo;
 import BusinessLayer.ExternalSystems.SupplyInfo;
-import BusinessLayer.Market;
-import BusinessLayer.NotificationSystem.UserMailbox;
 import BusinessLayer.Stores.Store;
-import BusinessLayer.Users.Guest;
-import BusinessLayer.Users.RegisteredUser;
 import DataAccessLayer.Hibernate.ConnectorConfigurations;
 import DataAccessLayer.Hibernate.DBConnector;
-import PresentationLayer.initialize.ConfigReader;
-import PresentationLayer.initialize.Loader;
-import ServiceLayer.Objects.CatalogItemService;
+import initialize.ConfigReader;
+import initialize.Loader;
 import ServiceLayer.Objects.RuleService;
 import ServiceLayer.Result;
 import ServiceLayer.ShoppingService;
-import ServiceLayer.UserService;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.theme.Theme;
@@ -26,9 +19,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites.CONDITIONING;
 

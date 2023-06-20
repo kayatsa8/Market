@@ -391,7 +391,7 @@ public class StoreManagementView extends VerticalLayout {
         }).setVisible(hasPermission(store, StoreActionPermissions.INVENTORY));
         menu.addItem("View Discounts Of Store", e -> {
             viewDiscountsDialog(storesGrid);
-        });
+        }).setVisible(hasPermission(store, StoreActionPermissions.DISCOUNT_POLICY));
         menu.addItem("Close Store", event -> {
             closeStoreDialog();
         }).setVisible(!managerMode);  //only store founder

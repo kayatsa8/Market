@@ -9,7 +9,6 @@ import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.NotificationSystem.NotificationHub;
 import BusinessLayer.NotificationSystem.UserMailbox;
 import BusinessLayer.Receipts.Receipt.Receipt;
-import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.*;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
@@ -23,7 +22,7 @@ import DataAccessLayer.Hibernate.DBConnector;
 import Globals.FilterValue;
 import Globals.SearchBy;
 import Globals.SearchFilter;
-import PresentationLayer.initialize.ConfigReader;
+import initialize.ConfigReader;
 
 import java.time.LocalDate;
 import java.util.*;

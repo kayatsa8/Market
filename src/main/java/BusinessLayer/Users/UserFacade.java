@@ -8,15 +8,13 @@ import BusinessLayer.Log;
 import BusinessLayer.CartAndBasket.CartItemInfo;
 import BusinessLayer.MarketMock;
 import BusinessLayer.NotificationSystem.Chat;
-import BusinessLayer.NotificationSystem.Message;
 import BusinessLayer.NotificationSystem.Observer.NotificationObserver;
-import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.StorePermissions.StoreManager;
 import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.UserDAO;
-import PresentationLayer.initialize.ConfigReader;
+import initialize.ConfigReader;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

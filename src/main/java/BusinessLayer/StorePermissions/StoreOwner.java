@@ -67,9 +67,9 @@ public class StoreOwner extends StoreEmployees {
 
     public void addOwner(RegisteredUser newOwner) throws Exception {
         ownersIDefined.add(newOwner);
-        employeesDAO.save(this);
         StoreOwner owner = newOwner.addStoreOwnership(this);
         this.getStore().addOwner(owner);
+        employeesDAO.save(this);
     }
 
     public void addManager(RegisteredUser newManager) {
