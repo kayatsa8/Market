@@ -83,13 +83,13 @@ public class RegisteredUserTests extends ProjectTest{
 
     @Test
     public void getPersonalHistory_NoHistory(){
-        List<ReceiptService> history = this.getPersonalHistory(user1GuestId);
+        List history = this.getPersonalHistory(user1GuestId);
         assertNull(history);
     }
 
     @Test
     public void getPersonalHistory_NotLoggedIn(){
-        List<ReceiptService> history = this.getPersonalHistory(user3NotLoggedInId);
+        List history = this.getPersonalHistory(user3NotLoggedInId);
         assertNull(history);
     }
 
