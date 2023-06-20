@@ -202,7 +202,7 @@ public class StoreOwnerManagerTests extends ProjectTest{
      * Remove Store Owner #34   NotForVersion1
      */
     @Test
-    public void a13removeStoreOwner_Valid(){
+    public void removeStoreOwner_Valid(){
         int userToRemove = setUser("UsertoRemoveeee", "UsertoRemoveeee!!", MEMBER, LOGGED);
         defineStoreOwner(store2Id, user2LoggedInId, userToRemove);
         assertTrue(checkIfStoreOwner(userToRemove, store2Id));
@@ -215,7 +215,7 @@ public class StoreOwnerManagerTests extends ProjectTest{
     }
 
     @Test
-    public void a11removeStoreOwner_NotByTheRightManager(){
+    public void a13removeStoreOwner_NotByTheRightManager(){
         //User5 was positioned by User2 and he is removed by User6, error!
         boolean removed = this.removeStoreOwner(store2Id, user6OwnerOfStore2, user5ManagerOfStore2ToBeRemoved);
         assertFalse(removed);
@@ -366,46 +366,41 @@ public class StoreOwnerManagerTests extends ProjectTest{
      * Approve Owner #53
      */
     @Test
-    public void aaa1ApproveStoreOwner_NoOneConfirmed(){
+    public void a11ApproveStoreOwner_NoOneConfirmed(){
         int ownerId = setUser("UserNameasdasd", "pass34asA", MEMBER, LOGGED);
 
-        boolean res = appointOwner(store2Id, user2LoggedInId, ownerId);
-        assertTrue(res);
-
-        //approveUser(user6OwnerOfStore2, ownerId);
-
+        appointOwner(store2Id, user2LoggedInId, ownerId);
         boolean approved = checkIfStoreOwner(ownerId, store2Id);
+        assertFalse(approved);
+
+        approveOwner(store2Id, user6OwnerOfStore2, ownerId);
+
+        approved = checkIfStoreOwner(ownerId, store2Id);
         assertTrue(approved);
 
-//        int ownerId2 = setUser("UserNameasdasd2", "pass34asA", MEMBER, LOGGED);
-//        res = appointOwner(store2Id, user2LoggedInId, ownerId2);
-//        assertTrue(res);
-//        approved = checkIfStoreOwner(ownerId2, store2Id);
-//        assertFalse(approved);
     }
 
     @Test
-    public void aaa2ApproveStoreOwner_UserNotOwner(){
+    public void a12ApproveStoreOwner_UserNotOwner(){
         int ownerId = setUser("UserNameasdasdas", "pass34asA", MEMBER, LOGGED);
 
-        boolean res = defineStoreOwner(store2Id, user2LoggedInId, ownerId);
-        assertTrue(res);
+        boolean res = appointOwner(store2Id, -1, ownerId);
 
-        //approveUser(NotOwnerID);
+        assertFalse(res);
 
         boolean approved = checkIfStoreOwner(ownerId, store2Id);
-        assertTrue(approved);
+        assertFalse(approved);
     }
 
 
     @Test
-    public void aaa3rejectOwner_Valid(){
+    public void a11rejectOwner_Valid(){
         int ownerId = setUser("UserNameasdassdda", "pass34asA", MEMBER, LOGGED);
 
         boolean res = defineStoreOwner(store2Id, user2LoggedInId, ownerId);
         assertTrue(res);
 
-        //rejectUser(ownerId);
+        rejectOwner(store2Id, ownerId);
 
         boolean approved = checkIfStoreOwner(ownerId, store2Id);
         assertTrue(approved);

@@ -1544,9 +1544,11 @@ public class Store {
 
     public void removeAppointment(int userId) throws Exception {
         Appointment a = getAppointmentByNewOwnerId(userId);
-        appointmentDAO.removeAppointment(a);
-        appointments.remove(a);
-        storeDAO.save(this);
+        if(a!=null){
+            appointmentDAO.removeAppointment(a);
+            appointments.remove(a);
+            storeDAO.save(this);
+        }
     }
 
     private Appointment getAppointmentByNewOwnerId(int newOwnerId) {
