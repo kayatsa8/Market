@@ -5,6 +5,8 @@ import BusinessLayer.NotificationSystem.Repositories.ChatRepository;
 import BusinessLayer.StorePermissions.StoreEmployees;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.NotificationsSystemDAOs.MailboxDAO;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -16,6 +18,8 @@ public class StoreMailbox extends Mailbox{
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "ownerID")
+    @MapsId
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Store owner;
 
     public StoreMailbox(Store _owner, NotificationHub _hub) throws Exception {

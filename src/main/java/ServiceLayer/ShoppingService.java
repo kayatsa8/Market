@@ -7,6 +7,7 @@ import BusinessLayer.ExternalSystems.PurchaseInfo;
 import BusinessLayer.ExternalSystems.SupplyInfo;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.Receipts.Receipt.Receipt;
+import BusinessLayer.Stores.Appointment;
 import BusinessLayer.Stores.Bid;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
@@ -1148,4 +1149,53 @@ public class ShoppingService {
             return new Result<>(true, e.getMessage());
         }
     }
+
+    public Result<Boolean> addAppointment(int storeID,int creatorId,int newOwnerId){
+        try {
+            market.addAppointment(storeID,creatorId,newOwnerId);
+            market.acceptAppointment(storeID,creatorId,newOwnerId);
+            log.info("Succeeded to add appointment");
+            return new Result<Boolean>(false, true);
+        }
+        catch (Exception e) {
+            log.info("Failed to add appointment");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<List<AppointmentService>> getUserAppointments(int userID){
+        try {
+            List<AppointmentService> appointmentList;
+            appointmentList=market.getUserAppointments(userID).stream().map(AppointmentService::new).toList();
+            //log.info("Succeeded to getUserAppointments");
+            return new Result<>(false, appointmentList);
+        }
+        catch (Exception e) {
+            log.info("Failed to get User Appointments");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<Boolean> acceptAppointment(int storeID,int myId,int theOwnerId) {
+        try {
+            market.acceptAppointment(storeID, myId,theOwnerId);
+            //log.info("Succeeded to acceptAppointment");
+            return new Result<>(false, true);
+        }
+        catch (Exception e) {
+            log.info("Failed to acceptAppointment");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+    public Result<Boolean> rejectAppointment(int storeID, int theOwnerId){
+        try {
+            market.rejectAppointment(storeID, theOwnerId);
+            //log.info("Succeeded to rejectAppointment");
+            return new Result<>(false, true);
+        }
+        catch (Exception e) {
+            log.info("Failed to rejectAppointment");
+            return new Result<>(true, e.getMessage());
+        }
+    }
+
+
 }

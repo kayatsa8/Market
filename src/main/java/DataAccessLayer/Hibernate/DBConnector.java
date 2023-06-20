@@ -36,6 +36,7 @@ public class DBConnector<T>{
     }
 
     public EntityManager getManager(){
+        start();
         return manager;
     }
 

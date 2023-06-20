@@ -6,12 +6,15 @@ import BusinessLayer.MarketMock;
 import BusinessLayer.NotificationSystem.Chat;
 import BusinessLayer.StorePermissions.StoreActionPermissions;
 import BusinessLayer.StorePermissions.StoreManager;
+import BusinessLayer.StorePermissions.StoreOwner;
 import BusinessLayer.Stores.Conditions.LogicalCompositions.LogicalComposites;
 import BusinessLayer.Stores.Conditions.NumericCompositions.NumericComposites;
 import BusinessLayer.Stores.Policies.DiscountPolicy;
 import BusinessLayer.Stores.Discounts.Discount;
 import BusinessLayer.Stores.Discounts.DiscountsTypes.Visible;
 import BusinessLayer.Stores.Policies.PurchasePolicy;
+import BusinessLayer.Users.RegisteredUser;
+import DataAccessLayer.AppointmentDAO;
 import DataAccessLayer.StoreDAO;
 import Globals.FilterValue;
 import Globals.SearchBy;
@@ -40,7 +43,7 @@ public class StoreFacade {
     {
         Store newStore = new Store(storesIDs, founderID, name);
         stores.put(storesIDs++, newStore);
-//        storeDAO.addStore(newStore);
+        storeDAO.save(newStore);
         return newStore;
     }
     public Store addStore(int founderID, String name, MarketMock marketMock) throws Exception
@@ -735,5 +738,45 @@ public class StoreFacade {
         this.stores = storeDAO.getStores();
         if (!stores.isEmpty())
             this.storesIDs = Collections.max(stores.keySet()) + 1;
+    }
+
+    public Appointment addAppointment(int storeID, int creatorId, int newOwnerId) throws Exception {
+        if (storeID<0|creatorId<0|newOwnerId<0)
+            throw new Exception("id cant be negative");
+        Store store = getStore(storeID);
+        if (!checkIfStoreOwner(creatorId,store.getStoreID()))
+            throw new Exception("creator must be this store owner");
+        return store.addAppointment(creatorId, newOwnerId);
+    }
+
+    public void removeAppointment(int storeID, int userId) throws Exception {
+        Store store = getStore(storeID);
+        store.removeAppointment(userId);
+    }
+
+    public Set<Appointment> getUserAppointments(RegisteredUser user) {
+        Set<Appointment> appointmentList = new HashSet<>();
+        Set<Appointment> appointmentMap;
+        AppointmentDAO appointmentDAO = new AppointmentDAO();
+        appointmentMap = appointmentDAO.getAppointments();
+        for (Appointment appointment : appointmentMap) {
+            Map<Integer, Boolean> acceptMap = appointment.getAcceptMap();
+            if (acceptMap.containsKey(user.getId())) {
+                appointmentList.add(appointment);
+            }
+        }
+        return appointmentList;
+    }
+
+    public void rejectAppointment(int storeID, int theOwnerId) throws Exception {
+        Store store = getStore(storeID);
+        store.rejectAppointment(theOwnerId);
+    }
+
+    public boolean acceptAppointment(int storeID, int myId, int theOwnerId) throws Exception {
+        Store store = getStore(storeID);
+        if (store.acceptAppointment(myId, theOwnerId))
+            return true;
+        return false;
     }
 }

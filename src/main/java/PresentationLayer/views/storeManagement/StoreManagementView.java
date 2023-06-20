@@ -77,6 +77,7 @@ public class StoreManagementView extends VerticalLayout {
     Grid<StoreService> storesManagedGrid;
     Grid<BidService> bidsGrid;
 
+
     //uncomment
     boolean isStoreOwner;
     boolean isStoreManager;
@@ -147,8 +148,7 @@ public class StoreManagementView extends VerticalLayout {
 
         managerInfoGrid = new Grid();
         refreshManagerInfoGrid();
-        Map<Integer, StoreService> stores = shoppingService.getStoresIOwn(mainLayout.getCurrUserID()).getValue();
-        managerInfoGrid.addColumn(entry -> stores.get(entry.getKey()).getStoreName()).setHeader("Store").setSortable(true);
+        managerInfoGrid.addColumn(entry -> storesIOwn.get(entry.getKey()).getStoreName()).setHeader("Store").setSortable(true);
         managerInfoGrid.addColumn(entry -> userService.getUsername(entry.getValue())).setHeader("Manager").setSortable(true);
 
         for (String permission : shoppingService.possibleManagerPermissions()) {
@@ -163,9 +163,9 @@ public class StoreManagementView extends VerticalLayout {
     }
 
     private void refreshManagerInfoGrid() {
-        Map<Integer, StoreService> stores = shoppingService.getStoresIOwn(mainLayout.getCurrUserID()).getValue();
+        storesIOwn = shoppingService.getStoresIOwn(mainLayout.getCurrUserID()).getValue();
         Map<Integer, Integer> storeToManagerMap = new HashMap<>();
-        for (StoreService store : stores.values()) {
+        for (StoreService store : storesIOwn.values()) {
             for (Integer managerID : store.getManagers().keySet()) {
                 storeToManagerMap.put(store.getStoreId(), managerID);
             }
@@ -356,10 +356,17 @@ public class StoreManagementView extends VerticalLayout {
         Button createStore = new Button("Create Store", e -> createStoreDialog());
         owning.addContent(createStore);
 
-        Button getBids = new Button("Get Bids Waiting", e -> createBidDialog());
+        Button getBids = new Button("Get Pending Bids", e -> createBidDialog());
+        Button getAppointments = new Button("Get Pending Appointments", e -> {
+            new AppointmentDialog();
+            refreshStoreList();
+            updateStoresGrid();
+        });
 
-        storesDiv.add(getBids, accordion);
+        storesDiv.add(getBids,getAppointments, accordion);
     }
+
+
 
     private void addMenuItems(Grid<StoreService> storesGrid, boolean managerMode) {
         GridContextMenu<StoreService> menu = storesGrid.addContextMenu();
@@ -372,13 +379,10 @@ public class StoreManagementView extends VerticalLayout {
             }
         });
 
-//        menu.setDynamicContentHandler((item, contextMenuEvent) -> {
-//            menu.removeAll();
-            storesGrid.getDataProvider().fetch(new Query<>()).forEach(bean -> {
-                menu.removeAll();
-                addMenuItems(bean, menu, storesGrid, managerMode);
-            });
-//        }
+        storesGrid.getDataProvider().fetch(new Query<>()).forEach(bean -> {
+            menu.removeAll();
+            addMenuItems(bean, menu, storesGrid, managerMode);
+        });
     }
 
     private void addMenuItems(StoreService store, GridContextMenu<StoreService> menu, Grid<StoreService> storesGrid, boolean managerMode) {
@@ -593,8 +597,10 @@ public class StoreManagementView extends VerticalLayout {
     }
 
     private HorizontalLayout addButtons() {
-        Button addOwnerButton = new Button("Add Owner");
-        addOwnerButton.addClickListener(e -> addOwnerAction());
+        /*Button addOwnerButton = new Button("Add Owner");
+        addOwnerButton.addClickListener(e -> addOwnerAction());*/
+        Button addOwnerButton = new Button("Request to Add Owner");
+        addOwnerButton.addClickListener(e -> createAppointAction());
 
         Button addManagerButton = new Button("Add Manager");
         addManagerButton.addClickListener(e -> addManagerAction());
@@ -606,6 +612,31 @@ public class StoreManagementView extends VerticalLayout {
 
         horizontalLayout1.setAlignItems(FlexComponent.Alignment.BASELINE);
         return horizontalLayout1;
+    }
+
+    private void createAppointAction() {
+        int chosenUserId = getIdOfSelectedRow(userGrid);
+        int storeId = Integer.parseInt(storeSelectorAdd.getValue().split(":")[0]);
+
+        if (chosenUserId != -1) {
+            Result<Boolean> result =shoppingService.addAppointment(storeId,mainLayout.getCurrUserID(),chosenUserId);
+            //userService.addOwner(mainLayout.getCurrUserID(), chosenUserId, storeId);
+
+            if (result.isError()) {
+                printError("Error in addAppointment:\n" + result.getMessage());
+            } else {
+                if (result.getValue()) {
+                    printSuccess("Appointment added Successfully");
+                    refreshUserGrids();
+                    refreshStoreList();
+                    updateStoresGrid();
+                    refreshManagerInfoGrid();
+                } else {
+                    printError("Something went wrong");
+                }
+            }
+        }
+
     }
 
     private void addOwnerAction() {
@@ -696,7 +727,7 @@ public class StoreManagementView extends VerticalLayout {
     }
 
     private void printError(String errorMsg) {
-        Notification notification = Notification.show(errorMsg, 2000, Notification.Position.BOTTOM_CENTER);
+        Notification notification = Notification.show(errorMsg, 4000, Notification.Position.BOTTOM_CENTER);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
 
@@ -2330,7 +2361,7 @@ public class StoreManagementView extends VerticalLayout {
     }
 
     private void getStaffInfoDialog() {
-
+        //TODO add refresh
         Grid<Map.Entry<Integer, Integer>> staffInfo = new Grid<>();
         Dialog dialog = new Dialog();
         dialog.setDraggable(true);

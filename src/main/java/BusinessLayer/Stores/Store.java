@@ -31,6 +31,7 @@ import BusinessLayer.Stores.Discounts.DiscountsTypes.Visible;
 import BusinessLayer.Stores.Pairs.DiscountPair;
 import BusinessLayer.Stores.Policies.DiscountPolicy;
 import BusinessLayer.Stores.Policies.PurchasePolicy;
+import DataAccessLayer.AppointmentDAO;
 import DataAccessLayer.StoreDAO;
 import Globals.FilterValue;
 import Globals.SearchBy;
@@ -65,6 +66,8 @@ public class Store {
     private Set<StoreOwner> storeOwners;
     @OneToMany(mappedBy = "store", fetch = FetchType.EAGER)
     private Set<StoreManager> storeManagers;
+    @OneToMany(mappedBy = "storeId", fetch = FetchType.EAGER)
+    private Set<Appointment> appointments;
     @Transient
     private List<DiscountPair> discounts;
     @Transient
@@ -80,16 +83,18 @@ public class Store {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "receiptHandlerId")
     private ReceiptHandler receiptHandler;
-
     @OneToOne(cascade = CascadeType.ALL)
     private StoreMailbox mailbox;
     @Transient
     private StoreDAO storeDAO;
+    @Transient
+    private AppointmentDAO appointmentDAO;
 
     public Store(int storeID, int founderID, String name) throws Exception {
         this.storeID = storeID;
         this.storeName = name;
         this.storeDAO = new StoreDAO();
+        this.appointmentDAO = new AppointmentDAO();
         this.items = new HashSet<>();
         this.storeStatus = OPEN;
         this.founderID = founderID;
@@ -99,6 +104,7 @@ public class Store {
         this.auctions = new HashMap<>();
         this.lotteries = new HashMap<>();
         this.bids = new HashMap<>();
+        this.appointments = new HashSet<>();
         this.receiptHandler = new ReceiptHandler();
         this.bidsIDs = 0;
         this.lotteriesIDs = 0;
@@ -110,7 +116,6 @@ public class Store {
         this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(this);
         log.info("Store " + storeID + " created with name: " + storeName);
     }
-
     public Store(int storeID, int founderID, String name, MarketMock marketMock) throws Exception {
         this.storeID = storeID;
         this.storeName = name;
@@ -121,6 +126,7 @@ public class Store {
         this.auctions = new HashMap<>();
         this.lotteries = new HashMap<>();
         this.bids = new HashMap<>();
+        this.appointments = new HashSet<>();
         this.receiptHandler = new ReceiptHandler();
         this.bidsIDs = 0;
         this.lotteriesIDs = 0;
@@ -140,10 +146,12 @@ public class Store {
         this.purchasePolicies = new HashMap<>();
         this.discountPolicies = new HashMap<>();
         this.storeDAO = new StoreDAO();
+        this.appointmentDAO = new AppointmentDAO();
         this.items = new HashSet<>();
         this.auctions = new HashMap<>();
         this.lotteries = new HashMap<>();
         this.bids = new HashMap<>();
+        this.appointments = new HashSet<>();
         this.receiptHandler = new ReceiptHandler();
         this.bidsIDs = 0;
         this.lotteriesIDs = 0;
@@ -153,10 +161,14 @@ public class Store {
         this.storeStatus = OPEN;
         this.storeManagers = new HashSet<>();
         this.storeOwners = new HashSet<>();
-        try {
-//            this.mailbox = Market.getInstance().getNotificationHub().registerToMailService(this);
-        } catch (Exception ignored) {
-        }
+    }
+
+    public Set<Appointment> getAppointments() {
+        return appointmentDAO.getAppointments();
+    }
+
+    public void setAppointments(Set<Appointment> appointmentsList) {
+        this.appointments = appointmentsList;
     }
 
     public Set<CatalogItem> getItems() {
@@ -722,6 +734,7 @@ public class Store {
         items.add(newItem);
         addItemToStoreDAO(newItem);
         log.info("Added new item: " + itemName + ", at store " + storeID);
+        storeDAO.save(this);
         return newItem;
     }
 
@@ -744,6 +757,7 @@ public class Store {
 
         sendMsgToList(sendToList, "User " + userID + " made a purchase in store " + storeName + " where you are one of the owners");
         log.info("A basket was bought at store " + storeID);
+        storeDAO.save(this);
     }
 
     public void sendMsgToList(List<Integer> sendToList, String s) {
@@ -782,6 +796,7 @@ public class Store {
         } else {
             throw new Exception("You can't buy items from a permanently-closed store");
         }
+        storeDAO.save(this);
     }
 
     public void sendMsg(int userID, String message) {
@@ -870,6 +885,7 @@ public class Store {
                 }
             }
         }
+        storeDAO.save(this);
     }
 
     private void updateBasketPrices(List<CartItemInfo> basketItems) {
@@ -879,13 +895,13 @@ public class Store {
     }
 
 
-    //TODO: change the return type to boolean and fix all calls to here to check the return value.
     public void saveItemAmount(int itemID, int amountToSave) {
         CatalogItem item = getItem(itemID);
         int itemNewAmount = item.getAmount() - amountToSave;
         int itemNewSavedAmount = item.getSavedAmount() + amountToSave;
         item.setAmount(itemNewAmount);
         item.setSavedAmount(itemNewSavedAmount);
+        storeDAO.save(this);
     }
 
     public void reverseSavedItems(List<CartItemInfo> basketItems) throws Exception {
@@ -943,6 +959,7 @@ public class Store {
         bids.put(bidsIDs++, newBid);
         sendMsgToList(sendToList, "User " + userID + " offered new bid for item " + getItem(itemID).getItemName() + " at store " + storeName + " with price of " + offeredPrice + " while the original price is " + getItem(itemID).getPrice());
         log.info("Added new bid for item " + itemID + " at store " + storeID);
+        storeDAO.save(this);
         return newBid;
     }
 
@@ -1206,6 +1223,7 @@ public class Store {
             sendMsgToListAndUnavailable(sendToList, "Store " + storeName + " has closed");
 
             log.info("Store " + storeID + " closed");
+            storeDAO.save(this);
             return true;
         }
     }
@@ -1233,26 +1251,31 @@ public class Store {
             storeOwners = new HashSet<>();
             storeManagers = new HashSet<>();
             log.info("Store " + storeID + " is permanently closed");
+            storeDAO.save(this);
             return true;
         }
     }
 
     public void addManager(StoreManager manager) {
         this.storeManagers.add(manager);
+        storeDAO.save(this);
     }
 
     public void addOwner(StoreOwner user) {
         this.storeOwners.add(user);
+        storeDAO.save(this);
     }
 
     //Integer instead of int so that it removes by object not index
     public void removeManager(StoreManager manager) {
         this.storeManagers.remove(manager);
+        storeDAO.save(this);
     }
 
     //Integer instead of int so that it removes by object not index
     public void removeOwner(StoreOwner owner) {
         this.storeOwners.remove(owner);
+        storeDAO.save(this);
     }
 
     public CatalogItem removeItemFromStore(int itemID) throws Exception {
@@ -1269,6 +1292,7 @@ public class Store {
         if (haveActiveBids(itemID))
             throw new Exception("Someone participates in an bid for this item, please try again when the bid ends");
         removeItemFromDiscountsAndPolicies(itemID);
+        storeDAO.save(this);
         return removeItem(itemID);
     }
 
@@ -1501,5 +1525,66 @@ public class Store {
 
     public void cancelBid(int id) {
         removeBid(id);
+    }
+
+    public Appointment addAppointment(Integer creatorId, Integer newOwnerId) throws Exception {
+        //maybe check if store owners contains key
+        if (getOwnerIDs().contains(newOwnerId))
+            throw new Exception("This User is already a store Owner");
+        if (getAppointmentByNewOwnerId(newOwnerId)!=null)
+            throw new Exception("This User is already a candidate in this store!");
+        Appointment appointment = new Appointment(getOwnerIDs(), creatorId, storeID, newOwnerId);
+        appointments.add(appointment);
+        List<Integer> sendToList = getOwnerIDs();
+        sendMsgToList(sendToList, "User " + creatorId + " offered new appointment for user " + newOwnerId + " at store " + storeName);
+        storeDAO.save(this);
+        appointmentDAO.addAppointment(appointment);
+        return appointment;
+    }
+
+    public void removeAppointment(int userId) throws Exception {
+        Appointment a = getAppointmentByNewOwnerId(userId);
+        appointmentDAO.removeAppointment(a);
+        appointments.remove(a);
+        storeDAO.save(this);
+    }
+
+    private Appointment getAppointmentByNewOwnerId(int newOwnerId) {
+        List<Appointment> appointmentList=appointments.stream().filter(appointment -> appointment.getNewOwnerId()==newOwnerId).toList();
+        if (!appointmentList.isEmpty())
+            return appointmentList.get(0);
+        else
+            return null;
+    }
+
+    public void rejectAppointment(int theOwnerId) throws Exception {
+        removeAppointment(theOwnerId);
+        List<Integer> sendToList = getOwnerIDs();
+        sendMsgToList(sendToList, "Appointment of " + theOwnerId + " at store " + storeName + " was rejected");
+        storeDAO.save(this);
+    }
+
+    private void accept(int myId, int theNewOwnerId) throws Exception {
+        Appointment appointment=getAppointmentByNewOwnerId(theNewOwnerId);
+        if (appointment==null)
+            throw new Exception("cant find this appointment");
+        appointment.accept(myId);
+        storeDAO.save(this);
+    }
+
+    private boolean isAllAccepted(int newOwnerId) throws Exception {
+        Appointment appointment=getAppointmentByNewOwnerId(newOwnerId);
+        if (appointment==null)
+            throw new Exception("cant find this appointment");
+        else
+            return !appointment.getAcceptMap().containsValue(false);//at least one not yet accepted
+    }
+
+    public boolean acceptAppointment(int myId, int theOwnerId) throws Exception {
+        accept(myId, theOwnerId);
+        if (isAllAccepted(theOwnerId)) {
+            return true;
+        }
+        return false;
     }
 }

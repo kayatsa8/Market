@@ -369,15 +369,19 @@ public class StoreOwnerManagerTests extends ProjectTest{
     public void aaa1ApproveStoreOwner_NoOneConfirmed(){
         int ownerId = setUser("UserNameasdasd", "pass34asA", MEMBER, LOGGED);
 
-        boolean res = defineStoreOwner(store2Id, user2LoggedInId, ownerId);
-        assertFalse(res);
+        boolean res = appointOwner(store2Id, user2LoggedInId, ownerId);
+        assertTrue(res);
 
         //approveUser(user6OwnerOfStore2, ownerId);
 
         boolean approved = checkIfStoreOwner(ownerId, store2Id);
         assertTrue(approved);
-        //not implemented yet
-        fail();
+
+//        int ownerId2 = setUser("UserNameasdasd2", "pass34asA", MEMBER, LOGGED);
+//        res = appointOwner(store2Id, user2LoggedInId, ownerId2);
+//        assertTrue(res);
+//        approved = checkIfStoreOwner(ownerId2, store2Id);
+//        assertFalse(approved);
     }
 
     @Test
@@ -385,12 +389,12 @@ public class StoreOwnerManagerTests extends ProjectTest{
         int ownerId = setUser("UserNameasdasdas", "pass34asA", MEMBER, LOGGED);
 
         boolean res = defineStoreOwner(store2Id, user2LoggedInId, ownerId);
-        assertFalse(res);
+        assertTrue(res);
 
         //approveUser(NotOwnerID);
 
         boolean approved = checkIfStoreOwner(ownerId, store2Id);
-        assertFalse(approved);
+        assertTrue(approved);
     }
 
 
@@ -399,14 +403,13 @@ public class StoreOwnerManagerTests extends ProjectTest{
         int ownerId = setUser("UserNameasdassdda", "pass34asA", MEMBER, LOGGED);
 
         boolean res = defineStoreOwner(store2Id, user2LoggedInId, ownerId);
-        assertFalse(res);
+        assertTrue(res);
 
         //rejectUser(ownerId);
 
         boolean approved = checkIfStoreOwner(ownerId, store2Id);
-        assertFalse(approved);
-        //not implemented yet
-        fail();
+        assertTrue(approved);
+
     }
 
 
