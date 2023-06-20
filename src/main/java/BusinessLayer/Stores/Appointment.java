@@ -7,7 +7,7 @@ import java.util.Map;
 @Entity
 @IdClass(Appointmentid.class)
 public class Appointment {//should be per store
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "ownerID")
     @Column(name = "accepted")
     private Map<Integer,Boolean> acceptMap=new HashMap<>();//<ownerId,acceptOrNo>

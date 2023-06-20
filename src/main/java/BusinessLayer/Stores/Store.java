@@ -164,7 +164,7 @@ public class Store {
     }
 
     public Set<Appointment> getAppointments() {
-        return appointments;
+        return appointmentDAO.getAppointments();
     }
 
     public void setAppointments(Set<Appointment> appointmentsList) {
@@ -1543,7 +1543,9 @@ public class Store {
     }
 
     public void removeAppointment(int userId) throws Exception {
-        appointments.remove(getAppointmentByNewOwnerId(userId));
+        Appointment a = getAppointmentByNewOwnerId(userId);
+        appointmentDAO.removeAppointment(a);
+        appointments.remove(a);
         storeDAO.save(this);
     }
 

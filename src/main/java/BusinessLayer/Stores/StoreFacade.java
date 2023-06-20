@@ -14,6 +14,7 @@ import BusinessLayer.Stores.Discounts.Discount;
 import BusinessLayer.Stores.Discounts.DiscountsTypes.Visible;
 import BusinessLayer.Stores.Policies.PurchasePolicy;
 import BusinessLayer.Users.RegisteredUser;
+import DataAccessLayer.AppointmentDAO;
 import DataAccessLayer.StoreDAO;
 import Globals.FilterValue;
 import Globals.SearchBy;
@@ -753,17 +754,15 @@ public class StoreFacade {
         store.removeAppointment(userId);
     }
 
-    public List<Appointment> getUserAppointments(RegisteredUser user) {
-        List<Store> stores = user.getStoresIOwn().stream().map(StoreOwner::getStore).toList();
-        List<Appointment> appointmentList = new LinkedList<>();
+    public Set<Appointment> getUserAppointments(RegisteredUser user) {
+        Set<Appointment> appointmentList = new HashSet<>();
         Set<Appointment> appointmentMap;
-        for (Store store : stores) {
-            appointmentMap = store.getAppointments();
-            for (Appointment appointment : appointmentMap) {
-                Map<Integer, Boolean> acceptMap = appointment.getAcceptMap();
-                if (acceptMap.containsKey(user.getId())) {
-                    appointmentList.add(appointment);
-                }
+        AppointmentDAO appointmentDAO = new AppointmentDAO();
+        appointmentMap = appointmentDAO.getAppointments();
+        for (Appointment appointment : appointmentMap) {
+            Map<Integer, Boolean> acceptMap = appointment.getAcceptMap();
+            if (acceptMap.containsKey(user.getId())) {
+                appointmentList.add(appointment);
             }
         }
         return appointmentList;

@@ -2,15 +2,14 @@ package DataAccessLayer;
 
 import BusinessLayer.Market;
 import BusinessLayer.Stores.Appointment;
+import BusinessLayer.Stores.Appointmentid;
 import BusinessLayer.Stores.CatalogItem;
 import BusinessLayer.Stores.Store;
 import DataAccessLayer.Hibernate.ConnectorConfigurations;
 import DataAccessLayer.Hibernate.DBConnector;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import javax.persistence.EntityManager;
+import java.util.*;
 
 //DB mock
 public class AppointmentDAO {
@@ -28,12 +27,20 @@ public class AppointmentDAO {
     }
 
     public void removeAppointment(Appointment appointment) throws Exception {
-//        getConnector().d(appointment.getStoreId());
+//        Appointmentid key = new Appointmentid();
+//        key.setCreatorId(appointment.getCreatorId()); // Set the values of the composite key
+//        key.setStoreId(appointment.getStoreId());
+//        key.setNewOwnerId(appointment.getNewOwnerId());
+        DBConnector<Appointment> connector = getConnector();
+//        Appointment toRemove = connector.getManager().find(Appointment.class, key);
+        EntityManager m = connector.getManager();
+        Appointment toRemove = m.merge(appointment);
+        m.remove(toRemove);
     }
 
     public Set<Appointment> getAppointments() {
-        Set<Appointment> appointments = (Set<Appointment>) getConnector().getAll();
-        return appointments;
+        List<Appointment> appointments = getConnector().getAll();
+        return new HashSet<>(appointments);
     }
 
     public void save(Appointment appointment) {

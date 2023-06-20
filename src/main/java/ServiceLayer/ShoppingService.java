@@ -1170,7 +1170,7 @@ public class ShoppingService {
             return new Result<>(false, appointmentList);
         }
         catch (Exception e) {
-            log.info("Failed to getUserAppointments");
+            log.info("Failed to get User Appointments");
             return new Result<>(true, e.getMessage());
         }
     }

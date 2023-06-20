@@ -674,7 +674,7 @@ public class Market {
 //        appointmentManager.addAppointment(new Appointment(getOwnersByStore(storeID), creatorId, storeID, newOwnerId));
     }
 
-    public List<Appointment> getUserAppointments(int userID) throws Exception {
+    public Set<Appointment> getUserAppointments(int userID) throws Exception {
         RegisteredUser user = userFacade.getRegisteredUser(userID);
         return storeFacade.getUserAppointments(user);
     }
