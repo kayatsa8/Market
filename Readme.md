@@ -38,19 +38,19 @@ Each store has the following properties:
 
 ```json
 {
-  "adminsList": ["Amir", "Tomer"],
+  "adminsList": ["Amit", "Tamir"],
   "registeredUserList": [
     {
-      "username": "Sagi",
-      "password": "sagisPass",
+      "username": "Kayatsa",
+      "password": "kayatsasPass",
       "address": "addressOk",
       "bDay": "1999-07-11",
       "stores": [
         {
-          "founderName": "Sagi",
-          "storeName": "Sagi1 Store",
-          "ownersList": ["Tomer", "Amir"],
-          "managersList": ["Yonatan"],
+          "founderName": "Kayatsa",
+          "storeName": "Kayatsa1 Store",
+          "ownersList": ["Tamir", "Amit"],
+          "managersList": ["Avi"],
           "itemList": [
             {
               "itemName": "Eggs",
