@@ -1,16 +1,16 @@
 {
-  "adminsList": ["Amir","Tomer"],
+  "adminsList": ["Amit","Tamir"],
   "registeredUserList":
   [
     {
-      "username": "Amir",
-      "password": "amirsPass",
+      "username": "Amit",
+      "password": "amitsPass",
       "address": "addressOk",
       "bDay": "1999-07-11",
       "stores": [
         {
-          "founderName": "Amir",
-          "storeName": "amir1s Store",
+          "founderName": "Amit",
+          "storeName": "amit1s Store",
           "ownersList": [],
           "managersList": [],
           "itemList": [
@@ -40,30 +40,30 @@
       ]
     },
     {
-      "username": "Tomer",
-      "password": "tomersPass",
+      "username": "Tamir",
+      "password": "tamirsPass",
       "address": "addressOk",
       "bDay": "1999-07-11",
       "stores": []
     },
     {
-      "username": "Yonatan",
-      "password": "yonantansPass",
+      "username": "Avi",
+      "password": "avisPass",
       "address": "addressOk",
       "bDay": "1999-07-11",
       "stores": []
     },
     {
-      "username": "Sagi",
-      "password": "sagisPass",
+      "username": "Kayatsa",
+      "password": "kayatsaPass",
       "address": "addressOk",
       "bDay": "1999-07-11",
       "stores": [
         {
-          "founderName": "Sagi",
-          "storeName": "Sagi1 Store",
-          "ownersList": ["Tomer","Amir"],
-          "managersList": ["Yonatan"],
+          "founderName": "Kayatsa",
+          "storeName": "Kayatsa1 Store",
+          "ownersList": ["Tamir","Amit"],
+          "managersList": ["Avi"],
           "itemList": [
             {
               "itemName": "Eggs",
@@ -105,15 +105,15 @@
       ]
     },
     {
-      "username": "Meitar",
-      "password": "meitarsPass",
+      "username": "Meital",
+      "password": "meitalsPass",
       "address": "addressOk",
       "bDay": "1999-07-11",
       "stores": []
     },
     {
-      "username": "Maor",
-      "password": "maorsPass",
+      "username": "Manor",
+      "password": "manorsPass",
       "address": "addressOk",
       "bDay": "1999-07-11",
       "stores": []
