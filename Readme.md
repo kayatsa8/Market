@@ -1,6 +1,7 @@
 # Description
 ### This project is part of the Workshop course, which was done by 5 teammates, originally in our common repository.
 Market is an online store. Similar to other online stores, it supports buying and selling, store managing and system managing for admins. Market also supports real-time messaging.
+
 In our project we used Hibernate as ORM tool and Vaadin for UI.
 Below is the Original readme file.
 
